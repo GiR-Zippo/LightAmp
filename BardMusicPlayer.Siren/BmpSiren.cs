@@ -63,6 +63,24 @@ namespace BardMusicPlayer.Siren
         }
 
         /// <summary>
+        /// Sets the volume
+        /// </summary>
+        /// <param name="x"></param>
+        public int GetVolume()
+        {
+            return (int)(_mdev.AudioSessionManager.AudioSessionControl.SimpleAudioVolume.Volume * 100);
+        }
+
+        /// <summary>
+        /// Sets the volume
+        /// </summary>
+        /// <param name="x"></param>
+        public void SetVolume(float x)
+        {
+            _mdev.AudioSessionManager.AudioSessionControl.SimpleAudioVolume.Volume = x / 100;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         public bool IsReady => _player != null && _player.IsReady;
@@ -163,14 +181,6 @@ namespace BardMusicPlayer.Siren
             return this;
         }
 
-        /// <summary>
-        /// Sets the volume
-        /// </summary>
-        /// <param name="x"></param>
-        public void SetVolume(float x)
-        {
-            _mdev.AudioSessionManager.AudioSessionControl.SimpleAudioVolume.Volume = x / 100;
-        }
         /// <summary>
         /// Event fired when there is a lyric line.
         /// </summary>

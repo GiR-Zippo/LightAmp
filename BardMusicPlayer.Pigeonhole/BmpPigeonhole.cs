@@ -120,12 +120,12 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual global::System.Drawing.Size BmpSize { get; set; } = System.Drawing.Size.Empty;
 
         /// <summary>
-        /// Sets PlayAllTracks
+        /// The Ui version which should be used
         /// </summary>
         public virtual bool ClassicUi { get; set; } = true;
 
         /// <summary>
-        /// Sets PlayAllTracks
+        /// Sets/Gets last used skin
         /// </summary>
         public virtual string LastSkin { get; set; } = "";
 
@@ -169,8 +169,6 @@ namespace BardMusicPlayer.Pigeonhole
         /// </summary>
         public virtual BmpLog.Verbosity DefaultLogLevel { get; set; } = BmpLog.Verbosity.Info;
 
-#region Choreograph
-        public virtual bool IsChoreoHost { get; set; } = false;
-#endregion
+        public virtual bool SkinnedUi_UseExtendedView { get; set; } = false;
     }
 }

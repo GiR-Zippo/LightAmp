@@ -6,7 +6,7 @@
              xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-Width="Auto" Height="Auto" Loaded="Window_Loaded"
+            Width="Auto" Height="Auto" Loaded="Window_Loaded"
     Background="WhiteSmoke">
 
     <UserControl.Resources>
@@ -163,17 +163,8 @@ Width="Auto" Height="Auto" Loaded="Window_Loaded"
                                     <CheckBox Margin="10,0,0,0"  Grid.Row="3" x:Name="SkinUiBox" Content="Use skinned Ui" Unchecked="SkinUiBox_Checked" Checked="SkinUiBox_Checked"/>
                                 </Grid>
                             </GroupBox>
-                            <GroupBox Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Header="Dancer / Effect section">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <CheckBox Margin="10,10,0,0" Grid.Row="1" x:Name="Settings_EffectsHost"   Content="Effects host"   ToolTip="This player is giving the go to the dancers" Checked="Settings_EffectsHost_Checked" Unchecked="Settings_EffectsHost_Checked"/>
-                                    <Label Margin="10,0,0,0"     Grid.Row="3" Content="Only one bard can be the host!" HorizontalAlignment="Left"/>
-                                </Grid>
+                            <GroupBox Grid.Row="1" Grid.Column="1" Header="">
+
                             </GroupBox>
                         </Grid>
                     </TabItem>

@@ -28,7 +28,6 @@ namespace BardMusicPlayer.Ui.Classic
         public Classic_MainView()
         {
             InitializeComponent();
-
             //Always start with the playlists
             _showingPlaylists = true;
             //Fill the list

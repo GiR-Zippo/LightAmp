@@ -31,8 +31,6 @@ namespace BardMusicPlayer.Ui.Classic
             this.MIDI_Input_DeviceBox.SelectedIndex = BmpPigeonhole.Instance.MidiInputDev+1;
 
             this.SkinUiBox.IsChecked = !BmpPigeonhole.Instance.ClassicUi;
-
-            this.Settings_EffectsHost.IsChecked = BmpPigeonhole.Instance.IsChoreoHost;
         }
 
         private void Autostart_source_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -72,11 +70,6 @@ namespace BardMusicPlayer.Ui.Classic
         private void SkinUiBox_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.ClassicUi = !(SkinUiBox.IsChecked ?? true);
-        }
-
-        private void Settings_EffectsHost_Checked(object sender, RoutedEventArgs e)
-        {
-            BmpPigeonhole.Instance.IsChoreoHost = Settings_EffectsHost.IsChecked ?? false;
         }
     }
 }
