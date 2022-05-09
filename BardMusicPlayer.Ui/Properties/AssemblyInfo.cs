@@ -7,11 +7,11 @@ using System.Windows;
 // Allgemeine Informationen über eine Assembly werden über die folgenden
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die einer Assembly zugeordnet sind.
-[assembly: AssemblyTitle("BMPAmp")]
-[assembly: AssemblyDescription("Testversion of the BMP2.0 libs")]
+[assembly: AssemblyTitle("XIVAmp")]
+[assembly: AssemblyDescription("XIVAmp for the BoL")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("GiR-Zippo")]
-[assembly: AssemblyProduct("BMPAmp")]
+[assembly: AssemblyProduct("XIVAmp")]
 [assembly: AssemblyCopyright("Copyleft ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -51,5 +51,5 @@ using System.Windows;
 // Sie können alle Werte angeben oder Standardwerte für die Build- und Revisionsnummern verwenden,
 // indem Sie "*" wie unten gezeigt eingeben:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyVersion("0.14.0.0")]
+[assembly: AssemblyFileVersion("0.14.0.0")]
