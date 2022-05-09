@@ -45,6 +45,8 @@ namespace BardMusicPlayer.Ui.Skinned
             LoadSkin(BmpPigeonhole.Instance.LastSkin);
 
             _MainView_Ex = new Skinned_MainView_Ex();
+            if (BmpPigeonhole.Instance.SkinnedUi_UseExtendedView)
+                _MainView_Ex.Visibility = Visibility.Visible;
 
             //open the bards window
             _BardListView = new BardsWindow();
@@ -225,10 +227,6 @@ namespace BardMusicPlayer.Ui.Skinned
 
             Thread.Sleep(2475);
             PlaybackFunctions.PlaySong();
-
-            //Are we the Choreo host
-            if (BmpPigeonhole.Instance.IsChoreoHost)
-                BmpJamboree.Instance.SendPerformanceStart();
         }
 
         /// <summary>
@@ -354,6 +352,7 @@ namespace BardMusicPlayer.Ui.Skinned
                 _MainView_Ex.Top = (mainWindow.Top + mainWindow.Height);
                 _MainView_Ex.Left = mainWindow.Left;
             }
+            BmpPigeonhole.Instance.SkinnedUi_UseExtendedView = this._MainView_Ex.Visibility == Visibility.Visible ? true : false;
         }
 
         private void SetWindowPositions()

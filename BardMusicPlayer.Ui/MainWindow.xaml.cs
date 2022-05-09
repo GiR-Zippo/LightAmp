@@ -2,6 +2,7 @@
 using BardMusicPlayer.Ui.Classic;
 using System.Windows;
 using BardMusicPlayer.Pigeonhole;
+using System.Reflection;
 
 namespace BardMusicPlayer.Ui
 {
@@ -22,6 +23,7 @@ namespace BardMusicPlayer.Ui
 
         public void SwitchClassicStyle()
         {
+            this.Title = "XIVAmp Ver:" + Assembly.GetExecutingAssembly().GetName().Version;
             this.DataContext = new Classic_MainView();
             this.AllowsTransparency = false;
             this.WindowStyle = WindowStyle.SingleBorderWindow;

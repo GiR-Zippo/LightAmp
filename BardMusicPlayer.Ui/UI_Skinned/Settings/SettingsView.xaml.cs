@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using BardMusicPlayer.Jamboree;
 using BardMusicPlayer.Jamboree.Events;
 using System;
+using BardMusicPlayer.Siren;
+using BardMusicPlayer.Ui.Globals.SkinContainer;
+using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Skinned
 {
@@ -18,6 +21,9 @@ namespace BardMusicPlayer.Ui.Skinned
         public SettingsView()
         {
             InitializeComponent();
+            ApplySkin();
+            SkinContainer.OnNewSkinLoaded += SkinContainer_OnNewSkinLoaded;
+
             //Design Tab
             ClassicSkin.IsChecked = BmpPigeonhole.Instance.ClassicUi;
 
@@ -32,8 +38,46 @@ namespace BardMusicPlayer.Ui.Skinned
             //Syncsettings
             Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
 
-            //Effects
-            //this.Settings_EffectsHost.IsChecked = BmpPigeonhole.Instance.IsChoreoHost;
+            SirenVolume.Value = BmpSiren.Instance.GetVolume();
+        }
+
+        private void SkinContainer_OnNewSkinLoaded(object sender, EventArgs e)
+        { ApplySkin(); }
+
+        public void ApplySkin()
+        {
+            this.BARDS_TOP_LEFT.Fill = SkinContainer.SWINDOW[SkinContainer.SWINDOW_TYPES.SWINDOW_TOP_LEFT_CORNER];
+            this.BARDS_TOP_TILE.Fill = SkinContainer.SWINDOW[SkinContainer.SWINDOW_TYPES.SWINDOW_TOP_TILE];
+            this.BARDS_TOP_RIGHT.Fill = SkinContainer.SWINDOW[SkinContainer.SWINDOW_TYPES.SWINDOW_TOP_RIGHT_CORNER];
+
+            this.BARDS_BOTTOM_LEFT_CORNER.Fill = SkinContainer.SWINDOW[SkinContainer.SWINDOW_TYPES.SWINDOW_BOTTOM_LEFT_CORNER];
+            this.BARDS_BOTTOM_TILE.Fill = SkinContainer.SWINDOW[SkinContainer.SWINDOW_TYPES.SWINDOW_BOTTOM_TILE];
+            this.BARDS_BOTTOM_RIGHT_CORNER.Fill = SkinContainer.SWINDOW[SkinContainer.SWINDOW_TYPES.SWINDOW_BOTTOM_RIGHT_CORNER];
+
+            this.BARDS_LEFT_TILE.Fill = SkinContainer.SWINDOW[SkinContainer.SWINDOW_TYPES.SWINDOW_LEFT_TILE];
+            this.BARDS_RIGHT_TILE.Fill = SkinContainer.SWINDOW[SkinContainer.SWINDOW_TYPES.SWINDOW_RIGHT_TILE];
+
+            this.Close_Button.Background = SkinContainer.SWINDOW[SkinContainer.SWINDOW_TYPES.SWINDOW_CLOSE_SELECTED];
+            this.Close_Button.Background.Opacity = 0;
+
+        }
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void Close_Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+        private void Close_Button_Down(object sender, MouseButtonEventArgs e)
+        {
+            this.Close_Button.Background.Opacity = 1;
+        }
+        private void Close_Button_Up(object sender, MouseButtonEventArgs e)
+        {
+            this.Close_Button.Background.Opacity = 0;
         }
 
         #region DesignTab controls
@@ -94,6 +138,12 @@ namespace BardMusicPlayer.Ui.Skinned
 
             ((Skinned_MainView)System.Windows.Application.Current.MainWindow.DataContext).LoadSkin(openFileDialog.FileName);
             BmpPigeonhole.Instance.LastSkin = openFileDialog.FileName;
+        }
+
+        private void SirenVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            var g = SirenVolume.Value;
+            BmpSiren.Instance.SetVolume((float)g);
         }
     }
 }
