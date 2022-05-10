@@ -164,34 +164,36 @@ namespace BardMusicPlayer.Transmogrify.Song
             {
                 if (msong.bards.Count() == 0)
                     continue;
-
-                Parallel.ForEach(msong.bards, bard =>
+                else
                 {
-                    var thisTrack = new TrackChunk(new SequenceTrackNameEvent(Instrument.Parse(bard.instrument).Name));
-                    using (var manager = new TimedEventsManager(thisTrack.Events))
+                    Parallel.ForEach(msong.bards, bard =>
                     {
-                        TimedEventsCollection timedEvents = manager.Events;
-                        int last = 0;
-                        foreach (var note in bard.sequence)
+                        var thisTrack = new TrackChunk(new SequenceTrackNameEvent(Instrument.Parse(bard.instrument).Name));
+                        using (var manager = new TimedEventsManager(thisTrack.Events))
                         {
-                            if (note.Value == 254)
+                            TimedEventsCollection timedEvents = manager.Events;
+                            int last = 0;
+                            foreach (var note in bard.sequence)
                             {
-                                var pitched = last + 24;
-                                timedEvents.Add(new TimedEvent(new NoteOffEvent((Melanchall.DryWetMidi.Common.SevenBitNumber)pitched, (Melanchall.DryWetMidi.Common.SevenBitNumber)127), note.Key));
+                                if (note.Value == 254)
+                                {
+                                    var pitched = last + 24;
+                                    timedEvents.Add(new TimedEvent(new NoteOffEvent((Melanchall.DryWetMidi.Common.SevenBitNumber)pitched, (Melanchall.DryWetMidi.Common.SevenBitNumber)127), note.Key));
+                                }
+                                else
+                                {
+                                    var pitched = (Melanchall.DryWetMidi.Common.SevenBitNumber)note.Value + 24;
+                                    timedEvents.Add(new TimedEvent(new NoteOnEvent((Melanchall.DryWetMidi.Common.SevenBitNumber)pitched, (Melanchall.DryWetMidi.Common.SevenBitNumber)127), note.Key));
+                                    last = note.Value;
+                                }
                             }
-                            else
-                            {
-                                var pitched = (Melanchall.DryWetMidi.Common.SevenBitNumber)note.Value + 24;
-                                timedEvents.Add(new TimedEvent(new NoteOnEvent((Melanchall.DryWetMidi.Common.SevenBitNumber)pitched, (Melanchall.DryWetMidi.Common.SevenBitNumber)127), note.Key));
-                                last = note.Value;
-                            }
-
                         }
-                    }
-                    midiFile.Chunks.Add(thisTrack);
-                });
+                        midiFile.Chunks.Add(thisTrack);
+                    });
+                    break; //Only the first song for now
+                }
             }
-            midiFile.ReplaceTempoMap(TempoMap.Create(Tempo.FromBeatsPerMinute(26)));
+            midiFile.ReplaceTempoMap(TempoMap.Create(Tempo.FromBeatsPerMinute(25)));
             return CovertMidiToSong(midiFile, path);
         }
 
