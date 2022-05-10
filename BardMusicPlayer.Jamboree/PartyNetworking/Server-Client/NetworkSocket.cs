@@ -12,6 +12,7 @@ using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using ZeroTier.Sockets;
 
 namespace BardMusicPlayer.Jamboree.PartyNetworking
@@ -27,6 +28,9 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
         public Socket ConnectorSocket { get; set; } = null;
         private string _remoteIP = "";
 
+        Timer timer;
+        bool _await_pong = false;
+
         public NetworkSocket(string IP)
         {
             _ = ConnectTo(IP).ConfigureAwait(false);
@@ -34,7 +38,6 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
 
         public async Task<bool> ConnectTo(string IP)
         {
-            await Task.Delay(1500); //Just wait a while
             _remoteIP = IP;
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(IP), 12345);
             byte[] bytes = new byte[1024];
@@ -48,11 +51,14 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
             BmpJamboree.Instance.PublishEvent(new PartyConnectionChangedEvent(PartyConnectionChangedEvent.ResponseCode.OK, "Connected"));
 
             BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[NetworkSocket]: Send handshake\r\n"));
-            NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.CMSG_JOIN_PARTY);
-            buffer.WriteUInt8(FoundClients.Instance.Type);
-            buffer.WriteCString(FoundClients.Instance.OwnName);
-            SendPacket(buffer.GetData());
-                
+            SendPacket(ZeroTierPacketBuilder.MSG_JOIN_PARTY(FoundClients.Instance.Type, FoundClients.Instance.OwnName));
+
+            timer = new Timer();
+            timer.Interval = 10000;
+            timer.Elapsed += Timer_Elapsed;
+            timer.AutoReset = true;
+            timer.Enabled = true;
+
             return false;
         }
 
@@ -60,6 +66,20 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
         {
             ListenSocket = socket;
             PartyManager.Instance.Add(_clientInfo);
+        }
+
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (_await_pong)
+            {
+                _close = true;
+                timer.Enabled = false;
+                return;
+            }
+            NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.PING);
+            SendPacket(buffer.GetData());
+            _await_pong = true;
+            timer.Interval = 3000;
         }
 
         public bool Update()
@@ -131,10 +151,19 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
             NetworkPacket packet = new NetworkPacket(bytes);
             switch (packet.Opcode)
             {
-                case NetworkOpcodes.OpcodeEnum.CMSG_JOIN_PARTY:
+                case NetworkOpcodes.OpcodeEnum.MSG_JOIN_PARTY:
                     _clientInfo.Performer_Type = packet.ReadUInt8();
                     _clientInfo.Performer_Name = packet.ReadCString();
                     BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[SocketServer]: Received handshake from "+_clientInfo.Performer_Name+"\r\n"));
+                    break;
+                case NetworkOpcodes.OpcodeEnum.PING:
+                    BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[SocketServer]: Ping \r\n"));
+                    NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.PONG);
+                    SendPacket(buffer.GetData());
+                    break;
+                case NetworkOpcodes.OpcodeEnum.PONG:
+                    _await_pong = false;
+                    timer.Interval = 15000;
                     break;
                 default:
                     break;
@@ -144,7 +173,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
         private void clientOpcodeHandling(byte[] bytes, int bytesRec)
         {
             NetworkPacket packet = new NetworkPacket(bytes);
-            switch (packet.Opcode)
+            /*switch (packet.Opcode)
             {
                 case NetworkOpcodes.OpcodeEnum.SMSG_PERFORMANCE_START:
                     BmpJamboree.Instance.PublishEvent(new PerformanceStartEvent(packet.ReadInt64()));
@@ -165,15 +194,24 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                     break;
                 default:
                     break;
-            };
+            };*/
         }
 
         public void CloseConnection()
         {
-            ListenSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
-            ListenSocket.Close();
-            ConnectorSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
-            ConnectorSocket.Close();
+            try
+            {
+                ListenSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+                ListenSocket.Close();
+            }
+            catch { }
+
+            try
+            {
+                ConnectorSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+                ConnectorSocket.Close();
+            }
+            catch { }
             FoundClients.Instance.Remove(_remoteIP);
         }
 

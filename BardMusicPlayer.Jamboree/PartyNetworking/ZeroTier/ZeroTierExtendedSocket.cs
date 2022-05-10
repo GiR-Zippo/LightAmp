@@ -444,7 +444,9 @@ namespace ZeroTier.Sockets
 
             int flags = 0;
             IntPtr bufferPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-            return zts_bsd_sendto(_fd, bufferPtr + offset, (uint)Buffer.ByteLength(buffer), (int)flags, bcPtr, (ushort)Marshal.SizeOf(typeof(zts_sockaddr)));
+            var er = zts_bsd_sendto(_fd, bufferPtr + offset, (uint)Buffer.ByteLength(buffer), (int)flags, bcPtr, (ushort)Marshal.SizeOf(typeof(zts_sockaddr)));
+            Marshal.FreeHGlobal(bcPtr);
+            return er;
         }
 
         public int Available
@@ -484,15 +486,16 @@ namespace ZeroTier.Sockets
             }
             int flags = 0;
             IntPtr bufferPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-            return zts_bsd_recv(_fd, bufferPtr + offset, (uint)Buffer.ByteLength(buffer), (int)flags);
+            var er = zts_bsd_recv(_fd, bufferPtr + offset, (uint)Buffer.ByteLength(buffer), (int)flags);
+            return er;
         }
 
         public Int32 ReceiveFrom(Byte[] buffer)
         {
-            return ReceiveFrom(buffer, 0, buffer != null ? buffer.Length : 0, SocketFlags.None);
+            return ReceiveFrom(buffer, buffer != null ? buffer.Length : 0);
         }
 
-        public Int32 ReceiveFrom(byte[] buffer, int offset, int size, SocketFlags socketFlags)
+        public Int32 ReceiveFrom(byte[] buffer, int size)
         {
             if (_isClosed)
             {
@@ -506,19 +509,16 @@ namespace ZeroTier.Sockets
             {
                 throw new ArgumentNullException("buffer");
             }
-            if (size < 0 || size > buffer.Length - offset)
+            if (size < 0 || size > buffer.Length)
             {
                 throw new ArgumentOutOfRangeException("size");
             }
-            if (offset < 0 || offset > buffer.Length)
-            {
-                throw new ArgumentOutOfRangeException("offset");
-            }
             int broadcast = 0;
             IntPtr lpBuffer = Marshal.AllocHGlobal(broadcast);
-            int flags = 0;
             IntPtr bufferPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-            return zts_bsd_recvfrom(_fd, bufferPtr + offset, (uint)Buffer.ByteLength(buffer), (int)flags, IntPtr.Zero, lpBuffer);
+            var er = zts_bsd_recvfrom(_fd, bufferPtr, (uint)Buffer.ByteLength(buffer)-1, 0, IntPtr.Zero, lpBuffer);
+            Marshal.FreeHGlobal(lpBuffer);
+            return er;
         }
 
         public int ReceiveTimeout

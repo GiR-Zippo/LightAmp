@@ -8,13 +8,10 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
     {
         public enum OpcodeEnum : byte
         {
-            NULL_OPCODE = 0x00,
-            SMSG_PERFORMANCE_START = 0x01,
-            CMSG_TERM_SESSION = 0x02,
-            CMSG_JOIN_PARTY = 0x03,
-            SMSG_JOIN_PARTY = 0x04,
-            SMSG_PARTY_MEMBERS = 0x05,
-            SMSG_LEAVE_PARTY = 0x06
+            NULL_OPCODE             = 0x00,
+            PING                    = 0x01,
+            PONG                    = 0x02,
+            MSG_JOIN_PARTY          = 0x03
         }
     }
 
@@ -22,7 +19,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
     {
         public static byte[] PerformanceStart()
         {
-            NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.SMSG_PERFORMANCE_START);
+            NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.NULL_OPCODE);
             buffer.WriteInt64(DateTimeOffset.Now.ToUnixTimeMilliseconds());
             return buffer.GetData();
         }
@@ -35,9 +32,9 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
         /// <param name="type"></param>
         /// <param name="performer_name"></param>
         /// <returns>data as byte[]</returns>
-        public static byte[] CMSG_JOIN_PARTY(byte type, string performer_name)
+        public static byte[] MSG_JOIN_PARTY(byte type, string performer_name)
         {
-            NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.CMSG_JOIN_PARTY);
+            NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.MSG_JOIN_PARTY);
             buffer.WriteUInt8(type);
             buffer.WriteCString(performer_name);
             return buffer.GetData();
@@ -49,7 +46,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
         /// <param name="clients"></param>
         public static byte[] SMSG_PARTY_MEMBERS(List<PartyClientInfo> clients)
         {
-            NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.SMSG_PARTY_MEMBERS);
+            NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.NULL_OPCODE);
             buffer.WriteInt32(clients.Count);
             foreach (var member in clients)
             {
@@ -61,7 +58,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
 
         public static byte[] SMSG_LEAVE_PARTY(byte type, string performer_name)
         {
-            NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.SMSG_LEAVE_PARTY);
+            NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.NULL_OPCODE);
             buffer.WriteUInt8(type);
             buffer.WriteCString(performer_name);
             return buffer.GetData();

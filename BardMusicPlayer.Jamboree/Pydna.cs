@@ -1,4 +1,4 @@
-﻿using BardMusicPlayer.Jamboree.Events;
+using BardMusicPlayer.Jamboree.Events;
 using BardMusicPlayer.Jamboree.PartyNetworking;
 using ZeroTier;
 using System;

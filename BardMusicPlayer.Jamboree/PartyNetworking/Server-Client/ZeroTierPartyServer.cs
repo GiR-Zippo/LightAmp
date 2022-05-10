@@ -158,22 +158,25 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                     }
                 }
 
-                //Update the sessions
-                foreach (NetworkSocket session in sessions)
+                lock (sessions)
                 {
-                    if (!session.Update())
-                        removed_sessions.Add(session);
-                }
+                    //Update the sessions
+                    foreach (NetworkSocket session in sessions)
+                    {
+                        if (!session.Update())
+                            removed_sessions.Add(session);
+                    }
 
-                //Remove dead sessions
-                foreach (NetworkSocket session in removed_sessions)
-                {
-                    sessions.Remove(session);
+                    //Remove dead sessions
+                    foreach (NetworkSocket session in removed_sessions)
+                    {
+                        sessions.Remove(session);
+                    }
                 }
                 //And clear the list
                 removed_sessions.Clear();
 
-                //Keep the bushback list clean
+                //Keep the pushback list clean
                 List<string> delPushlist = new List<string>();
                 foreach (var data in _pushBacklist)
                 {

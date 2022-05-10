@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BardMusicPlayer.Jamboree.Events
+﻿namespace BardMusicPlayer.Jamboree.Events
 {
     /// <summary>
     /// Called only on host side

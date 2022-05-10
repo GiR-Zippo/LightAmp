@@ -1,4 +1,4 @@
-﻿using BardMusicPlayer.Jamboree.Events;
+using BardMusicPlayer.Jamboree.Events;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -100,7 +100,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                 {
                     string all = Encoding.ASCII.GetString(bytes, 0, bytesRec);
                     string f = all.Split(' ')[0];               //Get the init
-                    if (f.Equals("BMPAmp"))
+                    if (f.Equals("XIVAmp"))
                     {
                         string ip = all.Split(' ')[1];          //the IP
                         string version = all.Split(' ')[2];     //the version number
@@ -110,7 +110,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                 }
                 if (!this.disposing)
                 {
-                    string t = "BMPAmp " + Address + " " + version; //Send the init ip and version
+                    string t = "XIVAmp " + Address + " " + version; //Send the init ip and version
                     int p = transmitter.SendTo(iPEndPoint, Encoding.ASCII.GetBytes(t));
                     System.Threading.Thread.Sleep(3000);
                 }
