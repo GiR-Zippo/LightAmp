@@ -215,13 +215,15 @@
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Content="Song title:"/>
                             <Label Grid.Row="1" Grid.Column="4" Grid.ColumnSpan="4" x:Name="Siren_SongName" Content="No song loaded"/>
                             <Button Grid.Row="2" Grid.Column="1" x:Name="Siren_Load" Content="Load" Click="Siren_Load_Click" Height="20" Width="30" />
                             <Button Grid.Row="2" Grid.Column="2" x:Name="Siren_Play" Content="Play" Click="Siren_Play_Click" Height="20" Width="30" />
                             <Button Grid.Row="2" Grid.Column="3" x:Name="Siren_Stop" Content="Stop" Click="Siren_Stop_Click" Height="20" Width="30" />
-                            <!-- <Slider Grid.Row="2" Grid.RowSpan="2" Grid.Column="4" x:Name="Siren_Volume" Minimum="0" Maximum="3" Orientation="Vertical"  ValueChanged="Siren_Volume_ValueChanged"></Slider> -->
+                            <Label Grid.Row="1"                   Grid.Column="6" Content="Volume"/>
+                            <Slider Grid.Row="2" Grid.RowSpan="2" Grid.Column="6" x:Name="Siren_Volume" Minimum="0" Maximum="100" Orientation="Vertical"  ValueChanged="Siren_Volume_ValueChanged"></Slider>
                         </Grid>
                     </TabItem>
                 </TabControl>

@@ -289,6 +289,9 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void Start()
         {
+            if (performer.Count() == 0)
+                return;
+
             //if we are a not a local orchestra
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
@@ -305,6 +308,9 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void Pause()
         {
+            if (performer.Count() == 0)
+                return;
+
             //if we are a not a local orchestra
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
@@ -321,6 +327,9 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void Stop()
         {
+            if (performer.Count() == 0)
+                return;
+
             //if we are a not a local orchestra
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {

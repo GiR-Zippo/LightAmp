@@ -7,14 +7,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Transmogrify.Processor.Utilities;
 using BardMusicPlayer.Transmogrify.Song.Config;
 using BardMusicPlayer.Transmogrify.Song.Utilities;
 using LiteDB;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
+using Newtonsoft.Json;
 
 namespace BardMusicPlayer.Transmogrify.Song
 {
@@ -91,23 +94,111 @@ namespace BardMusicPlayer.Transmogrify.Song
             return Task.FromResult(midiFile);
         }
 
+        public static Task<BmpSong> OpenFile(string path)
+        {
+            BmpSong song = null;
+            if (Path.GetExtension(path).Equals(".mmsong"))
+                song = OpenMMSongFile(path);
+            else
+                song = OpenMidiFile(path);
+            return Task.FromResult(song);
+        }
+
         /// <summary>
         /// Open and process the midifile, tracks with note placed first
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static Task<BmpSong> OpenMidiFile(string path)
+        private static BmpSong OpenMidiFile(string path)
         {
-            var timer = new Stopwatch();
-            timer.Start();
-
             if (!File.Exists(path)) throw new BmpTransmogrifyException("File " + path + " does not exist!");
 
             using var fileStream = File.OpenRead(path);
 
             var midiFile = fileStream.ReadAsMidiFile();
-
             fileStream.Dispose();
+
+            return CovertMidiToSong(midiFile, path);
+        }
+
+        /// <summary>
+        /// Opens and process a mmsong file
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        private static BmpSong OpenMMSongFile(string path)
+        {
+            if (!File.Exists(path)) throw new BmpTransmogrifyException("File " + path + " does not exist!");
+
+            MMSongContainer songContainer = null;
+
+            FileInfo fileToDecompress = new FileInfo(path);
+            using (FileStream originalFileStream = fileToDecompress.OpenRead())
+            {
+                string currentFileName = fileToDecompress.FullName;
+                string newFileName = currentFileName.Remove(currentFileName.Length - fileToDecompress.Extension.Length);
+                using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        decompressionStream.CopyTo(memoryStream);
+                        memoryStream.Position = 0;
+                        var data = "";
+                        using (var reader = new StreamReader(memoryStream, System.Text.Encoding.ASCII))
+                        {
+                            string line;
+                            while ((line = reader.ReadLine()) != null)
+                            {
+                                data += line;
+                            }
+                        }
+                        memoryStream.Close();
+                        decompressionStream.Close();
+                        songContainer = JsonConvert.DeserializeObject<MMSongContainer>(data);
+                    }
+                }
+            }
+
+            MidiFile midiFile = new MidiFile();
+            foreach (MMSong msong in songContainer.songs)
+            {
+                if (msong.bards.Count() == 0)
+                    continue;
+
+                Parallel.ForEach(msong.bards, bard =>
+                {
+                    var thisTrack = new TrackChunk(new SequenceTrackNameEvent(Instrument.Parse(bard.instrument).Name));
+                    using (var manager = new TimedEventsManager(thisTrack.Events))
+                    {
+                        TimedEventsCollection timedEvents = manager.Events;
+                        int last = 0;
+                        foreach (var note in bard.sequence)
+                        {
+                            if (note.Value == 254)
+                            {
+                                var pitched = last + 24;
+                                timedEvents.Add(new TimedEvent(new NoteOffEvent((Melanchall.DryWetMidi.Common.SevenBitNumber)pitched, (Melanchall.DryWetMidi.Common.SevenBitNumber)127), note.Key));
+                            }
+                            else
+                            {
+                                var pitched = (Melanchall.DryWetMidi.Common.SevenBitNumber)note.Value + 24;
+                                timedEvents.Add(new TimedEvent(new NoteOnEvent((Melanchall.DryWetMidi.Common.SevenBitNumber)pitched, (Melanchall.DryWetMidi.Common.SevenBitNumber)127), note.Key));
+                                last = note.Value;
+                            }
+
+                        }
+                    }
+                    midiFile.Chunks.Add(thisTrack);
+                });
+            }
+            midiFile.ReplaceTempoMap(TempoMap.Create(Tempo.FromBeatsPerMinute(26)));
+            return CovertMidiToSong(midiFile, path);
+        }
+
+        private static BmpSong CovertMidiToSong(MidiFile midiFile, string path)
+        {
+            var timer = new Stopwatch();
+            timer.Start();
 
             var song = new BmpSong
             {
@@ -198,7 +289,7 @@ namespace BardMusicPlayer.Transmogrify.Song
 
             var timeTaken = timer.Elapsed;
             Console.WriteLine("Time taken: " + timeTaken.ToString(@"m\:ss\.fff"));
-            return Task.FromResult(song);
+            return song;
         }
     }
 }

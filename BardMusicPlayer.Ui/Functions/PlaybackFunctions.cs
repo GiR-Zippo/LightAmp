@@ -41,7 +41,7 @@ namespace BardMusicPlayer.Ui.Functions
 
             PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
 
-            return BmpSong.OpenMidiFile(openFileDialog.FileName).Result;
+            return BmpSong.OpenFile(openFileDialog.FileName).Result;
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace BardMusicPlayer.Ui.Functions
 
             PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
             
-            CurrentSong = BmpSong.OpenMidiFile(openFileDialog.FileName).Result;
+            CurrentSong = BmpSong.OpenFile(openFileDialog.FileName).Result;
             BmpMaestro.Instance.SetSong(openFileDialog.FileName);
             return true;
         }

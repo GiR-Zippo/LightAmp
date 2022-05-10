@@ -56,7 +56,7 @@ namespace BardMusicPlayer.Ui.Classic
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "MIDI file|*.mid;*.midi|All files (*.*)|*.*",
+                Filter = "MIDI file|*.mid;*.midi;*.mmsong|All files (*.*)|*.*",
                 Multiselect = true
             };
 
@@ -66,12 +66,13 @@ namespace BardMusicPlayer.Ui.Classic
             if (!openFileDialog.CheckFileExists)
                 return null;
 
-            return BmpSong.OpenMidiFile(openFileDialog.FileName).Result;
+            return BmpSong.OpenFile(openFileDialog.FileName).Result;
         }
-        /*private void Siren_Volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        
+        private void Siren_Volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            //Slider slider = e.OriginalSource as Slider;
-            // ((float)slider.Value, 2, 100);
-        }*/
+            Slider slider = e.OriginalSource as Slider;
+            BmpSiren.Instance.SetVolume((float)slider.Value);
+        }
     }
 }

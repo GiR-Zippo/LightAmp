@@ -176,6 +176,8 @@ namespace BardMusicPlayer.Ui.Skinned
 
         private void Reload_Button_Click(object sender, RoutedEventArgs e)
         {
+            if (_currentPlaylist == null)
+                return;
             _currentPlaylist.SetName(this.PlaylistName_Box.Text);
             BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
             PlaylistsContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
@@ -187,6 +189,8 @@ namespace BardMusicPlayer.Ui.Skinned
 
         private void Remove_Button_Click(object sender, RoutedEventArgs e)
         {
+            if (_currentPlaylist == null)
+                return;
             BmpCoffer.Instance.DeletePlaylist(_currentPlaylist);
             PlaylistsContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
         }

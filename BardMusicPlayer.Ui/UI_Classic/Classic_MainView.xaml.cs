@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Pigeonhole;
+using BardMusicPlayer.Siren;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -43,6 +44,7 @@ namespace BardMusicPlayer.Ui.Classic
             BmpSeer.Instance.ChatLog += Instance_ChatLog;
             BmpSeer.Instance.EnsembleStarted += Instance_EnsembleStarted;
 
+            Siren_Volume.Value = BmpSiren.Instance.GetVolume();
             LoadConfig();
         }
 
