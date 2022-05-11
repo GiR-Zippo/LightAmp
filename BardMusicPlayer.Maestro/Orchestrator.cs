@@ -305,8 +305,8 @@ namespace BardMusicPlayer.Maestro
             //if we are a not a local orchestra
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
-                var res = performer.AsParallel().Where(i => i.Value.HostProcess == true);
-                res.First().Value.Play(true);
+                var res = performer.Find(i => i.Value.HostProcess == true);
+                res.Value.Play(true);
             }
 
             foreach (var perf in performer)

@@ -215,7 +215,27 @@ namespace BardMusicPlayer.Maestro.Performance
                 if (game.ChatStatus && !forcePlayback)
                     return;
 
-                if (hotkeys.GetKeybindFromVoiceByte(programEvent.voice) is FFXIVKeybindDat.Keybind keybind)
+                int tone = -1;
+                switch (programEvent.voice)
+                {
+                    case 29: // overdriven guitar
+                        tone = 0;
+                        break;
+                    case 27: // clean guitar
+                        tone = 1;
+                        break;
+                    case 28: // muted guitar
+                        tone = 2;
+                        break;
+                    case 30: // power chords
+                        tone = 3;
+                        break;
+                    case 31: // special guitar
+                        tone = 4;
+                        break;
+                }
+
+                if (tone > -1 && tone < 5 && hotkeys.GetKeybindFromToneKey(tone) is FFXIVKeybindDat.Keybind keybind)
                     hook.SendSyncKeybind(keybind);
             }
         }

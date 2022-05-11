@@ -166,7 +166,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                     continue;
                 else
                 {
-                    Parallel.ForEach(msong.bards, bard =>
+                    foreach(var bard in msong.bards)
                     {
                         var thisTrack = new TrackChunk(new SequenceTrackNameEvent(Instrument.Parse(bard.instrument).Name));
                         using (var manager = new TimedEventsManager(thisTrack.Events))
@@ -189,7 +189,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                             }
                         }
                         midiFile.Chunks.Add(thisTrack);
-                    });
+                    };
                     break; //Only the first song for now
                 }
             }
