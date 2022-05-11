@@ -31,16 +31,26 @@ namespace BardMusicPlayer.Maestro
         public Game HostGame { get; set; } = null;
         private List<KeyValuePair<int, Performer>> performer { get; set; } = null;
 
+        private Dictionary<Game, bool> _foundGames { get; set; } = null;
+        private System.Timers.Timer _addPushedbackGamesTimer = null!;
+
         /// <summary>
         /// The constructor
         /// </summary>
         public Orchestrator()
         {
             performer = new List<KeyValuePair<int, Performer>>();
+            _foundGames = new Dictionary<Game, bool>();
             sequencer = new Sequencer();
-            BmpSeer.Instance.GameStarted += e => EnsureGameExists(e.Game);
-            BmpSeer.Instance.GameStopped += OnInstanceOnGameStopped;
+            BmpSeer.Instance.GameStarted += e => Instance_OnGameStarted(e.Game);
+            BmpSeer.Instance.GameStopped += Instance_OnGameStopped;
             BmpSeer.Instance.EnsembleRequested += Instance_EnsembleRequested;
+
+            _addPushedbackGamesTimer = new System.Timers.Timer();
+            _addPushedbackGamesTimer.Interval = 4000;
+            _addPushedbackGamesTimer.Enabled = false;
+            _addPushedbackGamesTimer.Elapsed += CheckFoundGames;
+
         }
 
         #region public
@@ -389,19 +399,19 @@ namespace BardMusicPlayer.Maestro
         /// Called if a game was found
         /// </summary>
         /// <param name="game">the found game</param>
-        private void EnsureGameExists(Game game)
+        private void Instance_OnGameStarted(Game game)
         {
             if (BmpSeer.Instance.Games.Count == 1)
-                _ = AddPerformer(game, true);
+                AddPerformer(game, true);
             else
-                _ = AddPerformer(game, false);
+                AddPerformer(game, false);
         }
 
         /// <summary>
         /// Called when a game was stopped
         /// </summary>
         /// <param name="g"></param>
-        private void OnInstanceOnGameStopped(Seer.Events.GameStopped g)
+        private void Instance_OnGameStopped(Seer.Events.GameStopped g)
         {
             RemovePerformer(g.Pid);
         }
@@ -434,30 +444,58 @@ namespace BardMusicPlayer.Maestro
         /// <param name="game">the game</param>
         /// <param name="IsHost">is it the host game</param>
         /// <returns></returns>
-        private async Task<bool> AddPerformer(Game game, bool IsHost)
+        private void AddPerformer(Game game, bool IsHost)
         {
             var result = performer.Find(kvp => kvp.Key == game.Pid);
             if (result.Key == game.Pid)
-                return true;
-            while (true)
+                return;
+ 
+            lock(_foundGames)
+            { 
+                if (!_foundGames.ContainsKey(game))
+                    _foundGames.Add(game, IsHost); 
+            }
+            _addPushedbackGamesTimer.Enabled = true;
+        }
+
+        /// <summary>
+        /// check if the ConfigId is kown and add the performer. Triggered by the Timer
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckFoundGames(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            List<Game> added = new List<Game>();
+            lock (_foundGames)
             {
-                if (game.ConfigId.Length > 0)
+                foreach (var game in _foundGames)
                 {
-                    //Bard is loaded and prepared
-                    Performer perf = new Performer(game);
-                    perf.HostProcess = IsHost;
-                    perf.Sequencer = sequencer;
-                    perf.TrackNumber = 1;
-                    performer.Add(new KeyValuePair<int, Performer>(game.Pid, perf));    //Add the performer
-                    BmpMaestro.Instance.PublishEvent(new PerformersChangedEvent());     //And trigger an event
-                    if(IsHost)
+                    if (game.Key.ConfigId.Length > 0)
                     {
-                        HostPid = game.Pid;
-                        HostGame = game;
+                        //Bard is loaded and prepared
+                        Performer perf = new Performer(game.Key);
+                        perf.HostProcess = game.Value;
+                        perf.Sequencer = sequencer;
+                        perf.TrackNumber = 1;
+                        lock (performer)
+                        {
+                            performer.Add(new KeyValuePair<int, Performer>(game.Key.Pid, perf));    //Add the performer
+                        }
+                        BmpMaestro.Instance.PublishEvent(new PerformersChangedEvent());     //And trigger an event
+                        if (game.Value)
+                        {
+                            HostPid = game.Key.Pid;
+                            HostGame = game.Key;
+                        }
+                        added.Add(game.Key);
                     }
-                    return true;
                 }
-                await Task.Delay(200);
+
+                foreach (Game g in added)
+                    _foundGames.Remove(g);
+
+                if (_foundGames.Count() <=0)
+                    _addPushedbackGamesTimer.Enabled = false;
             }
         }
 
@@ -467,16 +505,16 @@ namespace BardMusicPlayer.Maestro
         /// <param name="Pid"></param>
         private void RemovePerformer(int Pid)
         {
-            foreach (var perf in performer)
+            var result = performer.Find(i => i.Key == Pid);
+            if (result.Value == null)
+                return;
+
+            lock (performer)
             {
-                if (perf.Key == Pid)
-                {
-                    performer.Remove(perf);
-                    perf.Value.Close();
-                    BmpMaestro.Instance.PublishEvent(new PerformersChangedEvent());     //trigger the event
-                    return;
-                }
+                performer.Remove(result);
             }
+            result.Value.Close();
+            BmpMaestro.Instance.PublishEvent(new PerformersChangedEvent());     //trigger the event
         }
 
         /// <summary>

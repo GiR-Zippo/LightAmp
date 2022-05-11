@@ -24,7 +24,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
         {
             var result = new ChatLogResult();
 
-            if (!CanGetChatLog() || !MemoryHandler.IsAttached) return result;
+            if ((MemoryHandler==null) || !CanGetChatLog() || !MemoryHandler.IsAttached) return result;
 
             _chatLogReader.PreviousArrayIndex = previousArrayIndex;
             _chatLogReader.PreviousOffset     = previousOffset;
