@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,7 +12,7 @@ namespace ZeroTier
 {
     public class ZeroTierConnector
     {
-        public Node node = null;
+        Node node;
         private volatile bool nodeOnline = false;
 
         /// <summary>
@@ -94,9 +94,12 @@ namespace ZeroTier
             return Task.FromResult(result: ipAddress);
         }
 
-        public void ZeroTierDisconnect()
+        public void ZeroTierDisconnect(bool free)
         {
-            node.Stop();
+            if (free)
+                node.Free();
+            else
+                node.Stop();
         }
 
         private void ZeroTierEvent(Event e)
@@ -107,6 +110,10 @@ namespace ZeroTier
             if (e.Code == Constants.EVENT_NODE_ONLINE)
             {
                 nodeOnline = true;
+            }
+            if (e.Code == Constants.EVENT_PEER_PATH_DEAD)
+            {
+                Console.WriteLine("DEAD");
             }
             /*
         if (e.Code == ZeroTier.Constants.EVENT_NETWORK_OK) {

@@ -31,7 +31,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
 #if DEBUG
             Console.WriteLine("Dispose Called.");
 #endif
-            GC.SuppressFinalize(this);
+            //GC.SuppressFinalize(this);
         }
 
         private SocketRx svcRx { get; set; } = null;
@@ -61,7 +61,6 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
 
     }
 
-    //Receive
     public class SocketRx
     {
         public bool disposing = false;
@@ -93,6 +92,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
             listener.ReceiveTimeout = 10;
             listener.BSD_Bind(iPEndPoint);
             BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[Autodiscover]: Started\r\n"));
+            
             while (this.disposing == false)
             {
                 int bytesRec = listener.ReceiveFrom(bytes);
@@ -115,9 +115,11 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                     System.Threading.Thread.Sleep(3000);
                 }
             }
-            transmitter.Close();
-            listener.Close();
 
+            try { transmitter.Shutdown(System.Net.Sockets.SocketShutdown.Both); }
+            finally { transmitter.Close(); }
+            try { listener.Shutdown(System.Net.Sockets.SocketShutdown.Both); }
+            finally { listener.Close(); }
             BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[Autodiscover]: Stopped\r\n"));
             return;
         }

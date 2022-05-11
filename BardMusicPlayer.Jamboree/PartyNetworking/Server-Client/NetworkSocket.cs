@@ -24,11 +24,11 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
 
         public PartyClientInfo PartyClient { get { return _clientInfo; } }
 
-        public Socket ListenSocket { get; set; } = null;
-        public Socket ConnectorSocket { get; set; } = null;
+        public ZeroTierExtendedSocket ListenSocket { get; set; } = null;
+        public ZeroTierExtendedSocket ConnectorSocket { get; set; } = null;
         private string _remoteIP = "";
 
-        Timer timer;
+        Timer _timer;
         bool _await_pong = false;
 
         public NetworkSocket(string IP)
@@ -41,7 +41,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
             _remoteIP = IP;
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(IP), 12345);
             byte[] bytes = new byte[1024];
-            ConnectorSocket = new Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
+            ConnectorSocket = new ZeroTierExtendedSocket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
             //Connect to the server
             ConnectorSocket.Connect(localEndPoint);
             //Wait til connected
@@ -53,33 +53,33 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
             BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[NetworkSocket]: Send handshake\r\n"));
             SendPacket(ZeroTierPacketBuilder.MSG_JOIN_PARTY(FoundClients.Instance.Type, FoundClients.Instance.OwnName));
 
-            timer = new Timer();
-            timer.Interval = 10000;
-            timer.Elapsed += Timer_Elapsed;
-            timer.AutoReset = true;
-            timer.Enabled = true;
+            _timer = new Timer();
+            _timer.Interval = 10000;
+            _timer.Elapsed += _timer_Elapsed;
+            _timer.AutoReset = true;
+            _timer.Enabled = true;
 
             return false;
         }
 
-        internal NetworkSocket(Socket socket)
+        internal NetworkSocket(ZeroTierExtendedSocket socket)
         {
             ListenSocket = socket;
             PartyManager.Instance.Add(_clientInfo);
         }
 
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        private void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             if (_await_pong)
             {
                 _close = true;
-                timer.Enabled = false;
+                _timer.Enabled = false;
                 return;
             }
             NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.PING);
             SendPacket(buffer.GetData());
             _await_pong = true;
-            timer.Interval = 3000;
+            _timer.Interval = 3000;
         }
 
         public bool Update()
@@ -111,10 +111,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                         return false;
                     }
                     else
-                    {
-                            serverOpcodeHandling(bytes, bytesRec);
-                            clientOpcodeHandling(bytes, bytesRec);
-                    }
+                        OpcodeHandling(bytes, bytesRec);
                 }
                 catch (SocketException err)
                 {
@@ -146,16 +143,11 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
             _close = false;
         }
 
-        private void serverOpcodeHandling(byte[] bytes, int bytesRec)
+        private void OpcodeHandling(byte[] bytes, int bytesRec)
         {
             NetworkPacket packet = new NetworkPacket(bytes);
             switch (packet.Opcode)
             {
-                case NetworkOpcodes.OpcodeEnum.MSG_JOIN_PARTY:
-                    _clientInfo.Performer_Type = packet.ReadUInt8();
-                    _clientInfo.Performer_Name = packet.ReadCString();
-                    BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[SocketServer]: Received handshake from "+_clientInfo.Performer_Name+"\r\n"));
-                    break;
                 case NetworkOpcodes.OpcodeEnum.PING:
                     BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[SocketServer]: Ping \r\n"));
                     NetworkPacket buffer = new NetworkPacket(NetworkOpcodes.OpcodeEnum.PONG);
@@ -163,64 +155,39 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                     break;
                 case NetworkOpcodes.OpcodeEnum.PONG:
                     _await_pong = false;
-                    timer.Interval = 15000;
+                    _timer.Interval = 30000;
+                    break;
+                case NetworkOpcodes.OpcodeEnum.MSG_JOIN_PARTY:
+                    _clientInfo.Performer_Type = packet.ReadUInt8();
+                    _clientInfo.Performer_Name = packet.ReadCString();
+                    BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[SocketServer]: Received handshake from "+_clientInfo.Performer_Name+"\r\n"));
+                    break;
+                case NetworkOpcodes.OpcodeEnum.MSG_PLAY:
+                    BmpJamboree.Instance.PublishEvent(new PerformanceStartEvent(packet.ReadInt64(), true));
+                    break;
+                case NetworkOpcodes.OpcodeEnum.MSG_STOP:
+                    BmpJamboree.Instance.PublishEvent(new PerformanceStartEvent(packet.ReadInt64(), false));
+                    break;
+                case NetworkOpcodes.OpcodeEnum.MSG_SONG_DATA:
+                    System.Diagnostics.Debug.WriteLine("");
                     break;
                 default:
                     break;
             };
         }
 
-        private void clientOpcodeHandling(byte[] bytes, int bytesRec)
-        {
-            NetworkPacket packet = new NetworkPacket(bytes);
-            /*switch (packet.Opcode)
-            {
-                case NetworkOpcodes.OpcodeEnum.SMSG_PERFORMANCE_START:
-                    BmpJamboree.Instance.PublishEvent(new PerformanceStartEvent(packet.ReadInt64()));
-                    break;
-                case NetworkOpcodes.OpcodeEnum.SMSG_JOIN_PARTY:
-
-                    break;
-                case NetworkOpcodes.OpcodeEnum.SMSG_PARTY_MEMBERS:
-                    int count = packet.ReadInt32();
-                    for (int index = 0; index != count; index ++)
-                    {
-                        PartyClientInfo clientInfo = new PartyClientInfo();
-                        clientInfo.Performer_Type = packet.ReadUInt8();
-                        clientInfo.Performer_Name = packet.ReadCString();
-                        PartyManager.Instance.Add(clientInfo);
-                    }
-                    BmpJamboree.Instance.PublishEvent(new PartyChangedEvent());
-                    break;
-                default:
-                    break;
-            };*/
-        }
-
         public void CloseConnection()
         {
-            try
-            {
-                ListenSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
-                ListenSocket.Close();
-            }
-            catch { }
+            _await_pong = false;
+            _timer.Enabled = false;
+            ListenSocket.LingerState = new System.Net.Sockets.LingerOption(false, 10);
+            try { ListenSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both); }
+            finally { ListenSocket.Close(); }
 
-            try
-            {
-                ConnectorSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
-                ConnectorSocket.Close();
-            }
-            catch { }
+            ListenSocket.LingerState = new System.Net.Sockets.LingerOption(false, 10);
+            try { ConnectorSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both); }
+            finally { ConnectorSocket.Close(); }
             FoundClients.Instance.Remove(_remoteIP);
-        }
-
-        private void sendPartyMemberList()
-        {
-            List<PartyClientInfo> members = PartyManager.Instance.GetPartyMembers();
-            if (members.Count == 0)
-                return;
-            SendPacket(ZeroTierPacketBuilder.SMSG_PARTY_MEMBERS(members));
         }
     }
 }

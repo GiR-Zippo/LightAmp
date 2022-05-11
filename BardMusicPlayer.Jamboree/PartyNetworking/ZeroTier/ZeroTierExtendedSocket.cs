@@ -7,7 +7,7 @@ using ZeroTier;
 
 namespace ZeroTier.Sockets
 {
-    internal class ZeroTierExtendedSocket
+    public class ZeroTierExtendedSocket
     {
         /// <summary>No error.</summary>
         public static readonly int ZTS_ERR_OK = 0;
@@ -200,10 +200,13 @@ namespace ZeroTier.Sockets
             err = zts_bsd_bind(_fd, bcPtr, (ushort)Marshal.SizeOf(typeof(zts_sockaddr)));
             if (err < 0)
             {
+                int t = ErrNo;
+                Console.WriteLine(t);
                 throw new ZeroTier.Sockets.SocketException((int)err);
             }
             _localEndPoint = localEndPoint;
             _isBound = true;
+            Marshal.FreeHGlobal(bcPtr);
         }
 
         public void Listen(int backlog)
@@ -302,6 +305,18 @@ namespace ZeroTier.Sockets
             set
             {
                 zts_set_blocking(_fd, Convert.ToInt32(value));
+            }
+        }
+
+        public bool reuse_addr
+        {
+            get
+            {
+                return Convert.ToBoolean(zts_get_reuse_addr(_fd));
+            }
+            set
+            {
+                zts_set_reuse_addr(_fd, Convert.ToInt32(value));
             }
         }
 

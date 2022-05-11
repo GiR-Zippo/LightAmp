@@ -1,4 +1,4 @@
-﻿using BardMusicPlayer.Seer;
+using BardMusicPlayer.Seer;
 using BardMusicPlayer.Ui.Globals.SkinContainer;
 using Melanchall.DryWetMidi.Interaction;
 

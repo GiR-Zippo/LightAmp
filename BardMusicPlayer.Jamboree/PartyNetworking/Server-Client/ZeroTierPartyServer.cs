@@ -27,7 +27,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
 #if DEBUG
             Console.WriteLine("Dispose Called.");
 #endif
-            GC.SuppressFinalize(this);
+            //GC.SuppressFinalize(this);
         }
 
         private SocketServer svcWorker { get; set; } = null;
@@ -60,9 +60,9 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
         public bool disposing = false;
         public IPEndPoint iPEndPoint;
         public int ServerPort = 0;
-        Socket listener = null;
+        ZeroTierExtendedSocket listener = null;
         private BackgroundWorker worker = null;
-        private Dictionary<string, KeyValuePair<long, Socket> > _pushBacklist = new Dictionary<string, KeyValuePair<long, Socket> >();
+        private Dictionary<string, KeyValuePair<long, ZeroTierExtendedSocket> > _pushBacklist = new Dictionary<string, KeyValuePair<long, ZeroTierExtendedSocket> >();
 
         private List<NetworkSocket> sessions = new List<NetworkSocket>();
         List<NetworkSocket> removed_sessions = new List<NetworkSocket>();
@@ -85,11 +85,11 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
 
         public void Instance_Finished(object sender, string ip)
         {
-            KeyValuePair<long, Socket> val;
+            KeyValuePair<long, ZeroTierExtendedSocket> val;
             if (!_pushBacklist.TryGetValue(ip, out val))
                 return;
 
-            Socket handler = val.Value;
+            ZeroTierExtendedSocket handler = val.Value;
             if (AddClient(handler))
             {
                 _pushBacklist.Remove(ip);
@@ -98,7 +98,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
             
         }
 
-        private bool AddClient(Socket handler)
+        private bool AddClient(ZeroTierExtendedSocket handler)
         {
             IPEndPoint remoteIpEndPoint = handler.RemoteEndPoint as IPEndPoint;
             if (!FoundClients.Instance.IsIpInList(remoteIpEndPoint.Address.ToString()))
@@ -113,7 +113,10 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                 {
                     BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[SocketServer]: Session added\r\n"));
                     sockets.ListenSocket = handler;
-                    sessions.Add(sockets);
+                    lock (sessions)
+                    {
+                        sessions.Add(sockets);
+                    }
                     return true;
                 }
                 else
@@ -127,10 +130,11 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
 
         public void Start(object sender, DoWorkEventArgs e)
         {
-            listener = new Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
- 
+            System.Threading.Thread.Sleep(3000);
+            listener = new ZeroTierExtendedSocket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
             listener.Bind(iPEndPoint);
             listener.Listen(10);
+            BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[SocketServer]: Started\r\n"));
 
             while (this.disposing == false)
             {
@@ -140,7 +144,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                 if (listener.Poll(100, System.Net.Sockets.SelectMode.SelectRead))
                 {
                     //Incomming connection
-                    Socket handler = listener.Accept();
+                    ZeroTierExtendedSocket handler = listener.Accept();
                     bool isInList = false;
                     Parallel.ForEach(sessions, session =>
                     {
@@ -152,7 +156,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                         IPEndPoint remoteIpEndPoint = handler.RemoteEndPoint as IPEndPoint;
                         if (!AddClient(handler))
                         {
-                            KeyValuePair<long, Socket> val = new KeyValuePair<long, Socket>(DateTimeOffset.Now.ToUnixTimeSeconds(), handler );
+                            KeyValuePair<long, ZeroTierExtendedSocket> val = new KeyValuePair<long, ZeroTierExtendedSocket>(DateTimeOffset.Now.ToUnixTimeSeconds(), handler );
                             _pushBacklist.Add(remoteIpEndPoint.Address.ToString(), val);
                         }
                     }
@@ -180,7 +184,7 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                 List<string> delPushlist = new List<string>();
                 foreach (var data in _pushBacklist)
                 {
-                    KeyValuePair<long, Socket> val = data.Value;
+                    KeyValuePair<long, ZeroTierExtendedSocket> val = data.Value;
                     long currtime = DateTimeOffset.Now.ToUnixTimeSeconds();
 
                     if (val.Key+60 <= currtime)
@@ -208,7 +212,15 @@ namespace BardMusicPlayer.Jamboree.PartyNetworking
                 // Release the socket.
                 s.CloseConnection();
             }
-            listener.Close();
+
+            listener.KeepAlive = false;
+            try { listener.Shutdown(System.Net.Sockets.SocketShutdown.Both); }
+            finally 
+            { 
+                listener.Close(); 
+            }
+            
+            BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[SocketServer]: Stopped\r\n"));
             return;
         }
 
