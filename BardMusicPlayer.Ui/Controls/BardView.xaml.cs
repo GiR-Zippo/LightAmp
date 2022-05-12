@@ -1,6 +1,7 @@
 ﻿using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Maestro.Events;
 using BardMusicPlayer.Maestro.Performance;
+using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BardMusicPlayer.Seer.Events;
 using BardMusicPlayer.Ui.Functions;
@@ -20,6 +21,8 @@ namespace BardMusicPlayer.Ui.Controls
         public BardView()
         {
             InitializeComponent();
+            LocalOrchestra_CheckBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
+
             this.DataContext = this;
             Bards = new ObservableCollection<Performer>();
 
@@ -78,7 +81,6 @@ namespace BardMusicPlayer.Ui.Controls
             this.Dispatcher.BeginInvoke(new Action(() => this.BardsList.ItemsSource = Bards));
         }
 
-
         private void OpenInstrumentButton_Click(object sender, RoutedEventArgs e)
         {
             BmpMaestro.Instance.EquipInstruments();
@@ -132,6 +134,18 @@ namespace BardMusicPlayer.Ui.Controls
 
             var game = (sender as CheckBox).DataContext as Performer;
             BmpMaestro.Instance.SetHostBard(game);
+        }
+
+        private void PerfomerEnabledChecker_Checked(object sender, RoutedEventArgs e)
+        {
+            CheckBox ctl = sender as CheckBox;
+            var game = (sender as CheckBox).DataContext as Performer;
+            game.PerformerEnabled = ctl.IsChecked ?? false;
+        }
+
+        private void LocalOrchestra_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.LocalOrchestra = LocalOrchestra_CheckBox.IsChecked ?? true;
         }
     }
 }

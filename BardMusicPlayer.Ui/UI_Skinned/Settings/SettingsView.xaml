@@ -13,7 +13,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/XIVAmp;component/Resources/ImageButtonStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/LightAmp;component/Resources/ImageButtonStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 

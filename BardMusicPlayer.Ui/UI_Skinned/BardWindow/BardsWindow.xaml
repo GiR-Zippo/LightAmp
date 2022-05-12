@@ -8,13 +8,13 @@
         mc:Ignorable="d"
         Background="Transparent"
         WindowStyle="None"  ResizeMode="NoResize" 
-        Title="BardsWindow" Height="450" Width="400">
+        Title="BardsWindow" Height="450" Width="500">
 
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/XIVAmp;component/Resources/ImageButtonStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/LightAmp;component/Resources/ImageButtonStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 

@@ -523,6 +523,10 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         private void InitNewPerformance()
         {
+            if (_updaterTokenSource != null)
+                if(!_updaterTokenSource.IsCancellationRequested)
+                    _updaterTokenSource.Cancel();
+
             //if we have a local orchestra, spread the tracknumbers across the performers
             if ((!LocalOchestraInitialized) && BmpPigeonhole.Instance.LocalOrchestra)
             {
@@ -581,11 +585,13 @@ namespace BardMusicPlayer.Maestro
         /// <param name="token"></param>
         private async Task Updater(CancellationToken token)
         {
+            Performer perf = performer.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
             while (!token.IsCancellationRequested)
             {
                 //Get host performer
-                Performer perf = performer.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
-                if (perf != null)
+                if (perf == null)
+                    perf = performer.Find(perf => perf.Value.HostProcess).Value;
+                else
                     BmpMaestro.Instance.PublishEvent(new CurrentPlayPositionEvent(perf.Sequencer.CurrentTimeAsTimeSpan, perf.Sequencer.CurrentTick));
 
                 await Task.Delay(200, token);

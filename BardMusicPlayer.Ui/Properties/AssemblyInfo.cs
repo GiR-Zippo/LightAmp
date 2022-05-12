@@ -7,11 +7,11 @@ using System.Windows;
 // Allgemeine Informationen über eine Assembly werden über die folgenden
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die einer Assembly zugeordnet sind.
-[assembly: AssemblyTitle("XIVAmp")]
-[assembly: AssemblyDescription("XIVAmp for the BoL")]
+[assembly: AssemblyTitle("LightAmp")]
+[assembly: AssemblyDescription("LightAmp for the BoL")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("GiR-Zippo")]
-[assembly: AssemblyProduct("XIVAmp")]
+[assembly: AssemblyProduct("LightAmp")]
 [assembly: AssemblyCopyright("Copyleft ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

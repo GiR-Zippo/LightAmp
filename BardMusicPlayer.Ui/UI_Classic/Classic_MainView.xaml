@@ -12,7 +12,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/XIVAmp;component/Resources/ImageButtonStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/LightAmp;component/Resources/ImageButtonStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -74,12 +74,12 @@
                         </Grid.ColumnDefinitions>
                         <Button x:Name="PlaylistRepeat_Button" Grid.Column="1" Click="PlaylistRepeat_Button_Click" Opacity="0.5">
                             <Button.Background>
-                                <ImageBrush ImageSource="/XIVAmp;component/Resources/Images/ClassicLoop.png"/>
+                                <ImageBrush ImageSource="/LightAmp;component/Resources/Images/ClassicLoop.png"/>
                             </Button.Background>
                         </Button>
                         <Button x:Name="PlaylistShuffle_Button" Grid.Column="3" Click="PlaylistShuffle_Button_Click" Opacity="0.5">
                             <Button.Background>
-                                <ImageBrush ImageSource="/XIVAmp;component/Resources/Images/ClassicShuffle.png"/>
+                                <ImageBrush ImageSource="/LightAmp;component/Resources/Images/ClassicShuffle.png"/>
                             </Button.Background>
                         </Button>
                         <CheckBox Grid.Column="5" x:Name="AutoPlay_CheckBox" Checked="AutoPlay_Checked" Unchecked="AutoPlay_Checked" VerticalAlignment="Center"/>

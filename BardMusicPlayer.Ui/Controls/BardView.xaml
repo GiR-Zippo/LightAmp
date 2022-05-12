@@ -20,12 +20,15 @@
                 <ColumnDefinition Width="40"/>
                 <ColumnDefinition Width="40"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="10"/>
             </Grid.ColumnDefinitions>
             <Grid.Background>
                 <SolidColorBrush Color="White"/>
             </Grid.Background>
             <Button Grid.Column="1" Content="Open" ToolTip="Open Instruments" Click="OpenInstrumentButton_Click"/>
             <Button Grid.Column="2" Content="Close" ToolTip="Close Instruments" Click="CloseInstrumentButton_Click"/>
+            <CheckBox Grid.Column="4" Content="LocalOrchestra" x:Name="LocalOrchestra_CheckBox" VerticalAlignment="Center" HorizontalAlignment="Center" Unchecked="LocalOrchestra_Checked" Checked="LocalOrchestra_Checked"/>
         </Grid>
         <ListView x:Name="BardsList" Grid.Row="1" SelectedItem="{Binding SelectedBard}" SelectionChanged="BardsList_SelectionChanged" MouseDoubleClick="BardsList_MouseDoubleClick">
             <ListView.ItemTemplate>
@@ -43,8 +46,10 @@
                             <ColumnDefinition Width="140" />    <!-- 3 -->
                             <ColumnDefinition Width="10" />     <!-- 4 spacer-->
                             <ColumnDefinition Width="40" />     <!-- 5 -->
-                            <ColumnDefinition Width="40" />      <!-- 6 spacer-->
-                            <ColumnDefinition Width="25" />     <!-- 7 -->
+                            <ColumnDefinition Width="40" />     <!-- 6 spacer-->
+                            <ColumnDefinition Width="35" />     <!-- 7 -->
+                            <ColumnDefinition Width="15" />     <!-- 8 spacer-->
+                            <ColumnDefinition Width="40" />     <!-- 9 -->
                         </Grid.ColumnDefinitions>
 
                         <!--<materialDesign:PackIcon
@@ -57,12 +62,15 @@
 
                         <TextBlock Grid.Column="3" Grid.Row="1" Margin="12,0,0,0" Text="{Binding TrackInstrument, Mode=OneTime, StringFormat=m\\:ss}" />
 
-                        <TextBlock Grid.Column="5" Grid.Row="0" Text="Track" />
-                        <control:TrackNumericUpDown Grid.Column="5" Grid.Row="1"  x:Name="TrackControl"   PreviewMouseUp="TrackNumericUpDown_MouseUp"        Value="{Binding TrackNumber}"/>
+                        <TextBlock Grid.Column="5" Grid.Row="0" Text="Track" HorizontalAlignment="Center" />
+                        <control:TrackNumericUpDown Grid.Column="5" Grid.Row="1"  x:Name="TrackControl"   PreviewMouseUp="TrackNumericUpDown_MouseUp"   Value="{Binding TrackNumber}"/>
                         <control:OctaveNumericUpDown Grid.Column="6" Grid.Row="1" x:Name="OctaveControl"  PreviewMouseUp="OctaveControl_PreviewMouseUp" Value="{Binding OctaveShift}"/>
 
-                        <TextBlock Grid.Column="7" Grid.Row="0" Text="Host" HorizontalAlignment="Right"/>
-                        <CheckBox  Grid.Column="7" Grid.Row="1" x:Name="HostChecker" HorizontalAlignment="Right" Checked="HostChecker_Checked" IsChecked="{Binding HostProcess, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="7" Grid.Row="0" Text="Host" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <CheckBox  Grid.Column="7" Grid.Row="1" x:Name="HostChecker" HorizontalAlignment="Center" Checked="HostChecker_Checked" IsChecked="{Binding HostProcess, Mode=TwoWay}"/>
+
+                        <TextBlock Grid.Column="9" Grid.Row="0" Text="Enabled" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <CheckBox  Grid.Column="9" Grid.Row="1" x:Name="PerfomerEnabled" HorizontalAlignment="Center" Checked="PerfomerEnabledChecker_Checked" IsChecked="{Binding PerformerEnabled, Mode=TwoWay}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
