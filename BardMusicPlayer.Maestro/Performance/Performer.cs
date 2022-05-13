@@ -1,5 +1,4 @@
-﻿using BardMusicPlayer.Grunt;
-using BardMusicPlayer.Maestro.FFXIV;
+﻿using BardMusicPlayer.Maestro.FFXIV;
 using BardMusicPlayer.Maestro.Sequencing;
 using BardMusicPlayer.Maestro.Utils;
 using BardMusicPlayer.Pigeonhole;
@@ -7,12 +6,12 @@ using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Maestro.Performance
 {
     public class Performer
     {
-        private FFXIVKeybindDat hotkeys = new FFXIVKeybindDat();
         private FFXIVHotbarDat hotbar = new FFXIVHotbarDat();
         private FFXIVHook hook = new FFXIVHook();
 
@@ -36,11 +35,12 @@ namespace BardMusicPlayer.Maestro.Performance
         public string TrackInstrument 
         { 
             get {
-                    if (sequencer == null)
+                    if (sequencer == null || sequencer.LoadedBmpSong == null)
                         return "Unknown";
-                if (TrackNumber == 0)
-                    return Instrument.Piano;
-                return sequencer.GetTrackPreferredInstrument(TrackNumber).Name; // -1 cuz all tracks doesn't have an instrument
+                    if (TrackNumber == 0)
+                        return Instrument.Piano;
+                    Transmogrify.Song.Config.ClassicProcessorConfig classicConfig = (Transmogrify.Song.Config.ClassicProcessorConfig)sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].ConfigContainers[0].ProcessorConfig; // track -1 cuz track 0 isn't in this container
+                    return classicConfig.Instrument.Name;
                 }
         }
 
@@ -65,8 +65,6 @@ namespace BardMusicPlayer.Maestro.Performance
                         sequencer.Load(value.LoadedBmpSong, this.TrackNumber);
                         this.OctaveShift = +1;
                     }
-                    else if (value.LoadedFileType == Sequencer.FILETYPES.MidiFile)
-                        sequencer.Load(value.LoadedFilename, this.TrackNumber);
 
                     if (HostProcess)
                     {
@@ -97,7 +95,6 @@ namespace BardMusicPlayer.Maestro.Performance
             if (arg != null)
             {
                 hook.Hook(arg.Process, false);
-                hotkeys.LoadKeybindDat(arg.ConfigId);
                 hotbar.LoadHotbarDat(arg.ConfigId);
                 PId = arg.Pid;
                 game = arg;
@@ -154,19 +151,18 @@ namespace BardMusicPlayer.Maestro.Performance
                     return;
             }
 
-            if (hotkeys.GetKeybindFromNoteByte(note.note) is FFXIVKeybindDat.Keybind keybind)
+            if (note.note < 0 || note.note > 36)
+                return;
+
+            if(game.NoteKeys[(Quotidian.Enums.NoteKey)note.note] is Quotidian.Enums.Keys keybind)
             {
                 if (game.ChatStatus && !forcePlayback)
                     return;
 
                 if (BmpPigeonhole.Instance.HoldNotes)
-                {
                     hook.SendKeybindDown(keybind);
-                }
                 else
-                {
                     hook.SendAsyncKeybind(keybind);
-                }
             }
         }
 
@@ -175,15 +171,16 @@ namespace BardMusicPlayer.Maestro.Performance
             if (!this.PerformerEnabled)
                 return;
 
-            if (hotkeys.GetKeybindFromNoteByte(note.note) is FFXIVKeybindDat.Keybind keybind)
+            if (note.note < 0 || note.note > 36)
+                return;
+
+            if (game.NoteKeys[(Quotidian.Enums.NoteKey)note.note] is Quotidian.Enums.Keys keybind)
             {
                 if (game.ChatStatus && !forcePlayback)
                     return;
 
                 if (holdNotes)
-                {
                     hook.SendKeybindUp(keybind);
-                }
             }
         }
 
@@ -233,8 +230,8 @@ namespace BardMusicPlayer.Maestro.Performance
                         break;
                 }
 
-                if (tone > -1 && tone < 5 && hotkeys.GetKeybindFromToneKey(tone) is FFXIVKeybindDat.Keybind keybind)
-                    hook.SendSyncKeybind(keybind);
+                if (tone > -1 && tone < 5 && game.InstrumentToneMenuKeys[(Quotidian.Enums.InstrumentToneMenuKey)tone] is Quotidian.Enums.Keys keybind)
+                    hook.SendSyncKey(keybind);
             }
         }
 
@@ -313,11 +310,8 @@ namespace BardMusicPlayer.Maestro.Performance
         public void OpenInstrument()
         {
             // if we are the host, we do this by our own
-            if (HostProcess)
-            {
-                if (!game.Equals(Instrument.None))
-                    return;
-            }
+            if (!game.InstrumentHeld.Equals(Instrument.None))
+                return;
 
             // don't open instrument if we don't have anything loaded
             if (sequencer == null || sequencer.Sequence == null)
@@ -327,34 +321,31 @@ namespace BardMusicPlayer.Maestro.Performance
             if (TrackNumber == 0 || TrackNumber >= sequencer.Sequence.Count)
                 return;
 
-            _ = GameExtensions.EquipInstrument(game, TrackInstrument);
+            var t = Instrument.Parse(TrackInstrument);
+            hook.SendSyncKeybind(game.InstrumentKeys[t]);
         }
 
+        /// <summary>
+        /// Close the instrument
+        /// </summary>
         public void CloseInstrument()
         {
-            // if we are the host, we do this by our own
-            if (HostProcess)
-            {
-                if (game.InstrumentHeld.Equals(Instrument.None))
-                    return;
-            }
+            if (game.InstrumentHeld.Equals(Instrument.None))
+                return;
 
             hook.ClearLastPerformanceKeybinds();
-
-            _ = GameExtensions.EquipInstrument(game, Instrument.None);
+            hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
+                //performanceUp = false;
         }
 
+        /// <summary>
+        /// Accept the ready check
+        /// </summary>
         public void EnsembleAccept()
         {
-            _ = GameExtensions.AcceptEnsemble(game);
-        }
-
-        public void NoteKey(string noteKey)
-        {
-            if (hotkeys.GetKeybindFromNoteKey(noteKey) is FFXIVKeybindDat.Keybind keybind)
-            {
-                hook.SendAsyncKeybind(keybind);
-            }
+            hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
+            Task.Delay(200);
+            hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
         }
     }
 }

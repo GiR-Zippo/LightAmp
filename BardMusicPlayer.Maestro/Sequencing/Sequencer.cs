@@ -47,8 +47,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
         public enum FILETYPES
         {
             None = 0,
-            BmpSong = 1,
-            MidiFile =2
+            BmpSong = 1
         };
 
         FILETYPES loadedFileType = FILETYPES.None;
@@ -474,68 +473,9 @@ namespace BardMusicPlayer.Maestro.Sequencing
             if (bmpSong == null)
                 return;
 
-            var index = 1;
-            //create a midifile   
-            var midiFile = new Melanchall.DryWetMidi.Core.MidiFile();
-            //add the chunks
-            foreach (var data in bmpSong.TrackContainers)
-            {
-                //Set the channel for notes and progchanges
-                using (var manager = data.Value.SourceTrackChunk.ManageNotes())
-                {
-                    foreach (Note note in manager.Notes)
-                        note.Channel = Melanchall.DryWetMidi.Common.FourBitNumber.Parse(index.ToString());
-                }
-                using (var manager = data.Value.SourceTrackChunk.ManageTimedEvents())
-                {
-                    foreach (var e in manager.Events)
-                    {
-                        var programChangeEvent = e.Event as Melanchall.DryWetMidi.Core.ProgramChangeEvent;
-                        if (programChangeEvent == null)
-                            continue;
-                        programChangeEvent.Channel = Melanchall.DryWetMidi.Common.FourBitNumber.Parse(index.ToString());
-                    }
-                }
-                midiFile.Chunks.Add(data.Value.SourceTrackChunk);
-
-                if (data.Value.SourceTrackChunk.ManageNotes().Notes.Count() > 0)
-                    index++;
-            }
-
-            //and set the tempo map
-            midiFile.ReplaceTempoMap(bmpSong.SourceTempoMap);
-            var stream = new MemoryStream();
-            midiFile.Write(stream, Melanchall.DryWetMidi.Core.MidiFileFormat.MultiTrack, new Melanchall.DryWetMidi.Core.WritingSettings { });
-            stream.Flush();
-            stream.Position = 0;
-
             loadedFileType = FILETYPES.BmpSong;
             loadedBmpSong = bmpSong;
-            Sequence = new Sequence(DryWetUtil.ScrubMidi(midiFile));
-            load(Sequence, trackNum);
-            stream.Dispose();
-        }
-
-        public void Load(string file, int trackNum = 1)
-        {
-            if (!File.Exists(file))
-            {
-                throw new FileNotFoundException("Midi file does not exist.");
-            }
-
-            try
-            {
-                var temp = DryWetUtil.ScrubFile(file);
-                Sequence = new Sequence(temp);
-                temp.Dispose();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.StackTrace);
-                throw e;
-            }
-            loadedFileType = FILETYPES.MidiFile;
-            loadedFilename = file;
+            Sequence = new Sequence(bmpSong.GetSequencerMidi());
             load(Sequence, trackNum);
         }
 

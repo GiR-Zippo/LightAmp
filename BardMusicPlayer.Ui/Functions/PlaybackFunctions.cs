@@ -25,25 +25,6 @@ namespace BardMusicPlayer.Ui.Functions
         /// </summary>
         public static BmpSong CurrentSong { get; set; } = null;
 
-        public static BmpSong OpenAndGetSong()
-        {
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "MIDI file|*.mid;*.midi|All files (*.*)|*.*",
-                Multiselect = true
-            };
-
-            if (openFileDialog.ShowDialog() != true)
-                return null;
-
-            if (!openFileDialog.CheckFileExists)
-                return null;
-
-            PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
-
-            return BmpSong.OpenFile(openFileDialog.FileName).Result;
-        }
-
         /// <summary>
         /// Loads a midi file into the sequencer
         /// </summary>
@@ -52,7 +33,7 @@ namespace BardMusicPlayer.Ui.Functions
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "MIDI file|*.mid;*.midi|All files (*.*)|*.*",
+                Filter = "MIDI file|*.mid;*.midi;*.mmsong|All files (*.*)|*.*",
                 Multiselect = true
             };
 
@@ -65,7 +46,7 @@ namespace BardMusicPlayer.Ui.Functions
             PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
             
             CurrentSong = BmpSong.OpenFile(openFileDialog.FileName).Result;
-            BmpMaestro.Instance.SetSong(openFileDialog.FileName);
+            BmpMaestro.Instance.SetSong(CurrentSong);
             return true;
         }
 

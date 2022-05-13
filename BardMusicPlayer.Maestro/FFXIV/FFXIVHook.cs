@@ -151,7 +151,7 @@ namespace BardMusicPlayer.Maestro.FFXIV
 
         #endregion
 
-        public List<FFXIVKeybindDat.Keybind> lastPerformanceKeys = new List<FFXIVKeybindDat.Keybind>();
+        public List<Keys> lastPerformanceKeys = new List<Keys>();
 
         private IntPtr mainWindowHandle;
         private static MessageProc proc;
@@ -415,52 +415,39 @@ namespace BardMusicPlayer.Maestro.FFXIV
             SendInput((uint)keyList.Count, keyList.ToArray(), Marshal.SizeOf(typeof(INPUT)));
         }
 
-        public void SendAsyncKeybind(FFXIVKeybindDat.Keybind keybind)
+        public void SendAsyncKeybind(Keys keybind)
         {
-
-            SendAsyncKey(keybind.GetKey(), true, true, true);
+            SendAsyncKey(keybind, true, true, true);
         }
-        public void SendSyncKeybind(FFXIVKeybindDat.Keybind keybind)
+        public void SendSyncKeybind(Keys keybind)
         {
-            SendSyncKey(keybind.GetKey(), true, true, true);
-        }
-
-        public void SendTimedSyncKeybind(FFXIVKeybindDat.Keybind keybind)
-        {
-            SendTimedSyncKey(keybind.GetKey(), true, true, true);
+            SendSyncKey(keybind, true, true, true);
         }
 
-        public void SendKeybindDown(FFXIVKeybindDat.Keybind keybind)
+        public void SendTimedSyncKeybind(Keys keybind)
         {
-            if (keybind == null)
-            {
+            SendTimedSyncKey(keybind, true, true, true);
+        }
+
+        public void SendKeybindDown(Keys keybind)
+        {
+            if (keybind == Keys.None)
                 return;
-            }
-            Keys key = keybind.GetKey();
-            if (key == Keys.None)
-            {
-                return;
-            }
 
-            SendAsyncKey(key, true, true, false);
+            SendAsyncKey(keybind, true, true, false);
 
             if (!lastPerformanceKeys.Contains(keybind))
             {
                 lastPerformanceKeys.Add(keybind);
             }
         }
-        public void SendKeybindUp(FFXIVKeybindDat.Keybind keybind)
+
+        public void SendKeybindUp(Keys keybind)
         {
-            if (keybind == null)
-            {
+            if (keybind == Keys.None)
                 return;
-            }
-            Keys key = keybind.GetKey();
-            if (key == Keys.None)
-            {
-                return;
-            }
-            SendAsyncKey(key, true, false, true);
+
+            SendAsyncKey(keybind, true, false, true);
 
             if (lastPerformanceKeys.Contains(keybind))
             {
@@ -470,9 +457,9 @@ namespace BardMusicPlayer.Maestro.FFXIV
 
         public void ClearLastPerformanceKeybinds()
         {
-            foreach (FFXIVKeybindDat.Keybind keybind in lastPerformanceKeys.ToArray())
+            foreach (Keys keybind in lastPerformanceKeys.ToArray())
             {
-                SendSyncKey(keybind.GetKey(), true, false, true);
+                SendSyncKey(keybind, true, false, true);
             }
             lastPerformanceKeys.Clear();
         }

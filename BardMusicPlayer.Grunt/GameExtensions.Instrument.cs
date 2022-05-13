@@ -89,29 +89,5 @@ namespace BardMusicPlayer.Grunt
 
             return game.InstrumentToneHeld.Equals(instrumentToneWanted);
         }
-
-
-        public static Dictionary<int, Keys> GuitarKeyMap = new Dictionary<int, Keys> {
-            { 27, Keys.OemSemicolon }, // ElectricGuitarClean
-			{ 28, Keys.Oem2 }, // ElectricGuitarMuted
-			{ 29, Keys.Oem3 }, // ElectricGuitarOverdriven			
-			{ 30, Keys.Oem6 }, // ElectricGuitarPowerChords
-			{ 31, Keys.Oem7 }, // ElectricGuitarSpecial*/
-		};
-
-        /// <summary>
-        /// Switches the guitar tone by programnumber
-        /// </summary>
-        /// <param name="game"></param>
-        /// <param name="prognumber"></param>
-        /// <returns></returns>
-        public static async Task<bool> GuitarByPrognumber(this Game game, int prognumber)
-        {
-            if ((prognumber < 27) || (prognumber > 31))
-                return false;
-
-            return await SyncTapKey(game, GuitarKeyMap[prognumber]);
-        }
-
     }
 }
