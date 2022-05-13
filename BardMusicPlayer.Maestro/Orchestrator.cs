@@ -87,22 +87,6 @@ namespace BardMusicPlayer.Maestro
         }
 
         /// <summary>
-        /// load a midi file
-        /// </summary>
-        /// <param name="midifilename">full path and filename</param>
-        public void LoadMidiFile(string midifilename)
-        {
-            if (!BmpPigeonhole.Instance.LocalOrchestra)
-                LocalOchestraInitialized = false;
-
-            sequencer.Load(midifilename);
-
-            foreach (var perf in performer)
-                perf.Value.Sequencer = sequencer;
-            InitNewPerformance();
-        }
-
-        /// <summary>
         /// loads a BMPSong from the database
         /// </summary>
         /// <param name="song"></param>
@@ -594,7 +578,7 @@ namespace BardMusicPlayer.Maestro
                 else
                     BmpMaestro.Instance.PublishEvent(new CurrentPlayPositionEvent(perf.Sequencer.CurrentTimeAsTimeSpan, perf.Sequencer.CurrentTick));
 
-                await Task.Delay(200, token);
+                await Task.Delay(200, token).ContinueWith(tsk => { });
             }
             return;
         }

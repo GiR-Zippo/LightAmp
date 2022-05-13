@@ -69,7 +69,7 @@ namespace BardMusicPlayer.Maestro
                     catch
                     { }
                 }
-                await Task.Delay(25, token);
+                await Task.Delay(25, token).ContinueWith(tsk=> { });
             }
         }
 

@@ -259,7 +259,7 @@ namespace BardMusicPlayer.Seer
                     }
                 }
 
-                await Task.Delay(1, token);
+                await Task.Delay(1, token).ContinueWith(tsk=> { });
             }
         }
 

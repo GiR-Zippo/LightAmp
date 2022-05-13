@@ -149,16 +149,6 @@ namespace BardMusicPlayer.Maestro
         }
 
         /// <summary>
-        /// Sets the song for the sequencer
-        /// </summary>
-        /// <param name="filename">midi file with full path</param>
-        public void SetSong(string filename)
-        {
-           _orchestrator.Stop();
-           _orchestrator.LoadMidiFile(filename);
-        }
-
-        /// <summary>
         /// Change the tracknumber; 0 all tracks
         /// </summary>
         /// <param name="performer">the bard</param>

@@ -114,6 +114,7 @@ namespace BardMusicPlayer.Ui.Controls
             BmpMaestro.Instance.SetTracknumber(game, s);
         }
 
+        /* Octave UP/Down */
         private void OctaveControl_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             OctaveNumericUpDown ctl = sender as OctaveNumericUpDown;

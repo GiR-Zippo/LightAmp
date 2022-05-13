@@ -58,7 +58,7 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual string SongDirectory { get; set; } = "songs/";
 
         /// <summary>
-        /// Sets PlayAllTracks
+        /// hold long notes
         /// </summary>
         public virtual bool HoldNotes { get; set; } = true;
 

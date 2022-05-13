@@ -77,7 +77,7 @@ namespace BardMusicPlayer.Seer
                     PublishEvent(new SeerExceptionEvent(ex));
                 }
 
-                await Task.Delay(1, token);
+                await Task.Delay(1, token).ContinueWith(tsk => { });
             }
         }
 
