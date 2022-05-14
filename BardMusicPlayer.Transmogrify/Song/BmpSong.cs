@@ -552,7 +552,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                                 continue;
 
                             long newStart = _event.Time - delta;
-                            if (newStart < -1)
+                            if (newStart <= -1)
                                 manager.Events.Remove(_event);
                             else
                                 _event.Time = newStart;

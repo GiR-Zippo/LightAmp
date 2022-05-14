@@ -121,6 +121,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="10"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid Grid.Column="1" Grid.Row="1">
                                 <Label Content="AutoPlay via" HorizontalAlignment="Left"/>
@@ -132,6 +133,10 @@
                                     <ComboBoxItem>Metronome</ComboBoxItem>
                                 </ComboBox>
                             </Grid>
+                            <Grid Grid.Column="1" Grid.Row="2">
+                                <Label Content="MidiBard compat mode" HorizontalAlignment="Left"/>
+                            </Grid>
+                            <CheckBox Grid.Row="2" Grid.Column="2" x:Name="MidiBardComp" Content="metronome only" Unchecked="MidiBard_Checked" Checked="MidiBard_Checked" VerticalAlignment="Center"/>
                         </Grid>
                     </TabItem>
 

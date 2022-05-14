@@ -171,7 +171,11 @@ namespace BardMusicPlayer.Ui.Classic
             if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
                 return;
 
-            Thread.Sleep(2475);
+            if (BmpPigeonhole.Instance.MidiBardCompatMode)
+                Thread.Sleep(2475 + 3405);
+            else
+                Thread.Sleep(2475);
+
             PlaybackFunctions.PlaySong();
             Play_Button_State(true);
         }

@@ -37,6 +37,7 @@ namespace BardMusicPlayer.Ui.Skinned
 
             //Syncsettings
             Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
+            this.MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
 
             SirenVolume.Value = BmpSiren.Instance.GetVolume();
         }
@@ -122,6 +123,10 @@ namespace BardMusicPlayer.Ui.Skinned
         {
             int d = Autostart_source.SelectedIndex;
             BmpPigeonhole.Instance.AutostartMethod = (int)d;
+        }
+        private void MidiBard_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.MidiBardCompatMode = MidiBardComp.IsChecked ?? false;
         }
         #endregion
 
