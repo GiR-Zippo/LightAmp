@@ -305,34 +305,6 @@ namespace BardMusicPlayer.Maestro.Sequencing
             }
         }
 
-        public string ProgramToInstrumentName(int prog)
-        {
-            
-            
-            switch (prog)
-            {
-                case 0: { return "Piano"; }
-                case 46: { return "Harp"; }
-                case 24: { return "Lute"; }
-                case 68: { return "Oboe"; }
-                case 71: { return "Clarinet"; }
-                case 75: { return "Panpipes"; }
-                case 72: { return "Fife"; }
-                case 47: { return "Timpani"; }
-
-                // Drums
-                //case 59: { }
-                //case 35: { }
-                //Guitar
-                case 27: { return "ElectricGuitarClean"; }
-                case 28: { return "ElectricGuitarMuted"; }
-                case 29: { return "ElectricGuitarOverdriven"; }
-                case 30: { return "ElectricGuitarPowerChords"; }
-                case 31: { return "ElectricGuitarSpecial"; }
-            }
-            return string.Empty;
-        }
-
         private void OnSimpleChannelMessagePlayed(object sender, ChannelMessageEventArgs e)
         {
             ChannelMessageBuilder builder = new ChannelMessageBuilder(e.Message);
@@ -349,7 +321,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
             }
             if (cmd == ChannelCommand.ProgramChange)
             {
-                string instName = ProgramToInstrumentName(e.Message.Data1);
+                string instName = Instrument.ParseByProgramChange(e.Message.Data1);
                 if (!string.IsNullOrEmpty(instName))
                 {
                     ProgChange?.Invoke(this, e);
@@ -479,7 +451,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
             load(Sequence, trackNum);
         }
 
-        private void load(Sequence sequence, int trackNum = 1)
+        public void load(Sequence sequence, int trackNum = 1)
         {
             OnTrackNameChange?.Invoke(this, string.Empty);
             OnTempoChange?.Invoke(this, 0);

@@ -59,10 +59,12 @@ namespace BardMusicPlayer.Maestro.Performance
                     if (sequencer is Sequencer)
                         sequencer.CloseInputDevice();
 
+                    var old = value.Sequence;
+
                     sequencer = new Sequencer();
                     if (value.LoadedFileType == Sequencer.FILETYPES.BmpSong)
                     {
-                        sequencer.Load(value.LoadedBmpSong, this.TrackNumber);
+                        sequencer.Sequence = old;
                         this.OctaveShift = +1;
                     }
 

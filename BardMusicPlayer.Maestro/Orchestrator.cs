@@ -50,7 +50,6 @@ namespace BardMusicPlayer.Maestro
             _addPushedbackGamesTimer.Interval = 4000;
             _addPushedbackGamesTimer.Enabled = false;
             _addPushedbackGamesTimer.Elapsed += CheckFoundGames;
-
         }
 
         #region public
