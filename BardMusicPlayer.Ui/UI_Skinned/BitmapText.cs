@@ -100,7 +100,11 @@ namespace BardMusicPlayer.Ui.Skinned
                     if (i + scrollpos >= data.Length)
                         scrolldir = false;
                     else
+                    {
+                        if (scrollpos == -2)
+                            scrollpos = 0;
                         a = data.ToArray()[i + scrollpos];
+                    }
                 }
 
                 if (SkinContainer.FONT.ContainsKey(a))
@@ -109,10 +113,12 @@ namespace BardMusicPlayer.Ui.Skinned
                     img = SkinContainer.FONT[32];
                 graphics.DrawImage(img, 5 * i, 0);
             }
+
             if (scrolldir)
                 scrollpos++;
             else
                 scrollpos--;
+
             SongDigit.Source = new ImageBrush(Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions())).ImageSource;
             SongDigit.Stretch = Stretch.UniformToFill;
         }

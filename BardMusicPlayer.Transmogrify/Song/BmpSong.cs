@@ -571,7 +571,6 @@ namespace BardMusicPlayer.Transmogrify.Song
 
                 loaderWatch.Stop();
                 Console.WriteLine("Scrubbing MS: " + loaderWatch.ElapsedMilliseconds);
-
                 return stream;
             }
             catch (Exception ex)

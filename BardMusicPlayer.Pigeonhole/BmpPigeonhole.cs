@@ -142,7 +142,7 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// milliseconds till ready check confirmation.
         /// </summary>
-        public virtual int EnsebleReadyDelay { get; set; } = 3000;
+        public virtual int EnsebleReadyDelay { get; set; } = 1500;
 
         /// <summary>
         /// milliseconds between game process scans / seer scanner startups.
