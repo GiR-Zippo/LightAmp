@@ -97,7 +97,10 @@ namespace BardMusicPlayer.Maestro
             sequencer.Load(song);
 
             foreach (var perf in performer)
-                perf.Value.Sequencer = sequencer;
+            {
+                perf.Value.Sequencer = sequencer;           //use the sequence from the main sequencer
+                perf.Value.Sequencer.LoadedBmpSong = song;  //set the song
+            }
             InitNewPerformance();
         }
 

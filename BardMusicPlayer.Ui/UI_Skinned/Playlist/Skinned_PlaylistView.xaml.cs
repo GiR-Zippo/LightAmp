@@ -233,6 +233,7 @@ namespace BardMusicPlayer.Ui.Skinned
 
             if (openFileDialog.ShowDialog() != true)
                 return;
+
             foreach (var d in openFileDialog.FileNames)
             {
                 BmpSong song = BmpSong.OpenFile(d).Result;
@@ -366,7 +367,5 @@ namespace BardMusicPlayer.Ui.Skinned
             this.Close_Button.Background.Opacity = 0;
         }
         #endregion
-
-
     }
 }

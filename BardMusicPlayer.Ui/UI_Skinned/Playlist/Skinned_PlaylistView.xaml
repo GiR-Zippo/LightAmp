@@ -22,7 +22,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid >
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>

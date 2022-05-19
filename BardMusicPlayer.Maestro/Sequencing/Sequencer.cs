@@ -75,6 +75,10 @@ namespace BardMusicPlayer.Maestro.Sequencing
             {
                 return loadedBmpSong;
             }
+            set
+            {
+                loadedBmpSong = value;
+            }
         }
 
         public bool Loaded

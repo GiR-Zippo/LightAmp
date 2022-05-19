@@ -97,12 +97,12 @@
                         <RichTextBox x:Name="ChatBox" IsReadOnly="False" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.IsDeferredScrollingEnabled="True" Background="Gray"/>
                     </TabItem>
                     <TabItem Header="Performers">
-                        <Grid>
+                        <Grid Background="WhiteSmoke">
                             <control:BardView x:Name="BardsList"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="Settings">
-                        <Grid>
+                        <Grid Background="WhiteSmoke">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="*"/>
@@ -166,8 +166,8 @@
                             </GroupBox>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Statistics">
-                        <Grid>
+                    <TabItem Header="Statistics" >
+                        <Grid Background="WhiteSmoke">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="10"/>
                                 <RowDefinition Height="25"/>
@@ -198,7 +198,7 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="Song Preview">
-                        <Grid>
+                        <Grid Background="WhiteSmoke">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="10"/>
                                 <RowDefinition Height="30"/>
