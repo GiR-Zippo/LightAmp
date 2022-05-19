@@ -131,6 +131,10 @@
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="14"/>
                     <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
                 <Rectangle Grid.Column="1" x:Name="AddMenuButton" Height="20" Margin="0,-6,0,0" ContextMenuService.IsEnabled="False"
                 ContextMenuService.Placement="Top"
@@ -151,6 +155,16 @@
                         <ContextMenu>
                             <MenuItem Header="Remove selected" Click="RemoveSelected_Click"/>
                             <MenuItem Header="Clear playlist" Click="ClearPlaylist_Click"/>
+                        </ContextMenu>
+                    </Rectangle.ContextMenu>
+                </Rectangle>
+                <Rectangle Grid.Column="7" x:Name="MiscMenuButton" Height="20" Margin="0,-6,0,0" ContextMenuService.IsEnabled="False"
+                ContextMenuService.Placement="Top"
+                ContextMenuService.ShowOnDisabled="True"
+                Fill="Transparent" MouseDown="MenuButton_PreviewMouseLeftButtonDown">
+                    <Rectangle.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Export to MIDI" Click="Export_Midi_Click"/>
                         </ContextMenu>
                     </Rectangle.ContextMenu>
                 </Rectangle>

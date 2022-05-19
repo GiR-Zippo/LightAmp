@@ -33,7 +33,7 @@ namespace BardMusicPlayer.Ui.Skinned
             SkinContainer.OnNewSkinLoaded += SkinContainer_OnNewSkinLoaded;
             BmpSiren.Instance.SynthTimePositionChanged += Instance_SynthTimePositionChanged;
 
-            _currentPlaylist = PlaylistFunctions.CreatePlaylist("Default");
+            _currentPlaylist = PlaylistFunctions.CreatePlaylist("default");
             RefreshPlaylist();
         }
 
@@ -335,6 +335,35 @@ namespace BardMusicPlayer.Ui.Skinned
             RefreshPlaylist();
         }
 
+        private void Export_Midi_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (string s in PlaylistContainer.SelectedItems)
+            {
+                BmpSong song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, s);
+                if (song == null)
+                    continue;
+
+                Stream myStream;
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+                saveFileDialog.Filter = "MIDI file (*.mid)|*.mid";
+                saveFileDialog.FilterIndex = 2;
+                saveFileDialog.RestoreDirectory = true;
+                saveFileDialog.OverwritePrompt = true;
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    if ((myStream = saveFileDialog.OpenFile()) != null)
+                    {
+                        song.GetExportMidi().WriteTo(myStream);
+                        myStream.Close();
+                    }
+                }
+
+                break;
+            }
+        }
+
         private void MenuButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -390,5 +419,7 @@ namespace BardMusicPlayer.Ui.Skinned
             this.Close_Button.Background.Opacity = 0;
         }
         #endregion
+
+
     }
 }
