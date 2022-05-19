@@ -43,17 +43,15 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition MaxWidth="300"/>
                         <ColumnDefinition MaxWidth="40"/>
-                        <ColumnDefinition MaxWidth="40"/>
                         <ColumnDefinition MaxWidth="20"/>
                         <ColumnDefinition MaxWidth="20"/>
                         <ColumnDefinition MaxWidth="20"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="PLAYLIST" Height="25" FontSize="14" Grid.Column="0"/>
-                    <Button x:Name="Playlist_New_Button"    Click="Playlist_New_Button_Click"    Content="New"  ToolTip="Create a new playlist"                       Height="20" Width="40" Grid.Column="1"/>
-                    <Button x:Name="Playlist_Save_Button"   Click="Playlist_Save_Button_Click"   Content="Save" ToolTip="save the current playlist"                   Height="20" Width="40" Grid.Column="2"/>
-                    <Button x:Name="Playlist_Add_Button"    Click="Playlist_Add_Button_Click"    Content="+"    ToolTip="Add the loaded song to the current playlist" Height="20" Width="20" Grid.Column="3"/>
-                    <Button x:Name="Playlist_Remove_Button" Click="Playlist_Remove_Button_Click" Content="-"    ToolTip="Remove the loaded song from the playlist"    Height="20" Width="20" Grid.Column="4"/>
-                    <Button x:Name="Playlist_Delete_Button" Click="Playlist_Delete_Button_Click" Content="X"    ToolTip="delete the current playlist"                 Height="20" Width="20" Grid.Column="5"/>
+                    <Button x:Name="Playlist_New_Button"    Click="Playlist_New_Button_Click"    Content="New"  ToolTip="Create a new playlist"                         Height="20" Width="40" Grid.Column="1"/>
+                    <Button x:Name="Playlist_Add_Button"    Click="Playlist_Add_Button_Click"    Content="+"    ToolTip="Add song(s) to the current playlist"           Height="20" Width="20" Grid.Column="2"/>
+                    <Button x:Name="Playlist_Remove_Button" Click="Playlist_Remove_Button_Click" Content="-"    ToolTip="Remove the selected song(s) from the playlist" Height="20" Width="20" Grid.Column="3"/>
+                    <Button x:Name="Playlist_Delete_Button" Click="Playlist_Delete_Button_Click" Content="X"    ToolTip="delete the current playlist"                   Height="20" Width="20" Grid.Column="4"/>
 
                     <DataGrid x:Name="PlaylistContainer" Grid.Row="1" Grid.ColumnSpan="6" AutoGenerateColumns="False" PreviewMouseDoubleClick="PlaylistContainer_PreviewMouseDoubleClick" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
