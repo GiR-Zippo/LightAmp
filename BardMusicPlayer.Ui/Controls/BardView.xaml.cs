@@ -22,6 +22,7 @@ namespace BardMusicPlayer.Ui.Controls
         {
             InitializeComponent();
             LocalOrchestra_CheckBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
+            StartDelay_CheckBox.IsChecked = BmpPigeonhole.Instance.EnseblePlayDelay;
 
             this.DataContext = this;
             Bards = new ObservableCollection<Performer>();
@@ -147,6 +148,11 @@ namespace BardMusicPlayer.Ui.Controls
         private void LocalOrchestra_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.LocalOrchestra = LocalOrchestra_CheckBox.IsChecked ?? true;
+        }
+
+        private void StartDelay_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.EnseblePlayDelay = StartDelay_CheckBox.IsChecked ?? true;
         }
     }
 }

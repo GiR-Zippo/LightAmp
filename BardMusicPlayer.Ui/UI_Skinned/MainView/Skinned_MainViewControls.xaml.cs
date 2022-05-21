@@ -32,7 +32,7 @@ namespace BardMusicPlayer.Ui.Skinned
         private void Play_Button_Click(object sender, RoutedEventArgs e)
         {
             this.Play_Button.Background = SkinContainer.CBUTTONS[SkinContainer.CBUTTON_TYPES.MAIN_PLAY_BUTTON];
-            PlaybackFunctions.PlaySong();
+            PlaybackFunctions.PlaySong(0);
         }
         private void Play_Button_Down(object sender, MouseButtonEventArgs e)
         { this.Play_Button.Background = SkinContainer.CBUTTONS[SkinContainer.CBUTTON_TYPES.MAIN_PLAY_BUTTON_ACTIVE];}

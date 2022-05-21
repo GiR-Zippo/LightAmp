@@ -36,7 +36,7 @@ namespace BardMusicPlayer.Ui.Classic
             }
             else
             {
-                PlaybackFunctions.PlaySong();
+                PlaybackFunctions.PlaySong(0);
                 Play_Button_State(true);
             }
         }

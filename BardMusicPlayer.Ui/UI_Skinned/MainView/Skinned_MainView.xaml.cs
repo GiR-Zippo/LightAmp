@@ -110,7 +110,7 @@ namespace BardMusicPlayer.Ui.Skinned
 
             //if playlist is on autoplay, play next song
             if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYNEXT)
-                PlaybackFunctions.PlaySong();
+                PlaybackFunctions.PlaySong(0);
         }
         private void Instance_OnSongLoaded(object sender, Maestro.Events.SongLoadedEvent e)
         {
@@ -225,11 +225,10 @@ namespace BardMusicPlayer.Ui.Skinned
             if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
                 return;
 
-            if(BmpPigeonhole.Instance.MidiBardCompatMode)
-                Thread.Sleep(2475+3405);
+            if (BmpPigeonhole.Instance.MidiBardCompatMode)
+                PlaybackFunctions.PlaySong(2475 + 3405);
             else
-                Thread.Sleep(2475);
-            PlaybackFunctions.PlaySong();
+                PlaybackFunctions.PlaySong(2475);
         }
 
         /// <summary>
@@ -251,8 +250,7 @@ namespace BardMusicPlayer.Ui.Skinned
 
                     if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
                         return;
-                    Thread.Sleep(3000);
-                    PlaybackFunctions.PlaySong();
+                    PlaybackFunctions.PlaySong(3000);
                 }
             }
         }

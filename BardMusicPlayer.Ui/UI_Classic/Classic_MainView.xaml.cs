@@ -144,7 +144,7 @@ namespace BardMusicPlayer.Ui.Classic
             if (BmpPigeonhole.Instance.PlaylistAutoPlay)
             {
                 playNextSong();
-                PlaybackFunctions.PlaySong();
+                PlaybackFunctions.PlaySong(0);
                 Play_Button_State(true);
             }
         }
@@ -172,11 +172,10 @@ namespace BardMusicPlayer.Ui.Classic
                 return;
 
             if (BmpPigeonhole.Instance.MidiBardCompatMode)
-                Thread.Sleep(2475 + 3405);
+                PlaybackFunctions.PlaySong(2475 + 3405);
             else
-                Thread.Sleep(2475);
+                PlaybackFunctions.PlaySong(2475);
 
-            PlaybackFunctions.PlaySong();
             Play_Button_State(true);
         }
 
@@ -198,8 +197,7 @@ namespace BardMusicPlayer.Ui.Classic
                         return;
                     if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
                         return;
-                    Thread.Sleep(3000);
-                    PlaybackFunctions.PlaySong();
+                    PlaybackFunctions.PlaySong(3000);
                     Play_Button_State(true);
                 }
             }

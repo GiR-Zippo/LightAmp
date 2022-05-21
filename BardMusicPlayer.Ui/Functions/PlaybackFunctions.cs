@@ -64,10 +64,10 @@ namespace BardMusicPlayer.Ui.Functions
         /// <summary>
         /// Starts the performance
         /// </summary>
-        public static void PlaySong()
+        public static void PlaySong(int delay)
         {
             PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_PLAYING;
-            BmpMaestro.Instance.StartLocalPerformer();
+            BmpMaestro.Instance.StartLocalPerformer(delay);
         }
 
         /// <summary>

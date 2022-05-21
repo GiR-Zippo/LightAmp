@@ -205,13 +205,14 @@ namespace BardMusicPlayer.Maestro
 
         #region Playback
         /// <summary>
-        /// Starts the playback
+        /// Starts the performance
         /// </summary>
-        public void StartLocalPerformer()
+        /// <param name="delay">delay in ms</param>
+        public void StartLocalPerformer(int delay)
         {
             if (_orchestrator != null)
             {
-                _orchestrator.Start();
+                _orchestrator.Start(delay);
             }
         }
 

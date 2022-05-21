@@ -33,6 +33,7 @@ namespace BardMusicPlayer.Maestro
 
         private Dictionary<Game, bool> _foundGames { get; set; } = null;
         private System.Timers.Timer _addPushedbackGamesTimer = null!;
+        private System.Timers.Timer _performanceStartDelayTimer = null!;
 
         /// <summary>
         /// The constructor
@@ -50,6 +51,10 @@ namespace BardMusicPlayer.Maestro
             _addPushedbackGamesTimer.Interval = 4000;
             _addPushedbackGamesTimer.Enabled = false;
             _addPushedbackGamesTimer.Elapsed += CheckFoundGames;
+
+            _performanceStartDelayTimer = new System.Timers.Timer();
+            _addPushedbackGamesTimer.Enabled = false;
+            _performanceStartDelayTimer.Elapsed += startPerforming;
         }
 
         #region public
@@ -281,22 +286,29 @@ namespace BardMusicPlayer.Maestro
         }
 
         /// <summary>
-        /// Starts the playback
+        /// starts the performance
         /// </summary>
-        public void Start()
+        /// <param name="delay">in ms</param>
+        public void Start(int delay)
         {
             if (performer.Count() == 0)
                 return;
 
-            //if we are a not a local orchestra
-            if (!BmpPigeonhole.Instance.LocalOrchestra)
+            if (_performanceStartDelayTimer.Enabled)
+                return;
+
+            //kein delay, dann los
+            if (delay == 0)
             {
-                var res = performer.Find(i => i.Value.HostProcess == true);
-                res.Value.Play(true);
+                startPerforming(null, null);
+                return;
             }
 
-            foreach (var perf in performer)
-                perf.Value.Play(true);
+            if (BmpPigeonhole.Instance.EnseblePlayDelay)
+                _performanceStartDelayTimer.Interval = delay;
+            else
+                _performanceStartDelayTimer.Interval = 100;
+            _performanceStartDelayTimer.Enabled = true;
         }
 
         /// <summary>
@@ -312,6 +324,7 @@ namespace BardMusicPlayer.Maestro
             {
                 var res = performer.AsParallel().Where(i => i.Value.HostProcess == true);
                 res.First().Value.Play(false);
+                return;
             }
 
             foreach (var perf in performer)
@@ -326,11 +339,15 @@ namespace BardMusicPlayer.Maestro
             if (performer.Count() == 0)
                 return;
 
+            if (_performanceStartDelayTimer.Enabled)
+                _performanceStartDelayTimer.Enabled = false;
+
             //if we are a not a local orchestra
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
                 var res = performer.AsParallel().Where(i => i.Value.HostProcess == true);
                 res.First().Value.Stop();
+                return;
             }
 
             foreach (var perf in performer)
@@ -563,6 +580,27 @@ namespace BardMusicPlayer.Maestro
                     perf.Value.PerformerEnabled = !game.InstrumentHeld.Equals(Instrument.None);
                 }
             }
+        }
+
+        /// <summary>
+        /// starts the performance; triggered by the timer
+        /// </summary>
+        public void startPerforming(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            _performanceStartDelayTimer.Enabled = false;
+
+            if (performer.Count() == 0)
+                return;
+
+            //if we are a not a local orchestra
+            if (!BmpPigeonhole.Instance.LocalOrchestra)
+            {
+                var res = performer.Find(i => i.Value.HostProcess == true);
+                res.Value.Play(true);
+            }
+
+            foreach (var perf in performer)
+                perf.Value.Play(true);
         }
 
         /// <summary>
