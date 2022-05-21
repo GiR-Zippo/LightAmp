@@ -12,6 +12,17 @@ namespace BardMusicPlayer.Ui.Functions
     public static class PlaylistFunctions
     {
         /// <summary>
+        /// gets the first playlist or null if none was found
+        /// </summary>
+        /// <param name="playlistname"></param>
+        public static IPlaylist GetFirstPlaylist()
+        {
+            if (BmpCoffer.Instance.GetPlaylistNames().Count > 0)
+                return BmpCoffer.Instance.GetPlaylist(BmpCoffer.Instance.GetPlaylistNames()[0]);
+            return null;
+        }
+
+        /// <summary>
         /// Creates and return a new playlist or return the existing one with the given name
         /// </summary>
         /// <param name="playlistname"></param>

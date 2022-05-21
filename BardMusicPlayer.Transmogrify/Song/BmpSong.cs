@@ -67,6 +67,7 @@ namespace BardMusicPlayer.Transmogrify.Song
             return Task.FromResult(song);
         }
 
+        #region Import functions
         /// <summary>
         /// Open and process the midifile, tracks with note placed first
         /// </summary>
@@ -154,12 +155,12 @@ namespace BardMusicPlayer.Transmogrify.Song
                                 if (note.Value == 254)
                                 {
                                     var pitched = last + 24;
-                                    timedEvents.Add(new TimedEvent(new NoteOffEvent((Melanchall.DryWetMidi.Common.SevenBitNumber)pitched, (Melanchall.DryWetMidi.Common.SevenBitNumber)127), note.Key));
+                                    timedEvents.Add(new TimedEvent(new NoteOffEvent((SevenBitNumber)pitched, (SevenBitNumber)127), note.Key));
                                 }
                                 else
                                 {
-                                    var pitched = (Melanchall.DryWetMidi.Common.SevenBitNumber)note.Value + 24;
-                                    timedEvents.Add(new TimedEvent(new NoteOnEvent((Melanchall.DryWetMidi.Common.SevenBitNumber)pitched, (Melanchall.DryWetMidi.Common.SevenBitNumber)127), note.Key));
+                                    var pitched = (SevenBitNumber)note.Value + 24;
+                                    timedEvents.Add(new TimedEvent(new NoteOnEvent((SevenBitNumber)pitched, (SevenBitNumber)127), note.Key));
                                     last = note.Value;
                                 }
                             }
@@ -172,7 +173,14 @@ namespace BardMusicPlayer.Transmogrify.Song
             midiFile.ReplaceTempoMap(TempoMap.Create(Tempo.FromBeatsPerMinute(25)));
             return CovertMidiToSong(midiFile, path);
         }
+        #endregion
 
+        /// <summary>
+        /// convert an imported file to a BmpSong
+        /// </summary>
+        /// <param name="midiFile"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private static BmpSong CovertMidiToSong(MidiFile midiFile, string path)
         {
             var timer = new Stopwatch();
@@ -303,6 +311,10 @@ namespace BardMusicPlayer.Transmogrify.Song
             return Task.FromResult(midiFile);
         }
 
+        /// <summary>
+        /// Creates a midi from the song for the sequencer
+        /// </summary>
+        /// <returns>MemoryStream</returns>
         public MemoryStream GetSequencerMidi()
         {
             try
@@ -578,6 +590,11 @@ namespace BardMusicPlayer.Transmogrify.Song
             }
         }
 
+
+        /// <summary>
+        /// Exports the song to a midi file
+        /// </summary>
+        /// <returns></returns>
         public MemoryStream GetExportMidi()
         {
             try

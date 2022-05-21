@@ -33,7 +33,9 @@ namespace BardMusicPlayer.Ui.Skinned
             SkinContainer.OnNewSkinLoaded += SkinContainer_OnNewSkinLoaded;
             BmpSiren.Instance.SynthTimePositionChanged += Instance_SynthTimePositionChanged;
 
-            _currentPlaylist = PlaylistFunctions.CreatePlaylist("default");
+            _currentPlaylist = PlaylistFunctions.GetFirstPlaylist();
+            if (_currentPlaylist == null)
+                _currentPlaylist = PlaylistFunctions.CreatePlaylist("default");
             RefreshPlaylist();
         }
 

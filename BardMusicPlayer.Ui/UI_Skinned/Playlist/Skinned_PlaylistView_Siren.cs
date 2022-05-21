@@ -9,6 +9,8 @@ using BardMusicPlayer.Ui.Globals.SkinContainer;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using BardMusicPlayer.Siren;
+using BardMusicPlayer.Transmogrify.Song;
+using Microsoft.Win32;
 
 namespace BardMusicPlayer.Ui.Skinned
 {
@@ -164,9 +166,25 @@ namespace BardMusicPlayer.Ui.Skinned
         /// <param name="e"></param>
         private void LoadButton_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            var song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, PlaylistContainer.SelectedItem as string);
+            BmpSong song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, PlaylistContainer.SelectedItem as string);
             if (song == null)
-                return;
+            {
+                var openFileDialog = new OpenFileDialog
+                {
+                    Filter = "MIDI file|*.mid;*.midi;*.mmsong|All files (*.*)|*.*",
+                    Multiselect = false
+                };
+
+                if (openFileDialog.ShowDialog() != true)
+                    return;
+
+                if (!openFileDialog.CheckFileExists)
+                    return;
+
+                song = BmpSong.OpenFile(openFileDialog.FileName).Result;
+                if (song == null)
+                    return;
+            }
             scrollpos = 0;
             lasttime = 0;
             this.WriteSongTitle(song.Title);
