@@ -53,7 +53,7 @@ namespace BardMusicPlayer.Maestro
             _addPushedbackGamesTimer.Elapsed += CheckFoundGames;
 
             _performanceStartDelayTimer = new System.Timers.Timer();
-            _addPushedbackGamesTimer.Enabled = false;
+            _performanceStartDelayTimer.Enabled = false;
             _performanceStartDelayTimer.Elapsed += startPerforming;
         }
 
