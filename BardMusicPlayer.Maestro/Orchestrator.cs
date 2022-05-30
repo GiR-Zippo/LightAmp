@@ -42,7 +42,7 @@ namespace BardMusicPlayer.Maestro
             _performers = new List<KeyValuePair<int, Performer>>();
             _foundGames = new Dictionary<Game, bool>();
             _sequencer = new Sequencer();
-            BmpSeer.Instance.GameStarted += e => Instance_OnGameStarted(e.Game);
+            BmpSeer.Instance.GameStarted += delegate (Seer.Events.GameStarted e) { Instance_OnGameStarted(e.Game); };
             BmpSeer.Instance.GameStopped += Instance_OnGameStopped;
             BmpSeer.Instance.EnsembleRequested += delegate (Seer.Events.EnsembleRequested e) { Instance_EnsembleRequested(e); };
             BmpSeer.Instance.EnsembleStarted += delegate (Seer.Events.EnsembleStarted e) { Instance_EnsembleStarted(e); };
@@ -423,6 +423,10 @@ namespace BardMusicPlayer.Maestro
         private async Task<int> EnsembleAcceptAsync(Seer.Events.EnsembleRequested seerEvent)
         {
             await Task.Delay(BmpPigeonhole.Instance.EnsebleReadyDelay);
+            var result = _performers.Find(kvp => kvp.Key == seerEvent.Game.Pid);
+            if (result.Key == seerEvent.Game.Pid)
+                result.Value.EnsembleAccept();
+
             foreach (var i in _performers)
                 if (i.Value.game.Pid == seerEvent.Game.Pid)
                     i.Value.EnsembleAccept();

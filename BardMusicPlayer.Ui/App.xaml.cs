@@ -35,9 +35,9 @@ namespace BardMusicPlayer.Ui
 
             BmpCoffer.Initialize(Globals.Globals.DataPath + @"\MusicCatalog.db");
             BmpSeer.Instance.SetupFirewall("BardMusicPlayer");
-            BmpSeer.Instance.Start();
-            BmpGrunt.Instance.Start();
             BmpMaestro.Instance.Start();
+            BmpSeer.Instance.Start();
+            //BmpGrunt.Instance.Start();
             BmpSiren.Instance.Setup();
             BmpJamboree.Instance.Start();
         }
@@ -50,7 +50,7 @@ namespace BardMusicPlayer.Ui
                 BmpSiren.Instance.Stop();
             BmpSiren.Instance.ShutDown();
             BmpMaestro.Instance.Stop();
-            BmpGrunt.Instance.Stop();
+            //BmpGrunt.Instance.Stop();
             BmpSeer.Instance.Stop();
             BmpSeer.Instance.DestroyFirewall("BardMusicPlayer");
             BmpCoffer.Instance.Dispose();

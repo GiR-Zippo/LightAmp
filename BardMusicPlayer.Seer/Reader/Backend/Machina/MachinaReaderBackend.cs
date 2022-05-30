@@ -89,6 +89,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                     {
                         ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina, ex));
                     }
+                    _packet.Dispose();
                 }
 
                 await Task.Delay(SleepTimeInMs, token);
