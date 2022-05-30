@@ -15,7 +15,7 @@ namespace BardMusicPlayer.Maestro
 {
     /// <summary>
     /// The brain of the operation;
-    /// Automatically add the found games
+    /// - Automatically add the found games
     /// - creates the perfomers
     /// - creates the sequencers
     /// - load songs
@@ -30,11 +30,9 @@ namespace BardMusicPlayer.Maestro
 
         public Game HostGame { get; set; } = null;
         private List<KeyValuePair<int, Performer>> _performers { get; set; } = null;
-        private List<KeyValuePair<int, System.Timers.Timer>> _performerStartDelayTimers { get; set; } = null;
 
         private Dictionary<Game, bool> _foundGames { get; set; } = null;
         private System.Timers.Timer _addPushedbackGamesTimer = null!;
-        private System.Timers.Timer _performanceStartDelayTimer = null!;
 
         /// <summary>
         /// The constructor
@@ -42,21 +40,17 @@ namespace BardMusicPlayer.Maestro
         public Orchestrator()
         {
             _performers = new List<KeyValuePair<int, Performer>>();
-            _performerStartDelayTimers = new List<KeyValuePair<int, System.Timers.Timer>>();
             _foundGames = new Dictionary<Game, bool>();
             _sequencer = new Sequencer();
             BmpSeer.Instance.GameStarted += e => Instance_OnGameStarted(e.Game);
             BmpSeer.Instance.GameStopped += Instance_OnGameStopped;
-            BmpSeer.Instance.EnsembleRequested += Instance_EnsembleRequested;
+            BmpSeer.Instance.EnsembleRequested += delegate (Seer.Events.EnsembleRequested e) { Instance_EnsembleRequested(e); };
+            BmpSeer.Instance.EnsembleStarted += delegate (Seer.Events.EnsembleStarted e) { Instance_EnsembleStarted(e); };
 
             _addPushedbackGamesTimer = new System.Timers.Timer();
             _addPushedbackGamesTimer.Interval = 4000;
             _addPushedbackGamesTimer.Enabled = false;
             _addPushedbackGamesTimer.Elapsed += CheckFoundGames;
-
-            _performanceStartDelayTimer = new System.Timers.Timer();
-            _performanceStartDelayTimer.Enabled = false;
-            _performanceStartDelayTimer.Elapsed += startPerforming;
         }
 
         #region public
@@ -296,21 +290,16 @@ namespace BardMusicPlayer.Maestro
             if (_performers.Count() == 0)
                 return;
 
-            if (_performanceStartDelayTimer.Enabled)
-                return;
-
-            //kein delay, dann los
-            if (delay == 0)
+            //if we are a not a local orchestra
+            if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
-                startPerforming(null, null);
+                var res = _performers.Find(i => i.Value.HostProcess == true);
+                res.Value.Play(true, delay);
                 return;
             }
 
-            if (BmpPigeonhole.Instance.EnseblePlayDelay)
-                _performanceStartDelayTimer.Interval = delay;
-            else
-                _performanceStartDelayTimer.Interval = 100;
-            _performanceStartDelayTimer.Enabled = true;
+            foreach (var perf in _performers)
+                perf.Value.Play(true, delay);
         }
 
         /// <summary>
@@ -340,9 +329,6 @@ namespace BardMusicPlayer.Maestro
         {
             if (_performers.Count() == 0)
                 return;
-
-            if (_performanceStartDelayTimer.Enabled)
-                _performanceStartDelayTimer.Enabled = false;
 
             //if we are a not a local orchestra
             if (!BmpPigeonhole.Instance.LocalOrchestra)
@@ -562,6 +548,41 @@ namespace BardMusicPlayer.Maestro
             Task.Factory.StartNew(() => Updater(_updaterTokenSource.Token), TaskCreationOptions.LongRunning);
         }
 
+        private void Instance_EnsembleStarted(Seer.Events.EnsembleStarted seerEvent)
+        {
+            if (BmpPigeonhole.Instance.AutostartMethod != 2)
+                return;
+
+            if (!BmpPigeonhole.Instance.EnseblePlayDelay)
+                start(100, seerEvent.Game.Pid);
+            else
+            {
+                if (BmpPigeonhole.Instance.MidiBardCompatMode)
+                    start((2475 + 3405), seerEvent.Game.Pid);
+                else
+                    start(2475, seerEvent.Game.Pid);
+            }
+        }
+
+        /// <summary>
+        /// starts the performance
+        /// </summary>
+        /// <param name="delay">in ms</param>
+        private void start(int delay, int Pid)
+        {
+            if (_performers.Count() == 0)
+                return;
+
+            Performer perf = _performers.Find(i => i.Key == Pid).Value;
+            if (perf == null)
+                return;
+
+            if (perf.HostProcess)
+                BmpMaestro.Instance.PublishEvent(new PlaybackStartedEvent());
+
+            perf.Play(true, delay);
+        }
+
         private void Sequencer_PlayEnded(object sender, EventArgs e)
         {
             BmpMaestro.Instance.PublishEvent(new PlaybackStoppedEvent());
@@ -582,27 +603,6 @@ namespace BardMusicPlayer.Maestro
                     perf.Value.PerformerEnabled = !game.InstrumentHeld.Equals(Instrument.None);
                 }
             }
-        }
-
-        /// <summary>
-        /// starts the performance; triggered by the timer
-        /// </summary>
-        public void startPerforming(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            _performanceStartDelayTimer.Enabled = false;
-
-            if (_performers.Count() == 0)
-                return;
-
-            //if we are a not a local orchestra
-            if (!BmpPigeonhole.Instance.LocalOrchestra)
-            {
-                var res = _performers.Find(i => i.Value.HostProcess == true);
-                res.Value.Play(true);
-            }
-
-            foreach (var perf in _performers)
-                perf.Value.Play(true);
         }
 
         /// <summary>

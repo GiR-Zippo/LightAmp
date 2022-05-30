@@ -38,11 +38,11 @@ namespace BardMusicPlayer.Ui.Classic
             BmpMaestro.Instance.OnPlaybackTimeChanged += Instance_PlaybackTimeChanged;
             BmpMaestro.Instance.OnSongMaxTime += Instance_PlaybackMaxTime;
             BmpMaestro.Instance.OnSongLoaded += Instance_OnSongLoaded;
+            BmpMaestro.Instance.OnPlaybackStarted += Instance_PlaybackStarted;
             BmpMaestro.Instance.OnPlaybackStopped += Instance_PlaybackStopped;
             BmpMaestro.Instance.OnTrackNumberChanged += Instance_TrackNumberChanged;
             BmpMaestro.Instance.OnOctaveShiftChanged += Instance_OctaveShiftChanged;
             BmpSeer.Instance.ChatLog += Instance_ChatLog;
-            BmpSeer.Instance.EnsembleStarted += Instance_EnsembleStarted;
 
             Siren_Volume.Value = BmpSiren.Instance.GetVolume();
             LoadConfig();
@@ -69,6 +69,11 @@ namespace BardMusicPlayer.Ui.Classic
             this.Dispatcher.BeginInvoke(new Action(() => this.OnSongLoaded(e)));
         }
 
+        private void Instance_PlaybackStarted(object sender, bool e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => this.PlaybackStarted()));
+        }
+
         private void Instance_PlaybackStopped(object sender, bool e)
         {
             this.Dispatcher.BeginInvoke(new Action(() => this.PlaybackStopped()));
@@ -87,11 +92,6 @@ namespace BardMusicPlayer.Ui.Classic
         private void Instance_ChatLog(Seer.Events.ChatLog seerEvent)
         {
             this.Dispatcher.BeginInvoke(new Action(() => this.AppendChatLog(seerEvent)));
-        }
-
-        private void Instance_EnsembleStarted(Seer.Events.EnsembleStarted seerEvent)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() => this.EnsembleStart()));
         }
 
         private void PlaybackTimeChanged(Maestro.Events.CurrentPlayPositionEvent e)
@@ -136,6 +136,12 @@ namespace BardMusicPlayer.Ui.Classic
             BmpMaestro.Instance.SetTracknumberOnHost(MaxTracks);
         }
 
+        public void PlaybackStarted()
+        {
+            PlaybackFunctions.PlaybackState = PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING;
+            Play_Button_State(true);
+        }
+
         public void PlaybackStopped()
         {
             PlaybackFunctions.StopSong();
@@ -162,21 +168,6 @@ namespace BardMusicPlayer.Ui.Classic
         {
             if (e.IsHost)
                 OctaveNumValue = e.OctaveShift;
-        }
-
-        public void EnsembleStart()
-        {
-            if (BmpPigeonhole.Instance.AutostartMethod != (int)Globals.Globals.Autostart_Types.VIA_METRONOME)
-                return;
-            if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
-                return;
-
-            if (BmpPigeonhole.Instance.MidiBardCompatMode)
-                PlaybackFunctions.PlaySong(2475 + 3405);
-            else
-                PlaybackFunctions.PlaySong(2475);
-
-            Play_Button_State(true);
         }
 
         public void AppendChatLog(Seer.Events.ChatLog ev)

@@ -70,10 +70,10 @@ namespace BardMusicPlayer.Ui.Skinned
             BmpMaestro.Instance.OnPlaybackTimeChanged += Instance_PlaybackTimeChanged;
             BmpMaestro.Instance.OnTrackNumberChanged += Instance_TrackNumberChanged;
             BmpMaestro.Instance.OnOctaveShiftChanged += Instance_OctaveShiftChanged;
+            BmpMaestro.Instance.OnPlaybackStarted += Instance_PlaybackStarted;
             BmpMaestro.Instance.OnPlaybackStopped += Instance_PlaybackStopped;
 
             //same for seer
-            BmpSeer.Instance.EnsembleStarted += Instance_EnsembleStarted;
             BmpSeer.Instance.ChatLog += Instance_ChatLog;
 
             //Set the *bar params
@@ -133,14 +133,16 @@ namespace BardMusicPlayer.Ui.Skinned
             this.Dispatcher.BeginInvoke(new Action(() => this.UpdateOctaveShift(e)));
         }
 
+        private void Instance_PlaybackStarted(object sender, bool e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => this.OnSongStarted()));
+        }
+
         private void Instance_PlaybackStopped(object sender, bool e)
         {
             this.Dispatcher.BeginInvoke(new Action(() => this.OnSongStopped()));
         }
-        private void Instance_EnsembleStarted(Seer.Events.EnsembleStarted seerEvent)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() => this.EnsembleStart()));
-        }
+
         private void Instance_ChatLog(Seer.Events.ChatLog seerEvent)
         {
             this.Dispatcher.BeginInvoke(new Action(() => this.AppendChatLog(seerEvent.ChatLogCode, seerEvent.ChatLogLine)));
@@ -205,6 +207,14 @@ namespace BardMusicPlayer.Ui.Skinned
         }
 
         /// <summary>
+        /// triggered if playback was started
+        /// </summary>
+        private void OnSongStarted()
+        {
+            PlaybackFunctions.PlaybackState = PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING;
+        }
+
+        /// <summary>
         /// triggered if playback was stopped
         /// </summary>
         private void OnSongStopped()
@@ -213,22 +223,6 @@ namespace BardMusicPlayer.Ui.Skinned
                 _PlaylistView.PlayNextSong();
             else
                 PlaybackFunctions.StopSong();
-        }
-
-        /// <summary>
-        /// if seer triggeres an metronome start event
-        /// </summary>
-        public void EnsembleStart()
-        {
-            if (BmpPigeonhole.Instance.AutostartMethod != (int)Globals.Globals.Autostart_Types.VIA_METRONOME)
-                return;
-            if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
-                return;
-
-            if (BmpPigeonhole.Instance.MidiBardCompatMode)
-                PlaybackFunctions.PlaySong(2475 + 3405);
-            else
-                PlaybackFunctions.PlaySong(2475);
         }
 
         /// <summary>
