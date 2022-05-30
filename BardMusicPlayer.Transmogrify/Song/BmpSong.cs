@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Transmogrify.Processor.Utilities;
 using BardMusicPlayer.Transmogrify.Song.Config;
+using BardMusicPlayer.Transmogrify.Song.Importers;
 using BardMusicPlayer.Transmogrify.Song.Utilities;
 using LiteDB;
 using Melanchall.DryWetMidi.Common;
@@ -61,7 +62,9 @@ namespace BardMusicPlayer.Transmogrify.Song
         {
             BmpSong song = null;
             if (Path.GetExtension(path).Equals(".mmsong"))
-                song = OpenMMSongFile(path);
+                song = CovertMidiToSong(MMSongImporter.OpenMMSongFile(path), path);
+            else if (Path.GetExtension(path).Equals(".mml"))
+                song = CovertMidiToSong(MMLSongImporter.OpenMMLSongFile(path), path);
             else
                 song = OpenMidiFile(path);
             return Task.FromResult(song);
@@ -95,82 +98,6 @@ namespace BardMusicPlayer.Transmogrify.Song
                 }
             }
 
-            return CovertMidiToSong(midiFile, path);
-        }
-
-        /// <summary>
-        /// Opens and process a mmsong file
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        private static BmpSong OpenMMSongFile(string path)
-        {
-            if (!File.Exists(path)) throw new BmpTransmogrifyException("File " + path + " does not exist!");
-
-            MMSongContainer songContainer = null;
-
-            FileInfo fileToDecompress = new FileInfo(path);
-            using (FileStream originalFileStream = fileToDecompress.OpenRead())
-            {
-                string currentFileName = fileToDecompress.FullName;
-                string newFileName = currentFileName.Remove(currentFileName.Length - fileToDecompress.Extension.Length);
-                using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        decompressionStream.CopyTo(memoryStream);
-                        memoryStream.Position = 0;
-                        var data = "";
-                        using (var reader = new StreamReader(memoryStream, System.Text.Encoding.ASCII))
-                        {
-                            string line;
-                            while ((line = reader.ReadLine()) != null)
-                            {
-                                data += line;
-                            }
-                        }
-                        memoryStream.Close();
-                        decompressionStream.Close();
-                        songContainer = JsonConvert.DeserializeObject<MMSongContainer>(data);
-                    }
-                }
-            }
-
-            MidiFile midiFile = new MidiFile();
-            foreach (MMSong msong in songContainer.songs)
-            {
-                if (msong.bards.Count() == 0)
-                    continue;
-                else
-                {
-                    foreach(var bard in msong.bards)
-                    {
-                        var thisTrack = new TrackChunk(new SequenceTrackNameEvent(Instrument.Parse(bard.instrument).Name));
-                        using (var manager = new TimedEventsManager(thisTrack.Events))
-                        {
-                            TimedEventsCollection timedEvents = manager.Events;
-                            int last = 0;
-                            foreach (var note in bard.sequence)
-                            {
-                                if (note.Value == 254)
-                                {
-                                    var pitched = last + 24;
-                                    timedEvents.Add(new TimedEvent(new NoteOffEvent((SevenBitNumber)pitched, (SevenBitNumber)127), note.Key));
-                                }
-                                else
-                                {
-                                    var pitched = (SevenBitNumber)note.Value + 24;
-                                    timedEvents.Add(new TimedEvent(new NoteOnEvent((SevenBitNumber)pitched, (SevenBitNumber)127), note.Key));
-                                    last = note.Value;
-                                }
-                            }
-                        }
-                        midiFile.Chunks.Add(thisTrack);
-                    };
-                    break; //Only the first song for now
-                }
-            }
-            midiFile.ReplaceTempoMap(TempoMap.Create(Tempo.FromBeatsPerMinute(25)));
             return CovertMidiToSong(midiFile, path);
         }
         #endregion
@@ -597,6 +524,32 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <returns></returns>
         public MemoryStream GetExportMidi()
         {
+
+            List<TrackChunk> c = new List<TrackChunk>();
+            foreach (var tc in TrackContainers.Values)
+                c.Add(tc.SourceTrackChunk);
+
+            var midiFile = new MidiFile(c);
+            midiFile.ReplaceTempoMap(SourceTempoMap);
+
+            var stream = new MemoryStream();
+
+            using (var manager = new TimedEventsManager(midiFile.GetTrackChunks().First().Events))
+                manager.Events.Add(new TimedEvent(new MarkerEvent(), (midiFile.GetDuration<MetricTimeSpan>().TotalMicroseconds / 1000)));
+
+            midiFile.Write(stream, MidiFileFormat.MultiTrack, new WritingSettings { });
+            stream.Flush();
+            stream.Position = 0;
+
+            return stream;
+        }
+
+        /// <summary>
+        /// Exports the song to a midi file
+        /// </summary>
+        /// <returns></returns>
+        public MemoryStream GetExportMidiB()
+        {
             try
             {
                 List<TrackChunk> c = new List<TrackChunk>();
@@ -605,6 +558,7 @@ namespace BardMusicPlayer.Transmogrify.Song
 
                 var midiFile = new MidiFile(c);
                 midiFile.ReplaceTempoMap(SourceTempoMap);
+
 
                 Console.WriteLine("Exporting... ");
                 var loaderWatch = Stopwatch.StartNew();

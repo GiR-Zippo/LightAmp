@@ -98,6 +98,11 @@ namespace BardMusicPlayer.Seer
         public bool IsBard { get; private set; } = true;
 
         /// <summary>
+        /// Test
+        /// </summary>
+        public long ServerLatency { get; private set; } = 0;
+
+        /// <summary>
         /// Contains nearby partymember list. Updated by Sharlayan & Machina. Currently only Sharlayan updates during logoff.
         /// Fields: uint ActorId, string PlayerName
         /// This dictionary is sorted on ActorId and can be compared to another Game's PartyMembers with .Equals() extension method.

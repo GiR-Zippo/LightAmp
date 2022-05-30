@@ -14,6 +14,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
     {
         /// <summary>
         /// Handles Ensemble Request, Ensemble Reject, and Instrument Equip/De-Equip.
+        /// Opcode 38
         /// </summary>
         /// <param name="timeStamp"></param>
         /// <param name="otherActorId"></param>
@@ -61,8 +62,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                                 case 1: // "ready" reply.
                                     break;
                                 case 2: // rejected or timed out replying
-                                    _machinaReader.ReaderHandler.Game.PublishEvent(
-                                        new EnsembleRejected(EventSource.Machina));
+                                    _machinaReader.ReaderHandler.Game.PublishEvent( new EnsembleRejected(EventSource.Machina));
                                     break;
                                 default:
                                     return;

@@ -58,7 +58,6 @@ namespace BardMusicPlayer.Seer
                             ChatStatus = chatStatus.ChatStatus;
                             BmpSeer.Instance.PublishEvent(chatStatus);
                         }
-
                         break;
 
                     case ConfigIdChanged configId:
@@ -120,6 +119,10 @@ namespace BardMusicPlayer.Seer
                             BmpSeer.Instance.PublishEvent(keyMap);
                         }
 
+                        break;
+
+                    case LatencyUpdate latencyUpdate:
+                        ServerLatency = latencyUpdate.LatencyMilis;
                         break;
 
                     case PartyMembersChanged partyMembers:

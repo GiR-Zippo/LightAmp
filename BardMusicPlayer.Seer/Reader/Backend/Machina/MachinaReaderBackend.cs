@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BardMusicPlayer.Seer.Events;
@@ -50,6 +51,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         long timeStamp = BitConverter.ToUInt32(message, 24);
                         timeStamp *= 1000;
 
+                        //string hexString = BitConverter.ToString(message);
+                        //System.Diagnostics.Debug.WriteLine(hexString);
+
                         if (!(ActorIdTools.RangeOkay(myActorId) && ActorIdTools.RangeOkay(otherActorId))) continue;
 
                         if (myActorId == otherActorId)
@@ -91,10 +95,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
             }
         }
 
-        private void OnMessageReceived(int processId, byte[] message)
+        private void OnMessageReceived(int processId, uint connection, byte[] message)
         {
             if (!_messageQueueOpen || ReaderHandler.Game.Pid != processId) return;
-
             _messageQueue.Enqueue(message);
         }
 

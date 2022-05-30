@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BardMusicPlayer.Transmogrify.Song
+namespace BardMusicPlayer.Transmogrify.Song.Importers
 {
     public class MMSongContainer
     {

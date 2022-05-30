@@ -31,12 +31,12 @@ namespace BardMusicPlayer.Seer.Utilities
             _monitor.MessageReceivedEventHandler += MessageReceivedEventHandler;
         }
 
-        private static readonly List<int> Lengths = new() { 56, 88, 656, 664, 928, 3576 };
+        private static readonly List<int> Lengths = new() {56, 88, 656, 664, 928, 3576 };
         private readonly FFXIVNetworkMonitor _monitor;
         private readonly object _lock;
         private bool _monitorRunning;
 
-        internal delegate void MessageReceivedHandler(int processId, byte[] message);
+        internal delegate void MessageReceivedHandler(int processId, uint remote_connection, byte[] message);
 
         internal event MessageReceivedHandler MessageReceived;
 
@@ -76,7 +76,7 @@ namespace BardMusicPlayer.Seer.Utilities
 
         private void MessageReceivedEventHandler(TCPConnection connection, long epoch, byte[] message)
         {
-            if (Lengths.Contains(message.Length)) MessageReceived?.Invoke((int) connection.ProcessId, message);
+            if (Lengths.Contains(message.Length)) MessageReceived?.Invoke((int) connection.ProcessId, connection.RemoteIP, message);
         }
 
         ~MachinaManager() { Dispose(); }
