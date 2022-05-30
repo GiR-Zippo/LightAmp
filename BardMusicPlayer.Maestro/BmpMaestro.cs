@@ -59,6 +59,15 @@ namespace BardMusicPlayer.Maestro
         }
 
         /// <summary>
+        /// Get the host bard octaveshift
+        /// </summary>
+        /// <returns>tracknumber</returns>
+        public int GetHostBardOctaveShift()
+        {
+            return _orchestrator.GetHostBardOctaveShift();
+        }
+
+        /// <summary>
         /// Get host bard Pid
         /// </summary>
         /// <returns>Pid</returns>

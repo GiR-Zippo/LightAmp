@@ -48,6 +48,7 @@ namespace BardMusicPlayer.Ui.Classic
             {
                 SongName.Text = PlaybackFunctions.GetSongName();
                 InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
+                _directLoaded = true;
             }
         }
 
@@ -78,6 +79,11 @@ namespace BardMusicPlayer.Ui.Classic
         {
             PlaybackFunctions.StopSong();
             Play_Button.Content = @"▶";
+        }
+
+        private void Loop_Button_Click(object sender, RoutedEventArgs e)
+        {
+            _directLoaded = !_directLoaded;
         }
 
         private void Playbar_Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

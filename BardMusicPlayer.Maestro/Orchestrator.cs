@@ -87,6 +87,16 @@ namespace BardMusicPlayer.Maestro
         }
 
         /// <summary>
+        /// Get the host bard octaveshift
+        /// </summary>
+        /// <returns>tracknumber</returns>
+        public int GetHostBardOctaveShift()
+        {
+            Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
+            return perf == null ? 1 : perf.OctaveShift;
+        }
+
+        /// <summary>
         /// loads a BMPSong from the database
         /// </summary>
         /// <param name="song"></param>

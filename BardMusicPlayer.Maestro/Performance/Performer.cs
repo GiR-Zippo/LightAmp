@@ -1,4 +1,5 @@
-﻿using BardMusicPlayer.Maestro.FFXIV;
+﻿using BardMusicPlayer.Maestro.Events;
+using BardMusicPlayer.Maestro.FFXIV;
 using BardMusicPlayer.Maestro.Sequencing;
 using BardMusicPlayer.Maestro.Utils;
 using BardMusicPlayer.Pigeonhole;
@@ -31,6 +32,8 @@ namespace BardMusicPlayer.Maestro.Performance
         public string PlayerName { get { return game.PlayerName ?? "Unknown"; } }
         public string HomeWorld { get { return game.HomeWorld ?? "Unknown"; } }
 
+        private Sequencer mainSequencer { get; set; } = null;
+
         public string TrackInstrument 
         { 
             get {
@@ -39,6 +42,14 @@ namespace BardMusicPlayer.Maestro.Performance
                     if (TrackNumber == 0)
                         return Instrument.Piano;
                     Transmogrify.Song.Config.ClassicProcessorConfig classicConfig = (Transmogrify.Song.Config.ClassicProcessorConfig)_sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].ConfigContainers[0].ProcessorConfig; // track -1 cuz track 0 isn't in this container
+                    
+                    //Leave it here cuz it's gettn called anyway
+                    var tOctaveShift = mainSequencer.GetTrackPreferredOctaveShift(_sequencer.Sequence[this.TrackNumber]);
+                    if (tOctaveShift != OctaveShift)
+                    {
+                        OctaveShift = tOctaveShift;
+                        BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(game, OctaveShift, HostProcess));
+                    }
                     return classicConfig.Instrument.Name;
                 }
         }
@@ -57,13 +68,13 @@ namespace BardMusicPlayer.Maestro.Performance
                     if (_sequencer is Sequencer)
                         _sequencer.CloseInputDevice();
 
-                    var old = value.Sequence;
+                    this.mainSequencer = value;
 
-                    _sequencer = new Sequencer();
+                    this._sequencer = new Sequencer();
                     if (value.LoadedFileType == Sequencer.FILETYPES.BmpSong)
                     {
-                        _sequencer.Sequence = old;
-                        this.OctaveShift = +1;
+                        this._sequencer.Sequence = mainSequencer.Sequence;
+                        this.OctaveShift = 0;
                     }
 
                     if (HostProcess)
@@ -72,9 +83,9 @@ namespace BardMusicPlayer.Maestro.Performance
                             _sequencer.OpenInputDevice(BmpPigeonhole.Instance.MidiInputDev);
                     }
 
-                    _sequencer.OnNote += InternalNote;
-                    _sequencer.OffNote += InternalNote;
-                    _sequencer.ProgChange += InternalProg;
+                    this._sequencer.OnNote += InternalNote;
+                    this._sequencer.OffNote += InternalNote;
+                    this._sequencer.ProgChange += InternalProg;
 
                     _holdNotes = BmpPigeonhole.Instance.HoldNotes;
                     if (HostProcess && BmpPigeonhole.Instance.ForcePlayback)
@@ -82,7 +93,10 @@ namespace BardMusicPlayer.Maestro.Performance
 
                     // set the initial octave shift here, if we have a track to play
                     if (this.TrackNumber < _sequencer.Sequence.Count)
-                        OctaveShift = _sequencer.GetTrackPreferredOctaveShift(_sequencer.Sequence[this.TrackNumber]);
+                    {
+                        this.OctaveShift = mainSequencer.GetTrackPreferredOctaveShift(_sequencer.Sequence[this.TrackNumber]);
+                        BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(game, OctaveShift, HostProcess));
+                    }
                     this.Update(value);
                 }
             }

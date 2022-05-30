@@ -1,19 +1,11 @@
 ﻿
 using BardMusicPlayer.Seer;
-using Melanchall.DryWetMidi.Interaction;
 using System;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
-using System.Windows.Media;
 using BardMusicPlayer.Ui.Functions;
 using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Maestro;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Siren;
 
@@ -25,7 +17,7 @@ namespace BardMusicPlayer.Ui.Classic
     public partial class Classic_MainView : UserControl
     {
         private int MaxTracks = 1;
-
+        private bool _directLoaded { get; set; } = false; //indicates if a song was loaded directly or from playlist
         public Classic_MainView()
         {
             InitializeComponent();
@@ -146,6 +138,10 @@ namespace BardMusicPlayer.Ui.Classic
         {
             PlaybackFunctions.StopSong();
             Play_Button_State(false);
+
+            //if this wasn't a song from the playlist, do nothing
+            if (_directLoaded)
+                return;
 
             if (BmpPigeonhole.Instance.PlaylistAutoPlay)
             {
@@ -273,6 +269,5 @@ namespace BardMusicPlayer.Ui.Classic
                 BmpMaestro.Instance.SetOctaveshiftOnHost(_octavenumValue);
             }
         }
-
     }
 }

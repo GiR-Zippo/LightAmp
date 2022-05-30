@@ -432,6 +432,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
             }
             return Instrument.Piano;
         }
+
         public int GetTrackPreferredOctaveShift(Track track)
         {
             if (track != null)
