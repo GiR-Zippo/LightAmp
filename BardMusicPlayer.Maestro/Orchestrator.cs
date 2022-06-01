@@ -48,7 +48,7 @@ namespace BardMusicPlayer.Maestro
             BmpSeer.Instance.EnsembleStarted += delegate (Seer.Events.EnsembleStarted e) { Instance_EnsembleStarted(e); };
 
             _addPushedbackGamesTimer = new System.Timers.Timer();
-            _addPushedbackGamesTimer.Interval = 4000;
+            _addPushedbackGamesTimer.Interval = 2000;
             _addPushedbackGamesTimer.Enabled = false;
             _addPushedbackGamesTimer.Elapsed += CheckFoundGames;
         }
@@ -533,20 +533,29 @@ namespace BardMusicPlayer.Maestro
                     _updaterTokenSource.Cancel();
 
             //if we have a local orchestra, spread the tracknumbers across the performers
-            if ((!LocalOchestraInitialized) && BmpPigeonhole.Instance.LocalOrchestra)
+            if (BmpPigeonhole.Instance.LocalOrchestra)
             {
-                int index = 1;
-                foreach (var p in _performers)
-                {
-                    p.Value.TrackNumber = index;
-                    if (index == _sequencer.MaxTrack)
-                        index = 1;
-                    else
-                        index++;
-                }
-                LocalOchestraInitialized = true;
-            }
+                int result = _performers.Max(p => p.Value.TrackNumber);
+                if (result != _sequencer.MaxTrack)
+                    LocalOchestraInitialized = false;
 
+                if ((!LocalOchestraInitialized) && BmpPigeonhole.Instance.LocalOrchestra)
+                {
+                    int index = 1;
+                    foreach (var p in _performers)
+                    {
+                        p.Value.TrackNumber = index;
+                        if (index > _sequencer.MaxTrack)
+                        {
+                            p.Value.PerformerEnabled = false;
+                            p.Value.TrackNumber = 0;
+                        }
+                        else
+                            index++;
+                    }
+                    LocalOchestraInitialized = true;
+                }
+            }
             BmpMaestro.Instance.PublishEvent(new MaxPlayTimeEvent(_sequencer.MaxTimeAsTimeSpan, _sequencer.MaxTick));
             BmpSeer.Instance.InstrumentHeldChanged += delegate (Seer.Events.InstrumentHeldChanged e) 
             {

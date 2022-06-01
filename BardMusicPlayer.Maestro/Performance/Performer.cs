@@ -39,7 +39,8 @@ namespace BardMusicPlayer.Maestro.Performance
                     if (_sequencer == null || _sequencer.LoadedBmpSong == null)
                         return "Unknown";
                     if (TrackNumber == 0)
-                        return Instrument.Piano;
+                        return "None";
+
                     Transmogrify.Song.Config.ClassicProcessorConfig classicConfig = (Transmogrify.Song.Config.ClassicProcessorConfig)_sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].ConfigContainers[0].ProcessorConfig; // track -1 cuz track 0 isn't in this container
                     
                     //Leave it here cuz it's gettn called anyway
