@@ -62,7 +62,20 @@
                         <TextBlock Grid.Column="1" Grid.Row="0" Margin="12,0,0,0" Text="{Binding PlayerName}" />
                         <TextBlock Grid.Column="1" Grid.Row="1" Margin="12,0,0,0" Text="{Binding HomeWorld, Mode=OneTime, StringFormat=m\\:ss}" />
 
-                        <TextBlock Grid.Column="3" Grid.Row="1" Margin="12,0,0,0" Text="{Binding TrackInstrument, Mode=OneTime, StringFormat=m\\:ss}" />
+                        <TextBlock Grid.Column="3" Grid.Row="1" Margin="12,0,0,0" Text="{Binding TrackInstrument, Mode=OneTime, StringFormat=m\\:ss}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PerformerEnabled}" Value="False">
+                                            <Setter Property="Background" Value="Red"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding PerformerEnabled}" Value="True">
+                                            <Setter Property="Background" Value="GreenYellow"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
 
                         <TextBlock Grid.Column="5" Grid.Row="0" Text="Track" HorizontalAlignment="Center" />
                         <control:TrackNumericUpDown Grid.Column="5" Grid.Row="1"  x:Name="TrackControl"   PreviewMouseUp="TrackNumericUpDown_MouseUp"   Value="{Binding TrackNumber}"/>
