@@ -79,8 +79,6 @@ namespace BardMusicPlayer.Ui.Controls
             {  36, new NoteRectInfo("CThree", false, 72) }
         };
 
-        private bool mLoaded = false;
-
         public KeyboardHeatMap()
         {
             InitializeComponent();
@@ -101,7 +99,7 @@ namespace BardMusicPlayer.Ui.Controls
         #region UI handling *************************************************************************************
 
 
-        private Dictionary<int, double> getNoteCountForKey(BmpSong song, int tracknumber)
+        private Dictionary<int, double> getNoteCountForKey(BmpSong song, int tracknumber, int octaveshift)
         {
             var midiFile = song.GetProcessedMidiFile().Result;
             var trackChunks = midiFile.GetTrackChunks().ToList();
@@ -113,7 +111,7 @@ namespace BardMusicPlayer.Ui.Controls
                 foreach (var note in trackChunks[tracknumber - 1].GetNotes())
                 {
                     int noteNum = note.NoteNumber;
-                    noteNum -= 48;
+                    noteNum -= 48 - (12*octaveshift);
                     int count = 1;
                     if (notedict.ContainsKey(noteNum))
                     {
@@ -133,7 +131,7 @@ namespace BardMusicPlayer.Ui.Controls
                     foreach (var note in trackChunks[iter].GetNotes())
                     {
                         int noteNum = note.NoteNumber;
-                        noteNum -= 48;
+                        noteNum -= 48 - (12 * octaveshift); ;
                         int count = 1;
                         if (notedict.ContainsKey(noteNum))
                         {
@@ -160,24 +158,24 @@ namespace BardMusicPlayer.Ui.Controls
         /// <summary>
         /// Init the keyboard rects and the Grid constraints
         /// </summary>
-        public void initUI(BmpSong song = null, int tracknumber = -1)
+        public void initUI(BmpSong song = null, int tracknumber = -1, int octaveshift = 0)
         {
-            mLoaded = false;
             ResetFill();
             Dictionary<int, double> noteCountDict = null;
             if (song != null)
             {
-                noteCountDict = getNoteCountForKey(song, tracknumber);
+                noteCountDict = getNoteCountForKey(song, tracknumber, octaveshift);
 
                 foreach (var n in noteCountDict)
                 {
+                    if (n.Key >= noteInfo.Count)
+                        continue;
                     object wantedNode = this.FindName(noteInfo[n.Key].name);
                     Rectangle r = wantedNode as Rectangle;
                     r.Fill = NoteFill(noteInfo[n.Key].black_key, n.Value);
 
                 }
             }
-            mLoaded = true;
         }
 
         private void ResetFill()
@@ -215,15 +213,6 @@ namespace BardMusicPlayer.Ui.Controls
                 brush.GradientStops.Add(new GradientStop(Colors.Black, count));
             }
             return brush;
-        }
-
-        /// <summary>
-        /// Force the redraw of the keys when the container resizes
-        /// </summary>
-        public void resizeUI()
-        {
-            if (!mLoaded)
-                return;
         }
 
         /// <summary>
@@ -285,45 +274,6 @@ namespace BardMusicPlayer.Ui.Controls
 
         #endregion ****************************************************************************************
 
-        #region event handling ***************************************************************************
-
-        private void rect_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            evtLeftButtonDown((Rectangle)sender);
-        }
-
-        private void rect_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            evtLeftButtonUp((Rectangle)sender);
-        }
-
-        private void rect_MouseLeave(object sender, MouseEventArgs e)
-        {
-            evtMouseLeave((Rectangle)sender, e);
-        }
-
-        private void rect_MouseEnter(object sender, MouseEventArgs e)
-        {
-            evtMouseEnter((Rectangle)sender, e);
-        }
-
-        private void rect_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            resizeUI();
-        }
-
-        #endregion ********************************************************
-
-        private void grd_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void grd_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            resizeUI();
-        }
-
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
 
@@ -331,7 +281,6 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            resizeUI();
         }
     }
 }

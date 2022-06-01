@@ -115,7 +115,7 @@ namespace BardMusicPlayer.Ui.Classic
             //Statistics update
             UpdateStats(e);
             //update heatmap
-            KeyHeat.initUI(PlaybackFunctions.CurrentSong, NumValue);
+            KeyHeat.initUI(PlaybackFunctions.CurrentSong, NumValue, OctaveNumValue);
 
             if (PlaybackFunctions.PlaybackState != PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
                 Play_Button_State(false);
@@ -202,7 +202,7 @@ namespace BardMusicPlayer.Ui.Classic
                 track_txtNum.Text = "t" + value.ToString();
 
                 //update heatmap
-                KeyHeat.initUI(PlaybackFunctions.CurrentSong, NumValue);
+                KeyHeat.initUI(PlaybackFunctions.CurrentSong, NumValue, OctaveNumValue);
                 this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
             }
         }
@@ -244,6 +244,7 @@ namespace BardMusicPlayer.Ui.Classic
             {
                 _octavenumValue = value;
                 octave_txtNum.Text = @"ø" + value.ToString();
+                KeyHeat.initUI(PlaybackFunctions.CurrentSong, NumValue, OctaveNumValue);
             }
         }
         private void octave_cmdUp_Click(object sender, RoutedEventArgs e)

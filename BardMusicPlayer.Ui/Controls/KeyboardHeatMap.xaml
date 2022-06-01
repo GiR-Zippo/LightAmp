@@ -6,7 +6,7 @@
              x:Name="NumbericUpDown"
              mc:Ignorable="d" Height="25" Width="40">
 
-    <Grid Name="tgrd" Loaded="grd_Loaded" SizeChanged="grd_SizeChanged">
+    <Grid Name="tgrd">
         <Grid Name="grd">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
