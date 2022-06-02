@@ -75,7 +75,7 @@
                         <MenuItem Header="Show Playlist Window" Click="ShowPlaylistWindow_Click"/>
                         <MenuItem Header="ExtendedView(for some skins)" Click="ShowExtendedView_Click"/>
                         <MenuItem Header="Reset window positions" Click="ResethWindowPositions_Click"/>
-                        
+                        <MenuItem Header="Info" Click="MenuItem_Click"/>
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>

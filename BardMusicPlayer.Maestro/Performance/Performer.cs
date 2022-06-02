@@ -20,10 +20,24 @@ namespace BardMusicPlayer.Maestro.Performance
         private bool _forcePlayback { get; set; } = false;
         private Sequencer _sequencer;
         private Sequencer mainSequencer { get; set; } = null;
-
+        private int _trackNumber { get; set; } = 1;
         public Instrument ChosenInstrument { get; set; } = Instrument.Piano;
         public int OctaveShift { get; set; } = 0;
-        public int TrackNumber { get; set; } = 1;
+        public int TrackNumber { get { return _trackNumber; }
+        set{
+                if (value == _trackNumber)
+                    return;
+                _trackNumber = value;
+                var tOctaveShift = mainSequencer.GetTrackPreferredOctaveShift(_sequencer.Sequence[this._trackNumber]);
+                if (tOctaveShift != OctaveShift)
+                {
+                    OctaveShift = tOctaveShift;
+                    BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(game, OctaveShift, HostProcess));
+                }
+
+            }
+        }
+
         public bool PerformerEnabled { get; set; } = true;
 
         public EventHandler onUpdate;
@@ -43,13 +57,7 @@ namespace BardMusicPlayer.Maestro.Performance
 
                     Transmogrify.Song.Config.ClassicProcessorConfig classicConfig = (Transmogrify.Song.Config.ClassicProcessorConfig)_sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].ConfigContainers[0].ProcessorConfig; // track -1 cuz track 0 isn't in this container
                     
-                    //Leave it here cuz it's gettn called anyway
-                    var tOctaveShift = mainSequencer.GetTrackPreferredOctaveShift(_sequencer.Sequence[this.TrackNumber]);
-                    if (tOctaveShift != OctaveShift)
-                    {
-                        OctaveShift = tOctaveShift;
-                        BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(game, OctaveShift, HostProcess));
-                    }
+
                     return classicConfig.Instrument.Name;
                 }
         }
@@ -92,9 +100,9 @@ namespace BardMusicPlayer.Maestro.Performance
                         _forcePlayback = true;
 
                     // set the initial octave shift here, if we have a track to play
-                    if (this.TrackNumber < _sequencer.Sequence.Count)
+                    if (this._trackNumber < _sequencer.Sequence.Count)
                     {
-                        this.OctaveShift = mainSequencer.GetTrackPreferredOctaveShift(_sequencer.Sequence[this.TrackNumber]);
+                        this.OctaveShift = mainSequencer.GetTrackPreferredOctaveShift(_sequencer.Sequence[this._trackNumber]);
                         BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(game, OctaveShift, HostProcess));
                     }
                     this.Update(value);
@@ -206,7 +214,7 @@ namespace BardMusicPlayer.Maestro.Performance
 
         public void Update(Sequencer bmpSeq)
         {
-            int tn = TrackNumber;
+            int tn = _trackNumber;
 
             if (!(bmpSeq is Sequencer))
             {
@@ -255,7 +263,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 return;
 
             // don't open instrument if we're not on a valid track
-            if (TrackNumber == 0 || TrackNumber >= _sequencer.Sequence.Count)
+            if (_trackNumber == 0 || _trackNumber >= _sequencer.Sequence.Count)
                 return;
 
             var t = Instrument.Parse(TrackInstrument);
@@ -320,7 +328,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 track = args.MidiTrack,
             };
 
-            if ((_sequencer.GetTrackNum(noteEvent.track) == this.TrackNumber) || !_sequencer.IsPlaying)
+            if ((_sequencer.GetTrackNum(noteEvent.track) == this._trackNumber) || !_sequencer.IsPlaying)
             {
                 noteEvent.note = NoteHelper.ApplyOctaveShift(noteEvent.note, this.OctaveShift);
 
@@ -358,7 +366,7 @@ namespace BardMusicPlayer.Maestro.Performance
             if (programEvent.voice < 27 || programEvent.voice > 31)
                 return;
 
-            if (_sequencer.GetTrackNum(programEvent.track) == this.TrackNumber)
+            if (_sequencer.GetTrackNum(programEvent.track) == this._trackNumber)
             {
                 if (game.ChatStatus && !_forcePlayback)
                     return;

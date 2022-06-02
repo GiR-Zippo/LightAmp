@@ -22,7 +22,6 @@ namespace BardMusicPlayer.Ui.Classic
         public Classic_MainView()
         {
             InitializeComponent();
-            _infoBox = new InfoBox();
             //Always start with the playlists
             _showingPlaylists = true;
             //Fill the list
@@ -275,7 +274,9 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Info_Button_Click(object sender, RoutedEventArgs e)
         {
-            _infoBox.Show();
+            if (_infoBox == null)
+                _infoBox = new InfoBox();
+            _infoBox.Visibility = Visibility.Visible;
         }
     }
 }
