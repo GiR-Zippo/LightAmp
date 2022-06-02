@@ -535,25 +535,30 @@ namespace BardMusicPlayer.Maestro
             //if we have a local orchestra, spread the tracknumbers across the performers
             if (BmpPigeonhole.Instance.LocalOrchestra)
             {
-                int result = _performers.Max(p => p.Value.TrackNumber);
-                if (result != _sequencer.MaxTrack)
-                    LocalOchestraInitialized = false;
-
-                if ((!LocalOchestraInitialized) && BmpPigeonhole.Instance.LocalOrchestra)
+                Performer perfc = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
+                if (perfc != null)
                 {
-                    int index = 1;
-                    foreach (var p in _performers)
+
+                    int result = _performers.Max(p => p.Value.TrackNumber);
+                    if (result != _sequencer.MaxTrack)
+                        LocalOchestraInitialized = false;
+
+                    if ((!LocalOchestraInitialized) && BmpPigeonhole.Instance.LocalOrchestra)
                     {
-                        p.Value.TrackNumber = index;
-                        if (index > _sequencer.MaxTrack)
+                        int index = 1;
+                        foreach (var p in _performers)
                         {
-                            p.Value.PerformerEnabled = false;
-                            p.Value.TrackNumber = 0;
+                            p.Value.TrackNumber = index;
+                            if (index > _sequencer.MaxTrack)
+                            {
+                                p.Value.PerformerEnabled = false;
+                                p.Value.TrackNumber = 0;
+                            }
+                            else
+                                index++;
                         }
-                        else
-                            index++;
+                        LocalOchestraInitialized = true;
                     }
-                    LocalOchestraInitialized = true;
                 }
             }
             BmpMaestro.Instance.PublishEvent(new MaxPlayTimeEvent(_sequencer.MaxTimeAsTimeSpan, _sequencer.MaxTick));
