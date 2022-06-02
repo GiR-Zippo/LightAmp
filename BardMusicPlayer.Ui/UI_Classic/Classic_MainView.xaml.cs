@@ -18,9 +18,11 @@ namespace BardMusicPlayer.Ui.Classic
     {
         private int MaxTracks = 1;
         private bool _directLoaded { get; set; } = false; //indicates if a song was loaded directly or from playlist
+        private InfoBox _infoBox = null;
         public Classic_MainView()
         {
             InitializeComponent();
+            _infoBox = new InfoBox();
             //Always start with the playlists
             _showingPlaylists = true;
             //Fill the list
@@ -269,6 +271,11 @@ namespace BardMusicPlayer.Ui.Classic
                 octave_txtNum.Text = @"ø" + _octavenumValue.ToString();
                 BmpMaestro.Instance.SetOctaveshiftOnHost(_octavenumValue);
             }
+        }
+
+        private void Info_Button_Click(object sender, RoutedEventArgs e)
+        {
+            _infoBox.Show();
         }
     }
 }
