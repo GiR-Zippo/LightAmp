@@ -111,6 +111,10 @@ namespace BardMusicPlayer.Maestro
             {
                 perf.Value.Sequencer = _sequencer;          //use the sequence from the main sequencer
                 perf.Value.Sequencer.LoadedBmpSong = song;  //set the song
+                
+                //if we autoequip the orchestra, just do it
+                if (BmpPigeonhole.Instance.EnsebleAutoEquip && BmpPigeonhole.Instance.LocalOrchestra)
+                    perf.Value.OpenInstrument();
             }
             InitNewPerformance();
         }
@@ -614,6 +618,15 @@ namespace BardMusicPlayer.Maestro
         private void Sequencer_PlayEnded(object sender, EventArgs e)
         {
             BmpMaestro.Instance.PublishEvent(new PlaybackStoppedEvent());
+
+            //If we have equipped the bards, unequip them too
+            if (BmpPigeonhole.Instance.EnsebleAutoEquip && BmpPigeonhole.Instance.LocalOrchestra)
+            {
+                Parallel.ForEach(_performers, perf =>
+                {
+                    perf.Value.CloseInstrument();
+                });
+            }
         }
 
         /// <summary>

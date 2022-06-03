@@ -28,12 +28,15 @@ namespace BardMusicPlayer.Ui.Skinned
             ClassicSkin.IsChecked = BmpPigeonhole.Instance.ClassicUi;
 
             //Playback Tab
-            this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
             this.HoldNotesBox.IsChecked = BmpPigeonhole.Instance.HoldNotes;
             this.ForcePlaybackBox.IsChecked = BmpPigeonhole.Instance.ForcePlayback;
             MIDI_Input_DeviceBox.Items.Clear();
             MIDI_Input_DeviceBox.ItemsSource = Maestro.Utils.MidiInput.ReloadMidiInputDevices();
             this.MIDI_Input_DeviceBox.SelectedIndex = BmpPigeonhole.Instance.MidiInputDev + 1;
+            
+            //Local Orchestra
+            this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
+            this.AutoEquipBox.IsChecked = BmpPigeonhole.Instance.EnsebleAutoEquip;
 
             //Syncsettings
             Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
@@ -89,11 +92,6 @@ namespace BardMusicPlayer.Ui.Skinned
         #endregion
 
         #region PlaybackTab controls
-        private void LocalOrchestraBox_Checked(object sender, RoutedEventArgs e)
-        {
-            BmpPigeonhole.Instance.LocalOrchestra = LocalOrchestraBox.IsChecked ?? false;
-        }
-
         private void Hold_Notes_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.HoldNotes = (HoldNotesBox.IsChecked ?? false);
@@ -116,6 +114,19 @@ namespace BardMusicPlayer.Ui.Skinned
 
             BmpMaestro.Instance.OpenInputDevice(d.Key);
         }
+        #endregion
+
+        #region PlaybackTab controls
+        private void LocalOrchestraBox_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.LocalOrchestra = LocalOrchestraBox.IsChecked ?? false;
+        }
+
+        private void AutoEquipBox_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.EnsebleAutoEquip = AutoEquipBox.IsChecked ?? false;
+        }
+
         #endregion
 
         #region SyncsettingsTab controls

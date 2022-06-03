@@ -150,6 +150,16 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual bool EnseblePlayDelay { get; set; } = true;
 
         /// <summary>
+        /// autoequip after song load in ensemble mode delay enabled
+        /// </summary>
+        public virtual bool EnsebleAutoEquip { get; set; } = false;
+
+        /// <summary>
+        /// keep the ensmble track settings
+        /// </summary>
+        public virtual bool EnsembleKeepTrackSetting { get; set; } = false;
+
+        /// <summary>
         /// milliseconds between game process scans / seer scanner startups.
         /// </summary>
         public virtual int SeerGameScanCooldown { get; set; } = 20;

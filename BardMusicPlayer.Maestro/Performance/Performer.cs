@@ -34,12 +34,10 @@ namespace BardMusicPlayer.Maestro.Performance
                     OctaveShift = tOctaveShift;
                     BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(game, OctaveShift, HostProcess));
                 }
-
             }
         }
 
         public bool PerformerEnabled { get; set; } = true;
-
         public EventHandler onUpdate;
         public bool HostProcess { get; set; } = false;
         public int PId = 0;
@@ -56,8 +54,6 @@ namespace BardMusicPlayer.Maestro.Performance
                         return "None";
 
                     Transmogrify.Song.Config.ClassicProcessorConfig classicConfig = (Transmogrify.Song.Config.ClassicProcessorConfig)_sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].ConfigContainers[0].ProcessorConfig; // track -1 cuz track 0 isn't in this container
-                    
-
                     return classicConfig.Instrument.Name;
                 }
         }
