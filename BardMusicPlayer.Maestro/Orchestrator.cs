@@ -542,24 +542,37 @@ namespace BardMusicPlayer.Maestro
                 Performer perfc = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
                 if (perfc != null)
                 {
+                    if (!BmpPigeonhole.Instance.EnsembleKeepTrackSetting)
+                    {
+                        int result = _performers.Max(p => p.Value.TrackNumber);
+                        if (result != _sequencer.MaxTrack)
+                            LocalOchestraInitialized = false;
+                    }
+                    else
+                    {
+                        foreach (var p in _performers)
+                        {
+                            if (p.Value.TrackNumber > _sequencer.MaxTrack)
+                                p.Value.PerformerEnabled = false;
+                        }
+                    }
 
-                    int result = _performers.Max(p => p.Value.TrackNumber);
-                    if (result != _sequencer.MaxTrack)
-                        LocalOchestraInitialized = false;
-
+                    //Renumber the performers if needed
                     if ((!LocalOchestraInitialized) && BmpPigeonhole.Instance.LocalOrchestra)
                     {
                         int index = 1;
                         foreach (var p in _performers)
                         {
-                            p.Value.TrackNumber = index;
                             if (index > _sequencer.MaxTrack)
                             {
                                 p.Value.PerformerEnabled = false;
                                 p.Value.TrackNumber = 0;
                             }
                             else
+                            {
+                                p.Value.TrackNumber = index;
                                 index++;
+                            }
                         }
                         LocalOchestraInitialized = true;
                     }

@@ -124,8 +124,9 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <CheckBox Margin="10,10,0,0" Grid.Column="1" Grid.Row="1" x:Name="LocalOrchestraBox" Content="Local Orchestra" Unchecked="LocalOrchestraBox_Checked" Checked="LocalOrchestraBox_Checked"/>
-                            <CheckBox Margin="10,0,0,0" Grid.Column="1" Grid.Row="2" x:Name="AutoEquipBox" Content="Auto Equip Orchestra" Unchecked="AutoEquipBox_Checked" Checked="AutoEquipBox_Checked"/>
+                            <CheckBox Grid.Column="1" Grid.Row="1" x:Name="LocalOrchestraBox" Content="Local Orchestra" Unchecked="LocalOrchestraBox_Checked" Checked="LocalOrchestraBox_Checked"/>
+                            <CheckBox Grid.Column="1" Grid.Row="2" x:Name="AutoEquipBox" Content="Auto Equip Orchestra" Unchecked="AutoEquipBox_Checked" Checked="AutoEquipBox_Checked"/>
+                            <CheckBox Grid.Column="1" Grid.Row="3" x:Name="KeepTrackSettingsBox" Content="Thymms I know what I'm doing box" Unchecked="KeepTrackSettingsBox_Checked" Checked="KeepTrackSettingsBox_Checked"/>
                         </Grid>
                     </TabItem>
 

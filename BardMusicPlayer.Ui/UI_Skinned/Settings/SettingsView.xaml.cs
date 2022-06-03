@@ -37,6 +37,7 @@ namespace BardMusicPlayer.Ui.Skinned
             //Local Orchestra
             this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
             this.AutoEquipBox.IsChecked = BmpPigeonhole.Instance.EnsebleAutoEquip;
+            this.KeepTrackSettingsBox.IsChecked = BmpPigeonhole.Instance.EnsembleKeepTrackSetting;
 
             //Syncsettings
             Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
@@ -116,7 +117,7 @@ namespace BardMusicPlayer.Ui.Skinned
         }
         #endregion
 
-        #region PlaybackTab controls
+        #region Local orchestra controls
         private void LocalOrchestraBox_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.LocalOrchestra = LocalOrchestraBox.IsChecked ?? false;
@@ -125,6 +126,11 @@ namespace BardMusicPlayer.Ui.Skinned
         private void AutoEquipBox_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.EnsebleAutoEquip = AutoEquipBox.IsChecked ?? false;
+        }
+
+        private void KeepTrackSettingsBox_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.EnsembleKeepTrackSetting = KeepTrackSettingsBox.IsChecked ?? false;
         }
 
         #endregion
