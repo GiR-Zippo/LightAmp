@@ -33,7 +33,7 @@ namespace BardMusicPlayer.Ui.Functions
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "MIDI file|*.mid;*.midi;*.mmsong|All files (*.*)|*.*",
+                Filter = Globals.Globals.FileFilters,
                 Multiselect = true
             };
 

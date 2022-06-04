@@ -50,7 +50,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             if (!File.Exists(path)) throw new BmpTransmogrifyException("File " + path + " does not exist!");
 
             StreamReader rfile = new StreamReader(path);
-
+            string musicdata = "";
             while (rfile.Peek() >= 0)
             {
                 string line = rfile.ReadLine();
@@ -58,6 +58,14 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                     _chap = Chap.SETTINGS;
                 if (line.StartsWith("[Channel"))
                 {
+                    if (musicdata.Length > 0)
+                    {
+                        MatchCollection matches = Regex.Matches(StripComments(musicdata), mmlPatterns);
+                        for (int i = 0; i < matches.Count; ++i)
+                            musicData[CurrentChannel].Add(MMLCommand.Parse(matches[i].Value));
+                        musicdata = "";
+                    }
+
                     _chap = Chap.CHANNEL;
                     CurrentChannel++;
                     musicData.Add(CurrentChannel, new List<MMLCommand>());
@@ -65,8 +73,16 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                     continue;
                 }
                 if (line.Contains("[3MLE EXTENSION]"))
+                {
+                    if (musicdata.Length > 0)
+                    {
+                        MatchCollection matches = Regex.Matches(StripComments(musicdata), mmlPatterns);
+                        for (int i = 0; i < matches.Count; ++i)
+                            musicData[CurrentChannel].Add(MMLCommand.Parse(matches[i].Value));
+                        musicdata = "";
+                    }
                     _chap = Chap.FINISHED;
-
+                }
 
                 if (_chap == Chap.SETTINGS)
                 {
@@ -82,12 +98,9 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                             musicInstrument[CurrentChannel] = result.Name;
                         continue;
                     }
-                    MatchCollection matches = Regex.Matches(StripComments(line), mmlPatterns);
-                    for (int i = 0; i < matches.Count; ++i)
-                        musicData[CurrentChannel].Add(MMLCommand.Parse(matches[i].Value));
+                    musicdata += StripComments(line);
                 }
             }
-
             return CreateMidi();
         }
 
@@ -189,17 +202,6 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                 midiFile.Chunks.Add(thisTrack);
             }
             midiFile.ReplaceTempoMap(TempoMap.Create(Tempo.FromBeatsPerMinute(_Tempo)));
-
-            /*midiFile.GetTrackChunks().First().Events.Insert(0, new SetTempoEvent(Tempo.FromBeatsPerMinute(_Tempo).MicrosecondsPerQuarterNote));
-
-            foreach (var trackChunk in midiFile.GetTrackChunks())
-            {
-                foreach (var setTempoEvent in trackChunk.Events.OfType<SetTempoEvent>())
-                {
-                    var microsecondsPerQuarterNote = setTempoEvent.MicrosecondsPerQuarterNote;
-                    setTempoEvent.MicrosecondsPerQuarterNote = (long)Math.Round(microsecondsPerQuarterNote * 0.8);
-                }
-            }*/
 
             musicData.Clear();
             return midiFile;

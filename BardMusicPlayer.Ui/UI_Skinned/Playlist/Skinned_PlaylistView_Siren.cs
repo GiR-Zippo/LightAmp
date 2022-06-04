@@ -171,8 +171,7 @@ namespace BardMusicPlayer.Ui.Skinned
             {
                 var openFileDialog = new OpenFileDialog
                 {
-                    //Filter = "MIDI file|*.mid;*.midi;*.mmsong|All files (*.*)|*.*",
-                    Filter = "MIDI file|*.mid;*.midi;*.mmsong;*.mml|All files (*.*)|*.*",
+                    Filter = Globals.Globals.FileFilters,
                     Multiselect = false
                 };
 

@@ -8,11 +8,7 @@ namespace BardMusicPlayer.Ui.Globals
 {
     public static class Globals
     {
-        public static bool IsBeta;
-        public static int Build;
-        public static string Commit;
-        public static string ExePath;
-        public static string ResourcePath;
+        public static string FileFilters = "MIDI file|*.mid;*.midi;*.mmsong;*.mml|All files (*.*)|*.*";
         public static string DataPath;
         public enum Autostart_Types
         {
