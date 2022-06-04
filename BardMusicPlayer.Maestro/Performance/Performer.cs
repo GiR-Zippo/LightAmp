@@ -268,6 +268,39 @@ namespace BardMusicPlayer.Maestro.Performance
             _hook.SendSyncKeybind(game.InstrumentKeys[t]);
         }
 
+        public async Task<int> ReplaceInstrument()
+        {
+            // don't open instrument if we don't have anything loaded
+            if (_sequencer == null || _sequencer.Sequence == null)
+            {
+                CloseInstrument();
+                return 0;
+            }
+
+            // don't open instrument if we're not on a valid track
+            if (_trackNumber == 0 || _trackNumber >= _sequencer.Sequence.Count)
+            {
+                CloseInstrument();
+                return 0;
+            }
+
+            // if we are the host, we do this by our own
+            if (!game.InstrumentHeld.Equals(Instrument.None))
+            {
+                if (game.InstrumentHeld.Equals(Instrument.Parse(TrackInstrument)))
+                    return 0;
+                else
+                {
+                    CloseInstrument();
+                    await Task.Delay(BmpPigeonhole.Instance.EnsebleReadyDelay);
+                }
+            }
+
+            var t = Instrument.Parse(TrackInstrument);
+            _hook.SendSyncKeybind(game.InstrumentKeys[t]);
+            return 0;
+        }
+
         /// <summary>
         /// Close the instrument
         /// </summary>

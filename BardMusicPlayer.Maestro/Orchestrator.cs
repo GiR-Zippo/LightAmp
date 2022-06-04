@@ -46,6 +46,7 @@ namespace BardMusicPlayer.Maestro
             BmpSeer.Instance.GameStopped += Instance_OnGameStopped;
             BmpSeer.Instance.EnsembleRequested += delegate (Seer.Events.EnsembleRequested e) { Instance_EnsembleRequested(e); };
             BmpSeer.Instance.EnsembleStarted += delegate (Seer.Events.EnsembleStarted e) { Instance_EnsembleStarted(e); };
+            BmpSeer.Instance.InstrumentHeldChanged += delegate (Seer.Events.InstrumentHeldChanged e) { Instance_InstrumentHeldChanged(e); };
 
             _addPushedbackGamesTimer = new System.Timers.Timer();
             _addPushedbackGamesTimer.Interval = 2000;
@@ -111,10 +112,6 @@ namespace BardMusicPlayer.Maestro
             {
                 perf.Value.Sequencer = _sequencer;          //use the sequence from the main sequencer
                 perf.Value.Sequencer.LoadedBmpSong = song;  //set the song
-                
-                //if we autoequip the orchestra, just do it
-                if (BmpPigeonhole.Instance.EnsebleAutoEquip && BmpPigeonhole.Instance.LocalOrchestra)
-                    perf.Value.OpenInstrument();
             }
             InitNewPerformance();
         }
@@ -354,6 +351,15 @@ namespace BardMusicPlayer.Maestro
 
             foreach (var perf in _performers)
                 perf.Value.Stop();
+
+            //If we have equipped the bards, unequip them too
+            if (BmpPigeonhole.Instance.EnsebleAutoEquip)
+            {
+                Parallel.ForEach(_performers, perf =>
+                {
+                    perf.Value.CloseInstrument();
+                });
+            }
         }
 
         /// <summary>
@@ -577,12 +583,17 @@ namespace BardMusicPlayer.Maestro
                         LocalOchestraInitialized = true;
                     }
                 }
+
+                //if we autoequip the orchestra, just do it
+                if (BmpPigeonhole.Instance.EnsebleAutoEquip && BmpPigeonhole.Instance.LocalOrchestra)
+                {
+                    Parallel.ForEach(_performers, perf =>
+                    {
+                        _ = perf.Value.ReplaceInstrument();
+                    });
+                }
             }
             BmpMaestro.Instance.PublishEvent(new MaxPlayTimeEvent(_sequencer.MaxTimeAsTimeSpan, _sequencer.MaxTick));
-            BmpSeer.Instance.InstrumentHeldChanged += delegate (Seer.Events.InstrumentHeldChanged e) 
-            {
-                Instance_InstrumentHeldChanged(e);
-            };
             BmpMaestro.Instance.PublishEvent(new SongLoadedEvent(_sequencer.MaxTrack, _sequencer));
 
             Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
@@ -631,15 +642,6 @@ namespace BardMusicPlayer.Maestro
         private void Sequencer_PlayEnded(object sender, EventArgs e)
         {
             BmpMaestro.Instance.PublishEvent(new PlaybackStoppedEvent());
-
-            //If we have equipped the bards, unequip them too
-            if (BmpPigeonhole.Instance.EnsebleAutoEquip && BmpPigeonhole.Instance.LocalOrchestra)
-            {
-                Parallel.ForEach(_performers, perf =>
-                {
-                    perf.Value.CloseInstrument();
-                });
-            }
         }
 
         /// <summary>
