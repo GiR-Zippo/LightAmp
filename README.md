@@ -5,6 +5,6 @@ This is a fun project to create a MIDI player for XIV. It's based on the publish
 
 It's using two Ui layouts, the old well known classic BMP and a WinAmp one. The WinAmp Ui is skinnable with the classic WinAmp skins.
 
-NOTE: For now the local orchestra is in beta state.
+The local orchestra is working now.
 
 Feel free to use, modify or fork it.
