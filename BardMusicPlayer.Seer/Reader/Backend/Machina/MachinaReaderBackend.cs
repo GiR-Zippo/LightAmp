@@ -89,14 +89,12 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                     {
                         ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina, ex));
                     }
-                    _packet.Dispose();
                 }
-
                 await Task.Delay(SleepTimeInMs, token);
             }
         }
 
-        private void OnMessageReceived(int processId, uint connection, byte[] message)
+        private void OnMessageReceived(int processId, byte[] message)
         {
             if (!_messageQueueOpen || ReaderHandler.Game.Pid != processId) return;
             _messageQueue.Enqueue(message);
@@ -104,7 +102,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 
         public void Dispose()
         {
-            _messageQueueOpen                       =  false;
+            _messageQueueOpen                        =  false;
             MachinaManager.Instance.MessageReceived -= OnMessageReceived;
             MachinaManager.Instance.RemoveGame(ReaderHandler.Game.Pid);
             while (_messageQueue.TryDequeue(out _))

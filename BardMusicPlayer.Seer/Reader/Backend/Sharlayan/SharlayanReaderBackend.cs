@@ -180,6 +180,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             public Instrument Instrument;
             public string PlayerName;
             public bool IsBard;
+            public bool IsLoggedIn;
             public string ConfigId;
             public uint ActorId;
             public SortedDictionary<uint, string> PartyMembers;
@@ -250,9 +251,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                     case EnsembleMessageLookup.EnsembleFlag.Request:
                         ReaderHandler.Game.PublishEvent(new EnsembleRequested(EventSource.Sharlayan));
                         break;
-                    case EnsembleMessageLookup.EnsembleFlag.Start:
+                    /*case EnsembleMessageLookup.EnsembleFlag.Start:
                         ReaderHandler.Game.PublishEvent(new EnsembleStarted(EventSource.Sharlayan));
-                        break;
+                        break;*/
                     case EnsembleMessageLookup.EnsembleFlag.Stop:
                         ReaderHandler.Game.PublishEvent(new EnsembleStopped(EventSource.Sharlayan));
                         break;
@@ -281,9 +282,11 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             _lastScan.ActorId    = kvp.Key;
             _lastScan.PlayerName = kvp.Value.Item1;
             _lastScan.IsBard     = kvp.Value.Item2;
+            _lastScan.IsLoggedIn = kvp.Value.Item3;
             ReaderHandler.Game.PublishEvent(new ActorIdChanged(EventSource.Sharlayan, _lastScan.ActorId));
             ReaderHandler.Game.PublishEvent(new PlayerNameChanged(EventSource.Sharlayan, _lastScan.PlayerName));
             ReaderHandler.Game.PublishEvent(new IsBardChanged(EventSource.Sharlayan, _lastScan.IsBard));
+            ReaderHandler.Game.PublishEvent(new IsLoggedInChanged(EventSource.Sharlayan, _lastScan.IsLoggedIn));
         }
 
         private void GetConfigId(CancellationToken cancellationToken)

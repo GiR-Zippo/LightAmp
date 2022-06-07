@@ -36,7 +36,7 @@ namespace BardMusicPlayer.Seer.Utilities
         private readonly object _lock;
         private bool _monitorRunning;
 
-        internal delegate void MessageReceivedHandler(int processId, uint remote_connection, byte[] message);
+        internal delegate void MessageReceivedHandler(int processId, byte[] message);
 
         internal event MessageReceivedHandler MessageReceived;
 
@@ -76,7 +76,7 @@ namespace BardMusicPlayer.Seer.Utilities
 
         private void MessageReceivedEventHandler(TCPConnection connection, long epoch, byte[] message)
         {
-            if (Lengths.Contains(message.Length)) MessageReceived?.Invoke((int) connection.ProcessId, connection.RemoteIP, message);
+            if (Lengths.Contains(message.Length)) MessageReceived?.Invoke((int) connection.ProcessId, message);
         }
 
         ~MachinaManager() { Dispose(); }

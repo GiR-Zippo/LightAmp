@@ -161,9 +161,13 @@ namespace BardMusicPlayer.Ui.Controls
         public void initUI(BmpSong song = null, int tracknumber = -1, int octaveshift = 0)
         {
             ResetFill();
+
             Dictionary<int, double> noteCountDict = null;
             if (song != null)
             {
+                if ((tracknumber) >= song.TrackContainers.Count())
+                    return;
+
                 noteCountDict = getNoteCountForKey(song, tracknumber, octaveshift);
 
                 foreach (var n in noteCountDict)

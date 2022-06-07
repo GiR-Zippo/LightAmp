@@ -158,6 +158,14 @@ namespace BardMusicPlayer.Seer
 
         private void OnIsBardChanged(IsBardChanged seerEvent) => IsBardChanged?.Invoke(seerEvent);
 
+        public delegate void IsLoggedInChangedHandler(IsLoggedInChanged seerEvent);
+        /// <summary>
+        /// Called when the player is, or is not, a logged in.
+        /// </summary>
+        public event IsLoggedInChangedHandler IsLoggedInChanged;
+
+        private void OnIsLoggedInChanged(IsLoggedInChanged seerEvent) => IsLoggedInChanged?.Invoke(seerEvent);
+
         public delegate void KeyMapChangedHandler(KeyMapChanged seerEvent);
 
         /// <summary>

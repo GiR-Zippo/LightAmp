@@ -36,6 +36,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         BitConverter.ToUInt32(message, 44) == 0 && BitConverter.ToUInt32(message, 48) == 0
                     ))
                 {
+                    //string hexString = BitConverter.ToString(message);
+                    //System.Diagnostics.Debug.WriteLine(hexString);
+
                     try
                     {
                         if (BitConverter.ToUInt16(message, 48) == 0 && ValidTempo(message[50]) &&
@@ -53,7 +56,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                             if (!ActorIdTools.RangeOkay(partyMember)) return;
 
                             uint reply = message[48];
-                            if (reply > 2) return;
+                            if (reply > 2) 
+                                return;
 
                             switch (reply)
                             {

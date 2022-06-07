@@ -94,7 +94,13 @@ namespace BardMusicPlayer.Seer
                         }
 
                         break;
-
+                    case IsLoggedInChanged isLoggedIn:
+                        if (IsLoggedIn != isLoggedIn.IsLoggedIn)
+                        {
+                            IsLoggedIn = isLoggedIn.IsLoggedIn;
+                            BmpSeer.Instance.PublishEvent(isLoggedIn);
+                        }
+                        break;
                     case IsBardChanged isBard:
                         if (IsBard != isBard.IsBard)
                         {

@@ -27,7 +27,15 @@ namespace BardMusicPlayer.Maestro.Performance
         set{
                 if (value == _trackNumber)
                     return;
+
+                if (value > mainSequencer.MaxTrack)
+                {
+                    BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(game, _trackNumber, HostProcess));
+                    return;
+                }
+
                 _trackNumber = value;
+                BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(game, _trackNumber, HostProcess));
                 var tOctaveShift = mainSequencer.GetTrackPreferredOctaveShift(_sequencer.Sequence[this._trackNumber]);
                 if (tOctaveShift != OctaveShift)
                 {
@@ -74,6 +82,7 @@ namespace BardMusicPlayer.Maestro.Performance
                     if (_sequencer is Sequencer)
                         _sequencer.CloseInputDevice();
 
+                    this._startDelayTimer.Enabled = false;
                     this.mainSequencer = value;
 
                     this._sequencer = new Sequencer();
@@ -341,8 +350,7 @@ namespace BardMusicPlayer.Maestro.Performance
         {
             if (_sequencer is Sequencer)
             {
-                if (!_sequencer.IsPlaying)
-                    _sequencer.Play();
+                _sequencer.Play();
                 _startDelayTimer.Enabled = false;
             }
         }

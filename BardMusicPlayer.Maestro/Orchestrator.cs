@@ -169,7 +169,6 @@ namespace BardMusicPlayer.Maestro
                 if (perf.Value.game.Pid == game.Pid)
                 {
                     perf.Value.TrackNumber = tracknumber;
-                    BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(perf.Value.game, tracknumber, perf.Value.HostProcess));
                 }
             }
         }
@@ -185,7 +184,6 @@ namespace BardMusicPlayer.Maestro
                 return;
 
             perf.TrackNumber = tracknumber;
-            BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(perf.game, tracknumber, perf.HostProcess));
         }
 
         /// <summary>
@@ -351,15 +349,6 @@ namespace BardMusicPlayer.Maestro
 
             foreach (var perf in _performers)
                 perf.Value.Stop();
-
-            //If we have equipped the bards, unequip them too
-            if (BmpPigeonhole.Instance.EnsebleAutoEquip)
-            {
-                Parallel.ForEach(_performers, perf =>
-                {
-                    perf.Value.CloseInstrument();
-                });
-            }
         }
 
         /// <summary>
