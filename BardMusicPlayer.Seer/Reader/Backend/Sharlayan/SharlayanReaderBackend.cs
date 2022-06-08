@@ -251,9 +251,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                     case EnsembleMessageLookup.EnsembleFlag.Request:
                         ReaderHandler.Game.PublishEvent(new EnsembleRequested(EventSource.Sharlayan));
                         break;
-                    /*case EnsembleMessageLookup.EnsembleFlag.Start:
+                    case EnsembleMessageLookup.EnsembleFlag.Start:
                         ReaderHandler.Game.PublishEvent(new EnsembleStarted(EventSource.Sharlayan));
-                        break;*/
+                        break;
                     case EnsembleMessageLookup.EnsembleFlag.Stop:
                         ReaderHandler.Game.PublishEvent(new EnsembleStopped(EventSource.Sharlayan));
                         break;

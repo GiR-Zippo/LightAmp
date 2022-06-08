@@ -160,6 +160,11 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual bool EnsembleKeepTrackSetting { get; set; } = false;
 
         /// <summary>
+        /// start the performer by it's own ready signal
+        /// </summary>
+        public virtual bool EnsembleStartIndividual { get; set; } = true;
+
+        /// <summary>
         /// milliseconds between game process scans / seer scanner startups.
         /// </summary>
         public virtual int SeerGameScanCooldown { get; set; } = 20;

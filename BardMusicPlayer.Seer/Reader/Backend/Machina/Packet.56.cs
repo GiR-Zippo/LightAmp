@@ -97,18 +97,13 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                                     switch (param1)
                                     {
                                         case 16: // equip instrument
-                                            _machinaReader.ReaderHandler.Game.PublishEvent(
-                                                new InstrumentHeldChanged(EventSource.Machina,
-                                                    Instrument.Parse((int) param2)));
+                                            _machinaReader.ReaderHandler.Game.PublishEvent(new InstrumentHeldChanged(EventSource.Machina, Instrument.Parse((int) param2)));
                                             break;
                                         case 1: // de-equip instrument
                                             if (param2 == 0)
                                             {
-                                                _machinaReader.ReaderHandler.Game.PublishEvent(
-                                                    new InstrumentHeldChanged(EventSource.Machina,
-                                                        Instrument.Parse((int) param2)));
+                                                _machinaReader.ReaderHandler.Game.PublishEvent(new InstrumentHeldChanged(EventSource.Machina, Instrument.Parse((int) param2)));
                                             }
-
                                             break;
                                     }
                                 }
