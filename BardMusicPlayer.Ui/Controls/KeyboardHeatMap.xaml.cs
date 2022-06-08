@@ -165,7 +165,7 @@ namespace BardMusicPlayer.Ui.Controls
             Dictionary<int, double> noteCountDict = null;
             if (song != null)
             {
-                if ((tracknumber) >= song.TrackContainers.Count())
+                if ((tracknumber-1) >= song.TrackContainers.Count())
                     return;
 
                 noteCountDict = getNoteCountForKey(song, tracknumber, octaveshift);
