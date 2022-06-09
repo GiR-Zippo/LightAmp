@@ -307,8 +307,18 @@ namespace BardMusicPlayer.Maestro
                 return;
             }
 
-            foreach (var perf in _performers)
+            if (delay == 0)
+                delay += 100;
+
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+            Parallel.ForEach(_performers, perf =>
+            {
+                delay = delay - (int)sw.ElapsedMilliseconds;
+                if (delay < 0)
+                    delay = 0;
                 perf.Value.Play(true, delay);
+            });
         }
 
         /// <summary>
@@ -625,10 +635,16 @@ namespace BardMusicPlayer.Maestro
                 return;
             }
 
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
             Parallel.ForEach(_performers, perfo =>
             {
+                delayvalue = delayvalue - (int)sw.ElapsedMilliseconds;
+                if (delayvalue < 0)
+                    delayvalue = 0;
                 start(delayvalue, perfo.Value.game.Pid);
             });
+            sw.Stop();
         }
 
         /// <summary>
