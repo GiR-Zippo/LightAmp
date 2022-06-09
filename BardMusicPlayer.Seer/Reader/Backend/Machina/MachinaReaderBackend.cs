@@ -21,14 +21,17 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 
         public int SleepTimeInMs { get; set; }
 
+        public string GamePath { get; set; } = @"C:\Program Files (x86)\FINAL FANTASY XIV - A Realm Reborn\game\ffxiv_dx11.exe";
+
         private ConcurrentQueue<byte[]> _messageQueue;
         private bool _messageQueueOpen;
         private Packet _packet;
 
-        public MachinaReaderBackend(int sleepTimeInMs)
+        public MachinaReaderBackend(int sleepTimeInMs, string gamePath)
         {
             ReaderBackendType = EventSource.Machina;
             SleepTimeInMs     = sleepTimeInMs;
+            GamePath          = gamePath;
         }
 
         public async Task Loop(CancellationToken token)
@@ -37,6 +40,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
             _messageQueueOpen = true;
             _packet           = new Packet(this);
 
+            MachinaManager.Instance.Initialize(GamePath);
             MachinaManager.Instance.MessageReceived += OnMessageReceived;
             MachinaManager.Instance.AddGame(ReaderHandler.Game.Pid);
 

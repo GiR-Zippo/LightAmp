@@ -20,19 +20,26 @@ namespace BardMusicPlayer.Seer.Utilities
         private MachinaManager()
         {
             _lock = new object();
+        }
+
+        public void Initialize(string GamePath)
+        {
+            if (_monitor != null)
+                return;
 
             Trace.UseGlobalLock = false;
             Trace.Listeners.Add(new MachinaLogger());
 
             _monitor = new FFXIVNetworkMonitor
             {
-                MonitorType     = NetworkMonitorType.RawSocket
+                MonitorType = NetworkMonitorType.RawSocket,
+                FFXIVDX11ExecutablePath = GamePath + @"game\ffxiv_dx11.exe"
             };
             _monitor.MessageReceivedEventHandler += MessageReceivedEventHandler;
         }
 
         private static readonly List<int> Lengths = new() {56, 88, 656, 664, 928, 3576 };
-        private readonly FFXIVNetworkMonitor _monitor;
+        private FFXIVNetworkMonitor _monitor;
         private readonly object _lock;
         private bool _monitorRunning;
 
