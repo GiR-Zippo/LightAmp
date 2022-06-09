@@ -51,6 +51,19 @@ namespace BardMusicPlayer.Ui.Functions
         }
 
         /// <summary>
+        /// Loads a midi file into the sequencer
+        /// </summary>
+        /// <returns>true if success</returns>
+        public static bool LoadSong(string filename)
+        {
+            PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
+
+            CurrentSong = BmpSong.OpenFile(filename).Result;
+            BmpMaestro.Instance.SetSong(CurrentSong);
+            return true;
+        }
+
+        /// <summary>
         /// Load a song from the playlist into the sequencer
         /// </summary>
         /// <param name="item"></param>

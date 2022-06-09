@@ -101,6 +101,7 @@ namespace BardMusicPlayer.Maestro.Performance
                     this._sequencer.OnNote += InternalNote;
                     this._sequencer.OffNote += InternalNote;
                     this._sequencer.ProgChange += InternalProg;
+                    this._sequencer.ChannelAfterTouch += InternalAT;
 
                     _holdNotes = BmpPigeonhole.Instance.HoldNotes;
                     if (HostProcess && BmpPigeonhole.Instance.ForcePlayback)
@@ -190,6 +191,9 @@ namespace BardMusicPlayer.Maestro.Performance
             {
                 if (play)
                 {
+                    if (_sequencer.IsPlaying)
+                        return;
+
                     if (delay == 0)
                         _sequencer.Play();
                     else
@@ -433,6 +437,31 @@ namespace BardMusicPlayer.Maestro.Performance
                 if (tone > -1 && tone < 5 && game.InstrumentToneMenuKeys[(Quotidian.Enums.InstrumentToneMenuKey)tone] is Quotidian.Enums.Keys keybind)
                     _hook.SendSyncKey(keybind);
             }
+        }
+
+        private void InternalAT(object sender, Sanford.Multimedia.Midi.ChannelMessageEventArgs args)
+        {
+            var builder = new Sanford.Multimedia.Midi.ChannelMessageBuilder(args.Message);
+            var atevent = new ChannelAfterTouchEvent
+            {
+                track = args.MidiTrack,
+                trackNum = _sequencer.GetTrackNum(args.MidiTrack),
+                command = args.Message.Data1,
+            };
+
+            if (_sequencer.GetTrackNum(atevent.track) != this._trackNumber)
+                return;
+
+            switch (atevent.command)
+            {
+                case 0:
+                    OpenInstrument();
+                    break;
+                case 1:
+                    CloseInstrument();
+                    break;
+            }
+
         }
 #endregion
     }

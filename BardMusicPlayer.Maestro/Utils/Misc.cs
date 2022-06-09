@@ -17,6 +17,13 @@ namespace BardMusicPlayer.Maestro.Utils
         public int voice;
     };
 
+    public class ChannelAfterTouchEvent
+    {
+        public Track track;
+        public int trackNum;
+        public int command;
+    };
+
     public static class NoteHelper
     {
         public static int ApplyOctaveShift(int note, int octave)

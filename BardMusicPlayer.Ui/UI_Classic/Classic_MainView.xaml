@@ -233,6 +233,11 @@
                             <Slider Grid.Row="2" Grid.RowSpan="2" Grid.Column="6" x:Name="Siren_Volume" Minimum="0" Maximum="100" Orientation="Vertical"  ValueChanged="Siren_Volume_ValueChanged"></Slider>
                         </Grid>
                     </TabItem>
+                    <TabItem Header="SongBrowser">
+                        <Grid Background="WhiteSmoke">
+                            <control:SongBrowser x:Name="SongBrowser"/>
+                        </Grid>
+                    </TabItem>
                 </TabControl>
             </Grid>
 

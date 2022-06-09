@@ -27,6 +27,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
         public EventHandler<ChannelMessageEventArgs> OnNote;
         public EventHandler<ChannelMessageEventArgs> OffNote;
         public EventHandler<ChannelMessageEventArgs> ProgChange;
+        public EventHandler<ChannelMessageEventArgs> ChannelAfterTouch;
 
         public EventHandler<string> OnLyric;
         public EventHandler<int> OnTempoChange;
@@ -327,10 +328,11 @@ namespace BardMusicPlayer.Maestro.Sequencing
             {
                 string instName = Instrument.ParseByProgramChange(e.Message.Data1);
                 if (!string.IsNullOrEmpty(instName))
-                {
                     ProgChange?.Invoke(this, e);
-                    Console.WriteLine("Program change to voice/instrument: " + instName + " " + e.Message.Data2);
-                }
+            }
+            if (cmd == ChannelCommand.ChannelPressure)
+            {
+                ChannelAfterTouch?.Invoke(this, e);
             }
         }
 

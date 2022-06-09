@@ -22,8 +22,12 @@ namespace BardMusicPlayer.Ui.Classic
         {
             if (PlaybackFunctions.CurrentSong == null)
                 return;
-
-            this.Statistics_Track_Note_Count_Label.Content = _notesCountForTracks[NumValue];
+            try
+            {
+                this.Statistics_Track_Note_Count_Label.Content = _notesCountForTracks[NumValue];
+            }
+            catch
+            { }
         }
 
     }

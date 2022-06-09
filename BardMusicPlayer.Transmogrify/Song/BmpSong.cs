@@ -447,6 +447,21 @@ namespace BardMusicPlayer.Transmogrify.Song
                             timedEvents.Add(new TimedEvent(new ProgramChangeEvent(programChangeEvent.ProgramNumber), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote/* Absolute time too */));
                         }
                     }
+
+                    //Create Progchange Event
+                    foreach (var timedEvent in originalChunk.GetTimedEvents())
+                    {
+                        var programChangeEvent = timedEvent.Event as ChannelAftertouchEvent;
+                        if (programChangeEvent == null)
+                            continue;
+
+                        var channel = programChangeEvent.Channel;
+                        using (var manager = new TimedEventsManager(newChunk.Events))
+                        {
+                            TimedEventsCollection timedEvents = manager.Events;
+                            timedEvents.Add(new TimedEvent(new ChannelAftertouchEvent(programChangeEvent.AftertouchValue), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote/* Absolute time too */));
+                        }
+                    }
                     newChunk.AddObjects(fixedNotes);
 
                     watch.Stop();
@@ -485,6 +500,19 @@ namespace BardMusicPlayer.Transmogrify.Song
                         foreach (TimedEvent _event in manager.Events)
                         {
                             var programChangeEvent = _event.Event as ProgramChangeEvent;
+                            if (programChangeEvent == null)
+                                continue;
+
+                            long newStart = _event.Time - delta;
+                            if (newStart <= -1)
+                                manager.Events.Remove(_event);
+                            else
+                                _event.Time = newStart;
+                        }
+
+                        foreach (TimedEvent _event in manager.Events)
+                        {
+                            var programChangeEvent = _event.Event as ChannelAftertouchEvent;
                             if (programChangeEvent == null)
                                 continue;
 
