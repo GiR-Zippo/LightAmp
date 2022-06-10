@@ -23,7 +23,7 @@ namespace BardMusicPlayer.Ui.Controls
         public SongBrowser()
         {
             InitializeComponent();
-            if (Directory.Exists(SongPath.Text))
+            if (!Directory.Exists(SongPath.Text))
                 return;
 
             string[] files = Directory.GetFiles( SongPath.Text, "*", SearchOption.AllDirectories);
@@ -34,7 +34,7 @@ namespace BardMusicPlayer.Ui.Controls
         private void SongbrowserContainer_PreviewMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             string filename = SongbrowserContainer.SelectedItem as String;
-            if (File.Exists(filename) || filename == null)
+            if (!File.Exists(filename) || filename == null)
                 return;
 
             PlaybackFunctions.LoadSong(filename);
@@ -42,7 +42,7 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void SongSearch_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            if (Directory.Exists(SongPath.Text))
+            if (!Directory.Exists(SongPath.Text))
                 return;
 
             string[] files = Directory.GetFiles(SongPath.Text, "*", SearchOption.AllDirectories);

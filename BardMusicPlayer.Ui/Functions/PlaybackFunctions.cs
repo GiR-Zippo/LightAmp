@@ -57,7 +57,7 @@ namespace BardMusicPlayer.Ui.Functions
         /// <returns>true if success</returns>
         public static bool LoadSong(string filename)
         {
-            if (File.Exists(filename) || filename == null)
+            if (!File.Exists(filename) || filename == null)
                 return false;
 
             PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
