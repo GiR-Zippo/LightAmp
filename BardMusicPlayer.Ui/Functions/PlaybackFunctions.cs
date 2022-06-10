@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Transmogrify.Song.Config;
@@ -56,6 +57,9 @@ namespace BardMusicPlayer.Ui.Functions
         /// <returns>true if success</returns>
         public static bool LoadSong(string filename)
         {
+            if (File.Exists(filename) || filename == null)
+                return false;
+
             PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
 
             CurrentSong = BmpSong.OpenFile(filename).Result;
