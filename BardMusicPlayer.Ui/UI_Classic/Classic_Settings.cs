@@ -24,6 +24,8 @@ namespace BardMusicPlayer.Ui.Classic
             this.MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
 
             this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
+            StartBardIndividuallyBox.IsChecked = BmpPigeonhole.Instance.EnsembleStartIndividual;
+
             this.HoldNotesBox.IsChecked = BmpPigeonhole.Instance.HoldNotes;
             this.ForcePlaybackBox.IsChecked = BmpPigeonhole.Instance.ForcePlayback;
             this.AutoEquipBox.IsChecked= BmpPigeonhole.Instance.EnsebleAutoEquip;
@@ -60,6 +62,11 @@ namespace BardMusicPlayer.Ui.Classic
         private void KeepTrackSettingsBox_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.EnsembleKeepTrackSetting = KeepTrackSettingsBox.IsChecked ?? false;
+        }
+
+        private void StartBardIndividually_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.EnsembleStartIndividual = StartBardIndividuallyBox.IsChecked ?? false;
         }
 
         private void Hold_Notes_Checked(object sender, RoutedEventArgs e)

@@ -614,9 +614,9 @@ namespace BardMusicPlayer.Maestro
             else
             {
                 if (BmpPigeonhole.Instance.MidiBardCompatMode)
-                    delayvalue = 2475 + 3405;
+                    delayvalue = 2480 + 3405;
                 else
-                    delayvalue = 2475;
+                    delayvalue = 2480;
             }
 
             if (!BmpPigeonhole.Instance.LocalOrchestra)
