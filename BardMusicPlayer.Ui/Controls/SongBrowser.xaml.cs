@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -23,12 +24,7 @@ namespace BardMusicPlayer.Ui.Controls
         public SongBrowser()
         {
             InitializeComponent();
-            if (!Directory.Exists(SongPath.Text))
-                return;
-
-            string[] files = Directory.GetFiles( SongPath.Text, "*", SearchOption.AllDirectories);
-            List<string> list = new List<string>(files);
-            SongbrowserContainer.ItemsSource = list;
+            SongPath.Text = BmpPigeonhole.Instance.SongDirectory;
         }
 
         private void SongbrowserContainer_PreviewMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -45,10 +41,22 @@ namespace BardMusicPlayer.Ui.Controls
             if (!Directory.Exists(SongPath.Text))
                 return;
 
-            string[] files = Directory.GetFiles(SongPath.Text, "*", SearchOption.AllDirectories);
+            string[] files = Directory.EnumerateFiles(SongPath.Text+"\\", "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
             List<string> list = new List<string>(files);
             if (SongSearch.Text != "")
-                list = list.FindAll(delegate (string s) { return s.Contains(SongSearch.Text); });
+                list = list.FindAll(delegate (string s) { return s.ToLower().Contains(SongSearch.Text.ToLower()); });
+            SongbrowserContainer.ItemsSource = list;
+        }
+
+        private void SongPath_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            if (!Directory.Exists(SongPath.Text))
+                return;
+
+            BmpPigeonhole.Instance.SongDirectory = SongPath.Text;
+
+            string[] files = Directory.EnumerateFiles(SongPath.Text + "\\", "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
+            List<string> list = new List<string>(files);
             SongbrowserContainer.ItemsSource = list;
         }
     }
