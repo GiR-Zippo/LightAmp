@@ -269,12 +269,7 @@ namespace BardMusicPlayer.Maestro.Performance
             if (!game.InstrumentHeld.Equals(Instrument.None))
                 return;
 
-            // don't open instrument if we don't have anything loaded
-            if (_sequencer == null || _sequencer.Sequence == null)
-                return;
-
-            // don't open instrument if we're not on a valid track
-            if (_trackNumber == 0 || _trackNumber >= _sequencer.Sequence.Count)
+            if (!trackAndChannelOk())
                 return;
 
             var t = Instrument.Parse(TrackInstrument);
@@ -283,19 +278,8 @@ namespace BardMusicPlayer.Maestro.Performance
 
         public async Task<int> ReplaceInstrument()
         {
-            // don't open instrument if we don't have anything loaded
-            if (_sequencer == null || _sequencer.Sequence == null)
-            {
-                CloseInstrument();
+            if (!trackAndChannelOk())
                 return 0;
-            }
-
-            // don't open instrument if we're not on a valid track
-            if (_trackNumber == 0 || _trackNumber >= _sequencer.Sequence.Count)
-            {
-                CloseInstrument();
-                return 0;
-            }
 
             // if we are the host, we do this by our own
             if (!game.InstrumentHeld.Equals(Instrument.None))
@@ -324,7 +308,6 @@ namespace BardMusicPlayer.Maestro.Performance
 
             _hook.ClearLastPerformanceKeybinds();
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
-            //performanceUp = false;
         }
 
         /// <summary>
@@ -350,6 +333,23 @@ namespace BardMusicPlayer.Maestro.Performance
 
 #endregion
 #region private
+
+        /// <summary>
+        /// Checks if we are ont the right track and channel
+        /// </summary>
+        /// <returns></returns>
+        private bool trackAndChannelOk()
+        {
+            // don't open instrument if we don't have anything loaded
+            if (_sequencer == null || _sequencer.Sequence == null)
+                return false;
+
+            // don't open instrument if we're not on a valid track
+            if (_trackNumber == 0 || _trackNumber >= _sequencer.Sequence.Count)
+                return false;
+            return true;
+        }
+
         private void startDelayTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             if (_sequencer is Sequencer)
