@@ -40,7 +40,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                 )
                     return;
 
-                _machinaReader.ReaderHandler.Game.PublishEvent(new EnsembleStarted(EventSource.Machina));
+                _machinaReader.ReaderHandler.Game.PublishEvent(new EnsembleStarted(EventSource.Machina, timeStamp));
             }
             catch (Exception ex)
             {

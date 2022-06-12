@@ -7,11 +7,12 @@ namespace BardMusicPlayer.Seer.Events
 {
     public sealed class EnsembleStarted : SeerEvent
     {
-        internal EnsembleStarted(EventSource readerBackendType) : base(readerBackendType, 100, true)
+        internal EnsembleStarted(EventSource readerBackendType, long timestamp = -1) : base(readerBackendType, 100, true)
         {
             EventType = GetType();
+            NetTimeStamp = timestamp;
         }
-
+        public long NetTimeStamp { get; } = 0;
         public override bool IsValid() => true;
     }
 }

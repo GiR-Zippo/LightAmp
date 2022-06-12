@@ -614,24 +614,25 @@ namespace BardMusicPlayer.Maestro
             else
             {
                 if (BmpPigeonhole.Instance.MidiBardCompatMode)
-                    delayvalue = 2480 + 3405;
+                    delayvalue = (2490 + 3405);
                 else
-                    delayvalue = 2480;
+                    delayvalue = 2490;
             }
 
+            int rdelay = (int)(Quotidian.UtcMilliTime.Clock.Time.Now - seerEvent.TimeStamp);
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
                 Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
                 if (perf == null)
                     return;
                 if (seerEvent.Game.Pid == perf.game.Pid)
-                    start(delayvalue, seerEvent.Game.Pid);
+                    start(delayvalue - rdelay, seerEvent.Game.Pid);
                 return;
             }
 
             if (BmpPigeonhole.Instance.EnsembleStartIndividual)
             {
-                start(delayvalue, seerEvent.Game.Pid);
+                start(delayvalue - rdelay, seerEvent.Game.Pid);
                 return;
             }
 
