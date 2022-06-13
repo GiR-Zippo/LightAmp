@@ -173,9 +173,9 @@ namespace BardMusicPlayer.Siren
         /// <returns>This BmpSiren</returns>
         public BmpSiren SetPosition(int time)
         {
-            if (!IsReadyForPlayback) throw new BmpException("Siren not loaded with a song.");
+            if (!IsReadyForPlayback) return this; // throw new BmpException("Siren not loaded with a song.");
             if (time < 0) time = 0;
-            if (time > _player.PlaybackRange.EndTick) return Stop();
+            //if (time > _player.PlaybackRange.EndTick) return Stop();
             _player.TickPosition = time;
             _lyricIndex = time;
             return this;

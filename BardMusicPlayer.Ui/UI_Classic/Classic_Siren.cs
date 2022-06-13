@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -74,5 +75,37 @@ namespace BardMusicPlayer.Ui.Classic
             Slider slider = e.OriginalSource as Slider;
             BmpSiren.Instance.SetVolume((float)slider.Value);
         }
+
+        private void Siren_PlaybackTimeChanged(double currentTime, double endTime)
+        {
+            TimeSpan t;
+            if (Siren_Position.Maximum != endTime)
+            {
+                Siren_Position.Maximum = endTime;
+                t = TimeSpan.FromMilliseconds(endTime);
+                Siren_TimeLapsed.Content = string.Format("{0:D2}:{1:D2}", t.Minutes, t.Seconds);
+            }
+
+            t = TimeSpan.FromMilliseconds(currentTime);
+            Siren_Time.Content = string.Format("{0:D2}:{1:D2}", t.Minutes, t.Seconds);
+            if (!this._Siren_Playbar_dragStarted)
+                Siren_Position.Value = currentTime;            
+        }
+
+        private void Sireen_Playbar_Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+        }
+
+        private void Sireen_Playbar_Slider_DragStarted(object sender, DragStartedEventArgs e)
+        {
+            this._Siren_Playbar_dragStarted = true;
+        }
+
+        private void Sireen_Playbar_Slider_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            BmpSiren.Instance.SetPosition((int)Siren_Position.Value);
+            this._Siren_Playbar_dragStarted = false;
+        }
+
     }
 }

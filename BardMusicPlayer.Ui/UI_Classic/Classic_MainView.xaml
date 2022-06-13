@@ -216,6 +216,7 @@
                                 <RowDefinition Height="30"/>
                                 <RowDefinition Height="30"/>
                                 <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
@@ -225,15 +226,33 @@
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
                             </Grid.ColumnDefinitions>
                             <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Content="Song title:"/>
                             <Label Grid.Row="1" Grid.Column="4" Grid.ColumnSpan="4" x:Name="Siren_SongName" Content="No song loaded"/>
-                            <Button Grid.Row="2" Grid.Column="1" x:Name="Siren_Load" Content="Load" Click="Siren_Load_Click" Height="20" Width="30" />
-                            <Button Grid.Row="2" Grid.Column="2" x:Name="Siren_Play" Content="Play" Click="Siren_Play_Click" Height="20" Width="30" />
-                            <Button Grid.Row="2" Grid.Column="3" x:Name="Siren_Stop" Content="Stop" Click="Siren_Stop_Click" Height="20" Width="30" />
-                            <Label Grid.Row="1"                   Grid.Column="6" Content="Volume"/>
-                            <Slider Grid.Row="2" Grid.RowSpan="2" Grid.Column="6" x:Name="Siren_Volume" Minimum="0" Maximum="100" Orientation="Vertical"  ValueChanged="Siren_Volume_ValueChanged"></Slider>
+                            <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0"  x:Name="Siren_Time" Content="00:00" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                <Slider Grid.Column="1" x:Name="Siren_Position" Minimum="0" Maximum="100" Orientation="Horizontal" HorizontalAlignment="Stretch" ValueChanged="Sireen_Playbar_Slider_ValueChanged" Thumb.DragStarted="Sireen_Playbar_Slider_DragStarted" Thumb.DragCompleted="Sireen_Playbar_Slider_DragCompleted" VerticalAlignment="Center" UseLayoutRounding="True"></Slider>
+                                <Label Grid.Column="3"  x:Name="Siren_TimeLapsed" Content="00:00" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Button Grid.Row="3" Grid.Column="1" x:Name="Siren_Load" Content="Load" Click="Siren_Load_Click" Height="20" Width="30" />
+                            <Button Grid.Row="3" Grid.Column="2" x:Name="Siren_Play" Content="Play" Click="Siren_Play_Click" Height="20" Width="30" />
+                            <Button Grid.Row="3" Grid.Column="3" x:Name="Siren_Stop" Content="Stop" Click="Siren_Stop_Click" Height="20" Width="30" />
+                            <Grid Grid.Row="2" Grid.RowSpan="3" Grid.Column="7">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Label  Grid.Row="0" Content="Volume" HorizontalAlignment="Left"/>
+                                <Slider Grid.Row="1" x:Name="Siren_Volume" Minimum="0" Maximum="100" Orientation="Vertical" ValueChanged="Siren_Volume_ValueChanged"></Slider>
+                            </Grid>
                         </Grid>
                     </TabItem>
                     <TabItem Header="SongBrowser">

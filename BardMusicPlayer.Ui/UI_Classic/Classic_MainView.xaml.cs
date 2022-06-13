@@ -38,6 +38,7 @@ namespace BardMusicPlayer.Ui.Classic
             BmpSeer.Instance.ChatLog += Instance_ChatLog;
 
             Siren_Volume.Value = BmpSiren.Instance.GetVolume();
+            BmpSiren.Instance.SynthTimePositionChanged += Instance_SynthTimePositionChanged;
             LoadConfig();
         }
 
@@ -85,6 +86,11 @@ namespace BardMusicPlayer.Ui.Classic
         private void Instance_ChatLog(Seer.Events.ChatLog seerEvent)
         {
             this.Dispatcher.BeginInvoke(new Action(() => this.AppendChatLog(seerEvent)));
+        }
+
+        private void Instance_SynthTimePositionChanged(string songTitle, double currentTime, double endTime, int activeVoices)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => this.Siren_PlaybackTimeChanged(currentTime, endTime)));
         }
 
         private void PlaybackTimeChanged(Maestro.Events.CurrentPlayPositionEvent e)
