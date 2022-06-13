@@ -150,15 +150,15 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Label Margin="10,0,0,0"     Grid.Row="0" Content="Autostart" HorizontalAlignment="Left"/>
-                                    <ComboBox Margin="90,0,0,0" Grid.Row="0" x:Name="Autostart_source" SelectionChanged="Autostart_source_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120">
+                                    <Label Margin="10,0,0,0"    Grid.Row="0" Content="Autostart" HorizontalAlignment="Left" ToolTip="{StaticResource MISC_AUTOSTART}"/>
+                                    <ComboBox Margin="90,0,0,0" Grid.Row="0" x:Name="Autostart_source" SelectionChanged="Autostart_source_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" ToolTip="{StaticResource MISC_AUTOSTART}">
                                         <ComboBoxItem>Disabled</ComboBoxItem>
                                         <ComboBoxItem>Chat</ComboBoxItem>
                                         <ComboBoxItem>Metronome</ComboBoxItem>
                                     </ComboBox>
-                                    <CheckBox Margin="10,10,0,0" Grid.Row="1" x:Name="MidiBardComp" Content="Enable MidiCompat sync" Unchecked="MidiBard_Checked" Checked="MidiBard_Checked"/>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="2" x:Name="VerboseBox" Content="Enable verbose mode"/>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="3" x:Name="SkinUiBox" Content="Use skinned Ui" Unchecked="SkinUiBox_Checked" Checked="SkinUiBox_Checked"/>
+                                    <CheckBox Margin="10,10,0,0" Grid.Row="1" x:Name="MidiBardComp" Content="Enable MidiCompat sync" Unchecked="MidiBard_Checked"  Checked="MidiBard_Checked"  ToolTip="{StaticResource MISC_MIDIBARD}"/>
+                                    <CheckBox Margin="10,0,0,0"  Grid.Row="2" x:Name="VerboseBox"   Content="Enable verbose mode"/>
+                                    <CheckBox Margin="10,0,0,0"  Grid.Row="3" x:Name="SkinUiBox"    Content="Use skinned Ui"         Unchecked="SkinUiBox_Checked" Checked="SkinUiBox_Checked" ToolTip="{StaticResource MISC_SKINNEDUI}"/>
                                 </Grid>
                             </GroupBox>
                             <GroupBox Grid.Row="1" Grid.Column="1" Header="Local Ochestra">

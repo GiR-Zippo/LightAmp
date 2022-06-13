@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
-<!-- Playlist -->
+    <!-- Playlist -->
     <sys:String x:Key="PLAYLIST_NEW"    xml:space="preserve">Create a new playlist</sys:String>
     <sys:String x:Key="PLAYLIST_ADD"    xml:space="preserve">Add song(s) to the current playlist</sys:String>
     <sys:String x:Key="PLAYLIST_REM"    xml:space="preserve">Remove the selected song(s) from the playlist</sys:String>
@@ -9,7 +9,13 @@
     <sys:String x:Key="PLAYLIST_AUTO"   xml:space="preserve">auto plays the next song in the playlist</sys:String>
 
 
-<!-- LocalOchestra Settings-->
+    <!-- Settings: Misc-->
+    <sys:String x:Key="MISC_AUTOSTART"  xml:space="preserve">Select the autostart trigger [Metronome is prefered]</sys:String>
+    <sys:String x:Key="MISC_MIDIBARD"   xml:space="preserve">Enables the MidiBard sync start</sys:String>
+    <sys:String x:Key="MISC_SKINNEDUI"  xml:space="preserve">Enables the Skinned Ui (needs a restart)</sys:String>
+
+
+    <!-- Settings: LocalOchestra-->
     <sys:String x:Key="LO_ENABLE"       xml:space="preserve">Enables the local orchestra</sys:String>
     <sys:String x:Key="LO_AUTOEQ"       xml:space="preserve">Autoequip the ochestra at song loading</sys:String>
     <sys:String x:Key="LO_KEEPTRACKS"   xml:space="preserve">Keep the performer settings</sys:String>
