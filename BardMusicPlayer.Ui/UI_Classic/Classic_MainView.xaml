@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls" 
+             xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
             Width="Auto" Height="Auto" Loaded="Window_Loaded"
@@ -13,6 +13,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/LightAmp;component/Resources/ImageButtonStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/LightAmp;component/Resources/ToolTips.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -48,10 +49,10 @@
                         <ColumnDefinition MaxWidth="20"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="PLAYLIST" Height="25" FontSize="14" Grid.Column="0"/>
-                    <Button x:Name="Playlist_New_Button"    Click="Playlist_New_Button_Click"    Content="New"  ToolTip="Create a new playlist"                         Height="20" Width="40" Grid.Column="1"/>
-                    <Button x:Name="Playlist_Add_Button"    Click="Playlist_Add_Button_Click"    Content="+"    ToolTip="Add song(s) to the current playlist"           Height="20" Width="20" Grid.Column="2"/>
-                    <Button x:Name="Playlist_Remove_Button" Click="Playlist_Remove_Button_Click" Content="-"    ToolTip="Remove the selected song(s) from the playlist" Height="20" Width="20" Grid.Column="3"/>
-                    <Button x:Name="Playlist_Delete_Button" Click="Playlist_Delete_Button_Click" Content="X"    ToolTip="delete the current playlist"                   Height="20" Width="20" Grid.Column="4"/>
+                    <Button x:Name="Playlist_New_Button"    Click="Playlist_New_Button_Click"    Content="New"  ToolTip="{StaticResource PLAYLIST_NEW}" Height="20" Width="40" Grid.Column="1"/>
+                    <Button x:Name="Playlist_Add_Button"    Click="Playlist_Add_Button_Click"    Content="+"    ToolTip="{StaticResource PLAYLIST_ADD}" Height="20" Width="20" Grid.Column="2"/>
+                    <Button x:Name="Playlist_Remove_Button" Click="Playlist_Remove_Button_Click" Content="-"    ToolTip="{StaticResource PLAYLIST_REM}" Height="20" Width="20" Grid.Column="3"/>
+                    <Button x:Name="Playlist_Delete_Button" Click="Playlist_Delete_Button_Click" Content="X"    ToolTip="{StaticResource PLAYLIST_DEL}" Height="20" Width="20" Grid.Column="4"/>
 
                     <DataGrid x:Name="PlaylistContainer" Grid.Row="1" Grid.ColumnSpan="6" AutoGenerateColumns="False" PreviewMouseDoubleClick="PlaylistContainer_PreviewMouseDoubleClick" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
@@ -80,7 +81,7 @@
                                 <ImageBrush ImageSource="/LightAmp;component/Resources/Images/ClassicShuffle.png"/>
                             </Button.Background>
                         </Button>
-                        <CheckBox Grid.Column="5" x:Name="AutoPlay_CheckBox" Checked="AutoPlay_Checked" Unchecked="AutoPlay_Checked" VerticalAlignment="Center"/>
+                        <CheckBox Grid.Column="5" x:Name="AutoPlay_CheckBox" Checked="AutoPlay_Checked" Unchecked="AutoPlay_Checked" VerticalAlignment="Center" ToolTip="{StaticResource PLAYLIST_AUTO}"/>
                         <Label Content="Auto-play" Grid.Column="7" VerticalAlignment="Center"/>
 
                     </Grid>
@@ -169,10 +170,10 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <CheckBox Margin="10,10,0,0" Grid.Row="0" x:Name="LocalOrchestraBox" Content="Local Orchestra enabled" Unchecked="LocalOrchestraBox_Checked" Checked="LocalOrchestraBox_Checked"/>
-                                    <CheckBox Margin="10,0,0,0" Grid.Row="1" x:Name="AutoEquipBox" Content="Auto Equip Orchestra" Unchecked="AutoEquipBox_Checked" Checked="AutoEquipBox_Checked"/>
-                                    <CheckBox Margin="10,0,0,0" Grid.Row="2" x:Name="KeepTrackSettingsBox" Content="Thymms I know what I'm doing box" Unchecked="KeepTrackSettingsBox_Checked" Checked="KeepTrackSettingsBox_Checked"/>
-                                    <CheckBox Margin="10,0,0,0" Grid.Row="3" x:Name="StartBardIndividuallyBox" Content="Individual start" Unchecked="StartBardIndividually_Checked" Checked="StartBardIndividually_Checked"/>
+                                    <CheckBox Margin="10,10,0,0" Grid.Row="0" x:Name="LocalOrchestraBox"       Content="Local Orchestra enabled"          Unchecked="LocalOrchestraBox_Checked"     Checked="LocalOrchestraBox_Checked"     ToolTip="{StaticResource LO_ENABLE}"/>
+                                    <CheckBox Margin="10,0,0,0" Grid.Row="1" x:Name="AutoEquipBox"             Content="Auto Equip Orchestra"             Unchecked="AutoEquipBox_Checked"          Checked="AutoEquipBox_Checked"          ToolTip="{StaticResource LO_AUTOEQ}"/>
+                                    <CheckBox Margin="10,0,0,0" Grid.Row="2" x:Name="KeepTrackSettingsBox"     Content="Thymms I know what I'm doing box" Unchecked="KeepTrackSettingsBox_Checked"  Checked="KeepTrackSettingsBox_Checked"  ToolTip="{StaticResource LO_KEEPTRACKS}"/>
+                                    <CheckBox Margin="10,0,0,0" Grid.Row="3" x:Name="StartBardIndividuallyBox" Content="Individual start"                 Unchecked="StartBardIndividually_Checked" Checked="StartBardIndividually_Checked" ToolTip="{StaticResource LO_ISTART}"/>
                                 </Grid>
                             </GroupBox>
                         </Grid>
