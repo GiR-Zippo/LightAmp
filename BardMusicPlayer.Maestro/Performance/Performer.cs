@@ -13,7 +13,6 @@ namespace BardMusicPlayer.Maestro.Performance
 {
     public class Performer
     {
-        private FFXIVHotbarDat _hotbar = new FFXIVHotbarDat();
         private FFXIVHook _hook = new FFXIVHook();
         private System.Timers.Timer _startDelayTimer { get; set; } = new System.Timers.Timer();
         private bool _holdNotes { get; set; } = true;
@@ -132,7 +131,6 @@ namespace BardMusicPlayer.Maestro.Performance
             if (arg != null)
             {
                 _hook.Hook(arg.Process, false);
-                _hotbar.LoadHotbarDat(arg.ConfigId);
                 PId = arg.Pid;
                 game = arg;
                 _startDelayTimer.Elapsed += startDelayTimer_Elapsed;
