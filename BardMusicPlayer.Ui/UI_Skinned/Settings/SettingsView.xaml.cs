@@ -4,12 +4,14 @@ using System.Windows.Controls;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Maestro;
 using System.Collections.Generic;
-using BardMusicPlayer.Jamboree;
-using BardMusicPlayer.Jamboree.Events;
 using System;
 using BardMusicPlayer.Siren;
 using BardMusicPlayer.Ui.Globals.SkinContainer;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Ui.Skinned
 {
@@ -18,6 +20,26 @@ namespace BardMusicPlayer.Ui.Skinned
     /// </summary>
     public partial class SettingsView : Window
     {
+        /// <summary>
+        /// Helper class to get skin preview working
+        /// </summary>
+        public class SkinData
+        {
+            private string _Title;
+            public string Title
+            {
+                get { return this._Title; }
+                set { this._Title = value; }
+            }
+
+            private BitmapImage _ImageData;
+            public BitmapImage ImageData
+            {
+                get { return this._ImageData; }
+                set { this._ImageData = value; }
+            }
+        }
+
         public SettingsView()
         {
             InitializeComponent();
@@ -38,14 +60,38 @@ namespace BardMusicPlayer.Ui.Skinned
             this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
             this.AutoEquipBox.IsChecked = BmpPigeonhole.Instance.EnsebleAutoEquip;
             this.KeepTrackSettingsBox.IsChecked = BmpPigeonhole.Instance.EnsembleKeepTrackSetting;
+            this.StartBardIndividuallyBox.IsChecked = BmpPigeonhole.Instance.EnsembleStartIndividual;
 
             //Syncsettings
             Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
             this.MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
 
+            //Misc
             SirenVolume.Value = BmpSiren.Instance.GetVolume();
+
+            //Path
+            SongsDir.Text = BmpPigeonhole.Instance.SongDirectory;
+            SkinsDir.Text = BmpPigeonhole.Instance.SkinDirectory;
+
+            //Load the skin previews
+            if (Directory.Exists(BmpPigeonhole.Instance.SkinDirectory))
+            {
+                string[] files = Directory.EnumerateFiles(BmpPigeonhole.Instance.SkinDirectory, "*.wsz", SearchOption.TopDirectoryOnly).ToArray();
+                Parallel.ForEach(files, file =>
+                {
+                    string name = Path.GetFileNameWithoutExtension(file);
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        var bmap = ((Skinned_MainView)System.Windows.Application.Current.MainWindow.DataContext).ExtractBitmapFromZip(file, "Screenshot.png");
+                        if (bmap == null)
+                            bmap = ((Skinned_MainView)System.Windows.Application.Current.MainWindow.DataContext).ExtractBitmapFromZip(file, "MAIN.BMP");
+                        this.SkinPreviewBox.Items.Add(new SkinData { Title = name, ImageData = bmap });
+                    }));
+                });
+            }
         }
 
+        #region Window design and buttons
         private void SkinContainer_OnNewSkinLoaded(object sender, EventArgs e)
         { ApplySkin(); }
 
@@ -84,11 +130,20 @@ namespace BardMusicPlayer.Ui.Skinned
         {
             this.Close_Button.Background.Opacity = 0;
         }
+        #endregion
 
         #region DesignTab controls
         private void ClassicSkin_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.ClassicUi = ClassicSkin.IsChecked ?? true;
+        }
+
+        private void SkinPreviewBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            SkinData d = SkinPreviewBox.SelectedItem as SkinData;
+            string fileName = BmpPigeonhole.Instance.SkinDirectory + d.Title + ".wsz";
+            ((Skinned_MainView)System.Windows.Application.Current.MainWindow.DataContext).LoadSkin(fileName);
+            BmpPigeonhole.Instance.LastSkin = fileName;
         }
         #endregion
 
@@ -133,6 +188,10 @@ namespace BardMusicPlayer.Ui.Skinned
             BmpPigeonhole.Instance.EnsembleKeepTrackSetting = KeepTrackSettingsBox.IsChecked ?? false;
         }
 
+        private void StartBardIndividually_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.EnsembleStartIndividual = StartBardIndividuallyBox.IsChecked ?? false;
+        }
         #endregion
 
         #region SyncsettingsTab controls
@@ -147,25 +206,22 @@ namespace BardMusicPlayer.Ui.Skinned
         }
         #endregion
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "SKIN file|*.wsz;*.WSZ|All files (*.*)|*.*",
-                Multiselect = true
-            };
-
-            if (openFileDialog.ShowDialog() != true)
-                return;
-
-            ((Skinned_MainView)System.Windows.Application.Current.MainWindow.DataContext).LoadSkin(openFileDialog.FileName);
-            BmpPigeonhole.Instance.LastSkin = openFileDialog.FileName;
-        }
-
         private void SirenVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             var g = SirenVolume.Value;
             BmpSiren.Instance.SetVolume((float)g);
         }
+
+        #region PathTab controls
+        private void SongsDir_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            BmpPigeonhole.Instance.SongDirectory = SongsDir.Text+ (SongsDir.Text.EndsWith("\\") ? "" : "\\");
+        }
+
+        private void SkinsDir_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            BmpPigeonhole.Instance.SkinDirectory = SkinsDir.Text + (SkinsDir.Text.EndsWith("\\") ? "" : "\\");
+        }
+        #endregion
     }
 }

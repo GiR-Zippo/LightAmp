@@ -821,7 +821,7 @@ namespace BardMusicPlayer.Ui.Skinned
         /// <param name="archivename">wsz fullpath and filename</param>
         /// <param name="imagename">name of the image</param>
         /// <returns>BitmapImage</returns>
-        BitmapImage ExtractBitmapFromZip(string archivename, string imagename)
+        public BitmapImage ExtractBitmapFromZip(string archivename, string imagename)
         {
             ZipArchive zip;
             try { zip = ZipFile.OpenRead(@archivename); }

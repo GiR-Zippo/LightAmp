@@ -23,13 +23,15 @@ namespace BardMusicPlayer.Ui.Classic
             this.Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
             this.MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
 
+            //Local orchestra
             this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
+            this.AutoEquipBox.IsChecked = BmpPigeonhole.Instance.EnsebleAutoEquip;
+            this.KeepTrackSettingsBox.IsChecked = BmpPigeonhole.Instance.EnsembleKeepTrackSetting;
             StartBardIndividuallyBox.IsChecked = BmpPigeonhole.Instance.EnsembleStartIndividual;
+
 
             this.HoldNotesBox.IsChecked = BmpPigeonhole.Instance.HoldNotes;
             this.ForcePlaybackBox.IsChecked = BmpPigeonhole.Instance.ForcePlayback;
-            this.AutoEquipBox.IsChecked= BmpPigeonhole.Instance.EnsebleAutoEquip;
-            this.KeepTrackSettingsBox.IsChecked = BmpPigeonhole.Instance.EnsembleKeepTrackSetting;
 
             MIDI_Input_DeviceBox.Items.Clear();
             MIDI_Input_DeviceBox.ItemsSource = Maestro.Utils.MidiInput.ReloadMidiInputDevices();
@@ -49,6 +51,7 @@ namespace BardMusicPlayer.Ui.Classic
             BmpPigeonhole.Instance.MidiBardCompatMode = MidiBardComp.IsChecked ?? false;
         }
 
+        //Local orchestra
         private void LocalOrchestraBox_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.LocalOrchestra = LocalOrchestraBox.IsChecked ?? false;

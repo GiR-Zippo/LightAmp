@@ -43,7 +43,7 @@ namespace BardMusicPlayer.Ui.Controls
             if (!Directory.Exists(SongPath.Text))
                 return;
 
-            string[] files = Directory.EnumerateFiles(SongPath.Text+"\\", "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
+            string[] files = Directory.EnumerateFiles(SongPath.Text, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
             List<string> list = new List<string>(files);
             if (SongSearch.Text != "")
                 list = list.FindAll(delegate (string s) { return s.ToLower().Contains(SongSearch.Text.ToLower()); });
@@ -55,9 +55,9 @@ namespace BardMusicPlayer.Ui.Controls
             if (!Directory.Exists(SongPath.Text))
                 return;
 
-            BmpPigeonhole.Instance.SongDirectory = SongPath.Text;
+            BmpPigeonhole.Instance.SongDirectory = SongPath.Text + (SongPath.Text.EndsWith("\\") ? "" : "\\"); ;
 
-            string[] files = Directory.EnumerateFiles(SongPath.Text + "\\", "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
+            string[] files = Directory.EnumerateFiles(SongPath.Text, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
             List<string> list = new List<string>(files);
             SongbrowserContainer.ItemsSource = list;
         }
