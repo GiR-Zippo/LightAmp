@@ -286,7 +286,6 @@ namespace BardMusicPlayer.Maestro.Performance
             if (!trackAndChannelOk())
                 return 0;
 
-            // if we are the host, we do this by our own
             if (!game.InstrumentHeld.Equals(Instrument.None))
             {
                 if (game.InstrumentHeld.Equals(Instrument.Parse(TrackInstrument)))
@@ -403,7 +402,6 @@ namespace BardMusicPlayer.Maestro.Performance
                     return;
             }
 
-            var builder = new Sanford.Multimedia.Midi.ChannelMessageBuilder(args.Message);
             var programEvent = new ProgChangeEvent
             {
                 track = args.MidiTrack,
