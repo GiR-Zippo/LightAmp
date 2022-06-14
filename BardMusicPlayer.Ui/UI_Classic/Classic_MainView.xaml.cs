@@ -296,7 +296,6 @@ namespace BardMusicPlayer.Ui.Classic
                 InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
                 _directLoaded = true;
             }
-
         }
     }
 }

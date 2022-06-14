@@ -326,6 +326,44 @@ namespace BardMusicPlayer.Ui.Skinned
             }
         }
 
+        private void MenuItem_CreateCatalog(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new SaveFileDialog
+            {
+                Filter = "Amp Catalog file|*.db"
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
+            _currentPlaylist = PlaylistFunctions.GetFirstPlaylist();
+            if (_currentPlaylist == null)
+                _currentPlaylist = PlaylistFunctions.CreatePlaylist("default");
+            RefreshPlaylist();
+        }
+
+        private void MenuItem_LoadCatalog(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Amp Catalog file|*.db",
+                Multiselect = false
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            if (!openFileDialog.CheckFileExists)
+                return;
+
+            BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
+            _currentPlaylist = PlaylistFunctions.GetFirstPlaylist();
+            if (_currentPlaylist == null)
+                _currentPlaylist = PlaylistFunctions.CreatePlaylist("default");
+            RefreshPlaylist();
+        }
+
         /// <summary>
         /// opens the playlists browser
         /// </summary>
@@ -369,5 +407,6 @@ namespace BardMusicPlayer.Ui.Skinned
             this.Close_Button.Background.Opacity = 0;
         }
         #endregion
+
     }
 }

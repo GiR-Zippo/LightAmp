@@ -181,6 +181,8 @@
                 Fill="Transparent" MouseDown="MenuButton_PreviewMouseLeftButtonDown">
                     <Rectangle.ContextMenu>
                         <ContextMenu>
+                            <MenuItem Header="Create new catalog" Click="MenuItem_CreateCatalog"/>
+                            <MenuItem Header="Load an other catalog" Click="MenuItem_LoadCatalog"/>
                             <MenuItem Header="Open playlistbrowser" Click="MenuItem_Click"/>
                         </ContextMenu>
                     </Rectangle.ContextMenu>

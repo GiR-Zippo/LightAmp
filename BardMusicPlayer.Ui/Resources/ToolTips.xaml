@@ -6,6 +6,7 @@
     <sys:String x:Key="PLAYLIST_ADD"    xml:space="preserve">Add song(s) to the current playlist</sys:String>
     <sys:String x:Key="PLAYLIST_REM"    xml:space="preserve">Remove the selected song(s) from the playlist</sys:String>
     <sys:String x:Key="PLAYLIST_DEL"    xml:space="preserve">delete the current playlist</sys:String>
+    <sys:String x:Key="PLAYLIST_OPEN"   xml:space="preserve">opens an other playlist libary  &#13; right click creates a new one</sys:String>
     <sys:String x:Key="PLAYLIST_AUTO"   xml:space="preserve">auto plays the next song in the playlist</sys:String>
 
 
@@ -13,7 +14,6 @@
     <sys:String x:Key="MISC_AUTOSTART"  xml:space="preserve">Select the autostart trigger [Metronome is prefered]</sys:String>
     <sys:String x:Key="MISC_MIDIBARD"   xml:space="preserve">Enables the MidiBard sync start</sys:String>
     <sys:String x:Key="MISC_SKINNEDUI"  xml:space="preserve">Enables the Skinned Ui (needs a restart)</sys:String>
-
     <sys:String x:Key="MISC_CLASSICUI"  xml:space="preserve">Enables the BMP Ui (needs a restart)</sys:String>
 
     <!-- Settings: LocalOchestra-->

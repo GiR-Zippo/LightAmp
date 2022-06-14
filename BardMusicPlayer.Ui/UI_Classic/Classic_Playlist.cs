@@ -170,5 +170,40 @@ namespace BardMusicPlayer.Ui.Classic
         {
             BmpPigeonhole.Instance.PlaylistAutoPlay = AutoPlay_CheckBox.IsChecked ?? false;
         }
+
+
+        private void Playlist_Open_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Amp Catalog file|*.db",
+                Multiselect = false
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            if (!openFileDialog.CheckFileExists)
+                return;
+
+            BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
+            PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+        }
+
+
+        private void Playlist_Open_Button_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var openFileDialog = new SaveFileDialog
+            {
+                Filter = "Amp Catalog file|*.db"
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
+            PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+        }
+
     }
 }
