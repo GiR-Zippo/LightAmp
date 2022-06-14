@@ -93,6 +93,46 @@ namespace BardMusicPlayer.Coffer
         }
 
         /// <summary>
+        /// load an other database
+        /// </summary>
+        /// <param name="file"></param>
+        public void LoadNew(string file)
+        {
+            this.dbi.Dispose();
+            var mapper = new BsonMapper();
+            mapper.RegisterType
+            (
+                group => group.Index,
+                bson => Instrument.Parse(bson.AsInt32)
+            );
+            mapper.RegisterType
+            (
+                group => group.Index,
+                bson => InstrumentTone.Parse(bson.AsInt32)
+            );
+            mapper.RegisterType
+            (
+                group => group.Index,
+                bson => OctaveRange.Parse(bson.AsInt32)
+            );
+            mapper.RegisterType
+            (
+                tempoMap => SerializeTempoMap(tempoMap),
+                bson => DeserializeTempoMap(bson.AsBinary)
+            );
+            mapper.RegisterType
+            (
+                trackChunk => SerializeTrackChunk(trackChunk),
+                bson => DeserializeTrackChunk(bson.AsBinary)
+            );
+
+            var dbi = new LiteDatabase(file, mapper);
+            MigrateDatabase(dbi);
+
+            _instance = new BmpCoffer(dbi);
+            return;
+        }
+        /// <summary>
         /// Serializes a TempoMap from DryWetMidi.
         /// </summary>
         /// <param name="tempoMap"></param>
