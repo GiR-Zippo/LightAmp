@@ -28,7 +28,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 if (value == _trackNumber)
                     return;
 
-                if (_sequencer.LoadedTrack == null)
+                if ((_sequencer == null) || (_sequencer.LoadedTrack == null))
                 {
                     BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(game, _trackNumber, HostProcess));
                     return;
