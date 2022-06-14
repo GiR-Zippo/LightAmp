@@ -14,6 +14,7 @@
     <sys:String x:Key="MISC_MIDIBARD"   xml:space="preserve">Enables the MidiBard sync start</sys:String>
     <sys:String x:Key="MISC_SKINNEDUI"  xml:space="preserve">Enables the Skinned Ui (needs a restart)</sys:String>
 
+    <sys:String x:Key="MISC_CLASSICUI"  xml:space="preserve">Enables the BMP Ui (needs a restart)</sys:String>
 
     <!-- Settings: LocalOchestra-->
     <sys:String x:Key="LO_ENABLE"       xml:space="preserve">Enables the local orchestra</sys:String>
@@ -21,7 +22,9 @@
     <sys:String x:Key="LO_KEEPTRACKS"   xml:space="preserve">Keep the performer settings</sys:String>
     <sys:String x:Key="LO_ISTART"       xml:space="preserve">Start each performer by it's own metronome signal &#13; Only for up to 8 bards</sys:String>
 
-
-
+    <!-- Settings: Playback-->
+    <sys:String x:Key="PL_HOLDNOTES"    xml:space="preserve">Plays the leght of a note as it supposed to</sys:String>
+    <sys:String x:Key="PL_FORCE"        xml:space="preserve">Ignore verything and play</sys:String>
+    <sys:String x:Key="PL_MIDIINPUT"    xml:space="preserve">Select your MIDI input device (midi keyboard)</sys:String>
 
 </ResourceDictionary>
