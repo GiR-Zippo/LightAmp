@@ -36,9 +36,9 @@ namespace BardMusicPlayer.Ui.Classic
             BmpMaestro.Instance.OnTrackNumberChanged += Instance_TrackNumberChanged;
             BmpMaestro.Instance.OnOctaveShiftChanged += Instance_OctaveShiftChanged;
             BmpSeer.Instance.ChatLog += Instance_ChatLog;
-
             Siren_Volume.Value = BmpSiren.Instance.GetVolume();
             BmpSiren.Instance.SynthTimePositionChanged += Instance_SynthTimePositionChanged;
+            SongBrowser.OnLoadSongFromBrowser += Instance_SongBrowserLoadedSong;
             LoadConfig();
         }
 
@@ -283,6 +283,20 @@ namespace BardMusicPlayer.Ui.Classic
             if (_infoBox == null)
                 _infoBox = new InfoBox();
             _infoBox.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
+        /// triggered by the songbrowser if a file should be loaded
+        /// </summary>
+        private void Instance_SongBrowserLoadedSong(object sender, string filename)
+        {
+            if (PlaybackFunctions.LoadSong(filename))
+            {
+                SongName.Text = PlaybackFunctions.GetSongName();
+                InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
+                _directLoaded = true;
+            }
+
         }
     }
 }

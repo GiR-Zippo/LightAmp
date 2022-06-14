@@ -1,4 +1,4 @@
-﻿using BardMusicPlayer.Maestro.Events;
+using BardMusicPlayer.Maestro.Events;
 using BardMusicPlayer.Maestro.FFXIV;
 using BardMusicPlayer.Maestro.Sequencing;
 using BardMusicPlayer.Maestro.Utils;
@@ -278,8 +278,7 @@ namespace BardMusicPlayer.Maestro.Performance
             if (!trackAndChannelOk())
                 return;
 
-            var t = Instrument.Parse(TrackInstrument);
-            _hook.SendSyncKeybind(game.InstrumentKeys[t]);
+            _hook.SendSyncKeybind(game.InstrumentKeys[Instrument.Parse(TrackInstrument)]);
         }
 
         public async Task<int> ReplaceInstrument()
@@ -299,8 +298,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 }
             }
 
-            var t = Instrument.Parse(TrackInstrument);
-            _hook.SendSyncKeybind(game.InstrumentKeys[t]);
+            _hook.SendSyncKeybind(game.InstrumentKeys[Instrument.Parse(TrackInstrument)]);
             return 0;
         }
 
@@ -447,7 +445,7 @@ namespace BardMusicPlayer.Maestro.Performance
 
         private void InternalAT(object sender, Sanford.Multimedia.Midi.ChannelMessageEventArgs args)
         {
-            var builder = new Sanford.Multimedia.Midi.ChannelMessageBuilder(args.Message);
+            /*var builder = new Sanford.Multimedia.Midi.ChannelMessageBuilder(args.Message);
             var atevent = new ChannelAfterTouchEvent
             {
                 track = args.MidiTrack,
@@ -466,7 +464,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 case 1:
                     CloseInstrument();
                     break;
-            }
+            }*/
 
         }
 #endregion

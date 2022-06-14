@@ -21,6 +21,8 @@ namespace BardMusicPlayer.Ui.Controls
     /// </summary>
     public partial class SongBrowser : UserControl
     {
+        public EventHandler<string> OnLoadSongFromBrowser;
+
         public SongBrowser()
         {
             InitializeComponent();
@@ -33,7 +35,7 @@ namespace BardMusicPlayer.Ui.Controls
             if (!File.Exists(filename) || filename == null)
                 return;
 
-            PlaybackFunctions.LoadSong(filename);
+            OnLoadSongFromBrowser?.Invoke(this, filename);
         }
 
         private void SongSearch_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
