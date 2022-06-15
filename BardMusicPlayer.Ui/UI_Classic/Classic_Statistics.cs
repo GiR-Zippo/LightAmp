@@ -15,6 +15,11 @@ namespace BardMusicPlayer.Ui.Classic
             this._notesCountForTracks.Clear();
             this._notesCountForTracks = e.CurrentNoteCountForTracks;
 
+            if (NumValue >= _notesCountForTracks.Count)
+            {
+                this.Statistics_Track_Note_Count_Label.Content = "Invalid track";
+                return;
+            }
             this.Statistics_Track_Note_Count_Label.Content = _notesCountForTracks[NumValue];
         }
 
@@ -22,12 +27,14 @@ namespace BardMusicPlayer.Ui.Classic
         {
             if (PlaybackFunctions.CurrentSong == null)
                 return;
-            try
+
+            if (NumValue >= _notesCountForTracks.Count)
             {
-                this.Statistics_Track_Note_Count_Label.Content = _notesCountForTracks[NumValue];
+                this.Statistics_Track_Note_Count_Label.Content = "Invalid track";
+                return;
             }
-            catch
-            { }
+
+            this.Statistics_Track_Note_Count_Label.Content = _notesCountForTracks[NumValue];
         }
 
     }

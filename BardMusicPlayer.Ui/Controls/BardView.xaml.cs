@@ -30,6 +30,7 @@ namespace BardMusicPlayer.Ui.Controls
             BmpMaestro.Instance.OnTrackNumberChanged += OnTrackNumberChanged;
             BmpMaestro.Instance.OnOctaveShiftChanged += OnOctaveShiftChanged;
             BmpMaestro.Instance.OnSongLoaded += OnSongLoaded;
+            BmpMaestro.Instance.OnPerformerUpdate += OnPerformerUpdate;
             BmpSeer.Instance.PlayerNameChanged += OnPlayerNameChanged;
             BmpSeer.Instance.InstrumentHeldChanged += OnInstrumentHeldChanged;
             BmpSeer.Instance.HomeWorldChanged += OnHomeWorldChanged;
@@ -56,6 +57,11 @@ namespace BardMusicPlayer.Ui.Controls
         }
 
         private void OnSongLoaded(object sender, SongLoadedEvent e)
+        {
+            UpdateList();
+        }
+
+        private void OnPerformerUpdate(object sender, PerformerUpdate e)
         {
             UpdateList();
         }

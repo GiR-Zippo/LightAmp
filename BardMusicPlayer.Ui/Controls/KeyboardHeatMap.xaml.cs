@@ -106,6 +106,10 @@ namespace BardMusicPlayer.Ui.Controls
             var notedict = new Dictionary<int, int>();
             int notecount = 0;
 
+            //If your host has an invalid track, set it to 0
+            if ((tracknumber - 1) <= trackChunks.Count)
+                tracknumber = 0;
+
             if (tracknumber != 0)
             {
                 foreach (var note in trackChunks[tracknumber - 1].GetNotes())

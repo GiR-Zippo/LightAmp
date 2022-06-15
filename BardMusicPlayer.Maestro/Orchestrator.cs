@@ -212,7 +212,9 @@ namespace BardMusicPlayer.Maestro
         {
             if (game == null)
                 return;
-            foreach (var perf in _performers)
+
+            Parallel.ForEach(_performers, perf =>
+            {
                 if (perf.Value.PId == game.Pid)
                 {
                     perf.Value.HostProcess = true;
@@ -221,6 +223,8 @@ namespace BardMusicPlayer.Maestro
                 }
                 else
                     perf.Value.HostProcess = false;
+            });
+            BmpMaestro.Instance.PublishEvent(new PerformerUpdate());
         }
 
         /// <summary>
@@ -231,7 +235,9 @@ namespace BardMusicPlayer.Maestro
         {
             if (p == null)
                 return;
-            foreach (var perf in _performers)
+            
+            Parallel.ForEach(_performers, perf =>
+            {
                 if (perf.Value.PId == p.PId)
                 {
                     perf.Value.HostProcess = true;
@@ -240,6 +246,8 @@ namespace BardMusicPlayer.Maestro
                 }
                 else
                     perf.Value.HostProcess = false;
+            });
+            BmpMaestro.Instance.PublishEvent(new PerformerUpdate());
         }
 
         /// <summary>
@@ -592,6 +600,7 @@ namespace BardMusicPlayer.Maestro
                     });
                 }
             }
+
             BmpMaestro.Instance.PublishEvent(new MaxPlayTimeEvent(_sequencer.MaxTimeAsTimeSpan, _sequencer.MaxTick));
             BmpMaestro.Instance.PublishEvent(new SongLoadedEvent(_sequencer.MaxTrack, _sequencer));
 
