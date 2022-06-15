@@ -25,7 +25,7 @@ namespace BardMusicPlayer.Ui.Classic
 
             //Local orchestra
             this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
-            this.AutoEquipBox.IsChecked = BmpPigeonhole.Instance.EnsebleAutoEquip;
+            this.AutoEquipBox.IsChecked = BmpPigeonhole.Instance.EnsembleAutoEquip;
             this.KeepTrackSettingsBox.IsChecked = BmpPigeonhole.Instance.EnsembleKeepTrackSetting;
             StartBardIndividuallyBox.IsChecked = BmpPigeonhole.Instance.EnsembleStartIndividual;
 
@@ -59,7 +59,7 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void AutoEquipBox_Checked(object sender, RoutedEventArgs e)
         {
-            BmpPigeonhole.Instance.EnsebleAutoEquip = AutoEquipBox.IsChecked ?? false;
+            BmpPigeonhole.Instance.EnsembleAutoEquip = AutoEquipBox.IsChecked ?? false;
         }
 
         private void KeepTrackSettingsBox_Checked(object sender, RoutedEventArgs e)

@@ -147,17 +147,17 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// milliseconds till ready check confirmation.
         /// </summary>
-        public virtual int EnsebleReadyDelay { get; set; } = 500;
+        public virtual int EnsembleReadyDelay { get; set; } = 500;
 
         /// <summary>
         /// playback delay enabled
         /// </summary>
-        public virtual bool EnseblePlayDelay { get; set; } = true;
+        public virtual bool EnsemblePlayDelay { get; set; } = true;
 
         /// <summary>
         /// autoequip after song load in ensemble mode delay enabled
         /// </summary>
-        public virtual bool EnsebleAutoEquip { get; set; } = false;
+        public virtual bool EnsembleAutoEquip { get; set; } = false;
 
         /// <summary>
         /// keep the ensmble track settings

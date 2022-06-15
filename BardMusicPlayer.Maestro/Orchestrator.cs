@@ -441,7 +441,7 @@ namespace BardMusicPlayer.Maestro
 
         private async Task<int> EnsembleAcceptAsync(Seer.Events.EnsembleRequested seerEvent)
         {
-            await Task.Delay(BmpPigeonhole.Instance.EnsebleReadyDelay);
+            await Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay);
             var result = _performers.Find(kvp => kvp.Key == seerEvent.Game.Pid);
             if (result.Key == seerEvent.Game.Pid)
                 result.Value.EnsembleAccept();
@@ -584,7 +584,7 @@ namespace BardMusicPlayer.Maestro
                 }
 
                 //if we autoequip the orchestra, just do it
-                if (BmpPigeonhole.Instance.EnsebleAutoEquip && BmpPigeonhole.Instance.LocalOrchestra)
+                if (BmpPigeonhole.Instance.EnsembleAutoEquip && BmpPigeonhole.Instance.LocalOrchestra)
                 {
                     Parallel.ForEach(_performers, perf =>
                     {
@@ -609,7 +609,7 @@ namespace BardMusicPlayer.Maestro
                 return;
 
             int delayvalue = 100;
-            if (!BmpPigeonhole.Instance.EnseblePlayDelay)
+            if (!BmpPigeonhole.Instance.EnsemblePlayDelay)
                 delayvalue = 100;
             else
             {

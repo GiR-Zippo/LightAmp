@@ -291,7 +291,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 else
                 {
                     CloseInstrument();
-                    await Task.Delay(BmpPigeonhole.Instance.EnsebleReadyDelay);
+                    await Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay);
                 }
             }
 
