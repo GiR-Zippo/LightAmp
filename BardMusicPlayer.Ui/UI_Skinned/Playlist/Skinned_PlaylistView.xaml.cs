@@ -332,6 +332,7 @@ namespace BardMusicPlayer.Ui.Skinned
             {
                 Filter = "Amp Catalog file|*.db"
             };
+            openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\" + Globals.Globals.DataPath;
 
             if (openFileDialog.ShowDialog() != true)
                 return;
@@ -350,6 +351,7 @@ namespace BardMusicPlayer.Ui.Skinned
                 Filter = "Amp Catalog file|*.db",
                 Multiselect = false
             };
+            openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\" + Globals.Globals.DataPath;
 
             if (openFileDialog.ShowDialog() != true)
                 return;
@@ -364,12 +366,30 @@ namespace BardMusicPlayer.Ui.Skinned
             RefreshPlaylist();
         }
 
+        private void MenuItem_ExportCatalog(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new SaveFileDialog
+            {
+                Filter = "Amp Catalog file|*.db"
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            BmpCoffer.Instance.Export(openFileDialog.FileName);
+        }
+
+        private void MenuItem_CleanUpCatalog(object sender, RoutedEventArgs e)
+        {
+            BmpCoffer.Instance.CleanUpDB();
+        }
+
         /// <summary>
         /// opens the playlists browser
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void MenuItem_OpenPlaylistBrowser(object sender, RoutedEventArgs e)
         {
             MediaBrowser mb = new MediaBrowser();
             mb.Show();

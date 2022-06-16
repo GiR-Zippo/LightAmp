@@ -50,11 +50,21 @@
                         <ColumnDefinition MaxWidth="20"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="PLAYLIST" Height="25" FontSize="14" Grid.Column="0"/>
-                    <Button x:Name="Playlist_New_Button"    Click="Playlist_New_Button_Click"    Content="New"  ToolTip="{StaticResource PLAYLIST_NEW}"  Height="20" Width="40" Grid.Column="1"/>
-                    <Button x:Name="Playlist_Add_Button"    Click="Playlist_Add_Button_Click"    Content="+"    ToolTip="{StaticResource PLAYLIST_ADD}"  Height="20" Width="20" Grid.Column="2"/>
-                    <Button x:Name="Playlist_Remove_Button" Click="Playlist_Remove_Button_Click" Content="-"    ToolTip="{StaticResource PLAYLIST_REM}"  Height="20" Width="20" Grid.Column="3"/>
-                    <Button x:Name="Playlist_Delete_Button" Click="Playlist_Delete_Button_Click" Content="X"    ToolTip="{StaticResource PLAYLIST_DEL}"  Height="20" Width="20" Grid.Column="4"/>
-                    <Button x:Name="Playlist_Open_Button"   Click="Playlist_Open_Button_Click"   Content="O"    ToolTip="{StaticResource PLAYLIST_OPEN}" Height="20" Width="20" Grid.Column="5" MouseRightButtonDown="Playlist_Open_Button_MouseRightButtonDown"/>
+                    <Button x:Name="Playlist_New_Button"    Click="Playlist_New_Button_Click"             Content="New"  ToolTip="{StaticResource PLAYLIST_NEW}"  Height="20" Width="40" Grid.Column="1"/>
+                    <Button x:Name="Playlist_Add_Button"    Click="Playlist_Add_Button_Click"             Content="+"    ToolTip="{StaticResource PLAYLIST_ADD}"  Height="20" Width="20" Grid.Column="2"/>
+                    <Button x:Name="Playlist_Remove_Button" Click="Playlist_Remove_Button_Click"          Content="-"    ToolTip="{StaticResource PLAYLIST_REM}"  Height="20" Width="20" Grid.Column="3"/>
+                    <Button x:Name="Playlist_Delete_Button" Click="Playlist_Delete_Button_Click"          Content="X"    ToolTip="{StaticResource PLAYLIST_DEL}"  Height="20" Width="20" Grid.Column="4"/>
+                    <Button x:Name="Playlist_Open_Button"   Click="MenuButton_PreviewMouseLeftButtonDown" Content="..."                                           Height="20" Width="20" Grid.Column="5"
+                        ContextMenuService.Placement="Bottom" ContextMenuService.ShowOnDisabled="True" >
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Create new empty MusicCatalog" Click="Playlist_New_Cat_Button"     ToolTip="{StaticResource PLAYLIST_NEWCAT}"/>
+                                <MenuItem Header="Open MusicCatalog"             Click="Playlist_Open_Cat_Button"    ToolTip="{StaticResource PLAYLIST_OPEN}"/>
+                                <MenuItem Header="Export MusicCatalog"           Click="Playlist_Export_Cat_Button"  ToolTip="{StaticResource PLAYLIST_EXPORT}"/>
+                                <MenuItem Header="Cleanup MusicCatalog"          Click="Playlist_Cleanup_Cat_Button" ToolTip="{StaticResource PLAYLIST_CLEANUP}"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
 
                     <DataGrid x:Name="PlaylistContainer" Grid.Row="1" Grid.ColumnSpan="6" AutoGenerateColumns="False" PreviewMouseDoubleClick="PlaylistContainer_PreviewMouseDoubleClick" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <DataGrid.Columns>

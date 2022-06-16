@@ -181,9 +181,12 @@
                 Fill="Transparent" MouseDown="MenuButton_PreviewMouseLeftButtonDown">
                     <Rectangle.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Create new catalog" Click="MenuItem_CreateCatalog"/>
-                            <MenuItem Header="Load an other catalog" Click="MenuItem_LoadCatalog"/>
-                            <MenuItem Header="Open playlistbrowser" Click="MenuItem_Click"/>
+                            <MenuItem Header="Create new empty MusicCatalog" Click="MenuItem_CreateCatalog"/>
+                            <MenuItem Header="Open MusicCatalog"             Click="MenuItem_LoadCatalog"/>
+                            <MenuItem Header="Export MusicCatalog"           Click="MenuItem_ExportCatalog"/>
+                            <MenuItem Header="Cleanup MusicCatalog"          Click="MenuItem_CleanUpCatalog"/>
+                            <MenuItem Header=""/>
+                            <MenuItem Header="Open Playlistbrowser"          Click="MenuItem_OpenPlaylistBrowser"/>
                         </ContextMenu>
                     </Rectangle.ContextMenu>
                 </Rectangle>

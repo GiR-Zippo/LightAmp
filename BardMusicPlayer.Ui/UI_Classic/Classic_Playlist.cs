@@ -19,9 +19,8 @@ namespace BardMusicPlayer.Ui.Classic
         private bool _playlistRepeat = false;
         private bool _playlistShuffle = false;
         private bool _showingPlaylists = false;     //are we displaying the playlist or the songs
-        private IPlaylist _currentPlaylist;         //the current selected playlist
-
-
+        private IPlaylist _currentPlaylist = null;  //the current selected playlist
+        
         private void playNextSong()
         {
             if (PlaylistContainer.Items.Count == 0)
@@ -61,6 +60,11 @@ namespace BardMusicPlayer.Ui.Classic
             }
         }
 
+        /// <summary>
+        /// Add file(s) to the selected playlist
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Playlist_Add_Button_Click(object sender, RoutedEventArgs e)
         {
             if (_currentPlaylist == null)
@@ -74,6 +78,7 @@ namespace BardMusicPlayer.Ui.Classic
 
             if (openFileDialog.ShowDialog() != true)
                 return;
+
             foreach (var d in openFileDialog.FileNames)
             {
                 BmpSong song = BmpSong.OpenFile(d).Result;
@@ -172,13 +177,30 @@ namespace BardMusicPlayer.Ui.Classic
         }
 
 
-        private void Playlist_Open_Button_Click(object sender, RoutedEventArgs e)
+        private void Playlist_New_Cat_Button(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new SaveFileDialog
+            {
+                Filter = "Amp Catalog file|*.db"
+            };
+            openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\"+ Globals.Globals.DataPath;
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
+            PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+            _showingPlaylists = true;
+        }
+
+        private void Playlist_Open_Cat_Button(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "Amp Catalog file|*.db",
                 Multiselect = false
             };
+            openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\" + Globals.Globals.DataPath;
 
             if (openFileDialog.ShowDialog() != true)
                 return;
@@ -188,10 +210,10 @@ namespace BardMusicPlayer.Ui.Classic
 
             BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+            _showingPlaylists = true;
         }
 
-
-        private void Playlist_Open_Button_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Playlist_Export_Cat_Button(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new SaveFileDialog
             {
@@ -201,9 +223,24 @@ namespace BardMusicPlayer.Ui.Classic
             if (openFileDialog.ShowDialog() != true)
                 return;
 
-            BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
-            PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+            BmpCoffer.Instance.Export(openFileDialog.FileName);
         }
 
+        private void Playlist_Cleanup_Cat_Button(object sender, RoutedEventArgs e)
+        {
+            BmpCoffer.Instance.CleanUpDB();
+        }
+
+        private void MenuButton_PreviewMouseLeftButtonDown(object sender, RoutedEventArgs e)
+        {
+            //if (e.ChangedButton == MouseButton.Left)
+            {
+                Button rectangle = sender as Button;
+                ContextMenu contextMenu = rectangle.ContextMenu;
+                contextMenu.PlacementTarget = rectangle;
+                contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                contextMenu.IsOpen = true;
+            }
+        }
     }
 }
