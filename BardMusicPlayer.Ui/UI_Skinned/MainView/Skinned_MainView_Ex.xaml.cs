@@ -5,7 +5,7 @@ using System.Windows;
 namespace BardMusicPlayer.Ui.Skinned
 {
     /// <summary>
-    /// Interaktionslogik für Skinned_MainView_Ex.xaml
+    /// does nothing, but looks fancy
     /// </summary>
     public partial class Skinned_MainView_Ex : Window
     {

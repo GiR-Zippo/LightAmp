@@ -351,6 +351,9 @@ namespace BardMusicPlayer.Ui.Skinned
             BmpPigeonhole.Instance.SkinnedUi_UseExtendedView = this._MainView_Ex.Visibility == Visibility.Visible ? true : false;
         }
 
+        /// <summary>
+        /// Set the exview and playlist position to the main window
+        /// </summary>
         private void SetWindowPositions()
         {
             if (this._MainView_Ex.Visibility == Visibility.Visible)
@@ -371,6 +374,9 @@ namespace BardMusicPlayer.Ui.Skinned
             }
         }
 
+        /// <summary>
+        /// Set the exview and playlist position to the main window
+        /// </summary>
         private void ResethWindowPositions_Click(object sender, RoutedEventArgs e)
         {
             if (this._MainView_Ex.Visibility == Visibility.Visible)

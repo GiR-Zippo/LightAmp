@@ -1,19 +1,12 @@
 ﻿using BardMusicPlayer.Ui.Globals.SkinContainer;
 using System;
-
-using System.Drawing;
-using System.Windows.Interop;
-using System.Windows.Media.Imaging;
-using Image = System.Drawing.Image;
-using Rectangle = System.Drawing.Rectangle;
-using System.Windows.Media;
 using System.Windows;
 using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Skinned
 {
     /// <summary>
-    /// Interaktionslogik für BardsWindow.xaml
+    /// Only a container window
     /// </summary>
     public partial class BardsWindow : Window
     {
@@ -24,6 +17,7 @@ namespace BardMusicPlayer.Ui.Skinned
             SkinContainer.OnNewSkinLoaded += SkinContainer_OnNewSkinLoaded;
         }
 
+        #region Skinning
         private void SkinContainer_OnNewSkinLoaded(object sender, EventArgs e)
         { ApplySkin(); }
 
@@ -44,6 +38,9 @@ namespace BardMusicPlayer.Ui.Skinned
             this.Close_Button.Background.Opacity = 0;
 
         }
+        #endregion
+
+        #region Titlebar functions and buttons
         private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -63,5 +60,6 @@ namespace BardMusicPlayer.Ui.Skinned
         {
             this.Close_Button.Background.Opacity = 0;
         }
+        #endregion
     }
 }
