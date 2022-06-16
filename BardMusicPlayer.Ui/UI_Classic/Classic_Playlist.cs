@@ -3,7 +3,6 @@ using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Functions;
 using Microsoft.Win32;
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -20,7 +19,10 @@ namespace BardMusicPlayer.Ui.Classic
         private bool _playlistShuffle = false;
         private bool _showingPlaylists = false;     //are we displaying the playlist or the songs
         private IPlaylist _currentPlaylist = null;  //the current selected playlist
-        
+
+        /// <summary>
+        /// Plays the next song from the playlist
+        /// </summary>
         private void playNextSong()
         {
             if (PlaylistContainer.Items.Count == 0)
@@ -44,6 +46,7 @@ namespace BardMusicPlayer.Ui.Classic
             this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
         }
 
+        #region upper playlist button functions
         /// <summary>
         /// Create a new playlist but don't save it
         /// </summary>
@@ -126,7 +129,13 @@ namespace BardMusicPlayer.Ui.Classic
             BmpCoffer.Instance.DeletePlaylist(_currentPlaylist);
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
         }
+        #endregion
 
+        /// <summary>
+        /// if a song or playlist in the list was doubleclicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PlaylistContainer_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if ((string)PlaylistContainer.SelectedItem == null)
@@ -159,29 +168,51 @@ namespace BardMusicPlayer.Ui.Classic
             return;
         }
 
+        #region lower playlist button functions
+        /// <summary>
+        /// The playlist repeat toggle button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PlaylistRepeat_Button_Click(object sender, RoutedEventArgs e)
         {
             _playlistRepeat = !_playlistRepeat;
             this.PlaylistRepeat_Button.Opacity = _playlistRepeat ? 1 : 0.5f;
         }
 
+        /// <summary>
+        /// The playlist shuffle toggle button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PlaylistShuffle_Button_Click(object sender, RoutedEventArgs e)
         {
             _playlistShuffle = !_playlistShuffle;
             this.PlaylistShuffle_Button.Opacity = _playlistShuffle ? 1 : 0.5f;
         }
 
+        /// <summary>
+        /// The Auto-Play button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AutoPlay_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.PlaylistAutoPlay = AutoPlay_CheckBox.IsChecked ?? false;
         }
+        #endregion
 
-
+        #region other "..." playlist menu function
+        /// <summary>
+        /// Creates a new music catalog, loads it and refreshes the listed items
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Playlist_New_Cat_Button(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new SaveFileDialog
             {
-                Filter = "Amp Catalog file|*.db"
+                Filter = Globals.Globals.MusicCatalogFilters
             };
             openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\"+ Globals.Globals.DataPath;
 
@@ -193,11 +224,16 @@ namespace BardMusicPlayer.Ui.Classic
             _showingPlaylists = true;
         }
 
+        /// <summary>
+        /// Loads a MusicCatalog, loads it and refreshes the listed items
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Playlist_Open_Cat_Button(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "Amp Catalog file|*.db",
+                Filter = Globals.Globals.MusicCatalogFilters,
                 Multiselect = false
             };
             openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\" + Globals.Globals.DataPath;
@@ -213,11 +249,16 @@ namespace BardMusicPlayer.Ui.Classic
             _showingPlaylists = true;
         }
 
+        /// <summary>
+        /// the export function, triggered from the Ui
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Playlist_Export_Cat_Button(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new SaveFileDialog
             {
-                Filter = "Amp Catalog file|*.db"
+                Filter = Globals.Globals.MusicCatalogFilters
             };
 
             if (openFileDialog.ShowDialog() != true)
@@ -226,21 +267,24 @@ namespace BardMusicPlayer.Ui.Classic
             BmpCoffer.Instance.Export(openFileDialog.FileName);
         }
 
+        /// <summary>
+        /// triggeres the reabase function from Coffer
+        /// </summary>
         private void Playlist_Cleanup_Cat_Button(object sender, RoutedEventArgs e)
         {
             BmpCoffer.Instance.CleanUpDB();
         }
-
+        #endregion
+        /// <summary>
+        /// Button context menu routine
+        /// </summary>
         private void MenuButton_PreviewMouseLeftButtonDown(object sender, RoutedEventArgs e)
         {
-            //if (e.ChangedButton == MouseButton.Left)
-            {
-                Button rectangle = sender as Button;
-                ContextMenu contextMenu = rectangle.ContextMenu;
-                contextMenu.PlacementTarget = rectangle;
-                contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-                contextMenu.IsOpen = true;
-            }
+            Button rectangle = sender as Button;
+            ContextMenu contextMenu = rectangle.ContextMenu;
+            contextMenu.PlacementTarget = rectangle;
+            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            contextMenu.IsOpen = true;
         }
     }
 }

@@ -4,6 +4,9 @@ using System.Windows.Controls;
 
 namespace BardMusicPlayer.Ui.Classic
 {
+    /// <summary>
+    /// only here cuz someone would like to have it back
+    /// </summary>
     public partial class Classic_MainView : UserControl
     {
         private List<int> _notesCountForTracks = new List<int>();

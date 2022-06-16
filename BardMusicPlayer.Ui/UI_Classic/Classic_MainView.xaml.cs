@@ -1,5 +1,4 @@
-﻿
-using BardMusicPlayer.Seer;
+﻿using BardMusicPlayer.Seer;
 using System;
 using System.Windows;
 using System.Windows.Controls;
