@@ -22,9 +22,9 @@ namespace BardMusicPlayer.Ui.Skinned
     {
         public EventHandler<BmpSong> OnLoadSongFromPlaylist;
 
-        private IPlaylist _currentPlaylist = null; //The currently used playlist
+        private IPlaylist _currentPlaylist = null;   //The currently used playlist
         public bool NormalPlay { get; set; } = true; //True if normal or false if shuffle
-        public bool LoopPlay { get; set; } = false; //if true play the whole playlist and repeat
+        public bool LoopPlay { get; set; } = false;  //if true play the whole playlist and repeat
 
         public Skinned_PlaylistView()
         {
@@ -73,6 +73,10 @@ namespace BardMusicPlayer.Ui.Skinned
         }
         #endregion
 
+
+        /// <summary>
+        /// Refreshes the PlaylistContainer, clears the items and rereads them
+        /// </summary>
         private void RefreshPlaylist()
         {
             PlaylistContainer.Items.Clear();
@@ -326,11 +330,12 @@ namespace BardMusicPlayer.Ui.Skinned
             }
         }
 
+        #region MiscButtonMenu
         private void MenuItem_CreateCatalog(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new SaveFileDialog
             {
-                Filter = "Amp Catalog file|*.db"
+                Filter = Globals.Globals.MusicCatalogFilters
             };
             openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\" + Globals.Globals.DataPath;
 
@@ -348,7 +353,7 @@ namespace BardMusicPlayer.Ui.Skinned
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "Amp Catalog file|*.db",
+                Filter = Globals.Globals.MusicCatalogFilters,
                 Multiselect = false
             };
             openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\" + Globals.Globals.DataPath;
@@ -366,11 +371,14 @@ namespace BardMusicPlayer.Ui.Skinned
             RefreshPlaylist();
         }
 
+        /// <summary>
+        /// the export function, triggered from the Ui
+        /// </summary>
         private void MenuItem_ExportCatalog(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new SaveFileDialog
             {
-                Filter = "Amp Catalog file|*.db"
+                Filter = Globals.Globals.MusicCatalogFilters
             };
 
             if (openFileDialog.ShowDialog() != true)
@@ -379,6 +387,9 @@ namespace BardMusicPlayer.Ui.Skinned
             BmpCoffer.Instance.Export(openFileDialog.FileName);
         }
 
+        /// <summary>
+        /// triggeres the reabase function from Coffer
+        /// </summary>
         private void MenuItem_CleanUpCatalog(object sender, RoutedEventArgs e)
         {
             BmpCoffer.Instance.CleanUpDB();
@@ -395,6 +406,7 @@ namespace BardMusicPlayer.Ui.Skinned
             mb.Show();
             mb.OnPlaylistChanged += OnPlaylistChanged;
         }
+#endregion
 
         /// <summary>
         /// triggered from playlist browser

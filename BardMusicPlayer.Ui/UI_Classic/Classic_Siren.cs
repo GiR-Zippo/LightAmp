@@ -14,6 +14,11 @@ namespace BardMusicPlayer.Ui.Classic
     /// </summary>
     public partial class Classic_MainView : UserControl
     {
+        /// <summary>
+        /// load button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Siren_Load_Click(object sender, RoutedEventArgs e)
         {
             BmpSong CurrentSong = null;
@@ -40,19 +45,32 @@ namespace BardMusicPlayer.Ui.Classic
             this.Siren_SongName.Content = BmpSiren.Instance.CurrentSongTitle;
         }
 
+        /// <summary>
+        /// playback start button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Siren_Play_Click(object sender, RoutedEventArgs e)
         {
             if(BmpSiren.Instance.IsReadyForPlayback)
                 BmpSiren.Instance.Play();
         }
 
+        /// <summary>
+        /// playback stop button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Siren_Stop_Click(object sender, RoutedEventArgs e)
         {
             if (BmpSiren.Instance.IsReadyForPlayback)
                 BmpSiren.Instance.Stop();
         }
 
-
+        /// <summary>
+        /// opens a fileslector box and loads the selected song 
+        /// </summary>
+        /// <returns>BmpSong</returns>
         private BmpSong Siren_LoadMidiFile()
         {
             var openFileDialog = new OpenFileDialog
@@ -70,12 +88,22 @@ namespace BardMusicPlayer.Ui.Classic
             return BmpSong.OpenFile(openFileDialog.FileName).Result;
         }
         
+        /// <summary>
+        /// Control, if user changed the volume
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Siren_Volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             Slider slider = e.OriginalSource as Slider;
             BmpSiren.Instance.SetVolume((float)slider.Value);
         }
 
+        /// <summary>
+        /// Triggered by Siren event, changes the max and lap time
+        /// </summary>
+        /// <param name="currentTime"></param>
+        /// <param name="endTime"></param>
         private void Siren_PlaybackTimeChanged(double currentTime, double endTime)
         {
             TimeSpan t;
@@ -92,16 +120,31 @@ namespace BardMusicPlayer.Ui.Classic
                 Siren_Position.Value = currentTime;            
         }
 
-        private void Sireen_Playbar_Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        /// <summary>
+        /// Does nothing atm
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Siren_Playbar_Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
         }
 
-        private void Sireen_Playbar_Slider_DragStarted(object sender, DragStartedEventArgs e)
+        /// <summary>
+        /// DragStarted, to indicate the slider has moved by user
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Siren_Playbar_Slider_DragStarted(object sender, DragStartedEventArgs e)
         {
             this._Siren_Playbar_dragStarted = true;
         }
 
-        private void Sireen_Playbar_Slider_DragCompleted(object sender, DragCompletedEventArgs e)
+        /// <summary>
+        /// Dragaction for the playbar
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Siren_Playbar_Slider_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             BmpSiren.Instance.SetPosition((int)Siren_Position.Value);
             this._Siren_Playbar_dragStarted = false;

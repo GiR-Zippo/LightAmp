@@ -263,7 +263,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0"  x:Name="Siren_Time" Content="00:00" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                                <Slider Grid.Column="1" x:Name="Siren_Position" Minimum="0" Maximum="100" Orientation="Horizontal" HorizontalAlignment="Stretch" ValueChanged="Sireen_Playbar_Slider_ValueChanged" Thumb.DragStarted="Sireen_Playbar_Slider_DragStarted" Thumb.DragCompleted="Sireen_Playbar_Slider_DragCompleted" VerticalAlignment="Center" UseLayoutRounding="True"></Slider>
+                                <Slider Grid.Column="1" x:Name="Siren_Position" Minimum="0" Maximum="100" Orientation="Horizontal" HorizontalAlignment="Stretch" ValueChanged="Siren_Playbar_Slider_ValueChanged" Thumb.DragStarted="Siren_Playbar_Slider_DragStarted" Thumb.DragCompleted="Siren_Playbar_Slider_DragCompleted" VerticalAlignment="Center" UseLayoutRounding="True"></Slider>
                                 <Label Grid.Column="3"  x:Name="Siren_TimeLapsed" Content="00:00" HorizontalAlignment="Left" VerticalAlignment="Center" />
                             </Grid>
 

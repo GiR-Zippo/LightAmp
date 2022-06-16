@@ -1,9 +1,7 @@
 ﻿using BardMusicPlayer.Ui.Globals.SkinContainer;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -29,6 +27,10 @@ namespace BardMusicPlayer.Ui.Skinned
             //TrackDigit.Source = new ImageBrush(Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions())).ImageSource;
         }*/
 
+        /// <summary>
+        /// draws the bitmaptext from string into SmallOctaveDigit (the Octave field)
+        /// </summary>
+        /// <param name="data"></param>
         void WriteSmallOctaveDigitField(string data)
         {
             Bitmap bitmap = new Bitmap(30, 8);
@@ -48,6 +50,10 @@ namespace BardMusicPlayer.Ui.Skinned
             SmallOctaveDigit.Stretch = Stretch.UniformToFill;
         }
 
+        /// <summary>
+        /// draws the bitmaptext from string into WriteSmallDigitField (the Track field)
+        /// </summary>
+        /// <param name="data"></param>
         void WriteSmallDigitField(string data)
         {
             data = data.Insert(0, "T");
@@ -70,6 +76,8 @@ namespace BardMusicPlayer.Ui.Skinned
             SmallTrackDigit.Stretch = Stretch.UniformToFill;
         }
 
+
+#region SongField & Scroller
         private int scrollpos = 0;
         private bool scrolldir = true;
         protected async Task UpdateScroller(CancellationToken stoppingToken, string data)
@@ -84,6 +92,10 @@ namespace BardMusicPlayer.Ui.Skinned
             }
         }
 
+        /// <summary>
+        /// draws the bitmaptext from string into SongDigit
+        /// </summary>
+        /// <param name="data"></param>
         void WriteSongField(string data)
         {
             Bitmap bitmap = new Bitmap(305, 12);
@@ -122,7 +134,12 @@ namespace BardMusicPlayer.Ui.Skinned
             SongDigit.Source = new ImageBrush(Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions())).ImageSource;
             SongDigit.Stretch = Stretch.UniformToFill;
         }
+#endregion
 
+        /// <summary>
+        /// draws the bitmaptext from string into InstrumentDigit
+        /// </summary>
+        /// <param name="data"></param>
         void WriteInstrumentDigitField(string data)
         {
             if (data == null)

@@ -1008,6 +1008,11 @@ namespace BardMusicPlayer.Ui.Skinned
                                                                                         BitmapSizeOptions.FromEmptyOptions()));
         }
 
+        /// <summary>
+        /// Gets the rgb color from string
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>System.Drawing.Color</returns>
         System.Drawing.Color GetColor(string data)
         {
             byte[] colval = new byte[3];

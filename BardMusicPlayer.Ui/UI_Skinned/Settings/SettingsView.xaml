@@ -190,7 +190,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Label Content="SireenVolume" Grid.Row="1" Grid.Column="1"/>
+                            <Label Content="SirenVolume" Grid.Row="1" Grid.Column="1"/>
                             <Slider x:Name="SirenVolume" Grid.Row="1" Grid.Column="2" Width="100" ValueChanged="SirenVolume_ValueChanged" Maximum="100" />
                         </Grid>
                     </TabItem>

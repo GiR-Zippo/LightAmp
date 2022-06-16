@@ -56,20 +56,20 @@ namespace BardMusicPlayer.Ui.Skinned
             MIDI_Input_DeviceBox.ItemsSource = Maestro.Utils.MidiInput.ReloadMidiInputDevices();
             this.MIDI_Input_DeviceBox.SelectedIndex = BmpPigeonhole.Instance.MidiInputDev + 1;
             
-            //Local Orchestra
+            //Local Orchestra Tab
             this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
             this.AutoEquipBox.IsChecked = BmpPigeonhole.Instance.EnsembleAutoEquip;
             this.KeepTrackSettingsBox.IsChecked = BmpPigeonhole.Instance.EnsembleKeepTrackSetting;
             this.StartBardIndividuallyBox.IsChecked = BmpPigeonhole.Instance.EnsembleStartIndividual;
 
-            //Syncsettings
+            //Syncsettings Tab
             Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
             this.MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
 
-            //Misc
+            //Misc Tab
             SirenVolume.Value = BmpSiren.Instance.GetVolume();
 
-            //Path
+            //Path Tab
             SongsDir.Text = BmpPigeonhole.Instance.SongDirectory;
             SkinsDir.Text = BmpPigeonhole.Instance.SkinDirectory;
 
@@ -92,9 +92,17 @@ namespace BardMusicPlayer.Ui.Skinned
         }
 
         #region Window design and buttons
+        /// <summary>
+        /// Triggered by the SkinLoader, if a new skin was loaded
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SkinContainer_OnNewSkinLoaded(object sender, EventArgs e)
         { ApplySkin(); }
 
+        /// <summary>
+        /// Applies a skin
+        /// </summary>
         public void ApplySkin()
         {
             this.BARDS_TOP_LEFT.Fill = SkinContainer.SWINDOW[SkinContainer.SWINDOW_TYPES.SWINDOW_TOP_LEFT_CORNER];
@@ -112,20 +120,41 @@ namespace BardMusicPlayer.Ui.Skinned
             this.Close_Button.Background.Opacity = 0;
 
         }
+
+        /// <summary>
+        /// if a mousedown event was triggered by the title bar, dragmove the window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
                 this.DragMove();
         }
 
+        /// <summary>
+        /// The close button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Close_Button_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
+        /// <summary>
+        /// if mouse button down on close button, change bitmap
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Close_Button_Down(object sender, MouseButtonEventArgs e)
         {
             this.Close_Button.Background.Opacity = 1;
         }
+        /// <summary>
+        /// if mouse button up on close button, change bitmap
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Close_Button_Up(object sender, MouseButtonEventArgs e)
         {
             this.Close_Button.Background.Opacity = 0;
@@ -133,11 +162,17 @@ namespace BardMusicPlayer.Ui.Skinned
         #endregion
 
         #region DesignTab controls
+        /// <summary>
+        /// The classic skin checkbox action
+        /// </summary>
         private void ClassicSkin_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.ClassicUi = ClassicSkin.IsChecked ?? true;
         }
 
+        /// <summary>
+        /// skinpreview doubleclick: change skin
+        /// </summary>
         private void SkinPreviewBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             SkinData d = SkinPreviewBox.SelectedItem as SkinData;
@@ -206,11 +241,13 @@ namespace BardMusicPlayer.Ui.Skinned
         }
         #endregion
 
+        #region Miscsettings Tab controls
         private void SirenVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             var g = SirenVolume.Value;
             BmpSiren.Instance.SetVolume((float)g);
         }
+        #endregion
 
         #region PathTab controls
         private void SongsDir_TextChanged(object sender, TextChangedEventArgs e)
