@@ -26,14 +26,14 @@ namespace BardMusicPlayer.Ui.Controls
             this.DataContext = this;
             Bards = new ObservableCollection<Performer>();
 
-            BmpMaestro.Instance.OnPerformerChanged += OnPerfomerChanged;
-            BmpMaestro.Instance.OnTrackNumberChanged += OnTrackNumberChanged;
-            BmpMaestro.Instance.OnOctaveShiftChanged += OnOctaveShiftChanged;
-            BmpMaestro.Instance.OnSongLoaded += OnSongLoaded;
-            BmpMaestro.Instance.OnPerformerUpdate += OnPerformerUpdate;
-            BmpSeer.Instance.PlayerNameChanged += OnPlayerNameChanged;
-            BmpSeer.Instance.InstrumentHeldChanged += OnInstrumentHeldChanged;
-            BmpSeer.Instance.HomeWorldChanged += OnHomeWorldChanged;
+            BmpMaestro.Instance.OnPerformerChanged      += OnPerfomerChanged;
+            BmpMaestro.Instance.OnTrackNumberChanged    += OnTrackNumberChanged;
+            BmpMaestro.Instance.OnOctaveShiftChanged    += OnOctaveShiftChanged;
+            BmpMaestro.Instance.OnSongLoaded            += OnSongLoaded;
+            BmpMaestro.Instance.OnPerformerUpdate       += OnPerformerUpdate;
+            BmpSeer.Instance.PlayerNameChanged          += OnPlayerNameChanged;
+            BmpSeer.Instance.InstrumentHeldChanged      += OnInstrumentHeldChanged;
+            BmpSeer.Instance.HomeWorldChanged           += OnHomeWorldChanged;
         }
 
         public ObservableCollection<Performer> Bards { get; private set; }

@@ -12,7 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-
+using UI.Resources;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -60,6 +60,24 @@ namespace BardMusicPlayer.Ui.Controls
             string[] files = Directory.EnumerateFiles(SongPath.Text, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
             List<string> list = new List<string>(files);
             SongbrowserContainer.ItemsSource = list;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new FolderPicker();
+
+            dlg.InputPath = BmpPigeonhole.Instance.SongDirectory;
+            if (dlg.ShowDialog() == true)
+            {
+                string path = dlg.ResultPath;
+                if (!Directory.Exists(path))
+                    return;
+
+                path = path + (path.EndsWith("\\") ? "" : "\\");
+                SongPath.Text = path;
+                BmpPigeonhole.Instance.SongDirectory = path;
+                SongSearch_PreviewTextInput(null, null);
+            }
         }
     }
 }

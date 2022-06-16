@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using UI.Resources;
 
 namespace BardMusicPlayer.Ui.Skinned
 {
@@ -28,6 +27,7 @@ namespace BardMusicPlayer.Ui.Skinned
             PlaylistsContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
         }
 
+        #region Skinning
         private void SkinContainer_OnNewSkinLoaded(object sender, EventArgs e)
         { ApplySkin(); }
 
@@ -72,6 +72,7 @@ namespace BardMusicPlayer.Ui.Skinned
             this.PlaylistContainer.Foreground = new SolidColorBrush(Color.FromArgb(col.A, col.R, col.G, col.B));
             this.PlaylistName_Box.Foreground = new SolidColorBrush(Color.FromArgb(col.A, col.R, col.G, col.B));
         }
+        #endregion
 
         private void PlaylistsContainer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

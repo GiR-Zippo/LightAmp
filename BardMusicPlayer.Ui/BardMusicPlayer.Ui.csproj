@@ -313,6 +313,7 @@
     <Compile Include="Globals\InfoBox.xaml.cs">
       <DependentUpon>InfoBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Resources\FolderPicker.cs" />
     <Compile Include="UI_Classic\Classic_Settings.cs" />
     <Compile Include="UI_Classic\Classic_Siren.cs" />
     <Compile Include="UI_Classic\Classic_Statistics.cs" />

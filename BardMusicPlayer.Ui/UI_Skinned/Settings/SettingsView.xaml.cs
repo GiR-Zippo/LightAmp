@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UI.Resources;
 
 namespace BardMusicPlayer.Ui.Skinned
 {
@@ -261,9 +262,43 @@ namespace BardMusicPlayer.Ui.Skinned
             BmpPigeonhole.Instance.SongDirectory = SongsDir.Text+ (SongsDir.Text.EndsWith("\\") ? "" : "\\");
         }
 
+        private void SongsDir_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new FolderPicker();
+
+            dlg.InputPath = BmpPigeonhole.Instance.SongDirectory;
+            if (dlg.ShowDialog() == true)
+            {
+                string path = dlg.ResultPath;
+                if (!Directory.Exists(path))
+                    return;
+
+                path = path + (path.EndsWith("\\") ? "" : "\\");
+                SongsDir.Text = path;
+                BmpPigeonhole.Instance.SongDirectory = path;
+            }
+        }
+
         private void SkinsDir_TextChanged(object sender, TextChangedEventArgs e)
         {
             BmpPigeonhole.Instance.SkinDirectory = SkinsDir.Text + (SkinsDir.Text.EndsWith("\\") ? "" : "\\");
+        }
+
+        private void SkinsDir_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new FolderPicker();
+
+            dlg.InputPath = BmpPigeonhole.Instance.SkinDirectory;
+            if (dlg.ShowDialog() == true)
+            {
+                string path = dlg.ResultPath;
+                if (!Directory.Exists(path))
+                    return;
+
+                path = path + (path.EndsWith("\\") ? "" : "\\");
+                SkinsDir.Text = path;
+                BmpPigeonhole.Instance.SkinDirectory = path;
+            }
         }
         #endregion
     }
