@@ -27,17 +27,17 @@ namespace BardMusicPlayer.Ui.Classic
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
 
             this.SongName.Text = PlaybackFunctions.GetSongName();
-            BmpMaestro.Instance.OnPlaybackTimeChanged += Instance_PlaybackTimeChanged;
-            BmpMaestro.Instance.OnSongMaxTime += Instance_PlaybackMaxTime;
-            BmpMaestro.Instance.OnSongLoaded += Instance_OnSongLoaded;
-            BmpMaestro.Instance.OnPlaybackStarted += Instance_PlaybackStarted;
-            BmpMaestro.Instance.OnPlaybackStopped += Instance_PlaybackStopped;
-            BmpMaestro.Instance.OnTrackNumberChanged += Instance_TrackNumberChanged;
-            BmpMaestro.Instance.OnOctaveShiftChanged += Instance_OctaveShiftChanged;
-            BmpSeer.Instance.ChatLog += Instance_ChatLog;
+            BmpMaestro.Instance.OnPlaybackTimeChanged   += Instance_PlaybackTimeChanged;
+            BmpMaestro.Instance.OnSongMaxTime           += Instance_PlaybackMaxTime;
+            BmpMaestro.Instance.OnSongLoaded            += Instance_OnSongLoaded;
+            BmpMaestro.Instance.OnPlaybackStarted       += Instance_PlaybackStarted;
+            BmpMaestro.Instance.OnPlaybackStopped       += Instance_PlaybackStopped;
+            BmpMaestro.Instance.OnTrackNumberChanged    += Instance_TrackNumberChanged;
+            BmpMaestro.Instance.OnOctaveShiftChanged    += Instance_OctaveShiftChanged;
+            BmpSeer.Instance.ChatLog                    += Instance_ChatLog;
             Siren_Volume.Value = BmpSiren.Instance.GetVolume();
-            BmpSiren.Instance.SynthTimePositionChanged += Instance_SynthTimePositionChanged;
-            SongBrowser.OnLoadSongFromBrowser += Instance_SongBrowserLoadedSong;
+            BmpSiren.Instance.SynthTimePositionChanged  += Instance_SynthTimePositionChanged;
+            SongBrowser.OnLoadSongFromBrowser           += Instance_SongBrowserLoadedSong;
             LoadConfig();
         }
 
@@ -197,7 +197,7 @@ namespace BardMusicPlayer.Ui.Classic
         }
         #endregion
 
-        /* Track UP/Down */
+        #region Track UP/Down
         private int _numValue = 1;
         public int NumValue
         {
@@ -241,7 +241,9 @@ namespace BardMusicPlayer.Ui.Classic
                 BmpMaestro.Instance.SetTracknumberOnHost(_numValue);
             }
         }
-        /* Octave UP/Down */
+        #endregion
+
+        #region Octave UP/Down
         private int _octavenumValue = 1;
         public int OctaveNumValue
         {
@@ -276,6 +278,7 @@ namespace BardMusicPlayer.Ui.Classic
                 BmpMaestro.Instance.SetOctaveshiftOnHost(_octavenumValue);
             }
         }
+        #endregion
 
         private void Info_Button_Click(object sender, RoutedEventArgs e)
         {
