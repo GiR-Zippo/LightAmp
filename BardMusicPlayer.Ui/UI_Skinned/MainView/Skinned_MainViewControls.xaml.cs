@@ -97,6 +97,9 @@ namespace BardMusicPlayer.Ui.Skinned
         private void Load_Button_Up(object sender, MouseButtonEventArgs e)
         { this.Load_Button.Background = SkinContainer.CBUTTONS[SkinContainer.CBUTTON_TYPES.MAIN_EJECT_BUTTON]; }
 
+        /// <summary>
+        /// The track selection
+        /// </summary>
         private void Trackbar_Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (Trackbar_Slider.Value > MaxTracks)
@@ -105,9 +108,6 @@ namespace BardMusicPlayer.Ui.Skinned
             WriteSmallDigitField(Trackbar_Slider.Value.ToString());
         }
 
-        /// <summary>
-        /// The track selection
-        /// </summary>
         private void Trackbar_Slider_DragStarted(object sender, DragStartedEventArgs e)
         { this._Trackbar_dragStarted = true; }
 
@@ -124,6 +124,9 @@ namespace BardMusicPlayer.Ui.Skinned
             this._Trackbar_dragStarted = false;
         }
 
+        /// <summary>
+        /// The octave shifting
+        /// </summary>
         private void Octavebar_Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             this.Octavebar_Background.Fill = SkinContainer.BALANCE[(SkinContainer.BALANCE_TYPES)Octavebar_Slider.Value];
@@ -198,7 +201,9 @@ namespace BardMusicPlayer.Ui.Skinned
                 this.Playlist_Button.Background = SkinContainer.SHUFREP[SkinContainer.SHUFREP_TYPES.MAIN_PLAYLIST_BUTTON_SELECTED];
         }
 
-
+        /// <summary>
+        /// sets the playlist to random or normal play
+        /// </summary>
         private void Random_Button_Click(object sender, RoutedEventArgs e)
         {
             if (_PlaylistView.NormalPlay)
@@ -227,6 +232,9 @@ namespace BardMusicPlayer.Ui.Skinned
                 this.Random_Button.Background = SkinContainer.SHUFREP[SkinContainer.SHUFREP_TYPES.MAIN_SHUFFLE_BUTTON];
         }
 
+        /// <summary>
+        /// Enables the playlist load next after song stopped
+        /// </summary>
         private void Loop_Button_Click(object sender, RoutedEventArgs e)
         {
             if (_PlaylistView.LoopPlay)
