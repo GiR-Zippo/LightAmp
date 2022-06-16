@@ -6,7 +6,7 @@ using BardMusicPlayer.Ui.Globals.SkinContainer;
 using Microsoft.Win32;
 using System;
 using System.IO;
-using System.IO.Compression;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -91,6 +91,9 @@ namespace BardMusicPlayer.Ui.Skinned
             PlaylistContainer.ItemContainerStyle = itemContainerStyle;
         }
 
+        /// <summary>
+        /// plays or loeads the prev song from the playlist
+        /// </summary>
         public void PlayPrevSong()
         {
             if (NormalPlay)
@@ -109,10 +112,18 @@ namespace BardMusicPlayer.Ui.Skinned
             string item = PlaylistContainer.SelectedItem as string;
             BmpSong song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, item);
             PlaybackFunctions.LoadSongFromPlaylist(song);
-            PlaybackFunctions.PlaybackState = PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYNEXT;
+
+            //Check if autoplay is set
+            if (Pigeonhole.BmpPigeonhole.Instance.PlaylistAutoPlay)
+                PlaybackFunctions.PlaybackState = PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYNEXT;
+            else
+                PlaybackFunctions.PlaybackState = PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
             OnLoadSongFromPlaylist?.Invoke(this, song);
         }
 
+        /// <summary>
+        /// plays or loeads the next song from the playlist
+        /// </summary>
         public void PlayNextSong()
         {
             if (NormalPlay)
@@ -135,24 +146,35 @@ namespace BardMusicPlayer.Ui.Skinned
             string item = PlaylistContainer.SelectedItem as string;
             BmpSong song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, item);
             PlaybackFunctions.LoadSongFromPlaylist(song);
-            PlaybackFunctions.PlaybackState = PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYNEXT;
+
+            //Check if autoplay is set
+            if (Pigeonhole.BmpPigeonhole.Instance.PlaylistAutoPlay)
+                PlaybackFunctions.PlaybackState = PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYNEXT;
+            else
+                PlaybackFunctions.PlaybackState = PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
             OnLoadSongFromPlaylist?.Invoke(this, song);
         }
 
+        #region PlaylistContainer actions
+        /// <summary>
+        /// MouseDoubleClick action: load the clicked song into the sequencer
+        /// </summary>
         private void PlaylistContainer_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             PlaybackFunctions.StopSong();
-            foreach (BmpSong song in _currentPlaylist)
-            {
-                if (song.Title == PlaylistContainer.SelectedItem as string)
-                {
-                    PlaybackFunctions.LoadSongFromPlaylist(song);
-                    OnLoadSongFromPlaylist?.Invoke(this, song);
-                    return;
-                }
-            }
+            string songTitle = PlaylistContainer.SelectedItem as string;
+
+            BmpSong song = _currentPlaylist.AsParallel().First(s => s.Title == songTitle);
+            if (song == null)
+                return;
+
+            PlaybackFunctions.LoadSongFromPlaylist(song);
+            OnLoadSongFromPlaylist?.Invoke(this, song);
         }
 
+        /// <summary>
+        /// the selection changed action. Set the selected song and change the highlight color
+        /// </summary>
         private void PlaylistContainer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CurrentsongIndex = PlaylistContainer.SelectedIndex;
@@ -180,6 +202,9 @@ namespace BardMusicPlayer.Ui.Skinned
             lvtem.Background = bcol;
         }
 
+        /// <summary>
+        /// Drag start function to move songs in the playlist
+        /// </summary>
         private void PlaylistContainer_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is ListBoxItem)
@@ -192,6 +217,9 @@ namespace BardMusicPlayer.Ui.Skinned
             }
         }
 
+        /// <summary>
+        /// DragStop to place the song
+        /// </summary>
         void PlaylistContainer_Drop(object sender, DragEventArgs e)
         {
             string droppedData = e.Data.GetData(typeof(string)) as string;
@@ -225,7 +253,12 @@ namespace BardMusicPlayer.Ui.Skinned
                 }
             }
         }
+        #endregion
 
+        #region Add_Button_Menu
+        /// <summary>
+        /// Add file(s) to the playlist
+        /// </summary>
         private void AddFiles_Click(object sender, RoutedEventArgs e)
         {
             if (_currentPlaylist == null)
@@ -254,7 +287,12 @@ namespace BardMusicPlayer.Ui.Skinned
         {
 
         }
+        #endregion
 
+        #region Del_Button_Menu
+        /// <summary>
+        /// Removes the selected song(s) from the playlist
+        /// </summary>
         private void RemoveSelected_Click(object sender, RoutedEventArgs e)
         {
             if (_currentPlaylist == null)
@@ -272,6 +310,9 @@ namespace BardMusicPlayer.Ui.Skinned
             RefreshPlaylist();
         }
 
+        /// <summary>
+        /// Clears the whole playlist
+        /// </summary>
         private void ClearPlaylist_Click(object sender, RoutedEventArgs e)
         {
             if (_currentPlaylist == null)
@@ -288,7 +329,12 @@ namespace BardMusicPlayer.Ui.Skinned
             BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
             RefreshPlaylist();
         }
+        #endregion
 
+        #region Misc_Button_Menu
+        /// <summary>
+        /// Exports a selected song in the playlist to Midi
+        /// </summary>
         private void Export_Midi_Click(object sender, RoutedEventArgs e)
         {
             foreach (string s in PlaylistContainer.SelectedItems)
@@ -317,20 +363,13 @@ namespace BardMusicPlayer.Ui.Skinned
                 break;
             }
         }
+        #endregion
 
-        private void MenuButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                Rectangle rectangle = sender as Rectangle;
-                ContextMenu contextMenu = rectangle.ContextMenu;
-                contextMenu.PlacementTarget = rectangle;
-                contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
-                contextMenu.IsOpen = true;
-            }
-        }
+        #region List_Button_Menu
 
-        #region MiscButtonMenu
+        /// <summary>
+        /// Creates a new music catalog, loads it and calls RefreshPlaylist()
+        /// </summary>
         private void MenuItem_CreateCatalog(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new SaveFileDialog
@@ -349,6 +388,9 @@ namespace BardMusicPlayer.Ui.Skinned
             RefreshPlaylist();
         }
 
+        /// <summary>
+        /// Loads a MusicCatalog, loads it and calls RefreshPlaylist()
+        /// </summary>
         private void MenuItem_LoadCatalog(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
@@ -417,6 +459,21 @@ namespace BardMusicPlayer.Ui.Skinned
         {
             _currentPlaylist = BmpCoffer.Instance.GetPlaylist(e);
             RefreshPlaylist();
+        }
+
+        /// <summary>
+        /// Button context menu routine
+        /// </summary>
+        private void MenuButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                Rectangle rectangle = sender as Rectangle;
+                ContextMenu contextMenu = rectangle.ContextMenu;
+                contextMenu.PlacementTarget = rectangle;
+                contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
+                contextMenu.IsOpen = true;
+            }
         }
 
         #region Titlebar functions and buttons

@@ -1,6 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
+    <!-- The tooltip text file -->
+
     <!-- Playlist -->
     <sys:String x:Key="PLAYLIST_NEW"     xml:space="preserve">Create a new playlist</sys:String>
     <sys:String x:Key="PLAYLIST_ADD"     xml:space="preserve">Add song(s) to the current playlist</sys:String>
