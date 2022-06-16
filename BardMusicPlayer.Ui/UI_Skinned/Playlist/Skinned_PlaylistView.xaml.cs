@@ -24,14 +24,14 @@ namespace BardMusicPlayer.Ui.Skinned
 
         private IPlaylist _currentPlaylist = null;   //The currently used playlist
         public bool NormalPlay { get; set; } = true; //True if normal or false if shuffle
-        public bool LoopPlay { get; set; } = false;  //if true play the whole playlist and repeat
+        public bool LoopPlay { get; set; } = false;  //if true play the whole playlist and repeat, also enables the auto load next song
 
         public Skinned_PlaylistView()
         {
             InitializeComponent();
             ApplySkin();
-            SkinContainer.OnNewSkinLoaded += SkinContainer_OnNewSkinLoaded;
-            BmpSiren.Instance.SynthTimePositionChanged += Instance_SynthTimePositionChanged;
+            SkinContainer.OnNewSkinLoaded              += SkinContainer_OnNewSkinLoaded;
+            BmpSiren.Instance.SynthTimePositionChanged += Instance_SynthTimePositionChanged;    //Handled in Skinned_PlaylistView_Siren.cs
 
             _currentPlaylist = PlaylistFunctions.GetFirstPlaylist();
             if (_currentPlaylist == null)
@@ -177,7 +177,9 @@ namespace BardMusicPlayer.Ui.Skinned
         /// </summary>
         private void PlaylistContainer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            CurrentsongIndex = PlaylistContainer.SelectedIndex;
+            SirenCurrentSongIndex = PlaylistContainer.SelectedIndex; //tell siren our current song index
+            
+            //Fancy coloring
             var col = SkinContainer.PLAYLISTCOLOR[SkinContainer.PLAYLISTCOLOR_TYPES.PLAYLISTCOLOR_NORMAL];
             var fcol = new SolidColorBrush(Color.FromArgb(col.A, col.R, col.G, col.B));
             col = SkinContainer.PLAYLISTCOLOR[SkinContainer.PLAYLISTCOLOR_TYPES.PLAYLISTCOLOR_NORMALBG];

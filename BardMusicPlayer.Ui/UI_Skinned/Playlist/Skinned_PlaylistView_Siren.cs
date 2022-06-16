@@ -19,16 +19,13 @@ namespace BardMusicPlayer.Ui.Skinned
     /// </summary>
     public partial class Skinned_PlaylistView : Window
     {
-        private int scrollpos = 0;          //position of the title scroller
-        private double lasttime = 0;        //last poll time of Instance_SynthTimePositionChanged
-        public int CurrentsongIndex { get; set; } = 0;   //index of the currentSong for siren
+        private int scrollpos = 0;                          //position of the title scroller
+        private double lasttime = 0;                        //last poll time of Instance_SynthTimePositionChanged
+        public int SirenCurrentSongIndex { get; set; } = 0; //index of the currentSong for siren
+
         /// <summary>
-        /// Triggered from Siren
+        /// Triggered from Siren, it's the title scroller and time update function
         /// </summary>
-        /// <param name="songTitle"></param>
-        /// <param name="currentTime"></param>
-        /// <param name="endTime"></param>
-        /// <param name="activeVoices"></param>
         private void Instance_SynthTimePositionChanged(string songTitle, double currentTime, double endTime, int activeVoices)
         {
             //Scrolling
@@ -114,11 +111,11 @@ namespace BardMusicPlayer.Ui.Skinned
         /// <param name="e"></param>
         private void PrevButton_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (CurrentsongIndex <= 0)
+            if (SirenCurrentSongIndex <= 0)
                 return;
 
-            CurrentsongIndex--;
-            string t = PlaylistContainer.Items[CurrentsongIndex] as string;
+            SirenCurrentSongIndex--;
+            string t = PlaylistContainer.Items[SirenCurrentSongIndex] as string;
             var song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, t);
             if (song == null)
                 return;
@@ -198,11 +195,11 @@ namespace BardMusicPlayer.Ui.Skinned
         /// <param name="e"></param>
         private void NextButton_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (CurrentsongIndex == PlaylistContainer.Items.Count -1)
+            if (SirenCurrentSongIndex == PlaylistContainer.Items.Count -1)
                 return;
 
-            CurrentsongIndex++;
-            string t = PlaylistContainer.Items[CurrentsongIndex] as string;
+            SirenCurrentSongIndex++;
+            string t = PlaylistContainer.Items[SirenCurrentSongIndex] as string;
             var song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, t);
             if (song == null)
                 return;
