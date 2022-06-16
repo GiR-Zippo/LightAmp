@@ -132,6 +132,35 @@ namespace BardMusicPlayer.Coffer
             _instance = new BmpCoffer(dbi);
             return;
         }
+
+        public void Export(string filename)
+        {
+            var t = new LiteDatabase(filename);
+            var names = this.dbi.GetCollectionNames();
+            foreach (var name in names)
+            {
+                var col2 = this.dbi.GetCollection(name);
+                var col = t.GetCollection(name);
+                try
+                {
+                    col.InsertBulk(col2.FindAll());
+                }
+                catch { }
+            }
+            t.Dispose();
+        }
+
+        public void CleanUpDB()
+        {
+            //Try it and catch if the log file can't be removed
+            try
+            {
+                this.dbi.Checkpoint();
+                this.dbi.Rebuild();
+            }
+            catch { }
+        }
+
         /// <summary>
         /// Serializes a TempoMap from DryWetMidi.
         /// </summary>
