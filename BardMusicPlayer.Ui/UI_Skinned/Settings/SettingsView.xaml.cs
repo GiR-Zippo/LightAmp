@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Maestro;
@@ -266,7 +265,11 @@ namespace BardMusicPlayer.Ui.Skinned
         {
             var dlg = new FolderPicker();
 
-            dlg.InputPath = BmpPigeonhole.Instance.SongDirectory;
+            if (Directory.Exists(BmpPigeonhole.Instance.SongDirectory))
+                dlg.InputPath = Path.GetFullPath(BmpPigeonhole.Instance.SongDirectory);
+            else
+                dlg.InputPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
             if (dlg.ShowDialog() == true)
             {
                 string path = dlg.ResultPath;
@@ -288,7 +291,11 @@ namespace BardMusicPlayer.Ui.Skinned
         {
             var dlg = new FolderPicker();
 
-            dlg.InputPath = BmpPigeonhole.Instance.SkinDirectory;
+            if (Directory.Exists(BmpPigeonhole.Instance.SkinDirectory))
+                dlg.InputPath = Path.GetFullPath(BmpPigeonhole.Instance.SkinDirectory);
+            else
+                dlg.InputPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
             if (dlg.ShowDialog() == true)
             {
                 string path = dlg.ResultPath;

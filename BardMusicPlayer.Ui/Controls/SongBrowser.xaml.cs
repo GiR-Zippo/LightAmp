@@ -66,7 +66,11 @@ namespace BardMusicPlayer.Ui.Controls
         {
             var dlg = new FolderPicker();
 
-            dlg.InputPath = BmpPigeonhole.Instance.SongDirectory;
+            if (Directory.Exists(BmpPigeonhole.Instance.SongDirectory))
+                dlg.InputPath = Path.GetFullPath(BmpPigeonhole.Instance.SongDirectory);
+            else
+                dlg.InputPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
             if (dlg.ShowDialog() == true)
             {
                 string path = dlg.ResultPath;
