@@ -1,13 +1,6 @@
-﻿using BardMusicPlayer.Maestro;
-using BardMusicPlayer.Maestro.Events;
-using BardMusicPlayer.Maestro.Performance;
-using BardMusicPlayer.Pigeonhole;
-using BardMusicPlayer.Seer;
-using BardMusicPlayer.Seer.Events;
-using BardMusicPlayer.Ui.Functions;
+﻿using BardMusicPlayer.Pigeonhole;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -17,7 +10,7 @@ using UI.Resources;
 namespace BardMusicPlayer.Ui.Controls
 {
     /// <summary>
-    /// Interaktionslogik für SongBrowser.xaml
+    /// The songbrowser but much faster than the BMP 1.x had
     /// </summary>
     public partial class SongBrowser : UserControl
     {
@@ -29,6 +22,11 @@ namespace BardMusicPlayer.Ui.Controls
             SongPath.Text = BmpPigeonhole.Instance.SongDirectory;
         }
 
+        /// <summary>
+        /// Load the doubleclicked song into the sequencer
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SongbrowserContainer_PreviewMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             string filename = SongbrowserContainer.SelectedItem as String;
@@ -38,6 +36,11 @@ namespace BardMusicPlayer.Ui.Controls
             OnLoadSongFromBrowser?.Invoke(this, filename);
         }
 
+        /// <summary>
+        /// Sets the search parameter
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SongSearch_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             if (!Directory.Exists(SongPath.Text))
@@ -50,6 +53,11 @@ namespace BardMusicPlayer.Ui.Controls
             SongbrowserContainer.ItemsSource = list;
         }
 
+        /// <summary>
+        /// Sets the songs folder path by typing
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SongPath_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             if (!Directory.Exists(SongPath.Text))
@@ -62,6 +70,11 @@ namespace BardMusicPlayer.Ui.Controls
             SongbrowserContainer.ItemsSource = list;
         }
 
+        /// <summary>
+        /// Sets the songs folder path by folderselection
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new FolderPicker();
