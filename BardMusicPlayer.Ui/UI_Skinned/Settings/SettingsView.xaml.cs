@@ -177,6 +177,8 @@ namespace BardMusicPlayer.Ui.Skinned
         private void SkinPreviewBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             SkinData d = SkinPreviewBox.SelectedItem as SkinData;
+            if (d == null)
+                return;
             string fileName = BmpPigeonhole.Instance.SkinDirectory + d.Title + ".wsz";
             ((Skinned_MainView)System.Windows.Application.Current.MainWindow.DataContext).LoadSkin(fileName);
             BmpPigeonhole.Instance.LastSkin = fileName;
