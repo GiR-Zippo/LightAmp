@@ -103,15 +103,18 @@ namespace BardMusicPlayer.Ui.Skinned
         /// </summary>
         private void OnLoadSongFromPlaylist(object sender, BmpSong e)
         {
-            //Cancel and rebuild the scroller
-            Scroller.Cancel();
-            Scroller = new CancellationTokenSource();
-            UpdateScroller(Scroller.Token, PlaybackFunctions.GetSongName()).ConfigureAwait(false);
-            WriteInstrumentDigitField(PlaybackFunctions.GetInstrumentNameForHostPlayer());
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                //Cancel and rebuild the scroller
+                Scroller.Cancel();
+                Scroller = new CancellationTokenSource();
+                UpdateScroller(Scroller.Token, PlaybackFunctions.GetSongName()).ConfigureAwait(false);
+                WriteInstrumentDigitField(PlaybackFunctions.GetInstrumentNameForHostPlayer());
 
-            //if playlist is on autoplay, play next song
-            if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYNEXT)
-                PlaybackFunctions.PlaySong(0);
+                //if playlist is on autoplay, play next song
+                if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYNEXT)
+                    PlaybackFunctions.PlaySong(0);
+            }));
         }
         private void Instance_OnSongLoaded(object sender, Maestro.Events.SongLoadedEvent e)
         {

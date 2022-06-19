@@ -144,7 +144,7 @@ namespace BardMusicPlayer.Ui.Skinned
         {
             if (data == null)
                 return;
-            Bitmap bitmap = new Bitmap(110, 8);
+            Bitmap bitmap = new Bitmap(110, 12);
             var graphics = Graphics.FromImage(bitmap);
             int index = 0;
             foreach (var a in data)
