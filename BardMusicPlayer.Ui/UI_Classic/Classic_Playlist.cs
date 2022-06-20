@@ -3,6 +3,8 @@ using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Functions;
 using Microsoft.Win32;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -131,6 +133,7 @@ namespace BardMusicPlayer.Ui.Classic
         }
         #endregion
 
+        #region PlaylistContainer actions
         /// <summary>
         /// if a song or playlist in the list was doubleclicked
         /// </summary>
@@ -167,6 +170,59 @@ namespace BardMusicPlayer.Ui.Classic
             _directLoaded = false;
             return;
         }
+
+        /// <summary>
+        /// Drag start function to move songs in the playlist
+        /// </summary>
+        private void PlaylistContainer_MouseMove(object sender, MouseEventArgs e)
+        {
+            TextBlock celltext = sender as TextBlock;
+            if (celltext != null && e.LeftButton == MouseButtonState.Pressed && !_showingPlaylists)
+            {
+                DragDrop.DoDragDrop(PlaylistContainer, celltext, DragDropEffects.Move);
+            }
+        }
+
+        /// <summary>
+        /// And the drop
+        /// </summary>
+        private void Playlist_Drop(object sender, DragEventArgs e)
+        {
+            TextBlock droppedDataTB = e.Data.GetData(typeof(TextBlock)) as TextBlock;
+            string droppedDataStr = droppedDataTB.DataContext as string;
+            string target = ((TextBlock)(sender)).DataContext as string;
+
+            if ((droppedDataStr.Equals("..")) || (target.Equals("..")))
+                return;
+
+
+            int removedIdx = PlaylistContainer.Items.IndexOf(droppedDataStr);
+            int targetIdx = PlaylistContainer.Items.IndexOf(target);
+
+            if (removedIdx < targetIdx)
+            {
+                _currentPlaylist.Move(removedIdx-1, targetIdx-1);
+                BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
+                PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+
+            }
+            else if (removedIdx == targetIdx)
+            {
+                PlaylistContainer.SelectedIndex = targetIdx;
+            }
+            else
+            {
+                int remIdx = removedIdx + 1;
+                if (PlaylistContainer.Items.Count + 1 > remIdx)
+                {
+                    _currentPlaylist.Move(removedIdx-1, targetIdx-1);
+                    BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
+                    PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+                }
+            }
+        }
+
+        #endregion
 
         #region lower playlist button functions
         /// <summary>
