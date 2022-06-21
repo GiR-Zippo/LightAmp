@@ -26,7 +26,13 @@
             <Button Grid.Column="2" Content="..." Click="Button_Click" Height="18"/>
         </Grid>
         <Grid Grid.Row="1">
-            <TextBox Text="Search for a song" x:Name="SongSearch" VerticalAlignment="Center" PreviewTextInput="SongSearch_PreviewTextInput"></TextBox>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Search here ->" HorizontalAlignment="Right"/>
+            <TextBox Grid.Column="1" Text="" x:Name="SongSearch" VerticalAlignment="Center" PreviewTextInput="SongSearch_PreviewTextInput"></TextBox>
         </Grid>
         <ListView Grid.Row="2" x:Name="SongbrowserContainer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" ItemsSource="{Binding Path=Title}"
                     PreviewMouseDoubleClick="SongbrowserContainer_PreviewMouseDoubleClick"
