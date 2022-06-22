@@ -30,5 +30,6 @@
     <sys:String x:Key="PL_HOLDNOTES"     xml:space="preserve">Plays the leght of a note as it supposed to</sys:String>
     <sys:String x:Key="PL_FORCE"         xml:space="preserve">Ignore verything and play</sys:String>
     <sys:String x:Key="PL_MIDIINPUT"     xml:space="preserve">Select your MIDI input device (midi keyboard)</sys:String>
+    <sys:String x:Key="PL_LIVE"          xml:space="preserve">Improves the live play (should be disabled when playing a midi)&#13;Will be set/unset after loading a song</sys:String>
 
 </ResourceDictionary>

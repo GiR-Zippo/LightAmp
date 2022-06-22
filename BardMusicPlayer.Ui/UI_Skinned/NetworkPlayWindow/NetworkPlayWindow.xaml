@@ -75,34 +75,7 @@
             <Grid Grid.Column="1" 
                     Width="{Binding ActualWidth, RelativeSource = {RelativeSource AncestorType = {x:Type Window}}}" 
                     Height="{Binding ActualHeight, RelativeSource ={RelativeSource AncestorType = {x:Type Window}}}">
-                <TabControl TabStripPlacement="Top" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <TabItem Header="Network Party" >
-                        <Grid Background="#FFE5E5E5" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="30"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="10"/>
-                                <RowDefinition Height="25"/>
-                                <RowDefinition Height="25"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="50"/>
-                            </Grid.RowDefinitions>
-                            <Label Grid.Row="1" Grid.Column="1" Content="Partytoken"/>
-                            <TextBox Grid.Row="1" Grid.Column="2" x:Name="PartyToken_Text"/>
-                            <Button Grid.Row="2" Grid.Column="1" Content="Join" Click="Join_Click" />
-                            <Button Grid.Row="2" Grid.Column="2" Content="Leave" Click="Leave_Click" Width="60" HorizontalAlignment="Left" FontSize="12"/>
-                            <Button Grid.Row="2" Grid.Column="2" Content="Force" Click="ForcePlay_Click" Width="60" HorizontalAlignment="Left" Margin="60,0,0,0" FontSize="12"/>
-                            <TextBox Grid.Row="3"  Grid.ColumnSpan="2" Grid.Column="1" x:Name="PartyMessage_Text" VerticalScrollBarVisibility="Visible"/>
-                        </Grid>
-                    </TabItem>
-                    <TabItem Header="Debug" >
-                        <TextBox x:Name="PartyLog_Text" VerticalScrollBarVisibility="Visible"/>
-                    </TabItem>
-                </TabControl>
+                    <control:NetworkControl/>
             </Grid>
             <Rectangle Grid.Column="2" x:Name="NETWORK_RIGHT_TILE" VerticalAlignment="Stretch" HorizontalAlignment="Right" Width="10" Margin="0,0,0,0">
                 <Rectangle.Fill>

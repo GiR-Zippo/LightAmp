@@ -40,6 +40,7 @@ namespace BardMusicPlayer.Jamboree
             Autodiscover.Instance.StartAutodiscover(data, "0.1.0");
             NetworkPartyServer.Instance.StartServer(new IPEndPoint(IPAddress.Parse(data), 12345), type, name);
             _online = true;
+            BmpJamboree.Instance.PublishEvent(new PartyCreatedEvent("Connected...\r\n"));
             return;
         }
 

@@ -294,6 +294,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\NetworkWindow.xaml.cs">
+      <DependentUpon>NetworkWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\SongBrowser.xaml.cs">
       <DependentUpon>SongBrowser.xaml</DependentUpon>
     </Compile>
@@ -331,6 +334,10 @@
     </Compile>
     <Compile Include="UI_Skinned\Playlist\Skinned_PlaylistView_Siren.cs" />
     <Compile Include="UI_Skinned\Playlist\Skinned_PlaylistView.xaml.cs" />
+    <Page Include="Controls\NetworkWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\SongBrowser.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
