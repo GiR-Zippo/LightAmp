@@ -23,6 +23,8 @@ namespace BardMusicPlayer.Ui.Classic
             MIDI_Input_DeviceBox.ItemsSource = Maestro.Utils.MidiInput.ReloadMidiInputDevices();
             this.MIDI_Input_DeviceBox.SelectedIndex = BmpPigeonhole.Instance.MidiInputDev + 1;
 
+            LiveMidiDelay.IsChecked = BmpPigeonhole.Instance.LiveMidiPlayDelay;
+
             //Misc
             this.Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
             this.MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
@@ -56,6 +58,11 @@ namespace BardMusicPlayer.Ui.Classic
             }
 
             BmpMaestro.Instance.OpenInputDevice(d.Key);
+        }
+
+        private void LiveMidiDelay_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.LiveMidiPlayDelay = (LiveMidiDelay.IsChecked ?? false);
         }
         #endregion
 

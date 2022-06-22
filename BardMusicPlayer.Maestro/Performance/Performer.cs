@@ -20,6 +20,8 @@ namespace BardMusicPlayer.Maestro.Performance
         private Sequencer _sequencer;
         private Sequencer mainSequencer { get; set; } = null;
         private int _trackNumber { get; set; } = 1;
+        private long _lastNoteTimestamp = 0;
+        private bool _livePlayDelay { get; set; } = false;
         public Instrument ChosenInstrument { get; set; } = Instrument.Piano;
         public int OctaveShift { get; set; } = 0;
         public int TrackNumber { get { return _trackNumber; }
@@ -109,6 +111,9 @@ namespace BardMusicPlayer.Maestro.Performance
                     this._sequencer.ChannelAfterTouch += InternalAT;
 
                     _holdNotes = BmpPigeonhole.Instance.HoldNotes;
+                    _lastNoteTimestamp = 0;
+                    _livePlayDelay = BmpPigeonhole.Instance.LiveMidiPlayDelay;
+
                     if (HostProcess && BmpPigeonhole.Instance.ForcePlayback)
                         _forcePlayback = true;
 
@@ -156,10 +161,46 @@ namespace BardMusicPlayer.Maestro.Performance
                 if (game.ChatStatus && !_forcePlayback)
                     return;
 
-                if (BmpPigeonhole.Instance.HoldNotes)
+                if (_holdNotes)
                     _hook.SendKeybindDown(keybind);
                 else
                     _hook.SendAsyncKeybind(keybind);
+            }
+        }
+
+        public void ProcessOnNoteLive(NoteEvent note)
+        {
+            if (!_forcePlayback)
+            {
+                if (!this.PerformerEnabled)
+                    return;
+
+                if (game.InstrumentHeld.Equals(Instrument.None))
+                    return;
+            }
+
+            if (note.note < 0 || note.note > 36)
+                return;
+
+            if (game.NoteKeys[(Quotidian.Enums.NoteKey)note.note] is Quotidian.Enums.Keys keybind)
+            {
+
+                long diff = System.Diagnostics.Stopwatch.GetTimestamp() / 10000 - _lastNoteTimestamp;
+                if (diff < 15)
+                {
+                    int sleepDuration = (int)(15 - diff);
+                    Task.Delay(sleepDuration).Wait();
+                }
+
+                if (game.ChatStatus && !_forcePlayback)
+                    return;
+
+                if (_holdNotes)
+                    _hook.SendKeybindDown(keybind);
+                else
+                    _hook.SendAsyncKeybind(keybind);
+
+                _lastNoteTimestamp = System.Diagnostics.Stopwatch.GetTimestamp() / 10000;
             }
         }
 
@@ -384,7 +425,10 @@ namespace BardMusicPlayer.Maestro.Performance
                 }
                 if ((cmd == Sanford.Multimedia.Midi.ChannelCommand.NoteOn) && vel > 0)
                 {
-                    this.ProcessOnNote(noteEvent);
+                    if (_livePlayDelay)
+                        this.ProcessOnNoteLive(noteEvent);
+                    else
+                        this.ProcessOnNote(noteEvent);
                 }
             }
         }

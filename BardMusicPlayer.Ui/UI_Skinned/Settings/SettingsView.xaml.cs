@@ -56,6 +56,8 @@ namespace BardMusicPlayer.Ui.Skinned
             MIDI_Input_DeviceBox.ItemsSource = Maestro.Utils.MidiInput.ReloadMidiInputDevices();
             this.MIDI_Input_DeviceBox.SelectedIndex = BmpPigeonhole.Instance.MidiInputDev + 1;
             AutoPlayBox.IsChecked = BmpPigeonhole.Instance.PlaylistAutoPlay;
+            LiveMidiDelay.IsChecked = BmpPigeonhole.Instance.LiveMidiPlayDelay;
+
 
             //Local Orchestra Tab
             this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
@@ -212,6 +214,11 @@ namespace BardMusicPlayer.Ui.Skinned
         private void AutoPlay_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.PlaylistAutoPlay = (AutoPlayBox.IsChecked ?? false);
+        }
+
+        private void LiveMidiDelay_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.LiveMidiPlayDelay = (LiveMidiDelay.IsChecked ?? false);
         }
         #endregion
 

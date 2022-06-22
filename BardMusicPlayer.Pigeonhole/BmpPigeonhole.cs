@@ -88,6 +88,11 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual int MidiInputDev { get; set; } = -1;
 
         /// <summary>
+        /// brings the bmp to front
+        /// </summary>
+        public virtual bool LiveMidiPlayDelay { get; set; } = false;
+
+        /// <summary>
         /// force the playback
         /// </summary>
         public virtual bool ForcePlayback { get; set; } = false;
