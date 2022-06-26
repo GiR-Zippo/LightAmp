@@ -294,6 +294,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\BardExtSettings.xaml.cs">
+      <DependentUpon>BardExtSettings.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\NetworkWindow.xaml.cs">
       <DependentUpon>NetworkWindow.xaml</DependentUpon>
     </Compile>
@@ -320,6 +323,9 @@
     <Compile Include="UI_Classic\Classic_Settings.cs" />
     <Compile Include="UI_Classic\Classic_Siren.cs" />
     <Compile Include="UI_Classic\Classic_Statistics.cs" />
+    <Compile Include="UI_Classic\NetworkPlayWindow.xaml.cs">
+      <DependentUpon>NetworkPlayWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI_Skinned\BardWindow\BardsWindow.xaml.cs">
       <DependentUpon>BardsWindow.xaml</DependentUpon>
     </Compile>
@@ -334,6 +340,10 @@
     </Compile>
     <Compile Include="UI_Skinned\Playlist\Skinned_PlaylistView_Siren.cs" />
     <Compile Include="UI_Skinned\Playlist\Skinned_PlaylistView.xaml.cs" />
+    <Page Include="Controls\BardExtSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\NetworkWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -420,6 +430,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UI_Classic\Classic_MainView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI_Classic\NetworkPlayWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -511,6 +525,10 @@
     <ProjectReference Include="..\BardMusicPlayer.Quotidian\BardMusicPlayer.Quotidian.csproj">
       <Project>{97070a4a-0a5a-4b67-bc79-d2a2cf9b5b13}</Project>
       <Name>BardMusicPlayer.Quotidian</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BardMusicPlayer.Script\BardMusicPlayer.Script.csproj">
+      <Project>{11429258-48cd-4230-9801-e1788c318704}</Project>
+      <Name>BardMusicPlayer.Script</Name>
     </ProjectReference>
     <ProjectReference Include="..\BardMusicPlayer.Seer\BardMusicPlayer.Seer.csproj">
       <Project>{fae02d19-1da3-4697-8040-565c5fd8dd8a}</Project>

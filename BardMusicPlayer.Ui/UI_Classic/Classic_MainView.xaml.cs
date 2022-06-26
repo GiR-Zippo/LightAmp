@@ -8,6 +8,7 @@ using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Siren;
 using UI.Resources;
+using System.ComponentModel;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -19,6 +20,7 @@ namespace BardMusicPlayer.Ui.Classic
         private int MaxTracks = 1;
         private bool _directLoaded { get; set; } = false; //indicates if a song was loaded directly or from playlist
         private InfoBox _infoBox = null;
+        private NetworkPlayWindow _networkWindow = null;
         public Classic_MainView()
         {
             InitializeComponent();
@@ -286,6 +288,26 @@ namespace BardMusicPlayer.Ui.Classic
             if (_infoBox == null)
                 _infoBox = new InfoBox();
             _infoBox.Visibility = Visibility.Visible;
+        }
+
+        private void Info_Button_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "BASIC file|*.bas",
+                Multiselect = false
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            if (!openFileDialog.CheckFileExists)
+                return;
+
+            Script.BmpScript.Instance.LoadAndRun(openFileDialog.FileName);
+            /*if (_networkWindow == null)
+                _networkWindow = new NetworkPlayWindow();
+            _networkWindow.Visibility = Visibility.Visible;*/
         }
 
         /// <summary>

@@ -373,8 +373,23 @@ namespace BardMusicPlayer.Maestro.Performance
             _hook.ClearLastPerformanceKeybinds();
         }
 
-#endregion
-#region private
+        public void SendText(string text)
+        {
+            //Console.WriteLine(text);
+            //return;
+
+            if (!game.ChatStatus)
+            {
+                _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
+                Task.Delay(200).Wait();
+            }
+            _hook.SendString(text);
+            Task.Delay(text.Length * 5).Wait();
+            _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
+        }
+        #endregion
+
+        #region private
 
         /// <summary>
         /// Checks if we are ont the right track and channel

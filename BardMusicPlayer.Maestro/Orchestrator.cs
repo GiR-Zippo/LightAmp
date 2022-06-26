@@ -26,6 +26,8 @@ namespace BardMusicPlayer.Maestro
         private Sequencer _sequencer { get; set; } = null;
         private CancellationTokenSource _updaterTokenSource;
         private bool LocalOchestraInitialized { get; set;} = false;
+        private KeyValuePair<string, Performer> _song_Title_Parsing_Performer { get; set; } = new KeyValuePair<string, Performer>("", null);
+
         public int HostPid { get; set; } = 0;
 
         public Game HostGame { get; set; } = null;
@@ -43,7 +45,7 @@ namespace BardMusicPlayer.Maestro
             _foundGames = new Dictionary<Game, bool>();
             _sequencer = new Sequencer();
             BmpSeer.Instance.GameStarted += delegate (Seer.Events.GameStarted e) { Instance_OnGameStarted(e.Game); };
-            BmpSeer.Instance.GameStopped += Instance_OnGameStopped;
+            BmpSeer.Instance.GameStopped += delegate (Seer.Events.GameStopped e) { Instance_OnGameStopped(e); };
             BmpSeer.Instance.EnsembleRequested += delegate (Seer.Events.EnsembleRequested e) { Instance_EnsembleRequested(e); };
             BmpSeer.Instance.EnsembleStarted += delegate (Seer.Events.EnsembleStarted e) { Instance_EnsembleStarted(e); };
             BmpSeer.Instance.InstrumentHeldChanged += delegate (Seer.Events.InstrumentHeldChanged e) { Instance_InstrumentHeldChanged(e); };
@@ -98,6 +100,15 @@ namespace BardMusicPlayer.Maestro
         }
 
         /// <summary>
+        /// Get the song parsing bard
+        /// </summary>
+        /// <param name="p"></param>
+        public Performer GetSongTitleParsingBard()
+        {
+            return _song_Title_Parsing_Performer.Value;
+        }
+
+        /// <summary>
         /// loads a BMPSong from the database
         /// </summary>
         /// <param name="song"></param>
@@ -107,6 +118,9 @@ namespace BardMusicPlayer.Maestro
                 LocalOchestraInitialized = false;
 
             _sequencer.Load(song);
+
+            if (_song_Title_Parsing_Performer.Value != null)
+                _song_Title_Parsing_Performer.Value.SendText(_song_Title_Parsing_Performer.Key + " " + song.Title);
 
             foreach (var perf in _performers)
             {
@@ -248,6 +262,20 @@ namespace BardMusicPlayer.Maestro
                     perf.Value.HostProcess = false;
             });
             BmpMaestro.Instance.PublishEvent(new PerformerUpdate());
+        }
+
+        /// <summary>
+        /// Sets the song title parsing bard and the prefix like /yell
+        /// </summary>
+        /// <param name="p"></param>
+        public void SetSongTitleParsingBard(string prefix, Performer p)
+        {
+            if (p == null)
+            {
+                _song_Title_Parsing_Performer = new KeyValuePair<string, Performer>("", null);
+                return;
+            }
+            _song_Title_Parsing_Performer = new KeyValuePair<string, Performer>(prefix, p);
         }
 
         /// <summary>
@@ -501,6 +529,17 @@ namespace BardMusicPlayer.Maestro
                         perf.TrackNumber = 1;
                         lock (_performers)
                         {
+                            //Remove the old double performer
+                            var chkperf = _performers.FindAll(i => i.Value.game.PlayerName == game.Key.PlayerName);
+                            if (chkperf.Count() != 0)
+                            {
+                                var x = chkperf.Find(i => i.Value.HomeWorld == game.Key.HomeWorld);
+                                if (x.Value != null)
+                                {
+                                    _performers.Remove(x);
+                                    x.Value.game.Dispose();
+                                }
+                            }
                             _performers.Add(new KeyValuePair<int, Performer>(game.Key.Pid, perf));    //Add the performer
                         }
                         BmpMaestro.Instance.PublishEvent(new PerformersChangedEvent());     //And trigger an event

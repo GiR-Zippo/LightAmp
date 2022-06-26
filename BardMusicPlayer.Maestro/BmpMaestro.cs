@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
@@ -84,6 +85,17 @@ namespace BardMusicPlayer.Maestro
         {
             return _orchestrator.HostPid;
         }
+
+        /// <summary>
+        /// Sets the song title parsing bard
+        /// </summary>
+        /// <param name="performer"></param>
+        public Performer GetSongTitleParsingBard()
+        {
+            if (_orchestrator != null)
+                return _orchestrator.GetSongTitleParsingBard();
+            return null;
+        }
         #endregion
 
         #region Setters
@@ -105,6 +117,16 @@ namespace BardMusicPlayer.Maestro
         {
             if (_orchestrator != null)
                 _orchestrator.SetHostBard(performer);
+        }
+
+        /// <summary>
+        /// Sets the song title parsing bard and the prefix like /yell
+        /// </summary>
+        /// <param name="performer"></param>
+        public void SetSongTitleParsingBard(string prefix, Performer performer)
+        {
+            if (_orchestrator != null)
+                _orchestrator.SetSongTitleParsingBard(prefix, performer);
         }
 
         /// <summary>
@@ -190,6 +212,7 @@ namespace BardMusicPlayer.Maestro
         }
         #endregion
 
+        #region MidiInput
         /// <summary>
         /// Opens a MidiInput device
         /// </summary>
@@ -211,6 +234,7 @@ namespace BardMusicPlayer.Maestro
                 _orchestrator = new Orchestrator();
             _orchestrator.CloseInputDevice();
         }
+        #endregion
 
         #region Playback
         /// <summary>
@@ -263,6 +287,56 @@ namespace BardMusicPlayer.Maestro
         {
             if (_orchestrator != null)
                 _orchestrator.UnEquipInstruments();
+        }
+        #endregion
+
+        #region Routines for Scripting
+        /// <summary>
+        /// Send a chat text; 0 for all or number in list
+        /// </summary>
+        public void SendText(int num, string text)
+        {
+            var perf = _orchestrator.GetAllPerformers();
+            if (num == 0)
+            {
+                System.Threading.Tasks.Parallel.ForEach(perf, p =>
+                {
+                    p.SendText(text);
+                });
+            }
+            else
+            {
+                try
+                {
+                    Performer performer = perf.ElementAt(num - 1);
+                    performer.SendText(text);
+                }
+                catch {}
+            }
+        }
+
+        /// <summary>
+        /// Send a chat text; "All" or specific bard name
+        /// </summary>
+        public void SendText(string BardName, string text)
+        {
+            var perf = _orchestrator.GetAllPerformers();
+            if (BardName.Equals("All"))
+            {
+                System.Threading.Tasks.Parallel.ForEach(perf, p =>
+                {
+                    p.SendText(text);
+                });
+            }
+            else
+            {
+                try
+                {
+                    Performer performer = perf.AsParallel().Where(p => p.game.PlayerName.Equals(BardName)).First();
+                    performer.SendText(text);
+                }
+                catch {}
+            }
         }
         #endregion
 

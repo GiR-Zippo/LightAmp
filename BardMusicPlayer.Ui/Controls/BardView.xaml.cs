@@ -105,6 +105,12 @@ namespace BardMusicPlayer.Ui.Controls
         private void BardsList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             SelectedBard = BardsList.SelectedItem as Performer;
+            if (SelectedBard == null)
+                return;
+
+            BardExtSettings bardExtSettings = new BardExtSettings(SelectedBard);
+            bardExtSettings.Activate();
+            bardExtSettings.Visibility = Visibility.Visible;
         }
 
         /* Track UP/Down */

@@ -9,6 +9,7 @@ using BardMusicPlayer.Maestro;
 using System.Diagnostics;
 using BardMusicPlayer.Siren;
 using BardMusicPlayer.Jamboree;
+using BardMusicPlayer.Script;
 
 namespace BardMusicPlayer.Ui
 {
@@ -31,6 +32,9 @@ namespace BardMusicPlayer.Ui
             BmpSeer.Instance.SetupFirewall("BardMusicPlayer");
             BmpMaestro.Instance.Start();
             BmpSeer.Instance.Start();
+
+            BmpScript.Instance.Start();
+
             //BmpGrunt.Instance.Start();
             BmpSiren.Instance.Setup();
             BmpJamboree.Instance.Start();
@@ -44,6 +48,9 @@ namespace BardMusicPlayer.Ui
                 BmpSiren.Instance.Stop();
             BmpSiren.Instance.ShutDown();
             BmpMaestro.Instance.Stop();
+
+            BmpScript.Instance.Stop();
+
             //BmpGrunt.Instance.Stop();
             BmpSeer.Instance.Stop();
             BmpSeer.Instance.DestroyFirewall("BardMusicPlayer");
