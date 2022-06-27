@@ -5,6 +5,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
@@ -15,6 +16,7 @@ namespace BardMusicPlayer.Script
     public class BmpScript
     {
         private static readonly Lazy<BmpScript> LazyInstance = new(() => new BmpScript());
+        private Task task = null;
 
         /// <summary>
         /// 
@@ -57,18 +59,21 @@ namespace BardMusicPlayer.Script
 
         public void LoadAndRun(string basicfile)
         {
-            Interpreter basic = new Interpreter(File.ReadAllText(basicfile));
-            basic.printHandler                  += Print;
-            basic.selectedBardHandler           += SetSelectedBard;
-            basic.selectedBardAsStringHandler   += SetSelectedBardName;
-            try
+            Task task = Task.Run(() =>
             {
-                basic.Exec();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error");
-            }
+                Interpreter basic = new Interpreter(File.ReadAllText(basicfile));
+                basic.printHandler += Print;
+                basic.selectedBardHandler += SetSelectedBard;
+                basic.selectedBardAsStringHandler += SetSelectedBardName;
+                try
+                {
+                    basic.Exec();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error");
+                }
+            });
         }
 
         /// <summary>

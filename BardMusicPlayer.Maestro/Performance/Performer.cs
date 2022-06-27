@@ -384,7 +384,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 Task.Delay(200).Wait();
             }
             _hook.SendString(text);
-            Task.Delay(text.Length * 5).Wait();
+            Task.Delay((text.Length * 5)+20).Wait();
             _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
         }
         #endregion

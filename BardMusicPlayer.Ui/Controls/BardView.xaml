@@ -53,8 +53,8 @@
                             <ColumnDefinition Width="40" />     <!-- 9 -->
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding PlayerName}" />
-                        <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding HomeWorld, Mode=OneTime, StringFormat=m\\:ss}" />
+                        <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding PlayerName}"                                   MouseDown="Bard_MouseDown"/>
+                        <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding HomeWorld, Mode=OneTime, StringFormat=m\\:ss}" MouseDown="Bard_MouseDown" />
 
                         <TextBlock Grid.Column="3" Grid.Row="1" Text="{Binding TrackInstrument,  StringFormat=m\\:ss}">
                             <TextBlock.Style>

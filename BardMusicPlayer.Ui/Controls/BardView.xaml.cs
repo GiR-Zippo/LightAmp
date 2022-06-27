@@ -105,12 +105,7 @@ namespace BardMusicPlayer.Ui.Controls
         private void BardsList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             SelectedBard = BardsList.SelectedItem as Performer;
-            if (SelectedBard == null)
-                return;
 
-            BardExtSettings bardExtSettings = new BardExtSettings(SelectedBard);
-            bardExtSettings.Activate();
-            bardExtSettings.Visibility = Visibility.Visible;
         }
 
         /* Track UP/Down */
@@ -159,6 +154,19 @@ namespace BardMusicPlayer.Ui.Controls
         private void StartDelay_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.EnsemblePlayDelay = StartDelay_CheckBox.IsChecked ?? true;
+        }
+
+        private void Bard_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                if (SelectedBard == null)
+                    return;
+
+                BardExtSettings bardExtSettings = new BardExtSettings(SelectedBard);
+                bardExtSettings.Activate();
+                bardExtSettings.Visibility = Visibility.Visible;
+            }
         }
     }
 }
