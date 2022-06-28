@@ -656,6 +656,7 @@ namespace BardMusicPlayer.Maestro
             if (BmpPigeonhole.Instance.AutostartMethod != 2)
                 return;
 
+            //predelay calc
             int delayvalue = 100;
             if (!BmpPigeonhole.Instance.EnsemblePlayDelay)
                 delayvalue = 100;
@@ -667,7 +668,10 @@ namespace BardMusicPlayer.Maestro
                     delayvalue = 2490;
             }
 
+            //main delay
             int rdelay = (int)(Quotidian.UtcMilliTime.Clock.Time.Now - seerEvent.TimeStamp);
+
+            //if we are a single bard
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
                 Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
@@ -678,12 +682,14 @@ namespace BardMusicPlayer.Maestro
                 return;
             }
 
+            //local orchestra, each bard started indiviual
             if (BmpPigeonhole.Instance.EnsembleStartIndividual)
             {
                 start(delayvalue - rdelay, seerEvent.Game.Pid);
                 return;
             }
 
+            //all bards at one tick
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
             Parallel.ForEach(_performers, perfo =>
