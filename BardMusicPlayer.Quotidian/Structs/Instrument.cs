@@ -34,7 +34,7 @@ namespace BardMusicPlayer.Quotidian.Structs
         public static readonly Instrument Timpani = new("Timpani", 10, 47, OctaveRange.C2toC5, false, 0, 3, InstrumentToneMenuKey.PERFORMANCE_MODE_EX_TONE0, new ReadOnlyCollection<string>(new List<string> { "timpanis" }));
         public static readonly Instrument Bongo = new("Bongo", 11, 116, OctaveRange.C3toC6, false, 0, 3, InstrumentToneMenuKey.PERFORMANCE_MODE_EX_TONE1, new ReadOnlyCollection<string>(new List<string> { "bongos" }));
         public static readonly Instrument BassDrum = new("BassDrum", 12, 117, OctaveRange.C2toC5, false, 0, 3, InstrumentToneMenuKey.PERFORMANCE_MODE_EX_TONE2, new ReadOnlyCollection<string>(new List<string> { "bassdrums", "bass_drum", "bass_drums" }));
-        public static readonly Instrument SnareDrum = new("SnareDrum", 13, 115, OctaveRange.C3toC6, false, 0, 3, InstrumentToneMenuKey.PERFORMANCE_MODE_EX_TONE3, new ReadOnlyCollection<string>(new List<string> { "Snare", "snare_drum" }));
+        public static readonly Instrument SnareDrum = new("SnareDrum", 13, 115, OctaveRange.C3toC6, false, 0, 3, InstrumentToneMenuKey.PERFORMANCE_MODE_EX_TONE3, new ReadOnlyCollection<string>(new List<string> { "snaredrums", "Snare", "snare_drum" }));
         public static readonly Instrument Cymbal = new("Cymbal", 14, 127, OctaveRange.C3toC6, false, 50, 3, InstrumentToneMenuKey.PERFORMANCE_MODE_EX_TONE4, new ReadOnlyCollection<string>(new List<string> { "cymbals" }));
         public static readonly IReadOnlyList<Instrument> Drums = new ReadOnlyCollection<Instrument>(new List<Instrument> { Timpani, Bongo, BassDrum, SnareDrum, Cymbal });
 
