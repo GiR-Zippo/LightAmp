@@ -27,6 +27,9 @@ namespace BardMusicPlayer.Ui.Controls
                 else
                     PostSongTitle.IsChecked = false;
             }
+
+            this.Singer.IsChecked = performer.IsSinger;
+
         }
 
         private void ChatInputText_KeyDown(object sender, KeyEventArgs e)
@@ -53,6 +56,11 @@ namespace BardMusicPlayer.Ui.Controls
                 BmpMaestro.Instance.SetSongTitleParsingBard("/"+chattype, _performer);
             else
                 BmpMaestro.Instance.SetSongTitleParsingBard("", null);
+        }
+
+        private void Singer_Checked(object sender, RoutedEventArgs e)
+        {
+            _performer.IsSinger = (bool)Singer.IsChecked;
         }
     }
 }

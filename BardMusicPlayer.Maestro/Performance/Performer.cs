@@ -7,6 +7,7 @@ using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Maestro.Performance
@@ -17,11 +18,12 @@ namespace BardMusicPlayer.Maestro.Performance
         private System.Timers.Timer _startDelayTimer { get; set; } = new System.Timers.Timer();
         private bool _holdNotes { get; set; } = true;
         private bool _forcePlayback { get; set; } = false;
-        private Sequencer _sequencer;
+        private Sequencer _sequencer { get; set; } = null;
         private Sequencer mainSequencer { get; set; } = null;
         private int _trackNumber { get; set; } = 1;
         private long _lastNoteTimestamp = 0;
         private bool _livePlayDelay { get; set; } = false;
+        public bool IsSinger { get; set; } = false;
         public Instrument ChosenInstrument { get; set; } = Instrument.Piano;
         public int OctaveShift { get; set; } = 0;
         public int TrackNumber { get { return _trackNumber; }
@@ -70,6 +72,9 @@ namespace BardMusicPlayer.Maestro.Performance
                     if (this._trackNumber >= _sequencer.Sequence.Count)
                         return "None";
 
+                    var t = _sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].SourceTrackChunk.Events.OfType<Melanchall.DryWetMidi.Core.SequenceTrackNameEvent>().FirstOrDefault()?.Text;
+                    if (t.StartsWith("Lyrics:"))
+                        return t;
                     Transmogrify.Song.Config.ClassicProcessorConfig classicConfig = (Transmogrify.Song.Config.ClassicProcessorConfig)_sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].ConfigContainers[0].ProcessorConfig; // track -1 cuz track 0 isn't in this container
                     return classicConfig.Instrument.Name;
                 }
@@ -108,6 +113,7 @@ namespace BardMusicPlayer.Maestro.Performance
                     this._sequencer.OnNote += InternalNote;
                     this._sequencer.OffNote += InternalNote;
                     this._sequencer.ProgChange += InternalProg;
+                    this._sequencer.OnLyric += IntenalLyrics;
                     this._sequencer.ChannelAfterTouch += InternalAT;
 
                     _holdNotes = BmpPigeonhole.Instance.HoldNotes;
@@ -418,6 +424,9 @@ namespace BardMusicPlayer.Maestro.Performance
 
         private void InternalNote(Object o, Sanford.Multimedia.Midi.ChannelMessageEventArgs args)
         {
+            if (IsSinger)
+                return;
+
             Sanford.Multimedia.Midi.ChannelMessageBuilder builder = new Sanford.Multimedia.Midi.ChannelMessageBuilder(args.Message);
 
             NoteEvent noteEvent = new NoteEvent
@@ -450,6 +459,9 @@ namespace BardMusicPlayer.Maestro.Performance
 
         private void InternalProg(object sender, Sanford.Multimedia.Midi.ChannelMessageEventArgs args)
         {
+            if (IsSinger)
+                return;
+
             if (!_forcePlayback)
             {
                 if (!this.PerformerEnabled)
@@ -521,6 +533,16 @@ namespace BardMusicPlayer.Maestro.Performance
                     break;
             }*/
 
+        }
+
+        private void IntenalLyrics(object sender, Sanford.Multimedia.Midi.MetaMessageEventArgs e)
+        {
+            if (!IsSinger)
+                return;
+            Sanford.Multimedia.Midi.MetaTextBuilder builder = new Sanford.Multimedia.Midi.MetaTextBuilder(e.Message);
+            string text = builder.Text;
+            if (_sequencer.GetTrackNum(e.MidiTrack) == _trackNumber)
+                SendText(text);
         }
 #endregion
     }

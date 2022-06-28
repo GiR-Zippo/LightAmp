@@ -37,6 +37,6 @@
         <Label      Grid.Row="2" Grid.Column="2" Content="Textmessage:" />
         <TextBox    Grid.Row="4" Grid.Column="2" x:Name="ChatInputText" KeyDown="ChatInputText_KeyDown" />
         <CheckBox   Grid.Row="6" Grid.Column="2" x:Name="PostSongTitle" Content="Post song title" Checked="PostSongTitle_Checked" Unchecked="PostSongTitle_Checked"/>
-
+        <CheckBox   Grid.Row="7" Grid.Column="2" x:Name="Singer" Content="This bard is a singer" Checked="Singer_Checked" Unchecked="Singer_Checked"/>
     </Grid>
 </Window>

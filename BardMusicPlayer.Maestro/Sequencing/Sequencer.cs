@@ -29,7 +29,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
         public EventHandler<ChannelMessageEventArgs> ProgChange;
         public EventHandler<ChannelMessageEventArgs> ChannelAfterTouch;
 
-        public EventHandler<string> OnLyric;
+        public EventHandler<MetaMessageEventArgs> OnLyric;
         public EventHandler<int> OnTempoChange;
         public EventHandler<string> OnTrackNameChange;
 
@@ -350,9 +350,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
             }
             if (e.Message.MetaType == MetaType.Lyric)
             {
-                MetaTextBuilder builder = new MetaTextBuilder(e.Message);
-                if (e.MidiTrack == LoadedTrack)
-                    OnLyric?.Invoke(this, builder.Text);
+                OnLyric?.Invoke(this, e);
             }
             if (e.Message.MetaType == MetaType.TrackName)
             {
