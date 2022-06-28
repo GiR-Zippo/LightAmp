@@ -275,7 +275,7 @@ namespace Sanford.Multimedia.Midi
 
             #endregion
 
-            ASCIIEncoding encoding = new ASCIIEncoding();
+            UTF8Encoding encoding = new UTF8Encoding();
 
             text = encoding.GetString(message.GetBytes());
             this.type = message.MetaType;
