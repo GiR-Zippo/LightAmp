@@ -80,6 +80,22 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                         }
                         midiFile.Chunks.Add(thisTrack);
                     };
+
+                    foreach(var lyrics in msong.lyrics)
+                    {
+                        var thisTrack = new TrackChunk(new SequenceTrackNameEvent("Lyrics: " + lyrics.description));
+                        using (var manager = new TimedEventsManager(thisTrack.Events))
+                        {
+                            TimedEventsCollection timedEvents = manager.Events;
+                            foreach (var seqData in lyrics.sequence)
+                            {
+                                var f = lyrics.lines[seqData.Value];
+                                timedEvents.Add(new TimedEvent(new LyricEvent(lyrics.lines[seqData.Value]), seqData.Key));
+                            }
+                        }
+                        midiFile.Chunks.Add(thisTrack);
+                    }
+
                     break; //Only the first song for now
                 }
             }

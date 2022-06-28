@@ -19,6 +19,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
     public class MMSong
     {
         public List<MMBards> bards = new List<MMBards>();
+        public List<MMLyrics> lyrics = new List<MMLyrics>();
         public string title{ get; set; } ="";
         public string description { get; set; } = "";
     }
@@ -28,4 +29,12 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
         public int instrument { get; set; } = 0;
         public Dictionary<int, int> sequence = new Dictionary<int, int>();
     }
+
+    public class MMLyrics
+    {
+        public string description { get; set; } = "";
+        public Dictionary<int, string> lines = new Dictionary<int, string>();
+        public Dictionary<int, int> sequence = new Dictionary<int, int>();
+    }
+
 }
