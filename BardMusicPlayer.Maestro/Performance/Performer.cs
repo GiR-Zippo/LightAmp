@@ -316,6 +316,9 @@ namespace BardMusicPlayer.Maestro.Performance
 
         public void OpenInstrument()
         {
+            if (IsSinger)
+                return;
+            
             // if we are the host, we do this by our own
             if (!game.InstrumentHeld.Equals(Instrument.None))
                 return;
@@ -328,6 +331,9 @@ namespace BardMusicPlayer.Maestro.Performance
 
         public async Task<int> ReplaceInstrument()
         {
+            if (IsSinger)
+                return 0;
+
             if (!trackAndChannelOk())
                 return 0;
 
@@ -381,17 +387,20 @@ namespace BardMusicPlayer.Maestro.Performance
 
         public void SendText(string text)
         {
-            //Console.WriteLine(text);
-            //return;
-
-            if (!game.ChatStatus)
+            Task task = Task.Run(() =>
             {
+                //Console.WriteLine(text);
+                //return;
+
+                if (!game.ChatStatus)
+                {
+                    _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
+                    Task.Delay(200).Wait();
+                }
+                _hook.SendString(text);
+                Task.Delay((text.Length * 5)+20).Wait();
                 _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
-                Task.Delay(200).Wait();
-            }
-            _hook.SendString(text);
-            Task.Delay((text.Length * 5)+20).Wait();
-            _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
+            });
         }
         #endregion
 
@@ -539,6 +548,7 @@ namespace BardMusicPlayer.Maestro.Performance
         {
             if (!IsSinger)
                 return;
+
             Sanford.Multimedia.Midi.MetaTextBuilder builder = new Sanford.Multimedia.Midi.MetaTextBuilder(e.Message);
             string text = builder.Text;
             if (_sequencer.GetTrackNum(e.MidiTrack) == _trackNumber)

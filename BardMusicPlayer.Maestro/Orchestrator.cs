@@ -403,10 +403,16 @@ namespace BardMusicPlayer.Maestro
         public void EquipInstruments()
         {
             Thread.Sleep(100);  //Wait
-            Parallel.ForEach(_performers, perf =>
+            try
             {
-                perf.Value.OpenInstrument();
-            });
+                var pList = _performers;
+                Parallel.ForEach(pList, perf =>
+                {
+                    perf.Value.OpenInstrument();
+                });
+            }
+            catch { }
+            
         }
 
         /// <summary>
@@ -672,6 +678,7 @@ namespace BardMusicPlayer.Maestro
             int rdelay = (int)(Quotidian.UtcMilliTime.Clock.Time.Now - seerEvent.TimeStamp);
 
             //if we are a single bard
+            //- start and exit
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
                 Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
@@ -682,7 +689,28 @@ namespace BardMusicPlayer.Maestro
                 return;
             }
 
+
+            /* Set this to a task
+            var result = _performers.Where(perf => perf.Value.IsSinger == true);
+            if (result != null)
+            {
+                if (result.Count() > 0)
+                {
+                    System.Diagnostics.Stopwatch w = new System.Diagnostics.Stopwatch();
+                    w.Start();
+                    foreach (var perfo in result)
+                    {
+                        delayvalue = (delayvalue + 5500) - (int)w.ElapsedMilliseconds;
+                        if (delayvalue < 0)
+                            delayvalue = 0;
+                        start(delayvalue, perfo.Value.game.Pid);
+                    };
+                    w.Stop();
+                }
+            }*/
+
             //local orchestra, each bard started indiviual
+            //- start and exit
             if (BmpPigeonhole.Instance.EnsembleStartIndividual)
             {
                 start(delayvalue - rdelay, seerEvent.Game.Pid);
