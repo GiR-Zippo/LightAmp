@@ -266,10 +266,13 @@ namespace BardMusicPlayer.Transmogrify.Song
 
                 foreach (var trackChunk in midiFile.GetTrackChunks())
                 {
-                    if (!(trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).Contains("Lyrics:"))
+                    if (trackChunk.Events.Count > 0)
                     {
-                        allTracks.AddObjects(trackChunk.GetNotes());
-                        allTracks.AddObjects(trackChunk.GetTimedEvents());
+                        if (!(trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).Contains("Lyrics:"))
+                        {
+                            allTracks.AddObjects(trackChunk.GetNotes());
+                            allTracks.AddObjects(trackChunk.GetTimedEvents());
+                        }
                     }
                     var thisTrack = new TrackChunk(new SequenceTrackNameEvent(trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text));
                     thisTrack.AddObjects(trackChunk.GetNotes());
