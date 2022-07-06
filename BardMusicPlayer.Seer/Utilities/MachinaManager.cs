@@ -28,7 +28,8 @@ namespace BardMusicPlayer.Seer.Utilities
             _monitor = new FFXIVNetworkMonitor
             {
                 MonitorType = NetworkMonitorType.RawSocket,
-                FFXIVDX11ExecutablePath = BmpSeer.Instance.Games.Values.First().GamePath + @"\game\ffxiv_dx11.exe"
+                FFXIVDX11ExecutablePath = BmpSeer.Instance.Games.Values.First().GamePath + @"\game\ffxiv_dx11.exe",
+                OodleImplementation = Machina.FFXIV.Oodle.OodleImplementation.Library
         };
             _monitor.MessageReceivedEventHandler += MessageReceivedEventHandler;
         }

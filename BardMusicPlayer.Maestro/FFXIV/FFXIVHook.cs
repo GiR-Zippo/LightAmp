@@ -1,4 +1,4 @@
-﻿using BardMusicPlayer.Quotidian.Enums;
+using BardMusicPlayer.Quotidian.Enums;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

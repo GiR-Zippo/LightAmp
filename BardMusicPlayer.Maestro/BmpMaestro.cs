@@ -17,8 +17,6 @@ namespace BardMusicPlayer.Maestro
     {
         private static readonly Lazy<BmpMaestro> LazyInstance = new(() => new BmpMaestro());
 
-        public Game SelectedBard { get; set; }
-
         private Orchestrator _orchestrator;
         /// <summary>
         /// 
@@ -35,19 +33,13 @@ namespace BardMusicPlayer.Maestro
 
         #region Getters
         /// <summary>
-        /// Get all game the orchestrator is accessing
-        /// </summary>
-        public IEnumerable<Game> GetAllGames()
-        {
-            return _orchestrator.GetAllGames();
-        }
-
-        /// <summary>
         /// Get all performers the orchestrator has created
         /// </summary>
         public IEnumerable<Performer> GetAllPerformers()
         {
-            return _orchestrator.GetAllPerformers();
+            if (_orchestrator != null)
+                return _orchestrator.GetAllPerformers();
+            return new List<Performer>();
         }
 
         /// <summary>
@@ -56,25 +48,9 @@ namespace BardMusicPlayer.Maestro
         /// <returns>tracknumber</returns>
         public int GetHostBardTrack()
         {
-            return _orchestrator.GetHostBardTrack();
-        }
-
-        /// <summary>
-        /// Get the host bard octaveshift
-        /// </summary>
-        /// <returns>tracknumber</returns>
-        public int GetHostBardOctaveShift()
-        {
-            return _orchestrator.GetHostBardOctaveShift();
-        }
-
-        /// <summary>
-        /// Get host bard Pid
-        /// </summary>
-        /// <returns>Pid</returns>
-        public Game GetHostGame()
-        {
-            return _orchestrator.HostGame;
+            if (_orchestrator != null)
+                return _orchestrator.GetHostBardTrack();
+            return 1;
         }
 
         /// <summary>
@@ -83,7 +59,9 @@ namespace BardMusicPlayer.Maestro
         /// <returns>Pid</returns>
         public int GetHostPid()
         {
-            return _orchestrator.HostPid;
+            if (_orchestrator != null)
+                return _orchestrator.HostPid;
+            return -1;
         }
 
         /// <summary>
@@ -175,8 +153,11 @@ namespace BardMusicPlayer.Maestro
         /// <param name="bmpSong"></param>
         public void SetSong(BmpSong bmpSong)
         {
-            _orchestrator.Stop();
-            _orchestrator.LoadBMPSong(bmpSong);
+            if (_orchestrator != null)
+            {
+                _orchestrator.Stop();
+                _orchestrator.LoadBMPSong(bmpSong);
+            }
         }
 
         /// <summary>
