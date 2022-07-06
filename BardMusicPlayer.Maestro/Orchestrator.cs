@@ -402,7 +402,6 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void EquipInstruments()
         {
-            Thread.Sleep(100);  //Wait
             try
             {
                 var pList = _performers;

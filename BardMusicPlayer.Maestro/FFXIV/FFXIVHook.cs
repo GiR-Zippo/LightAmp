@@ -267,7 +267,6 @@ namespace BardMusicPlayer.Maestro.FFXIV
         }
         public void SendSyncKey(Keys key, bool modifier = true, bool sendDown = true, bool sendUp = true)
         {
-
             Keys key2 = (key & ~Keys.Control) & (key & ~Keys.Shift);
             if (sendDown)
             {

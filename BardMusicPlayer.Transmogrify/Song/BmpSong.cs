@@ -268,11 +268,11 @@ namespace BardMusicPlayer.Transmogrify.Song
                 {
                     if (trackChunk.Events.Count > 0)
                     {
-                        if (!(trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).Contains("Lyrics:"))
-                        {
-                            allTracks.AddObjects(trackChunk.GetNotes());
-                            allTracks.AddObjects(trackChunk.GetTimedEvents());
-                        }
+                        if (trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text != null)
+                            if ((trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).Contains("Lyrics:"))
+                                continue;
+                        allTracks.AddObjects(trackChunk.GetNotes());
+                        allTracks.AddObjects(trackChunk.GetTimedEvents());
                     }
                     var thisTrack = new TrackChunk(new SequenceTrackNameEvent(trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text));
                     thisTrack.AddObjects(trackChunk.GetNotes());
