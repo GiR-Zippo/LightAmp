@@ -3,8 +3,10 @@ using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Functions;
 using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -30,18 +32,30 @@ namespace BardMusicPlayer.Ui.Classic
             if (PlaylistContainer.Items.Count == 0)
                 return;
 
-            if ((PlaylistContainer.SelectedIndex == -1) || (PlaylistContainer.SelectedIndex == 0))
+            if (_playlistShuffle)
             {
-                PlaylistContainer.SelectedIndex = 1;
+                Random rnd = new Random();
+                int random = rnd.Next(1, PlaylistContainer.Items.Count);
+
+                if (random >= PlaylistContainer.SelectedIndex) 
+                    random = (random + 1) % PlaylistContainer.Items.Count;
+                PlaylistContainer.SelectedIndex = random;
             }
             else
             {
-                if (PlaylistContainer.SelectedIndex == PlaylistContainer.Items.Count -1)
+                if ((PlaylistContainer.SelectedIndex == -1) || (PlaylistContainer.SelectedIndex == 0))
                 {
                     PlaylistContainer.SelectedIndex = 1;
                 }
                 else
-                    PlaylistContainer.SelectedIndex = PlaylistContainer.SelectedIndex + 1;
+                {
+                    if (PlaylistContainer.SelectedIndex == PlaylistContainer.Items.Count - 1)
+                    {
+                        PlaylistContainer.SelectedIndex = 1;
+                    }
+                    else
+                        PlaylistContainer.SelectedIndex = PlaylistContainer.SelectedIndex + 1;
+                }
             }
             PlaybackFunctions.LoadSongFromPlaylist(PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem));
             this.SongName.Text = PlaybackFunctions.GetSongName();
