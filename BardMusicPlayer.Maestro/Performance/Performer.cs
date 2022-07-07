@@ -343,8 +343,9 @@ namespace BardMusicPlayer.Maestro.Performance
                     return 0;
                 else
                 {
-                    CloseInstrument();
-                    await Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay);
+                    _hook.ClearLastPerformanceKeybinds();
+                    _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
+                    await Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay).ConfigureAwait(false);
                 }
             }
 

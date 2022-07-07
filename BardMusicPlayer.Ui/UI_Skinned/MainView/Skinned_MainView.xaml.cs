@@ -34,6 +34,7 @@ namespace BardMusicPlayer.Ui.Skinned
         private bool _showLapTime { get; set; } = true;
 
         public Skinned_PlaylistView _PlaylistView;
+        public SongbrowserWindow _SongbrowserView;
         public BardsWindow _BardListView;
         public NetworkPlayWindow _Networkplaywindow;
         public Skinned_MainView_Ex _MainView_Ex;
@@ -48,6 +49,13 @@ namespace BardMusicPlayer.Ui.Skinned
             _MainView_Ex = new Skinned_MainView_Ex();
             if (BmpPigeonhole.Instance.SkinnedUi_UseExtendedView)
                 _MainView_Ex.Visibility = Visibility.Visible;
+
+            //init the songbrowser
+            _SongbrowserView = new SongbrowserWindow();
+            _SongbrowserView.Show();
+            this._SongbrowserView.Visibility = Visibility.Hidden;
+            this._SongbrowserView.OnLoadSongFromBrowser += OnLoadSongFromSongbrowser;
+
 
             //open the bards window
             _BardListView = new BardsWindow();
@@ -98,6 +106,24 @@ namespace BardMusicPlayer.Ui.Skinned
         }
 
         #region EventCallbacks
+
+        /// <summary>
+        /// triggered by the songbrowser if a file should be loaded
+        /// </summary>
+        private void OnLoadSongFromSongbrowser(object sender, string filename)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (PlaybackFunctions.LoadSong(filename))
+                {
+                    Scroller.Cancel();
+                    Scroller = new CancellationTokenSource();
+                    UpdateScroller(Scroller.Token, PlaybackFunctions.GetSongName()).ConfigureAwait(false);
+                    WriteInstrumentDigitField(PlaybackFunctions.GetInstrumentNameForHostPlayer());
+                }
+            }));
+        }
+
         /// <summary>
         /// called from playlist if a song should be loaded
         /// </summary>
@@ -322,6 +348,11 @@ namespace BardMusicPlayer.Ui.Skinned
             string Minutes = t.ToString().Split(':')[1];
             this.Minutes_Last.Dispatcher.BeginInvoke(new Action(() => Minutes_Last.Fill = SkinContainer.NUMBERS[(SkinContainer.NUMBER_TYPES)((Minutes.Length == 1) ? Convert.ToInt32(Minutes) : Convert.ToInt32(Minutes.Substring(1, 1)))]));
             this.Minutes_First.Dispatcher.BeginInvoke(new Action(() => Minutes_First.Fill = SkinContainer.NUMBERS[(SkinContainer.NUMBER_TYPES)((Minutes.Length == 1) ? 0 : Convert.ToInt32(Minutes.Substring(0, 1)))]));
+        }
+
+        private void ShowSongBrowserWindow_Click(object sender, RoutedEventArgs e)
+        {
+            this._SongbrowserView.Visibility = Visibility.Visible;
         }
 
         private void ShowBardsWindow_Click(object sender, RoutedEventArgs e)

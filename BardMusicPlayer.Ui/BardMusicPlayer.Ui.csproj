@@ -340,6 +340,9 @@
     </Compile>
     <Compile Include="UI_Skinned\Playlist\Skinned_PlaylistView_Siren.cs" />
     <Compile Include="UI_Skinned\Playlist\Skinned_PlaylistView.xaml.cs" />
+    <Compile Include="UI_Skinned\SongBrowserWindow\SongbrowserWindow.xaml.cs">
+      <DependentUpon>SongbrowserWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="Controls\BardExtSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -468,6 +471,10 @@
     <Page Include="UI_Skinned\Playlist\Skinned_PlaylistView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI_Skinned\SongBrowserWindow\SongbrowserWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

@@ -70,6 +70,7 @@
             <Button Grid.Column="0" Style="{StaticResource ImageButton}" x:Name="Settings_Button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="13" Height="13" Margin="9,5,0,0" Content="" Click="Settings_Button_Click" PreviewMouseUp="Settings_Button_Up" PreviewMouseDown="Settings_Button_Down"  BorderThickness="0">
                 <Button.ContextMenu>
                     <ContextMenu >
+                        <MenuItem Header="Show Songbrowser Window" Click="ShowSongBrowserWindow_Click"/>
                         <MenuItem Header="Show Bards Window" Click="ShowBardsWindow_Click"/>
                         <MenuItem Header="Show Networkplay Window" Click="ShowNetworkWindow_Click"/>
                         <MenuItem Header="Show Playlist Window" Click="ShowPlaylistWindow_Click"/>

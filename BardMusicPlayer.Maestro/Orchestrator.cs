@@ -599,13 +599,14 @@ namespace BardMusicPlayer.Maestro
                 Performer perfc = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
                 if (perfc != null)
                 {
+                    //Keep track settings for the performer
                     if (!BmpPigeonhole.Instance.EnsembleKeepTrackSetting)
                     {
                         int result = _performers.Max(p => p.Value.TrackNumber);
                         if (result != _sequencer.MaxTrack)
                             LocalOchestraInitialized = false;
                     }
-                    else
+                    else //reorder the performer
                     {
                         foreach (var p in _performers)
                         {
@@ -645,15 +646,19 @@ namespace BardMusicPlayer.Maestro
                 }
             }
 
-            BmpMaestro.Instance.PublishEvent(new MaxPlayTimeEvent(_sequencer.MaxTimeAsTimeSpan, _sequencer.MaxTick));
-            BmpMaestro.Instance.PublishEvent(new SongLoadedEvent(_sequencer.MaxTrack, _sequencer));
-
             Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
             if (perf != null)
+            {
+                if (BmpPigeonhole.Instance.SoloBardAutoEquip)
+                    _ = perf.ReplaceInstrument().Result;
+
                 perf.Sequencer.PlayEnded += Sequencer_PlayEnded;
+            }
 
             _updaterTokenSource = new CancellationTokenSource();
             Task.Factory.StartNew(() => Updater(_updaterTokenSource.Token), TaskCreationOptions.LongRunning);
+            BmpMaestro.Instance.PublishEvent(new MaxPlayTimeEvent(_sequencer.MaxTimeAsTimeSpan, _sequencer.MaxTick));
+            BmpMaestro.Instance.PublishEvent(new SongLoadedEvent(_sequencer.MaxTrack, _sequencer));
         }
 
         private void Instance_EnsembleStarted(Seer.Events.EnsembleStarted seerEvent)

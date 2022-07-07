@@ -73,11 +73,6 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual int AutostartMethod { get; set; } = 0;
 
         /// <summary>
-        /// Sets the verbose mode
-        /// </summary>
-        public virtual bool Verbose { get; set; } = false;
-
-        /// <summary>
         /// Sets UnequipPause
         /// </summary>
         public virtual bool UnequipPause { get; set; } = true;
@@ -173,6 +168,11 @@ namespace BardMusicPlayer.Pigeonhole
         /// start the performer by it's own ready signal
         /// </summary>
         public virtual bool EnsembleStartIndividual { get; set; } = true;
+
+        /// <summary>
+        /// Autoequip the solo bard
+        /// </summary>
+        public virtual bool SoloBardAutoEquip { get; set; } = false;
 
         /// <summary>
         /// milliseconds between game process scans / seer scanner startups.

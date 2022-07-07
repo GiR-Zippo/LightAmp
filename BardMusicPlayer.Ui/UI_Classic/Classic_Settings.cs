@@ -28,6 +28,7 @@ namespace BardMusicPlayer.Ui.Classic
             //Misc
             this.Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
             this.MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
+            this.AutoequipSoloBard.IsChecked = BmpPigeonhole.Instance.SoloBardAutoEquip;
             this.SkinUiBox.IsChecked = !BmpPigeonhole.Instance.ClassicUi;
 
             //Local orchestra
@@ -76,6 +77,11 @@ namespace BardMusicPlayer.Ui.Classic
         private void MidiBard_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.MidiBardCompatMode = MidiBardComp.IsChecked ?? false;
+        }
+
+        private void AutoequipSoloBard_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.SoloBardAutoEquip = AutoequipSoloBard.IsChecked ?? false;
         }
 
         private void SkinUiBox_Checked(object sender, RoutedEventArgs e)
