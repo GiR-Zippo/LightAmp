@@ -384,6 +384,7 @@ namespace BardMusicPlayer.Ui.Skinned
                 return;
 
             BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
+            Pigeonhole.BmpPigeonhole.Instance.LastLoadedCatalog = openFileDialog.FileName;
             _currentPlaylist = PlaylistFunctions.GetFirstPlaylist();
             if (_currentPlaylist == null)
                 _currentPlaylist = PlaylistFunctions.CreatePlaylist("default");
@@ -409,6 +410,7 @@ namespace BardMusicPlayer.Ui.Skinned
                 return;
 
             BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
+            Pigeonhole.BmpPigeonhole.Instance.LastLoadedCatalog = openFileDialog.FileName;
             _currentPlaylist = PlaylistFunctions.GetFirstPlaylist();
             if (_currentPlaylist == null)
                 _currentPlaylist = PlaylistFunctions.CreatePlaylist("default");

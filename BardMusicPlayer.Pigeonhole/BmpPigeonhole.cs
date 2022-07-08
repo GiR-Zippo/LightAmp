@@ -50,7 +50,7 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// last loaded song
         /// </summary>
-        public virtual string LastLoaded { get; set; } = "";
+        public virtual string LastLoadedCatalog { get; set; } = "";
 
         /// <summary>
         /// last loaded song

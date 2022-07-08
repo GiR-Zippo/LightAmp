@@ -290,6 +290,7 @@ namespace BardMusicPlayer.Ui.Classic
                 return;
 
             BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
+            Pigeonhole.BmpPigeonhole.Instance.LastLoadedCatalog = openFileDialog.FileName;
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
             _showingPlaylists = true;
         }
@@ -315,6 +316,7 @@ namespace BardMusicPlayer.Ui.Classic
                 return;
 
             BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
+            Pigeonhole.BmpPigeonhole.Instance.LastLoadedCatalog = openFileDialog.FileName;
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
             _showingPlaylists = true;
         }

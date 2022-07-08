@@ -28,7 +28,13 @@ namespace BardMusicPlayer.Ui
             // var view = (MainView)View;
             // LogManager.Initialize(new(view.Log));
 
-            BmpCoffer.Initialize(Globals.Globals.DataPath + @"\MusicCatalog.db");
+            ///Load the last used catalog
+            string CatalogFile = BmpPigeonhole.Instance.LastLoadedCatalog;
+            if (System.IO.File.Exists(CatalogFile))
+                BmpCoffer.Initialize(CatalogFile);
+            else
+                BmpCoffer.Initialize(Globals.Globals.DataPath + @"\MusicCatalog.db");
+
             BmpSeer.Instance.SetupFirewall("BardMusicPlayer");
             BmpMaestro.Instance.Start();
             BmpSeer.Instance.Start();
