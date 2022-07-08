@@ -23,22 +23,26 @@ namespace BardMusicPlayer.Ui
         {
             Globals.Globals.DataPath = @"data\";
 
+            //init pigeon at first
             BmpPigeonhole.Initialize(Globals.Globals.DataPath + @"\Configuration.json");
 
             // var view = (MainView)View;
             // LogManager.Initialize(new(view.Log));
 
-            ///Load the last used catalog
+            //Load the last used catalog
             string CatalogFile = BmpPigeonhole.Instance.LastLoadedCatalog;
             if (System.IO.File.Exists(CatalogFile))
                 BmpCoffer.Initialize(CatalogFile);
             else
                 BmpCoffer.Initialize(Globals.Globals.DataPath + @"\MusicCatalog.db");
 
+            //Setup seer
             BmpSeer.Instance.SetupFirewall("BardMusicPlayer");
+            //Start meastro before seer, else we'll not get all the players
             BmpMaestro.Instance.Start();
+            //Start seer
             BmpSeer.Instance.Start();
-
+            //Start the scripting
             BmpScript.Instance.Start();
 
             //BmpGrunt.Instance.Start();

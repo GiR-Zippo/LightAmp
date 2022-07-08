@@ -262,6 +262,18 @@ namespace BardMusicPlayer.Ui.Classic
         }
 
         /// <summary>
+        /// Skips the current song (only works on autoplay)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SkipSong_Button_Click(object sender, RoutedEventArgs e)
+        {
+            playNextSong();
+            PlaybackFunctions.PlaySong(1000);
+            Play_Button_State(true);
+        }
+
+        /// <summary>
         /// The Auto-Play button
         /// </summary>
         /// <param name="sender"></param>
