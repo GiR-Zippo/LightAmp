@@ -149,6 +149,21 @@ namespace BardMusicPlayer.Ui.Classic
 
         #region PlaylistContainer actions
         /// <summary>
+        /// Click on the head of the DataGrid brings you back to the playlists
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PlaylistContainer_HeaderClick(object sender, RoutedEventArgs e)
+        {
+            var columnHeader = sender as System.Windows.Controls.Primitives.DataGridColumnHeader;
+            if (columnHeader != null)
+            {
+                _showingPlaylists = true;
+                PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+            }
+        }
+
+        /// <summary>
         /// if a song or playlist in the list was doubleclicked
         /// </summary>
         /// <param name="sender"></param>
@@ -269,6 +284,10 @@ namespace BardMusicPlayer.Ui.Classic
         private void SkipSong_Button_Click(object sender, RoutedEventArgs e)
         {
             playNextSong();
+
+            if (!BmpPigeonhole.Instance.PlaylistAutoPlay)
+                return;
+
             PlaybackFunctions.PlaySong(1000);
             Play_Button_State(true);
         }
