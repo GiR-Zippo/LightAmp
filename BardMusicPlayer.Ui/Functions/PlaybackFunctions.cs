@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Windows;
 using BardMusicPlayer.Maestro;
+using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Transmogrify.Song.Config;
 using Microsoft.Win32;
@@ -73,6 +75,7 @@ namespace BardMusicPlayer.Ui.Functions
         /// <param name="item"></param>
         public static void LoadSongFromPlaylist(BmpSong item)
         {
+            BringAmpToFront();
             PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
             CurrentSong = item;
             BmpMaestro.Instance.SetSong(CurrentSong);
@@ -169,6 +172,34 @@ namespace BardMusicPlayer.Ui.Functions
                     return "Unknown";
                 }
             }
+        }
+
+        /// <summary>
+        /// Helper to bring the player to front
+        /// </summary>
+        public static void BringAmpToFront()
+        {
+            if (!BmpPigeonhole.Instance.BringBMPtoFront)
+                return;
+            try
+            {
+                System.Windows.Window mainWindow = Application.Current.MainWindow;
+                if (!mainWindow.IsVisible)
+                {
+                    mainWindow.Show();
+                }
+
+                if (mainWindow.WindowState == WindowState.Minimized)
+                {
+                    mainWindow.WindowState = WindowState.Normal;
+                }
+
+                mainWindow.Activate();
+                mainWindow.Topmost = true;  // important
+                mainWindow.Topmost = false; // important
+                mainWindow.Focus();         // important
+            }
+            catch { }
         }
     }
 }

@@ -104,7 +104,7 @@
                                 <ImageBrush ImageSource="/LightAmp;component/Resources/Images/ClassicShuffle.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Grid.Column="5" x:Name="SkipSong_Button" VerticalAlignment="Center" Content="Skip" Click="SkipSong_Button_Click"/>
+                        <Button Grid.Column="5" x:Name="SkipSong_Button" VerticalAlignment="Center" Content="Skip" Click="SkipSong_Button_Click" ToolTip="{StaticResource PLAYLIST_SKIP}"/>
 
                         <CheckBox Grid.Column="7" x:Name="AutoPlay_CheckBox" Checked="AutoPlay_Checked" Unchecked="AutoPlay_Checked" VerticalAlignment="Center" ToolTip="{StaticResource PLAYLIST_AUTO}"/>
                         <Label Content="Auto-play" Grid.Column="9" VerticalAlignment="Center"/>
@@ -158,7 +158,7 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <CheckBox Margin="10,10,0,0" Grid.Row="0" Content="Bring FFXIV to front"/>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="1" Content="Bring BMP to front"/>
+                                    <CheckBox Margin="10,0,0,0"  Grid.Row="1" Content="Bring BMP to front" x:Name="AMPInFrontBox" Checked="AMPInFrontBox_Checked" Unchecked="AMPInFrontBox_Checked" ToolTip="{StaticResource GAME_AMPFRONT}"/>
                                     <CheckBox Margin="10,0,0,0"  Grid.Row="2" Content="Pause song on unequip"/>
                                 </Grid>
                             </GroupBox>

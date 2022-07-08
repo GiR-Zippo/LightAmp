@@ -13,6 +13,10 @@
     <sys:String x:Key="PLAYLIST_EXPORT"  xml:space="preserve">Export the current MusicCatalog</sys:String>
     <sys:String x:Key="PLAYLIST_CLEANUP" xml:space="preserve">Reorganise the MusicCatalog to save space</sys:String>
     <sys:String x:Key="PLAYLIST_AUTO"    xml:space="preserve">auto plays the next song in the playlist</sys:String>
+    <sys:String x:Key="PLAYLIST_SKIP"    xml:space="preserve">skips the current playing song</sys:String>
+
+    <!-- Settings: Game -->
+    <sys:String x:Key="GAME_AMPFRONT"    xml:space="preserve">Brings the amp in front after a new song was loaded from the playlist</sys:String>
 
     <!-- Settings: Misc-->
     <sys:String x:Key="MISC_AUTOSTART"   xml:space="preserve">Select the autostart trigger [Metronome is prefered]</sys:String>

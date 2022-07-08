@@ -15,6 +15,8 @@ namespace BardMusicPlayer.Ui.Classic
         {
             this.AutoPlay_CheckBox.IsChecked = BmpPigeonhole.Instance.PlaylistAutoPlay;
 
+            this.AMPInFrontBox.IsChecked = BmpPigeonhole.Instance.BringBMPtoFront;
+
             //Playback
             this.HoldNotesBox.IsChecked = BmpPigeonhole.Instance.HoldNotes;
             this.ForcePlaybackBox.IsChecked = BmpPigeonhole.Instance.ForcePlayback;
@@ -37,6 +39,12 @@ namespace BardMusicPlayer.Ui.Classic
             this.KeepTrackSettingsBox.IsChecked = BmpPigeonhole.Instance.EnsembleKeepTrackSetting;
             StartBardIndividuallyBox.IsChecked = BmpPigeonhole.Instance.EnsembleStartIndividual;
         }
+
+        private void AMPInFrontBox_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.BringBMPtoFront = AMPInFrontBox.IsChecked ?? false;
+        }
+
         #region Playback
         private void Hold_Notes_Checked(object sender, RoutedEventArgs e)
         {

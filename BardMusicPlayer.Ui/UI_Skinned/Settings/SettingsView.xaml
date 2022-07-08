@@ -191,11 +191,13 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="10"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Label Content="SirenVolume" Grid.Row="1" Grid.Column="1"/>
-                            <Slider x:Name="SirenVolume" Grid.Row="1" Grid.Column="2" Width="100" ValueChanged="SirenVolume_ValueChanged" Maximum="100" />
+                            <Label Content="SirenVolume"      Grid.Row="1" Grid.Column="1"/>
+                            <Slider x:Name="SirenVolume"      Grid.Row="1" Grid.Column="2" Width="100" ValueChanged="SirenVolume_ValueChanged" Maximum="100" />
+                            <CheckBox  x:Name="AMPInFrontBox" Grid.Row="2" Grid.Column="1" Content="Bring BMP to front" Checked="AMPInFrontBox_Checked" Unchecked="AMPInFrontBox_Checked" ToolTip="{StaticResource GAME_AMPFRONT}"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="Path">

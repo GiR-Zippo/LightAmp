@@ -71,6 +71,7 @@ namespace BardMusicPlayer.Ui.Skinned
 
             //Misc Tab
             SirenVolume.Value = BmpSiren.Instance.GetVolume();
+            this.AMPInFrontBox.IsChecked = BmpPigeonhole.Instance.BringBMPtoFront;
 
             //Path Tab
             SongsDir.Text = BmpPigeonhole.Instance.SongDirectory;
@@ -266,6 +267,11 @@ namespace BardMusicPlayer.Ui.Skinned
         {
             var g = SirenVolume.Value;
             BmpSiren.Instance.SetVolume((float)g);
+        }
+
+        private void AMPInFrontBox_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.BringBMPtoFront = AMPInFrontBox.IsChecked ?? false;
         }
         #endregion
 
