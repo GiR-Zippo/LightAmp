@@ -155,7 +155,8 @@ namespace BardMusicPlayer.Ui.Classic
             if (BmpPigeonhole.Instance.PlaylistAutoPlay)
             {
                 playNextSong();
-                PlaybackFunctions.PlaySong(0);
+                Random rnd = new Random();
+                PlaybackFunctions.PlaySong(rnd.Next(15, 35)*100);
                 Play_Button_State(true);
             }
         }

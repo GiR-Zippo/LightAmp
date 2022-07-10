@@ -4,9 +4,6 @@ using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Functions;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -37,8 +34,10 @@ namespace BardMusicPlayer.Ui.Classic
                 Random rnd = new Random();
                 int random = rnd.Next(1, PlaylistContainer.Items.Count);
 
-                if (random >= PlaylistContainer.SelectedIndex) 
+                if (random == PlaylistContainer.SelectedIndex) 
                     random = (random + 1) % PlaylistContainer.Items.Count;
+                if (random == 0)
+                    random = 1;
                 PlaylistContainer.SelectedIndex = random;
             }
             else
@@ -288,7 +287,8 @@ namespace BardMusicPlayer.Ui.Classic
             if (!BmpPigeonhole.Instance.PlaylistAutoPlay)
                 return;
 
-            PlaybackFunctions.PlaySong(1000);
+            Random rnd = new Random();
+            PlaybackFunctions.PlaySong(rnd.Next(15, 35) * 100);
             Play_Button_State(true);
         }
 

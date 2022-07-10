@@ -419,11 +419,10 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void UnEquipInstruments()
         {
-            Thread.Sleep(100);
-            Parallel.ForEach(_performers, perf =>
+            foreach(var perf in _performers)
             {
                 perf.Value.CloseInstrument();
-            });
+            };
         }
 
         /// <summary>

@@ -1,6 +1,5 @@
 
 using System.Windows;
-
 using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Grunt;
 using BardMusicPlayer.Pigeonhole;

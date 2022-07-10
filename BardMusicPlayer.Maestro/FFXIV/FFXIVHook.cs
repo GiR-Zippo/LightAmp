@@ -63,6 +63,15 @@ namespace BardMusicPlayer.Maestro.FFXIV
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern uint MapVirtualKey(uint uCode, uint uMapType);
 
+        [DllImport("user32.dll")]
+        internal static extern bool OpenClipboard(IntPtr hWndNewOwner);
+
+        [DllImport("user32.dll")]
+        internal static extern bool CloseClipboard();
+
+        [DllImport("user32.dll")]
+        internal static extern bool SetClipboardData(uint uFormat, IntPtr data);
+
         struct INPUT
         {
             public int type;
@@ -367,6 +376,27 @@ namespace BardMusicPlayer.Maestro.FFXIV
         public void SendAsyncChar(char charInput)
         {
             SendMessage(mainWindowHandle, WM_CHAR, ((IntPtr)charInput), ((IntPtr)0));
+        }
+
+        public bool CopyToClipboard(string text)
+        {
+            if (GetForegroundWindow() != mainWindowHandle)
+            {
+                SetForegroundWindow(mainWindowHandle);
+            }
+
+            if (!OpenClipboard(IntPtr.Zero))
+            {
+                return false;
+            }
+
+            var clipboardText = Marshal.StringToHGlobalUni(text);
+
+            SetClipboardData(13, clipboardText);
+            CloseClipboard();
+            Task.Delay(50).Wait();
+            SendSyncKey((int)Keys.Control + Keys.V);
+            return true;
         }
 
         public void SendString(string input)
