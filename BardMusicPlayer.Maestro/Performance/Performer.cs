@@ -73,8 +73,11 @@ namespace BardMusicPlayer.Maestro.Performance
                         return "None";
 
                     var t = _sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].SourceTrackChunk.Events.OfType<Melanchall.DryWetMidi.Core.SequenceTrackNameEvent>().FirstOrDefault()?.Text;
-                    if (t.StartsWith("Lyrics:"))
-                        return t;
+                    if (t != null)
+                    {
+                        if (t.StartsWith("Lyric:"))
+                            return t;
+                    }
                     Transmogrify.Song.Config.ClassicProcessorConfig classicConfig = (Transmogrify.Song.Config.ClassicProcessorConfig)_sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].ConfigContainers[0].ProcessorConfig; // track -1 cuz track 0 isn't in this container
                     return classicConfig.Instrument.Name;
                 }
@@ -318,8 +321,7 @@ namespace BardMusicPlayer.Maestro.Performance
         {
             if (IsSinger)
                 return;
-            
-            // if we are the host, we do this by our own
+
             if (!game.InstrumentHeld.Equals(Instrument.None))
                 return;
 
@@ -386,27 +388,36 @@ namespace BardMusicPlayer.Maestro.Performance
             _hook.ClearLastPerformanceKeybinds();
         }
 
+        /// <summary>
+        /// Send a text in game; During playback set this into a task
+        /// </summary>
+        /// <param name="text"></param>
+        public void SendTextCopyPasta(string text)
+        {
+            if (!game.ChatStatus)
+            {
+                _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
+                Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay).Wait();
+            }
+            _hook.CopyToClipboard(text);
+            Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay).Wait();
+            _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
+        }
+
         public void SendText(string text)
         {
-            Task task = Task.Run(() =>
+            if (!game.ChatStatus)
             {
-                //Console.WriteLine(text);
-                //return;
-
-                if (!game.ChatStatus)
-                {
-                    _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
-                    Task.Delay(200).Wait();
-                }
-                _hook.SendString(text);
-                Task.Delay((text.Length * 5)+20).Wait();
                 _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
-            });
+                Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay).Wait();
+            }
+            _hook.SendString(text);
+            Task.Delay((text.Length * 5) + 20).Wait();
+            _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
         }
         #endregion
 
         #region private
-
         /// <summary>
         /// Checks if we are ont the right track and channel
         /// </summary>

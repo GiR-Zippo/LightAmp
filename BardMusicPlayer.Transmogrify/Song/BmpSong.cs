@@ -21,6 +21,7 @@ using LiteDB;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
+using Melanchall.DryWetMidi.Tools;
 using Newtonsoft.Json;
 
 namespace BardMusicPlayer.Transmogrify.Song
@@ -269,7 +270,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                     if (trackChunk.Events.Count > 0)
                     {
                         if (trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text != null)
-                            if ((trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).Contains("Lyrics:"))
+                            if ((trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).Contains("lyric:"))
                                 continue;
                         allTracks.AddObjects(trackChunk.GetNotes());
                         allTracks.AddObjects(trackChunk.GetTimedEvents());
@@ -321,6 +322,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                         else allNoteEvents[noteNumber].Add(noteOnMS, newNote);
                     }
                     watch.Stop();
+
                     Debug.WriteLine("step 1: " + noteVelocity + ": " + watch.ElapsedMilliseconds);
                     watch = Stopwatch.StartNew();
 
@@ -368,6 +370,8 @@ namespace BardMusicPlayer.Transmogrify.Song
 
                     watch.Stop();
                     Debug.WriteLine("step 3: " + noteVelocity + ": " + watch.ElapsedMilliseconds);
+
+#region calc shortest note
                     watch = Stopwatch.StartNew();
 
                     notesToFix = notesToFix.Reverse().ToArray();
@@ -399,9 +403,11 @@ namespace BardMusicPlayer.Transmogrify.Song
 
                     watch.Stop();
                     Debug.WriteLine("step 4: " + noteVelocity + ": " + watch.ElapsedMilliseconds);
-                    watch = Stopwatch.StartNew();
+#endregion
 
 #region Tracknaming and octave shifting
+                    watch = Stopwatch.StartNew();
+
                     int octaveShift = 0;
                     string trackName = originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text;
                     if (trackName == null) trackName = "";
@@ -438,9 +444,9 @@ namespace BardMusicPlayer.Transmogrify.Song
                         trackName = o_trackName;
 
                     newChunk = new TrackChunk(new SequenceTrackNameEvent(trackName));
-#endregion Tracknaming and octave shifting
+                    #endregion Tracknaming and octave shifting
 
-                    //Create Progchange Event
+//Create Progchange Event
                     foreach (var timedEvent in originalChunk.GetTimedEvents())
                     {
                         var programChangeEvent = timedEvent.Event as ProgramChangeEvent;
@@ -458,6 +464,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                         }
                     }
 
+                    //Create lyrics
                     foreach (var timedEvent in originalChunk.GetTimedEvents())
                     {
                         var lyricsEvent = timedEvent.Event as LyricEvent;
@@ -501,8 +508,11 @@ namespace BardMusicPlayer.Transmogrify.Song
                 var newMidiFile = new MidiFile();
                 newTrackChunks.TryRemove(newTrackChunks.Count, out TrackChunk trackZero);
                 newMidiFile.Chunks.Add(trackZero);
-                newMidiFile.TimeDivision = new TicksPerQuarterNoteTimeDivision(600);
-                using (TempoMapManager tempoManager = newMidiFile.ManageTempoMap()) tempoManager.SetTempo(0, Tempo.FromBeatsPerMinute(100));
+                newMidiFile.TimeDivision = new TicksPerQuarterNoteTimeDivision(375);
+                using (TempoMapManager tempoManager = newMidiFile.ManageTempoMap()) tempoManager.SetTempo(0, Tempo.FromBeatsPerMinute(160));
+                //old div
+                //newMidiFile.TimeDivision = new TicksPerQuarterNoteTimeDivision(600);
+                //using (TempoMapManager tempoManager = newMidiFile.ManageTempoMap()) tempoManager.SetTempo(0, Tempo.FromBeatsPerMinute(100));
                 newMidiFile.Chunks.AddRange(newTrackChunks.Values);
 
                 tempoMap = newMidiFile.GetTempoMap();
@@ -586,7 +596,6 @@ namespace BardMusicPlayer.Transmogrify.Song
                 throw ex;
             }
         }
-
 
         /// <summary>
         /// Exports the song to a midi file

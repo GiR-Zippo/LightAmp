@@ -516,7 +516,6 @@ namespace BardMusicPlayer.Maestro.FFXIV
 
         public IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-
             if (GetForegroundWindow() == mainWindowHandle)
             {
                 if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
