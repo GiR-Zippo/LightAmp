@@ -412,7 +412,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay).Wait();
             }
             _hook.SendString(text);
-            Task.Delay((text.Length * 5) + 20).Wait();
+            Task.Delay((text.Length * 8) + 20).Wait();
             _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
         }
         #endregion
