@@ -22,6 +22,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
         /// <param name="message"></param>
         internal void Size56(long timeStamp, uint otherActorId, uint myActorId, byte[] message)
         {
+            //string hexString = BitConverter.ToString(message);
+            //System.Diagnostics.Debug.WriteLine(hexString);
+
             try
             {
                 if (otherActorId != myActorId || BitConverter.ToUInt32(message, 44) != 0) return;
@@ -36,9 +39,6 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         BitConverter.ToUInt32(message, 44) == 0 && BitConverter.ToUInt32(message, 48) == 0
                     ))
                 {
-                    //string hexString = BitConverter.ToString(message);
-                    //System.Diagnostics.Debug.WriteLine(hexString);
-
                     try
                     {
                         if (BitConverter.ToUInt16(message, 48) == 0 && ValidTempo(message[50]) &&

@@ -201,6 +201,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                 }
                 midiFile.Chunks.Add(thisTrack);
             }
+            midiFile.TimeDivision = new TicksPerQuarterNoteTimeDivision((short)(60000 / _Tempo));
             midiFile.ReplaceTempoMap(TempoMap.Create(Tempo.FromBeatsPerMinute(_Tempo)));
 
             musicData.Clear();
