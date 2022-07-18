@@ -75,6 +75,7 @@ namespace BardMusicPlayer.Ui.Classic
                 _currentPlaylist = PlaylistFunctions.CreatePlaylist(inputbox.ResponseText);
                 PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
                 _showingPlaylists = false;
+                Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
             }
         }
 
@@ -105,6 +106,7 @@ namespace BardMusicPlayer.Ui.Classic
             }
             BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
             PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+            Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
         }
 
         /// <summary>
@@ -128,6 +130,7 @@ namespace BardMusicPlayer.Ui.Classic
             BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
 
             PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+            Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
         }
 
         /// <summary>
@@ -143,6 +146,7 @@ namespace BardMusicPlayer.Ui.Classic
             _showingPlaylists = true;
             BmpCoffer.Instance.DeletePlaylist(_currentPlaylist);
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+            Playlist_Header.Header = "Playlists";
         }
         #endregion
 
@@ -159,6 +163,7 @@ namespace BardMusicPlayer.Ui.Classic
             {
                 _showingPlaylists = true;
                 PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+                Playlist_Header.Header = "Playlists";
             }
         }
 
@@ -180,6 +185,7 @@ namespace BardMusicPlayer.Ui.Classic
                 _currentPlaylist = BmpCoffer.Instance.GetPlaylist((string)PlaylistContainer.SelectedItem);
                 _showingPlaylists = false;
                 PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+                Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75- _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
                 return;
             }
             else
@@ -188,6 +194,7 @@ namespace BardMusicPlayer.Ui.Classic
                 {
                     _showingPlaylists = true;
                     PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+                    Playlist_Header.Header = "Playlists";
                     return;
                 }
             }
@@ -433,8 +440,7 @@ namespace BardMusicPlayer.Ui.Classic
             }
             JsonPlaylist.Save(openFileDialog.FileName, songs);
         }
-        
-        #endregion
+
         /// <summary>
         /// Button context menu routine
         /// </summary>
@@ -446,5 +452,6 @@ namespace BardMusicPlayer.Ui.Classic
             contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             contextMenu.IsOpen = true;
         }
+        #endregion
     }
 }

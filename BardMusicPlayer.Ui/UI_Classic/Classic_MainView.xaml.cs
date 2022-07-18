@@ -28,6 +28,7 @@ namespace BardMusicPlayer.Ui.Classic
             _showingPlaylists = true;
             //Fill the list
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+            Playlist_Header.Header = "Playlists";
 
             this.SongName.Text = PlaybackFunctions.GetSongName();
             BmpMaestro.Instance.OnPlaybackTimeChanged   += Instance_PlaybackTimeChanged;

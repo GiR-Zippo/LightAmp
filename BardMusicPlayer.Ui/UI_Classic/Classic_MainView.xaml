@@ -78,7 +78,7 @@
                             </Style>
                         </DataGrid.ColumnHeaderStyle>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Name" IsReadOnly="true" Width="*" Binding="{Binding}">
+                            <DataGridTextColumn x:Name="Playlist_Header" Header="Name" IsReadOnly="true" Width="*" Binding="{Binding}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="{x:Type TextBlock}">
                                         <EventSetter Event="MouseMove" Handler="PlaylistContainer_MouseMove"/>
@@ -204,7 +204,7 @@
                                         <ComboBoxItem>Chat</ComboBoxItem>
                                         <ComboBoxItem>Metronome</ComboBoxItem>
                                     </ComboBox>
-                                    <CheckBox Margin="10,10,0,0" Grid.Row="1" x:Name="MidiBardComp"      Content="Enable MidiCompat sync"           Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"          ToolTip="{StaticResource MISC_MIDIBARD}"/>
+                                    <CheckBox Margin="10,10,0,0" Grid.Row="1" x:Name="MidiBardComp"      Content="Enable MidiBard sync"             Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"          ToolTip="{StaticResource MISC_MIDIBARD}"/>
                                     <CheckBox Margin="10,0,0,0"  Grid.Row="2" x:Name="AutoequipSoloBard" Content="Debras Autoequip my solo Bard"    Unchecked="AutoequipSoloBard_Checked" Checked="AutoequipSoloBard_Checked" ToolTip="{StaticResource MISC_AUTOEQSOLO}"/>
                                     <CheckBox Margin="10,0,0,0"  Grid.Row="3" x:Name="SkinUiBox"         Content="Use skinned Ui"                   Unchecked="SkinUiBox_Checked"         Checked="SkinUiBox_Checked"         ToolTip="{StaticResource MISC_SKINNEDUI}"/>
                                 </Grid>

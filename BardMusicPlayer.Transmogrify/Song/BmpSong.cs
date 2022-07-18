@@ -153,7 +153,8 @@ namespace BardMusicPlayer.Transmogrify.Song
             {
                 Title = Path.GetFileNameWithoutExtension(path),
                 SourceTempoMap = midiFile.GetTempoMap().Clone(),
-                TrackContainers = new Dictionary<long, TrackContainer>()
+                TrackContainers = new Dictionary<long, TrackContainer>(),
+                Duration = midiFileDuration
             };
 
             var trackChunkArray = midiFile.GetTrackChunks().ToArray();

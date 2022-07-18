@@ -3,6 +3,7 @@ using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Functions;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Ui.Functions
 {
@@ -77,6 +78,16 @@ namespace BardMusicPlayer.Ui.Functions
             foreach (var item in playlist)
                 data.Add(item.Title);
             return data;
+        }
+
+        public static TimeSpan GetTotalTime(IPlaylist playlist)
+        {
+            TimeSpan totalTime = new TimeSpan(0);
+            foreach (var p in playlist)
+            {
+                totalTime += p.Duration;
+            };
+            return totalTime;
         }
     }
 }
