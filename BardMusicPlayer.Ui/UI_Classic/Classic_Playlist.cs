@@ -377,6 +377,63 @@ namespace BardMusicPlayer.Ui.Classic
         {
             BmpCoffer.Instance.CleanUpDB();
         }
+
+        /// <summary>
+        /// triggeres the reabase function from Coffer
+        /// </summary>
+        private void Playlist_Import_JSon_Button(object sender, RoutedEventArgs e)
+        {
+            if (_currentPlaylist == null)
+                return;
+
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Playlist file | *.plz",
+                Multiselect = true
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            var list = JsonPlaylist.Load(openFileDialog.FileName);
+            foreach (var rawdata in list)
+            {
+                var song = BmpSong.ImportMidiFromByte(rawdata.Data, "dummy").Result;
+                song.Title = rawdata.Name;
+                _currentPlaylist.Add(song);
+                BmpCoffer.Instance.SaveSong(song);
+            }
+            BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
+            PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+        }
+
+        /// <summary>
+        /// triggeres the reabase function from Coffer
+        /// </summary>
+        private void Playlist_Export_JSon_Button(object sender, RoutedEventArgs e)
+        {
+            if (_currentPlaylist == null)
+                return;
+
+            var openFileDialog = new SaveFileDialog
+            {
+                Filter = "Playlist file | *.plz"
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            System.Collections.Generic.List<SongContainer> songs = new System.Collections.Generic.List<SongContainer>();
+            foreach (var song in _currentPlaylist)
+            {
+                SongContainer sc = new SongContainer();
+                sc.Name = song.Title;
+                sc.Data = song.GetExportMidi().ToArray();
+                songs.Add(sc);
+            }
+            JsonPlaylist.Save(openFileDialog.FileName, songs);
+        }
+        
         #endregion
         /// <summary>
         /// Button context menu routine
