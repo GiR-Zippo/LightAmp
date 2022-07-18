@@ -54,6 +54,9 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// </summary>
         public Dictionary<long, TrackContainer> TrackContainers { get; set; } = new();
 
+        public TimeSpan Duration { get; set; } = new();
+
+
         /// <summary>
         /// opens a file and selects the processing by file ext.
         /// </summary>
@@ -69,6 +72,35 @@ namespace BardMusicPlayer.Transmogrify.Song
             else
                 song = OpenMidiFile(path);
             return Task.FromResult(song);
+        }
+
+        /// <summary>
+        /// Open and process the mididata as byte[], tracks with note placed first
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static Task<BmpSong> ImportMidiFromByte(byte[] data, string name)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            memoryStream.Write(data, 0, data.Length);
+            memoryStream.Position = 0;
+            var midiFile = memoryStream.ReadAsMidiFile();
+            memoryStream.Dispose();
+
+            //some midifiles have a ChannelPrefixEvent with a channel greater than 0xF. remove 'em.
+            foreach (var chunk in midiFile.GetTrackChunks())
+            {
+                using (TimedEventsManager timedEventsManager = chunk.ManageTimedEvents())
+                {
+                    TimedEventsCollection events = timedEventsManager.Events;
+                    List<TimedEvent> prefixList = events.Where(e => e.Event is ChannelPrefixEvent).ToList();
+                    foreach (TimedEvent tevent in prefixList)
+                        if ((tevent.Event as ChannelPrefixEvent).Channel > 0xF)
+                            events.Remove(tevent);
+                }
+            }
+
+            return Task.FromResult(CovertMidiToSong(midiFile, name));
         }
 
         #region Import functions
@@ -111,6 +143,9 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <returns></returns>
         private static BmpSong CovertMidiToSong(MidiFile midiFile, string path)
         {
+            TempoMap tempoMap = midiFile.GetTempoMap();
+            TimeSpan midiFileDuration = midiFile.GetTimedEvents().LastOrDefault(e => e.Event is NoteOffEvent)?.TimeAs<MetricTimeSpan>(tempoMap) ?? new MetricTimeSpan();
+
             var timer = new Stopwatch();
             timer.Start();
 
@@ -568,6 +603,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                             else
                                 _event.Time = newStart;
                         }*/
+
                     }
                 });
 
