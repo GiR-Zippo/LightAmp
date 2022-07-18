@@ -4,12 +4,15 @@ using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BardMusicPlayer.Seer.Events;
-using BardMusicPlayer.Ui.Functions;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-
+using System.Linq;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -168,5 +171,92 @@ namespace BardMusicPlayer.Ui.Controls
                 bardExtSettings.Visibility = Visibility.Visible;
             }
         }
+
+        /// <summary>
+        /// load the performer config file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Load_Performer_Settings(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Performerconfig | *.cfg",
+                Multiselect = true
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            List<PerformerSettingData> pdatalist = new List<PerformerSettingData>();
+            MemoryStream memoryStream = new MemoryStream();
+            FileStream fileStream = File.Open(openFileDialog.FileName, FileMode.Open);
+            fileStream.CopyTo(memoryStream);
+            fileStream.Close();
+
+            var data = memoryStream.ToArray();
+            pdatalist = JsonConvert.DeserializeObject<List<PerformerSettingData>>(new UTF8Encoding(true).GetString(data));
+
+            foreach (var pconfig in pdatalist)
+            {
+                var p = Bards.Where(perf => perf.game.PlayerName.Equals(pconfig.Name));
+                if (p.Count() == 0)
+                    continue;
+
+                p.First().TrackNumber = pconfig.Track;
+            }
+        }
+
+        /// <summary>
+        /// save the performer config file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Save_Performer_Settings(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "Performerconfig | *.cfg"
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            List<PerformerSettingData> pdatalist = new List<PerformerSettingData>();
+            foreach (var performer in Bards)
+            {
+                PerformerSettingData pdata = new PerformerSettingData();
+                pdata.Name = performer.game.PlayerName;
+                pdata.Track = performer.TrackNumber;
+                pdatalist.Add(pdata);
+            }
+            var t = JsonConvert.SerializeObject(pdatalist);
+            byte[] content = new UTF8Encoding(true).GetBytes(t);
+
+            FileStream fileStream = File.Create(openFileDialog.FileName);
+            fileStream.Write(content, 0, content.Length);
+            fileStream.Close();
+        }
+
+        /// <summary>
+        /// Button context menu routine
+        /// </summary>
+        private void MenuButton_PreviewMouseLeftButtonDown(object sender, RoutedEventArgs e)
+        {
+            Button rectangle = sender as Button;
+            ContextMenu contextMenu = rectangle.ContextMenu;
+            contextMenu.PlacementTarget = rectangle;
+            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            contextMenu.IsOpen = true;
+        }
+    }
+
+    /// <summary>
+    /// Helperclass
+    /// </summary>
+    public class PerformerSettingData
+    {
+        public string Name { get; set; } = "";
+        public int Track { get; set; } = 0;
     }
 }
