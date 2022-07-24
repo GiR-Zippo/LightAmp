@@ -372,6 +372,18 @@ namespace BardMusicPlayer.Maestro.Performance
         /// </summary>
         public void EnsembleAccept()
         {
+            if (IsSinger)
+                return;
+
+            if (!_forcePlayback)
+            {
+                if (!this.PerformerEnabled)
+                    return;
+
+                if (game.InstrumentHeld.Equals(Instrument.None))
+                    return;
+            }
+
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
             Task.Delay(200);
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
