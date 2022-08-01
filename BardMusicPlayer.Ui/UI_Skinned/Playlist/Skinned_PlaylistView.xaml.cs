@@ -287,6 +287,30 @@ namespace BardMusicPlayer.Ui.Skinned
 
         private void AddFolder_Click(object sender, RoutedEventArgs e)
         {
+            var dlg = new UI.Resources.FolderPicker();
+
+            if (Directory.Exists(Pigeonhole.BmpPigeonhole.Instance.SongDirectory))
+                dlg.InputPath = System.IO.Path.GetFullPath(Pigeonhole.BmpPigeonhole.Instance.SongDirectory);
+            else
+                dlg.InputPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            if (dlg.ShowDialog() == true)
+            {
+                string path = dlg.ResultPath;
+
+                if (!Directory.Exists(path))
+                    return;
+
+                string[] files = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
+                foreach (var d in files)
+                {
+                    BmpSong song = BmpSong.OpenFile(d).Result;
+                    _currentPlaylist.Add(song);
+                    BmpCoffer.Instance.SaveSong(song);
+                }
+                BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
+                RefreshPlaylist();
+            }
 
         }
         #endregion
