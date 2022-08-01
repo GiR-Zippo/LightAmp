@@ -389,7 +389,6 @@ namespace BardMusicPlayer.Maestro.Performance
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
         }
 
-
         public void Close()
         {
             if (_sequencer is Sequencer)
