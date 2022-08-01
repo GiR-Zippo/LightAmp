@@ -32,7 +32,10 @@ namespace BardMusicPlayer.Ui.Functions
             foreach (var d in openFileDialog.FileNames)
             {
                 BmpSong song = BmpSong.OpenFile(d).Result;
-                currentPlaylist.Add(song);
+
+                if(currentPlaylist.SingleOrDefault(x => x.Title.Equals(song.Title)) == null)
+                    currentPlaylist.Add(song);
+
                 BmpCoffer.Instance.SaveSong(song);
             }
             BmpCoffer.Instance.SavePlaylist(currentPlaylist);
@@ -64,7 +67,8 @@ namespace BardMusicPlayer.Ui.Functions
                 foreach (var d in files)
                 {
                     BmpSong song = BmpSong.OpenFile(d).Result;
-                    currentPlaylist.Add(song);
+                    if (currentPlaylist.SingleOrDefault(x => x.Title.Equals(song.Title)) == null)
+                        currentPlaylist.Add(song);
                     BmpCoffer.Instance.SaveSong(song);
                 }
                 BmpCoffer.Instance.SavePlaylist(currentPlaylist);
