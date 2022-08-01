@@ -311,7 +311,6 @@ namespace BardMusicPlayer.Ui.Skinned
                 BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
                 RefreshPlaylist();
             }
-
         }
         #endregion
 

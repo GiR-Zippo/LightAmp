@@ -7,8 +7,6 @@ using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Siren;
-using UI.Resources;
-using System.ComponentModel;
 
 namespace BardMusicPlayer.Ui.Classic
 {

@@ -112,6 +112,43 @@ namespace BardMusicPlayer.Ui.Classic
         }
 
         /// <summary>
+        /// Add file(s) to the selected playlist
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Playlist_Add_Button_RightClick(object sender, RoutedEventArgs e)
+        {
+            if (_currentPlaylist == null)
+                return;
+
+            var dlg = new UI.Resources.FolderPicker();
+
+            if (System.IO.Directory.Exists(Pigeonhole.BmpPigeonhole.Instance.SongDirectory))
+                dlg.InputPath = System.IO.Path.GetFullPath(Pigeonhole.BmpPigeonhole.Instance.SongDirectory);
+            else
+                dlg.InputPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            if (dlg.ShowDialog() == true)
+            {
+                string path = dlg.ResultPath;
+
+                if (!System.IO.Directory.Exists(path))
+                    return;
+
+                string[] files = System.IO.Directory.EnumerateFiles(path, "*.*", System.IO.SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
+                foreach (var d in files)
+                {
+                    BmpSong song = BmpSong.OpenFile(d).Result;
+                    _currentPlaylist.Add(song);
+                    BmpCoffer.Instance.SaveSong(song);
+                }
+                BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
+                PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+                Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
+            }
+        }
+
+        /// <summary>
         /// remove a song from the playlist but don't save
         /// </summary>
         /// <param name="sender"></param>
