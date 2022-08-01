@@ -5,9 +5,10 @@
 
     <!-- Playlist -->
     <sys:String x:Key="PLAYLIST_NEW"     xml:space="preserve">Create a new playlist</sys:String>
-    <sys:String x:Key="PLAYLIST_ADD"     xml:space="preserve">Add song(s) to the current playlist</sys:String>
+    <sys:String x:Key="PLAYLIST_ADD"     xml:space="preserve">Add song(s) to the current playlist &#13;Right click add a folder</sys:String>
     <sys:String x:Key="PLAYLIST_REM"     xml:space="preserve">Remove the selected song(s) from the playlist</sys:String>
     <sys:String x:Key="PLAYLIST_DEL"     xml:space="preserve">delete the current playlist</sys:String>
+    <sys:String x:Key="PLAYLIST_SEARCH"  xml:space="preserve">Search for a song in the playlist</sys:String>
     <sys:String x:Key="PLAYLIST_NEWCAT"  xml:space="preserve">Creates a new MusicCatalog</sys:String>
     <sys:String x:Key="PLAYLIST_OPEN"    xml:space="preserve">opens a MusicCatalog</sys:String>
     <sys:String x:Key="PLAYLIST_EXPORT"  xml:space="preserve">Export the current MusicCatalog</sys:String>

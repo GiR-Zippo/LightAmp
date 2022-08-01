@@ -58,7 +58,7 @@
                         ContextMenuService.Placement="Bottom" ContextMenuService.ShowOnDisabled="True" >
                         <Button.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Search" Click="Search_Click"/>
+                                <MenuItem Header="Search" Click="Search_Click"                                       ToolTip="{StaticResource PLAYLIST_SEARCH}"/>
                                 <MenuItem Header=""/>
                                 <MenuItem Header="Create new empty MusicCatalog" Click="Playlist_New_Cat_Button"     ToolTip="{StaticResource PLAYLIST_NEWCAT}"/>
                                 <MenuItem Header="Open MusicCatalog"             Click="Playlist_Open_Cat_Button"    ToolTip="{StaticResource PLAYLIST_OPEN}"/>
