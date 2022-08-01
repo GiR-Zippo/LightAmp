@@ -3,6 +3,7 @@ using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Functions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Ui.Functions
@@ -12,6 +13,66 @@ namespace BardMusicPlayer.Ui.Functions
     /// </summary>
     public static class PlaylistFunctions
     {
+        /// <summary>
+        /// Add file(s) to the playlist
+        /// </summary>
+        /// <param name="currentPlaylist"></param>
+        /// <returns>true if success</returns>
+        public static bool AddFilesToPlaylist(IPlaylist currentPlaylist)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = Globals.Globals.FileFilters,
+                Multiselect = true
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return false;
+
+            foreach (var d in openFileDialog.FileNames)
+            {
+                BmpSong song = BmpSong.OpenFile(d).Result;
+                currentPlaylist.Add(song);
+                BmpCoffer.Instance.SaveSong(song);
+            }
+            BmpCoffer.Instance.SavePlaylist(currentPlaylist);
+            return true;
+        }
+
+        /// <summary>
+        /// Add a folder + subfolders to the playlist
+        /// </summary>
+        /// <param name="currentPlaylist"></param>
+        /// <returns>true if success</returns>
+        public static bool AddFolderToPlaylist(IPlaylist currentPlaylist)
+        {
+            var dlg = new UI.Resources.FolderPicker();
+
+            if (System.IO.Directory.Exists(Pigeonhole.BmpPigeonhole.Instance.SongDirectory))
+                dlg.InputPath = System.IO.Path.GetFullPath(Pigeonhole.BmpPigeonhole.Instance.SongDirectory);
+            else
+                dlg.InputPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            if (dlg.ShowDialog() == true)
+            {
+                string path = dlg.ResultPath;
+
+                if (!System.IO.Directory.Exists(path))
+                    return false;
+
+                string[] files = System.IO.Directory.EnumerateFiles(path, "*.*", System.IO.SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
+                foreach (var d in files)
+                {
+                    BmpSong song = BmpSong.OpenFile(d).Result;
+                    currentPlaylist.Add(song);
+                    BmpCoffer.Instance.SaveSong(song);
+                }
+                BmpCoffer.Instance.SavePlaylist(currentPlaylist);
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// gets the first playlist or null if none was found
         /// </summary>

@@ -266,51 +266,21 @@ namespace BardMusicPlayer.Ui.Skinned
             if (_currentPlaylist == null)
                 return;
 
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = Globals.Globals.FileFilters,
-                Multiselect = true
-            };
-
-            if (openFileDialog.ShowDialog() != true)
+            if (!PlaylistFunctions.AddFilesToPlaylist(_currentPlaylist))
                 return;
 
-            foreach (var d in openFileDialog.FileNames)
-            {
-                BmpSong song = BmpSong.OpenFile(d).Result;
-                _currentPlaylist.Add(song);
-                BmpCoffer.Instance.SaveSong(song);
-            }
-            BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
             RefreshPlaylist();
         }
 
         private void AddFolder_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new UI.Resources.FolderPicker();
+            if (_currentPlaylist == null)
+                return;
 
-            if (Directory.Exists(Pigeonhole.BmpPigeonhole.Instance.SongDirectory))
-                dlg.InputPath = System.IO.Path.GetFullPath(Pigeonhole.BmpPigeonhole.Instance.SongDirectory);
-            else
-                dlg.InputPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            if (!PlaylistFunctions.AddFolderToPlaylist(_currentPlaylist))
+                return;
 
-            if (dlg.ShowDialog() == true)
-            {
-                string path = dlg.ResultPath;
-
-                if (!Directory.Exists(path))
-                    return;
-
-                string[] files = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
-                foreach (var d in files)
-                {
-                    BmpSong song = BmpSong.OpenFile(d).Result;
-                    _currentPlaylist.Add(song);
-                    BmpCoffer.Instance.SaveSong(song);
-                }
-                BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
-                RefreshPlaylist();
-            }
+            RefreshPlaylist();
         }
         #endregion
 

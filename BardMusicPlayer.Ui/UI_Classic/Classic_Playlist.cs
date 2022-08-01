@@ -91,22 +91,9 @@ namespace BardMusicPlayer.Ui.Classic
             if (_currentPlaylist == null)
                 return;
 
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = Globals.Globals.FileFilters,
-                Multiselect = true
-            };
-
-            if (openFileDialog.ShowDialog() != true)
+            if (!PlaylistFunctions.AddFilesToPlaylist(_currentPlaylist))
                 return;
 
-            foreach (var d in openFileDialog.FileNames)
-            {
-                BmpSong song = BmpSong.OpenFile(d).Result;
-                _currentPlaylist.Add(song);
-                BmpCoffer.Instance.SaveSong(song);
-            }
-            BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
             PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
             Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
         }
@@ -121,31 +108,11 @@ namespace BardMusicPlayer.Ui.Classic
             if (_currentPlaylist == null)
                 return;
 
-            var dlg = new UI.Resources.FolderPicker();
+            if (!PlaylistFunctions.AddFolderToPlaylist(_currentPlaylist))
+                return;
 
-            if (System.IO.Directory.Exists(Pigeonhole.BmpPigeonhole.Instance.SongDirectory))
-                dlg.InputPath = System.IO.Path.GetFullPath(Pigeonhole.BmpPigeonhole.Instance.SongDirectory);
-            else
-                dlg.InputPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-
-            if (dlg.ShowDialog() == true)
-            {
-                string path = dlg.ResultPath;
-
-                if (!System.IO.Directory.Exists(path))
-                    return;
-
-                string[] files = System.IO.Directory.EnumerateFiles(path, "*.*", System.IO.SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
-                foreach (var d in files)
-                {
-                    BmpSong song = BmpSong.OpenFile(d).Result;
-                    _currentPlaylist.Add(song);
-                    BmpCoffer.Instance.SaveSong(song);
-                }
-                BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
-                PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
-                Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
-            }
+            PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+            Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
         }
 
         /// <summary>
