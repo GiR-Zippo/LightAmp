@@ -58,11 +58,13 @@
                         ContextMenuService.Placement="Bottom" ContextMenuService.ShowOnDisabled="True" >
                         <Button.ContextMenu>
                             <ContextMenu>
+                                <MenuItem Header="Search" Click="Search_Click"/>
+                                <MenuItem Header=""/>
                                 <MenuItem Header="Create new empty MusicCatalog" Click="Playlist_New_Cat_Button"     ToolTip="{StaticResource PLAYLIST_NEWCAT}"/>
                                 <MenuItem Header="Open MusicCatalog"             Click="Playlist_Open_Cat_Button"    ToolTip="{StaticResource PLAYLIST_OPEN}"/>
                                 <MenuItem Header="Export MusicCatalog"           Click="Playlist_Export_Cat_Button"  ToolTip="{StaticResource PLAYLIST_EXPORT}"/>
                                 <MenuItem Header="Cleanup MusicCatalog"          Click="Playlist_Cleanup_Cat_Button" ToolTip="{StaticResource PLAYLIST_CLEANUP}"/>
-                                <MenuItem Header="--------------------"/>
+                                <MenuItem Header=""/>
                                 <MenuItem Header="Import Playlist from Json"     Click="Playlist_Import_JSon_Button" />
                                 <MenuItem Header="Export Playlist as Json"       Click="Playlist_Export_JSon_Button" />
                             </ContextMenu>

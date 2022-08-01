@@ -4,9 +4,11 @@ using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Functions;
 using Microsoft.Win32;
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using UI.Resources;
 
 namespace BardMusicPlayer.Ui.Classic
@@ -311,6 +313,27 @@ namespace BardMusicPlayer.Ui.Classic
         #endregion
 
         #region other "..." playlist menu function
+
+        private void Search_Click(object sender, RoutedEventArgs e)
+        {
+            var inputbox = new TextInputWindow("Search for...");
+            inputbox.Focus();
+            if (inputbox.ShowDialog() == true)
+            {
+                try
+                {
+                    var song = _currentPlaylist.Where(x => x.Title.ToLower().Contains(inputbox.ResponseText.ToLower())).First();
+                    PlaylistContainer.SelectedIndex = PlaylistContainer.Items.IndexOf(song.Title);
+                    PlaylistContainer.ScrollIntoView(PlaylistContainer.Items[PlaylistContainer.SelectedIndex]);
+                    PlaylistContainer.UpdateLayout();
+                }
+                catch
+                {
+                    MessageBox.Show("Nothing found", "Nope", MessageBoxButton.OK);
+                }
+            }
+        }
+
         /// <summary>
         /// Creates a new music catalog, loads it and refreshes the listed items
         /// </summary>
