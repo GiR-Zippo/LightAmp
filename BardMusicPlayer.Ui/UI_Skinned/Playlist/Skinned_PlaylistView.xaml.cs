@@ -333,6 +333,33 @@ namespace BardMusicPlayer.Ui.Skinned
         }
         #endregion
 
+        #region Sel_Button_Menu
+        /// <summary>
+        /// Search for a song in the playlist
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Search_Click(object sender, RoutedEventArgs e)
+        {
+            var inputbox = new UI.Resources.TextInputWindow("Search for...");
+            inputbox.Focus();
+            if (inputbox.ShowDialog() == true)
+            {
+                try
+                {
+                    var song = _currentPlaylist.Where(x => x.Title.ToLower().Contains(inputbox.ResponseText.ToLower())).First();
+                    PlaylistContainer.SelectedIndex = PlaylistContainer.Items.IndexOf(song.Title);
+                    PlaylistContainer.ScrollIntoView(PlaylistContainer.Items[PlaylistContainer.SelectedIndex]);
+                    PlaylistContainer.UpdateLayout();
+                }
+                catch
+                {
+                    MessageBox.Show("Nothing found", "Nope", MessageBoxButton.OK);
+                }
+            }
+        }
+        #endregion
+
         #region Misc_Button_Menu
         /// <summary>
         /// Exports a selected song in the playlist to Midi

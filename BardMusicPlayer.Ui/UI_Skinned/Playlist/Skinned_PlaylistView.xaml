@@ -158,6 +158,16 @@
                         </ContextMenu>
                     </Rectangle.ContextMenu>
                 </Rectangle>
+                <Rectangle Grid.Column="5" x:Name="SelMenuButton" Height="20" Margin="0,-6,0,0" ContextMenuService.IsEnabled="False"
+                ContextMenuService.Placement="Top"
+                ContextMenuService.ShowOnDisabled="True"
+                Fill="Transparent" MouseDown="MenuButton_PreviewMouseLeftButtonDown">
+                    <Rectangle.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Search" Click="Search_Click"/>
+                        </ContextMenu>
+                    </Rectangle.ContextMenu>
+                </Rectangle>
                 <Rectangle Grid.Column="7" x:Name="MiscMenuButton" Height="20" Margin="0,-6,0,0" ContextMenuService.IsEnabled="False"
                 ContextMenuService.Placement="Top"
                 ContextMenuService.ShowOnDisabled="True"

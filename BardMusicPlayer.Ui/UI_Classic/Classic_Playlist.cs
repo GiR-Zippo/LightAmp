@@ -313,7 +313,11 @@ namespace BardMusicPlayer.Ui.Classic
         #endregion
 
         #region other "..." playlist menu function
-
+        /// <summary>
+        /// Search for a song in the playlist
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Search_Click(object sender, RoutedEventArgs e)
         {
             var inputbox = new TextInputWindow("Search for...");
