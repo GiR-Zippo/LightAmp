@@ -276,19 +276,17 @@ namespace BardMusicPlayer.Maestro.FFXIV
         }
         public void SendSyncKey(Keys key, bool modifier = true, bool sendDown = true, bool sendUp = true)
         {
-            Keys key2 = (key & ~Keys.Control) & (key & ~Keys.Shift);
+            Keys key2 = (key & ~Keys.Control) & (key & ~Keys.Shift) & (key & ~Keys.Alt);
             if (sendDown)
             {
                 if (modifier)
                 {
                     if ((key & Keys.Control) == Keys.Control)
-                    {
                         SendMessage(mainWindowHandle, WM_KEYDOWN, ((IntPtr)Keys.ControlKey), ((IntPtr)0));
-                    }
+                    if ((key & Keys.Alt) == Keys.Alt)
+                        SendMessage(mainWindowHandle, WM_KEYDOWN, ((IntPtr)Keys.Menu), ((IntPtr)0));
                     if ((key & Keys.Shift) == Keys.Shift)
-                    {
                         SendMessage(mainWindowHandle, WM_KEYDOWN, ((IntPtr)Keys.ShiftKey), ((IntPtr)0));
-                    }
                 }
                 SendMessage(mainWindowHandle, WM_KEYDOWN, ((IntPtr)key2), ((IntPtr)0));
             }
@@ -298,19 +296,17 @@ namespace BardMusicPlayer.Maestro.FFXIV
                 if (modifier)
                 {
                     if ((key & Keys.Control) == Keys.Control)
-                    {
                         SendMessage(mainWindowHandle, WM_KEYUP, ((IntPtr)Keys.ControlKey), ((IntPtr)0));
-                    }
+                    if ((key & Keys.Alt) == Keys.Alt)
+                        SendMessage(mainWindowHandle, WM_KEYUP, ((IntPtr)Keys.Menu), ((IntPtr)0));
                     if ((key & Keys.Shift) == Keys.Shift)
-                    {
                         SendMessage(mainWindowHandle, WM_KEYUP, ((IntPtr)Keys.ShiftKey), ((IntPtr)0));
-                    }
                 }
             }
         }
+
         public void SendAsyncKey(Keys key, bool modifier = true, bool sendDown = true, bool sendUp = true)
         {
-
             Keys key2 = (key & ~Keys.Control) & (key & ~Keys.Shift);
             if (sendDown)
             {
