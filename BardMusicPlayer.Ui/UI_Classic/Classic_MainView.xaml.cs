@@ -40,7 +40,14 @@ namespace BardMusicPlayer.Ui.Classic
             Siren_Volume.Value = BmpSiren.Instance.GetVolume();
             BmpSiren.Instance.SynthTimePositionChanged  += Instance_SynthTimePositionChanged;
             SongBrowser.OnLoadSongFromBrowser           += Instance_SongBrowserLoadedSong;
+
+            Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
             LoadConfig();
+        }
+
+        private void Globals_OnConfigReload(object sender, EventArgs e)
+        {
+            LoadConfig(true);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

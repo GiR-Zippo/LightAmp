@@ -18,5 +18,12 @@ namespace BardMusicPlayer.Ui.Globals
             VIA_METRONOME,
             UNUSED
         }
+
+        public static event EventHandler OnConfigReload;
+        public static void ReloadConfig()
+        {
+            OnConfigReload?.Invoke(null, null);
+        }
+
     }
 }

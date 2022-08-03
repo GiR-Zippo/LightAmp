@@ -11,7 +11,7 @@ namespace BardMusicPlayer.Ui.Classic
         /// <summary>
         /// load the settings
         /// </summary>
-        private void LoadConfig()
+        private void LoadConfig(bool reload = false)
         {
             this.AutoPlay_CheckBox.IsChecked = BmpPigeonhole.Instance.PlaylistAutoPlay;
 
@@ -21,10 +21,13 @@ namespace BardMusicPlayer.Ui.Classic
             this.HoldNotesBox.IsChecked = BmpPigeonhole.Instance.HoldNotes;
             this.ForcePlaybackBox.IsChecked = BmpPigeonhole.Instance.ForcePlayback;
 
-            MIDI_Input_DeviceBox.Items.Clear();
-            MIDI_Input_DeviceBox.ItemsSource = Maestro.Utils.MidiInput.ReloadMidiInputDevices();
-            this.MIDI_Input_DeviceBox.SelectedIndex = BmpPigeonhole.Instance.MidiInputDev + 1;
-
+            //Don't call this on reload
+            if (!reload)
+            {
+                MIDI_Input_DeviceBox.Items.Clear();
+                MIDI_Input_DeviceBox.ItemsSource = Maestro.Utils.MidiInput.ReloadMidiInputDevices();
+                this.MIDI_Input_DeviceBox.SelectedIndex = BmpPigeonhole.Instance.MidiInputDev + 1;
+            }
             LiveMidiDelay.IsChecked = BmpPigeonhole.Instance.LiveMidiPlayDelay;
 
             //Misc
@@ -107,6 +110,7 @@ namespace BardMusicPlayer.Ui.Classic
         private void AutoEquipBox_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.EnsembleAutoEquip = AutoEquipBox.IsChecked ?? false;
+            Globals.Globals.ReloadConfig();
         }
 
         private void KeepTrackSettingsBox_Checked(object sender, RoutedEventArgs e)

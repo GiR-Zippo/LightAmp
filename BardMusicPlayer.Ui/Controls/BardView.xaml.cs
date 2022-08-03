@@ -37,6 +37,13 @@ namespace BardMusicPlayer.Ui.Controls
             BmpSeer.Instance.PlayerNameChanged          += OnPlayerNameChanged;
             BmpSeer.Instance.InstrumentHeldChanged      += OnInstrumentHeldChanged;
             BmpSeer.Instance.HomeWorldChanged           += OnHomeWorldChanged;
+            Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
+            Globals_OnConfigReload(null, null);
+        }
+
+        private void Globals_OnConfigReload(object sender, EventArgs e)
+        {
+            Autoequip_CheckBox.IsChecked = BmpPigeonhole.Instance.EnsembleAutoEquip;
         }
 
         public ObservableCollection<Performer> Bards { get; private set; }
@@ -170,6 +177,13 @@ namespace BardMusicPlayer.Ui.Controls
                 bardExtSettings.Activate();
                 bardExtSettings.Visibility = Visibility.Visible;
             }
+        }
+
+
+        private void Autoequip_CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.EnsembleAutoEquip = Autoequip_CheckBox.IsChecked ?? false;
+            Globals.Globals.ReloadConfig();
         }
 
         /// <summary>
