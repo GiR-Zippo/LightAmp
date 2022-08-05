@@ -230,7 +230,7 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
 
             Logger.Debug("AlphaSynth", "Stopping playback");
             State = PlayerState.Paused;
-            Output.Pause();
+            Output.Stop();
             _sequencer.Stop();
             _synthesizer.NoteOffAll(true);
             TickPosition = _sequencer.PlaybackRange != null ? _sequencer.PlaybackRange.StartTick : 0;

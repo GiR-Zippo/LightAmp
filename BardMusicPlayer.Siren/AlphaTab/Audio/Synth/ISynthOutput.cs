@@ -35,9 +35,14 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
         void Play();
 
         /// <summary>
-        /// Called when the output should stop the playback.
+        /// Called when the output should pause the playback.
         /// </summary>
         void Pause();
+
+        /// <summary>
+        /// Called when the output should stop the playback.
+        /// </summary>
+        void Stop();
 
         /// <summary>
         /// Called when samples have been synthesized and should be added to the playback buffer.

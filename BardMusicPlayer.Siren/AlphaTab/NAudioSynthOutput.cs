@@ -91,6 +91,14 @@ namespace BardMusicPlayer.Siren.AlphaTab
         }
 
         /// <inheritdoc />
+        public void Stop()
+        {
+            _finished = true;
+            _context.Stop();
+            _circularBuffer.Clear();
+        }
+
+        /// <inheritdoc />
         public void SequencerFinished()
         {
             _finished = true;
