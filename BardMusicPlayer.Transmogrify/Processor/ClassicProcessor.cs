@@ -28,24 +28,29 @@ namespace BardMusicPlayer.Transmogrify.Processor
         public override async Task<List<TrackChunk>> Process()
         {
             var trackChunks = new List<TrackChunk> { Song.TrackContainers[ProcessorConfig.Track].SourceTrackChunk }.Concat(ProcessorConfig.IncludedTracks.Select(track => Song.TrackContainers[track].SourceTrackChunk)).ToList();
-            //convert progchanges to lower notes
-            foreach (var timedEvent in trackChunks.GetTimedEvents())
+
+            //convert progchanges to lower notes, if it's a guitar
+            if (ProcessorConfig.Instrument.InstrumentTone.Index == InstrumentTone.ElectricGuitar.Index)
             {
-                var programChangeEvent = timedEvent.Event as ProgramChangeEvent;
-                if (programChangeEvent == null)
-                    continue;
 
-                //Skip all except guitar
-                if ((programChangeEvent.ProgramNumber < 27) || (programChangeEvent.ProgramNumber > 31))
-                    continue;
-
-                int number = (int)Instrument.ParseByProgramChange(programChangeEvent.ProgramNumber).InstrumentToneMenuKey;
-                using (NotesManager manager = trackChunks.Merge().ManageNotes())
+                foreach (var timedEvent in trackChunks.GetTimedEvents())
                 {
-                    Note note = new Note((Melanchall.DryWetMidi.Common.SevenBitNumber)number);
-                    NotesCollection timedEvents = manager.Notes;
-                    note.Time = timedEvent.Time;
-                    timedEvents.Add(note);
+                    var programChangeEvent = timedEvent.Event as ProgramChangeEvent;
+                    if (programChangeEvent == null)
+                        continue;
+
+                    //Skip all except guitar
+                    if ((programChangeEvent.ProgramNumber < 27) || (programChangeEvent.ProgramNumber > 31))
+                        continue;
+
+                    int number = (int)Instrument.ParseByProgramChange(programChangeEvent.ProgramNumber).InstrumentToneMenuKey;
+                    using (NotesManager manager = trackChunks.Merge().ManageNotes())
+                    {
+                        Note note = new Note((Melanchall.DryWetMidi.Common.SevenBitNumber)number);
+                        NotesCollection timedEvents = manager.Notes;
+                        note.Time = timedEvent.Time;
+                        timedEvents.Add(note);
+                    }
                 }
             }
 
