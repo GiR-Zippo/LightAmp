@@ -238,7 +238,7 @@ namespace BardMusicPlayer.Maestro.FFXIV
                             }
                             if ((key & Keys.Alt) == Keys.Alt)
                             {
-                                SendMessage(mainWindowHandle, WM_SYSKEYDOWN, ((IntPtr)Keys.Menu), ((IntPtr)0));
+                                SendMessage(mainWindowHandle, WM_SYSKEYDOWN, ((IntPtr)Keys.AltKey), ((IntPtr)0));
                             }
                             if ((key & Keys.Shift) == Keys.Shift)
                             {
@@ -263,7 +263,7 @@ namespace BardMusicPlayer.Maestro.FFXIV
                         if ((key & Keys.Alt) == Keys.Alt)
                         {
                             Thread.Sleep(5);
-                            SendMessage(mainWindowHandle, WM_SYSKEYUP, ((IntPtr)Keys.Menu), ((IntPtr)0));
+                            SendMessage(mainWindowHandle, WM_SYSKEYUP, ((IntPtr)Keys.AltKey), ((IntPtr)0));
                         }
                         if ((key & Keys.Control) == Keys.Control)
                         {
@@ -284,7 +284,7 @@ namespace BardMusicPlayer.Maestro.FFXIV
                     if ((key & Keys.Control) == Keys.Control)
                         SendMessage(mainWindowHandle, WM_KEYDOWN, ((IntPtr)Keys.ControlKey), ((IntPtr)0));
                     if ((key & Keys.Alt) == Keys.Alt)
-                        SendMessage(mainWindowHandle, WM_KEYDOWN, ((IntPtr)Keys.Menu), ((IntPtr)0));
+                        SendMessage(mainWindowHandle, WM_KEYDOWN, ((IntPtr)Keys.AltKey), ((IntPtr)0));
                     if ((key & Keys.Shift) == Keys.Shift)
                         SendMessage(mainWindowHandle, WM_KEYDOWN, ((IntPtr)Keys.ShiftKey), ((IntPtr)0));
                 }
@@ -298,7 +298,7 @@ namespace BardMusicPlayer.Maestro.FFXIV
                     if ((key & Keys.Control) == Keys.Control)
                         SendMessage(mainWindowHandle, WM_KEYUP, ((IntPtr)Keys.ControlKey), ((IntPtr)0));
                     if ((key & Keys.Alt) == Keys.Alt)
-                        SendMessage(mainWindowHandle, WM_KEYUP, ((IntPtr)Keys.Menu), ((IntPtr)0));
+                        SendMessage(mainWindowHandle, WM_KEYUP, ((IntPtr)Keys.AltKey), ((IntPtr)0));
                     if ((key & Keys.Shift) == Keys.Shift)
                         SendMessage(mainWindowHandle, WM_KEYUP, ((IntPtr)Keys.ShiftKey), ((IntPtr)0));
                 }

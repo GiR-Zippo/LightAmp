@@ -22,7 +22,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile.Utilities
             { 138, 220 }, // \
             { 139, 221 }, // ]
             { 140, 222 }, // #
-            { 141, 223 }  // `
+            { 141, 223 }, // `
+            { 142, 226 }  // <
         };
 
         internal static readonly IReadOnlyDictionary<string, string> OemKeyFix = new Dictionary<string, string>

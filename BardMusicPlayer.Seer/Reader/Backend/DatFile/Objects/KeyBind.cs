@@ -27,8 +27,10 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile.Objects
 
         private static Keys GetMain(int key)
         {
-            if (key < 130) return (Keys) key;
-            if (KeyDictionary.MainKeyMap.ContainsKey(key)) return (Keys) KeyDictionary.MainKeyMap[key];
+            if (key < 130) 
+                return (Keys) key;
+            if (KeyDictionary.MainKeyMap.ContainsKey(key)) 
+                return (Keys) KeyDictionary.MainKeyMap[key];
 
             return Keys.None;
         }
