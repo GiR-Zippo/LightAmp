@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright(c) 2021 MoogleTroupe
+ * Copyright(c) 2022 MoogleTroupe, GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
@@ -14,6 +14,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 
         internal static readonly IReadOnlyDictionary<int, string> Ids = new Dictionary<int, string>
         {
+            { 21, "Ravana" },
+            { 22, "Bismarck" },
             { 23, "Asura" },
             { 24, "Belias" },
             { 25, "Chaos" },
@@ -77,6 +79,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
             { 83, "Louisoix" },
             { 84, "Syldra" },
             { 85, "Spriggan" },
+            { 86, "Sephirot" },
+            { 87, "Sophia" },
+            { 88, "Zurvan" },
             { 90, "Aegis" },
             { 91, "Balmung" },
             { 92, "Durandal" },
@@ -93,6 +98,11 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
             { 166, "Moogle" },
 
             { 168, "Namazu" },
+
+            { 400, "Sagittarius" },
+            { 401, "Phantom" },
+            { 402, "Alpha" },
+            { 403, "Raiden" },
 
             { 1040, "DiPingGuan" },
             { 1041, "MiWuShiDi" },
@@ -262,7 +272,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
             { 2076, "KrChocobo" },
             { 2077, "KrMoogle" },
             { 2078, "KrTonberry" },
-            { 2079, "KrCaitsith" }
+            { 2079, "KrCaitsith" },
+            { 2080, "KrFenrir" }
         };
     }
 }
