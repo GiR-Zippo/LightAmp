@@ -210,5 +210,15 @@ namespace BardMusicPlayer.Seer
         public static bool operator ==(Game game, Game otherGame) => game is not null && game.Equals(otherGame);
 
         public static bool operator !=(Game game, Game otherGame) => game is not null && !game.Equals(otherGame);
+
+        public IntPtr GetAffinity()
+        {
+            return this.Process.ProcessorAffinity;
+        }
+
+        public void SetAffinity(long AffinityMask)
+        {
+            this.Process.ProcessorAffinity = (IntPtr)AffinityMask;
+        }
     }
 }

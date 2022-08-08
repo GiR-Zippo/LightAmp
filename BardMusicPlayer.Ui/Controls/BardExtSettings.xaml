@@ -4,39 +4,71 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="BardExtSettings" Height="200" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow">
+        Title="BardExtSettings" Height="400" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="10"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="10"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Row="1" Grid.Column="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Label    Grid.Column="0" Content="Chat:" VerticalAlignment="Center" />
-            <ComboBox Grid.Column="1" x:Name="Chat_Type" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120">
-                <ComboBoxItem>say</ComboBoxItem>
-                <ComboBoxItem>yell</ComboBoxItem>
-                <ComboBoxItem>shout</ComboBoxItem>
-            </ComboBox>
-        </Grid>
-        <Label      Grid.Row="2" Grid.Column="2" Content="Textmessage:" />
-        <TextBox    Grid.Row="4" Grid.Column="2" x:Name="ChatInputText" KeyDown="ChatInputText_KeyDown" />
-        <CheckBox   Grid.Row="6" Grid.Column="2" x:Name="PostSongTitle" Content="Post song title" Checked="PostSongTitle_Checked" Unchecked="PostSongTitle_Checked"/>
-        <CheckBox   Visibility="Hidden" Grid.Row="7" Grid.Column="2" x:Name="Singer" Content="This bard is a singer" Checked="Singer_Checked" Unchecked="Singer_Checked"/>
+        <TabControl Grid.Column="1">
+            <TabItem Header="ChatControl">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="1" Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label    Grid.Column="0" Content="Chat:" VerticalAlignment="Center" />
+                        <ComboBox Grid.Column="1" x:Name="Chat_Type" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120">
+                            <ComboBoxItem>say</ComboBoxItem>
+                            <ComboBoxItem>yell</ComboBoxItem>
+                            <ComboBoxItem>shout</ComboBoxItem>
+                        </ComboBox>
+                    </Grid>
+                    <Label      Grid.Row="2" Grid.Column="2" Content="Textmessage:" />
+                    <TextBox    Grid.Row="4" Grid.Column="2" x:Name="ChatInputText" KeyDown="ChatInputText_KeyDown" />
+                    <CheckBox   Grid.Row="6" Grid.Column="2" x:Name="PostSongTitle" Content="Post song title" Checked="PostSongTitle_Checked" Unchecked="PostSongTitle_Checked"/>
+                    <CheckBox   Visibility="Hidden" Grid.Row="7" Grid.Column="2" x:Name="Singer" Content="This bard is a singer" Checked="Singer_Checked" Unchecked="Singer_Checked"/>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="XIVSettings">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="25"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" x:Name="CPUDisplay" />
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="50"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" x:Name="Save_CPU" Content="Set" Click="Save_CPU_Click"/>
+                        <Button Grid.Column="1" x:Name="Clear_CPU" Content="Clear" Click="Clear_CPU_Click"/>
+                        <Button Grid.Column="2" x:Name="Reset_CPU" Content="Reset" Click="Reset_CPU_Click"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
+
 </Window>

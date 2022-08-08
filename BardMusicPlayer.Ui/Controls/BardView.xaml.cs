@@ -218,6 +218,8 @@ namespace BardMusicPlayer.Ui.Controls
                     continue;
 
                 p.First().TrackNumber = pconfig.Track;
+                if (pconfig.AffinityMask != 0)
+                    p.First().game.SetAffinity(pconfig.AffinityMask);
             }
         }
 
@@ -242,6 +244,7 @@ namespace BardMusicPlayer.Ui.Controls
                 PerformerSettingData pdata = new PerformerSettingData();
                 pdata.Name = performer.game.PlayerName;
                 pdata.Track = performer.TrackNumber;
+                pdata.AffinityMask = (long)performer.game.GetAffinity();
                 pdatalist.Add(pdata);
             }
             var t = JsonConvert.SerializeObject(pdatalist);
@@ -272,5 +275,6 @@ namespace BardMusicPlayer.Ui.Controls
     {
         public string Name { get; set; } = "";
         public int Track { get; set; } = 0;
+        public long AffinityMask { get; set; } = 0;
     }
 }
