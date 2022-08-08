@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2022 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
 using BardMusicPlayer.Maestro.Events;
 using BardMusicPlayer.Maestro.FFXIV;
 using BardMusicPlayer.Maestro.Sequencing;
@@ -358,13 +363,15 @@ namespace BardMusicPlayer.Maestro.Performance
         /// <summary>
         /// Close the instrument
         /// </summary>
-        public void CloseInstrument()
+        public async Task<int> CloseInstrument()
         {
             if (game.InstrumentHeld.Equals(Instrument.None))
-                return;
+                return -1;
 
             _hook.ClearLastPerformanceKeybinds();
+            await Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay).ConfigureAwait(false);
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
+            return 0;
         }
 
         /// <summary>

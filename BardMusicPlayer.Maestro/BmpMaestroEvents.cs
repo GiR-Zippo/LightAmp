@@ -1,4 +1,9 @@
-﻿using BardMusicPlayer.Maestro.Events;
+﻿/*
+ * Copyright(c) 2022 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.Maestro.Events;
 using Melanchall.DryWetMidi.Interaction;
 using System;
 using System.Collections.Concurrent;

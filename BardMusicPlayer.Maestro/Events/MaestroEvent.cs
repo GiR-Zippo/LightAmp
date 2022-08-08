@@ -1,4 +1,9 @@
-﻿using BardMusicPlayer.Quotidian.UtcMilliTime;
+﻿/*
+ * Copyright(c) 2022 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.Quotidian.UtcMilliTime;
 using System;
 
 namespace BardMusicPlayer.Maestro.Events

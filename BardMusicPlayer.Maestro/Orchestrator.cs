@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*
+ * Copyright(c) 2022 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -419,10 +424,15 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void UnEquipInstruments()
         {
-            foreach(var perf in _performers)
+            try
             {
-                perf.Value.CloseInstrument();
-            };
+                var pList = _performers;
+                Parallel.ForEach(pList, perf =>
+                {
+                    _ = perf.Value.CloseInstrument();
+                });
+            }
+            catch { }
         }
 
         /// <summary>

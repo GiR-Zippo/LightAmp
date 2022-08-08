@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2022 Parulina, sabihoshi, trotlinebeercan, troy-f, GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
 using BardMusicPlayer.Quotidian.Enums;
 using System;
 using System.Collections.Generic;
