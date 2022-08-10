@@ -208,7 +208,6 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                     GetPartyMembers(token);
                     GetChatInputOpen(token);
                     GetChatLog(token);
-                    GetEnsembleEvents(token);
 
                     _lastScan.FirstScan = false;
                 }
@@ -229,16 +228,32 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             GC.SuppressFinalize(this);
         }
 
-        private void GetEnsembleEvents(CancellationToken cancellationToken)
+        private void GetChatLog(CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
                 return;
 
             if (!_reader.CanGetChatLog()) return;
 
-            var result = _reader.GetChatLog(_lastScan.PreviousArrayIndex, _lastScan.PreviousOffset);
-            _lastScan.PreviousArrayIndex = result.PreviousArrayIndex;
-            _lastScan.PreviousOffset     = result.PreviousOffset;
+            ChatLogResult readResult = _reader.GetChatLog(_lastScan.PreviousArrayIndex, _lastScan.PreviousOffset);
+            _lastScan.PreviousArrayIndex = readResult.PreviousArrayIndex;
+            _lastScan.PreviousOffset = readResult.PreviousOffset;
+            foreach (ChatLogItem item in readResult.ChatLogItems)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+                ReaderHandler.Game.PublishEvent(new ChatLog(EventSource.Sharlayan, ReaderHandler.Game, item));
+            }
+
+            GetEnsembleEvents(cancellationToken, readResult);
+            GetPlaylistEvents(cancellationToken, readResult);
+        }
+
+        private void GetEnsembleEvents(CancellationToken cancellationToken, ChatLogResult result)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
             foreach (var ensembleFlag in from item in result.ChatLogItems
                 where item.Code.Equals("0039") || item.Code.Equals("003C")
                 select EnsembleMessageLookup.GetEnsembleFlag(item.Line))
@@ -264,6 +279,25 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        private void GetPlaylistEvents(CancellationToken cancellationToken, ChatLogResult readResult)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            foreach (ChatLogItem item in readResult.ChatLogItems)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+
+                if (item.Code.Equals("000E"))
+                {
+                    int id = Convert.ToInt32((string)item.Line.Split(' ')[2]);
+                    if (item.Line.Split(':')[1].StartsWith("switchto"))
+                        ReaderHandler.Game.PublishEvent(new MidibardPlaylistEvent(EventSource.Sharlayan, ReaderHandler.Game, id));
                 }
             }
         }
@@ -358,20 +392,5 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             _lastScan.ChatOpen = result;
             ReaderHandler.Game.PublishEvent(new ChatStatusChanged(EventSource.Sharlayan, result));
         }
-
-        private void GetChatLog(CancellationToken cancellationToken)
-        {
-            if (cancellationToken.IsCancellationRequested)
-                return;
-
-            if (!_reader.CanGetChatLog()) return;
-
-            ChatLogResult readResult = _reader.GetChatLog(_lastScan.PreviousArrayIndex, _lastScan.PreviousOffset);
-            _lastScan.PreviousArrayIndex = readResult.PreviousArrayIndex;
-            _lastScan.PreviousOffset = readResult.PreviousOffset;
-            foreach (ChatLogItem item in readResult.ChatLogItems)
-                ReaderHandler.Game.PublishEvent(new ChatLog(EventSource.Sharlayan, ReaderHandler.Game, item));
-        }
-
     }
 }

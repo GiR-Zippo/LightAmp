@@ -363,15 +363,13 @@ namespace BardMusicPlayer.Maestro.Performance
         /// <summary>
         /// Close the instrument
         /// </summary>
-        public async Task<int> CloseInstrument()
+        public void CloseInstrument()
         {
             if (game.InstrumentHeld.Equals(Instrument.None))
-                return -1;
+                return;
 
             _hook.ClearLastPerformanceKeybinds();
-            await Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay).ConfigureAwait(false);
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
-            return 0;
         }
 
         /// <summary>

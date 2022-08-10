@@ -130,6 +130,15 @@ namespace BardMusicPlayer.Seer
 
         private void OnEnsembleStarted(EnsembleStarted seerEvent) => EnsembleStarted?.Invoke(seerEvent);
 
+        public delegate void EnsembleStoppedHandler(EnsembleStopped seerEvent);
+
+        /// <summary>
+        /// Called when the metronome starts for an ensemble.
+        /// </summary>
+        public event EnsembleStoppedHandler EnsembleStopped;
+
+        private void OnEnsembleStopped(EnsembleStopped seerEvent) => EnsembleStopped?.Invoke(seerEvent);
+
         public delegate void HomeWorldChangedHandler(HomeWorldChanged seerEvent);
 
         /// <summary>
@@ -193,6 +202,14 @@ namespace BardMusicPlayer.Seer
 
         private void OnPlayerNameChanged(PlayerNameChanged seerEvent) => PlayerNameChanged?.Invoke(seerEvent);
 
+        //Midibard things
+        public delegate void MidibardPlaylistEventHandler(MidibardPlaylistEvent seerEvent);
+        /// <summary>
+        /// Called when something happened in the chat.
+        /// </summary>
+        public event MidibardPlaylistEventHandler MidibardPlaylistEvent;
+        private void OnMidibardPlaylistEvent(MidibardPlaylistEvent seerEvent) => MidibardPlaylistEvent?.Invoke(seerEvent);
+
         private async Task RunEventsHandler(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -246,6 +263,9 @@ namespace BardMusicPlayer.Seer
                         case EnsembleStarted ensembleStarted:
                             OnEnsembleStarted(ensembleStarted);
                             break;
+                        case EnsembleStopped ensembleStopped:
+                            OnEnsembleStopped(ensembleStopped);
+                            break;
                         case HomeWorldChanged homeWorldChanged:
                             OnHomeWorldChanged(homeWorldChanged);
                             break;
@@ -263,6 +283,10 @@ namespace BardMusicPlayer.Seer
                             break;
                         case PlayerNameChanged playerNameChanged:
                             OnPlayerNameChanged(playerNameChanged);
+                            break;
+                        //Midibard things
+                        case MidibardPlaylistEvent midibardPlaylistEvent:
+                            OnMidibardPlaylistEvent(midibardPlaylistEvent);
                             break;
                     }
                 }

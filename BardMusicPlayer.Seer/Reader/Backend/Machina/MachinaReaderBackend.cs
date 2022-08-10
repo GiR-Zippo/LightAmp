@@ -51,15 +51,19 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         timeStamp *= 1000;
 
                         //string hexString = BitConverter.ToString(message);
-                        //System.Diagnostics.Debug.WriteLine(hexString);
+                        //System.Diagnostics.Debug.WriteLine(hexString + " " + message.Length.ToString());
 
                         if (!(ActorIdTools.RangeOkay(myActorId) && ActorIdTools.RangeOkay(otherActorId))) continue;
 
                         if (myActorId == otherActorId)
                             ReaderHandler.Game.PublishEvent(new ActorIdChanged(EventSource.Machina, myActorId));
 
+                        UInt16 Opcode = BitConverter.ToUInt16(message, 18); //implement if needed
                         switch (message.Length)
                         {
+                            case 48:
+                                _packet.Size48(timeStamp, otherActorId, myActorId, message);        //Handles Ensemble Stop
+                                break;
                             case 56:
                                 _packet.Size56(timeStamp, otherActorId, myActorId, message);        //Handles Ensemble Request, Ensemble Reject, and Instrument Equip/De-Equip.
                                 break;
@@ -83,6 +87,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                                     new BmpSeerMachinaException("Unknown packet size: " + message.Length)));
                                 break;
                         }
+                        break;
                     }
                     catch (Exception ex)
                     {

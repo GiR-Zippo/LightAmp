@@ -81,10 +81,9 @@ namespace BardMusicPlayer.Seer
                         BmpSeer.Instance.PublishEvent(ensembleStarted);
                         break;
 
-                    // Currently unused. Currently unavailable from Machina backend.
-                    // case EnsembleStopped ensembleStopped:
-                    //    Seer.Instance.PublishEvent(ensembleStopped);
-                    //    break;
+                    case EnsembleStopped ensembleStopped:
+                        BmpSeer.Instance.PublishEvent(ensembleStopped);
+                        break;
 
                     case InstrumentHeldChanged instrumentHeld:
                         if (!InstrumentHeld.Equals(instrumentHeld.InstrumentHeld))
@@ -129,6 +128,11 @@ namespace BardMusicPlayer.Seer
 
                     case LatencyUpdate latencyUpdate:
                         ServerLatency = latencyUpdate.LatencyMilis;
+                        break;
+
+                    //Midibard things
+                    case MidibardPlaylistEvent midibardPlaylistEvent:
+                        BmpSeer.Instance.PublishEvent(midibardPlaylistEvent);
                         break;
 
                     case PartyMembersChanged partyMembers:
