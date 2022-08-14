@@ -17,7 +17,6 @@ namespace BardMusicPlayer.Ui.Classic
     {
         private int MaxTracks = 1;
         private bool _directLoaded { get; set; } = false; //indicates if a song was loaded directly or from playlist
-        private InfoBox _infoBox = null;
         private NetworkPlayWindow _networkWindow = null;
         public Classic_MainView()
         {
@@ -299,9 +298,8 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Info_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (_infoBox == null)
-                _infoBox = new InfoBox();
-            _infoBox.Visibility = Visibility.Visible;
+            InfoBox _infoBox = new InfoBox();
+            _infoBox.Show();
         }
 
         private void Info_Button_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
