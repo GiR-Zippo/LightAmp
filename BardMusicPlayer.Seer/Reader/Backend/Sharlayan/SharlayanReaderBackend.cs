@@ -295,9 +295,11 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
 
                 if (item.Code.Equals("000E"))
                 {
-                    int id = Convert.ToInt32((string)item.Line.Split(' ')[2]);
                     if (item.Line.Split(':')[1].StartsWith("switchto"))
+                    {
+                        int id = Convert.ToInt32((string)item.Line.Split(' ')[2]);
                         ReaderHandler.Game.PublishEvent(new MidibardPlaylistEvent(EventSource.Sharlayan, ReaderHandler.Game, id));
+                    }
                 }
             }
         }

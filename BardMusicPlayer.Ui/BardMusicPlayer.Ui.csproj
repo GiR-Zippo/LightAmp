@@ -517,9 +517,9 @@
       <Project>{82a7597f-9957-4a47-a14e-504d3e0ecaf7}</Project>
       <Name>BardMusicPlayer.Coffer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BardMusicPlayer.Grunt\BardMusicPlayer.Grunt.csproj">
-      <Project>{00c375f8-5071-4fc6-86ec-bed3398f1bc6}</Project>
-      <Name>BardMusicPlayer.Grunt</Name>
+    <ProjectReference Include="..\BardMusicPlayer.DalamudBridge\BardMusicPlayer.DalamudBridge.csproj">
+      <Project>{1249f5d0-0c18-4d50-b584-b03e69768211}</Project>
+      <Name>BardMusicPlayer.DalamudBridge</Name>
     </ProjectReference>
     <ProjectReference Include="..\BardMusicPlayer.Jamboree\BardMusicPlayer.Jamboree.csproj">
       <Project>{7fe86db2-13da-4656-8776-6e7dfb9f9015}</Project>

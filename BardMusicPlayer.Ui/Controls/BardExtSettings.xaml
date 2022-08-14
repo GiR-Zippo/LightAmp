@@ -30,23 +30,79 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="10"/>
                     </Grid.ColumnDefinitions>
+
+                    <!-- Songtitle grid -->
                     <Grid Grid.Row="1" Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="5"/>
+                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="5"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Label    Grid.Column="0" Content="Chat:" VerticalAlignment="Center" />
-                        <ComboBox Grid.Column="1" x:Name="Chat_Type" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120">
+                        <Label Grid.Row="0" Grid.ColumnSpan="3" Content="Post songtitle:"/>
+                        <ComboBox Grid.Row="1" Grid.Column="0" x:Name="Songtitle_Chat_Type" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="50" SelectionChanged="Songtitle_Post_Type_SelectionChanged">
                             <ComboBoxItem>say</ComboBoxItem>
                             <ComboBoxItem>yell</ComboBoxItem>
                             <ComboBoxItem>shout</ComboBoxItem>
                         </ComboBox>
+                        <TextBox Grid.Row="1" Grid.Column="2" x:Name="Songtitle_Chat_Prefix" Text="♪" Width="30"  HorizontalAlignment="Left" VerticalAlignment="Stretch"/>
+                        <Button Grid.Row="1" Grid.Column="4" Content="Post Songtitle" Click="PostSongTitle_Click"/>
+                        <Label Grid.Row="1" Grid.Column="6" Content="Autopost"  HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        <ComboBox Grid.Row="1" Grid.Column="8" x:Name="Songtitle_Post_Type" Text="Autopost via" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="95" SelectionChanged="Songtitle_Post_Type_SelectionChanged">
+                            <ComboBoxItem>off</ComboBoxItem>
+                            <ComboBoxItem>Legacy</ComboBoxItem>
+                            <ComboBoxItem>Dalamud</ComboBoxItem>
+                        </ComboBox>
+                        <Separator Grid.Row="3" Grid.ColumnSpan="10" />
                     </Grid>
-                    <Label      Grid.Row="2" Grid.Column="2" Content="Textmessage:" />
-                    <TextBox    Grid.Row="4" Grid.Column="2" x:Name="ChatInputText" KeyDown="ChatInputText_KeyDown" />
-                    <CheckBox   Grid.Row="6" Grid.Column="2" x:Name="PostSongTitle" Content="Post song title" Checked="PostSongTitle_Checked" Unchecked="PostSongTitle_Checked"/>
-                    <CheckBox   Visibility="Hidden" Grid.Row="7" Grid.Column="2" x:Name="Singer" Content="This bard is a singer" Checked="Singer_Checked" Unchecked="Singer_Checked"/>
+
+                    <!-- Chat grid -->
+                    <Grid Grid.Row="2" Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.ColumnSpan="3" Content="Post a message in chat:"/>
+                        <Label    Grid.Row="1" Grid.Column="0" Content="Chattype:" VerticalAlignment="Center" />
+                        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="Chat_Type" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120">
+                            <ComboBoxItem>say</ComboBoxItem>
+                            <ComboBoxItem>yell</ComboBoxItem>
+                            <ComboBoxItem>shout</ComboBoxItem>
+                        </ComboBox>
+
+                        <Label      Grid.Row="2" Grid.Column="0" Content="Textmessage:" />
+                        <TextBox    Grid.Row="2" Grid.Column="1" x:Name="ChatInputText" KeyDown="ChatInputText_KeyDown" />
+                        <Separator  Grid.Row="4" Grid.ColumnSpan="8" />
+                    </Grid>
+
+                    <Grid Grid.Row="3" Grid.Column="2">
+                        <CheckBox Visibility="Hidden"  Grid.Row="7" Grid.Column="2" x:Name="Singer" Content="This bard is a singer" Checked="Singer_Checked" Unchecked="Singer_Checked"/>
+                    </Grid>
+
                 </Grid>
+
+
+
             </TabItem>
 
             <TabItem Header="XIV Affinity">

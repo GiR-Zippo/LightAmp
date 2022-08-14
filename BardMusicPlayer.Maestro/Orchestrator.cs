@@ -8,16 +8,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BardMusicPlayer.DalamudBridge;
 using BardMusicPlayer.Maestro.Events;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Maestro.Sequencing;
 using BardMusicPlayer.Pigeonhole;
+using BardMusicPlayer.Quotidian.Enums;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
 using BardMusicPlayer.Transmogrify.Song;
 
 namespace BardMusicPlayer.Maestro
 {
+    public class TitleParsingHelper
+    {
+        public ChatMessageChannelType channelType { get; set; } = ChatMessageChannelType.None;
+        public bool legacy { get; set; } = true;
+        public string prefix { get; set; } = "";
+    }
+
     /// <summary>
     /// The brain of the operation;
     /// - Automatically add the found games
@@ -31,7 +40,7 @@ namespace BardMusicPlayer.Maestro
         private Sequencer _sequencer { get; set; } = null;
         private CancellationTokenSource _updaterTokenSource;
         private bool LocalOchestraInitialized { get; set;} = false;
-        private KeyValuePair<string, Performer> _song_Title_Parsing_Performer { get; set; } = new KeyValuePair<string, Performer>("", null);
+        private KeyValuePair<TitleParsingHelper, Performer> _song_Title_Parsing_Performer { get; set; } = new KeyValuePair<TitleParsingHelper, Performer>(null, null);
 
         public int HostPid { get; set; } = 0;
 
@@ -53,6 +62,7 @@ namespace BardMusicPlayer.Maestro
             BmpSeer.Instance.GameStopped += delegate (Seer.Events.GameStopped e) { Instance_OnGameStopped(e); };
             BmpSeer.Instance.EnsembleRequested += delegate (Seer.Events.EnsembleRequested e) { Instance_EnsembleRequested(e); };
             BmpSeer.Instance.EnsembleStarted += delegate (Seer.Events.EnsembleStarted e) { Instance_EnsembleStarted(e); };
+            BmpSeer.Instance.EnsembleStopped += delegate (Seer.Events.EnsembleStopped e) { Instance_EnsembleStopped(e); };
             BmpSeer.Instance.InstrumentHeldChanged += delegate (Seer.Events.InstrumentHeldChanged e) { Instance_InstrumentHeldChanged(e); };
 
             _addPushedbackGamesTimer = new System.Timers.Timer();
@@ -108,9 +118,9 @@ namespace BardMusicPlayer.Maestro
         /// Get the song parsing bard
         /// </summary>
         /// <param name="p"></param>
-        public Performer GetSongTitleParsingBard()
+        public KeyValuePair<TitleParsingHelper, Performer> GetSongTitleParsingBard()
         {
-            return _song_Title_Parsing_Performer.Value;
+            return _song_Title_Parsing_Performer;
         }
 
         /// <summary>
@@ -124,8 +134,22 @@ namespace BardMusicPlayer.Maestro
 
             _sequencer.Load(song);
 
+            //Parse the song name if any bard should
             if (_song_Title_Parsing_Performer.Value != null)
-                _song_Title_Parsing_Performer.Value.SendText(_song_Title_Parsing_Performer.Key + " " + song.Title);
+            {
+                TitleParsingHelper helper = _song_Title_Parsing_Performer.Key;
+
+                if (helper.legacy)  //legacy mode
+                {
+                    string songName = $"{helper.channelType.ChannelCode} {helper.prefix} {song.Title} {helper.prefix}";
+                    _song_Title_Parsing_Performer.Value.SendText(songName);
+                }
+                else //dalamud plugin
+                {
+                    string songName = $"{helper.prefix} {song.Title} {helper.prefix}";
+                    GameExtensions.SendText(_song_Title_Parsing_Performer.Value.game, helper.channelType, songName);
+                }
+            }
 
             foreach (var perf in _performers)
             {
@@ -270,17 +294,23 @@ namespace BardMusicPlayer.Maestro
         }
 
         /// <summary>
-        /// Sets the song title parsing bard and the prefix like /yell
+        /// Sets the song title parsing bard
         /// </summary>
         /// <param name="p"></param>
-        public void SetSongTitleParsingBard(string prefix, Performer p)
+        public void SetSongTitleParsingBard(ChatMessageChannelType channel, string prefix, Performer p, bool legacy)
         {
             if (p == null)
             {
-                _song_Title_Parsing_Performer = new KeyValuePair<string, Performer>("", null);
+                _song_Title_Parsing_Performer = new KeyValuePair<TitleParsingHelper, Performer>(null, null);
                 return;
             }
-            _song_Title_Parsing_Performer = new KeyValuePair<string, Performer>(prefix, p);
+
+            _song_Title_Parsing_Performer = new KeyValuePair<TitleParsingHelper, Performer>(new TitleParsingHelper
+            { 
+                channelType = channel,
+                prefix = prefix,
+                legacy = legacy
+            }, p);
         }
 
         /// <summary>
@@ -429,7 +459,7 @@ namespace BardMusicPlayer.Maestro
                 var pList = _performers;
                 Parallel.ForEach(pList, perf =>
                 {
-                    _ = perf.Value.CloseInstrument();
+                    perf.Value.CloseInstrument();
                 });
             }
             catch { }
@@ -741,6 +771,37 @@ namespace BardMusicPlayer.Maestro
                 start(delayvalue, perfo.Value.game.Pid);
             });
             sw.Stop();
+        }
+
+        /// <summary>
+        /// Stops the Ensemble if the metronome stopped
+        /// Only works with MidiBard compat for now
+        /// </summary>
+        /// <param name="seerEvent"></param>
+        private void Instance_EnsembleStopped(Seer.Events.EnsembleStopped seerEvent)
+        {
+            if (BmpPigeonhole.Instance.AutostartMethod != 2)
+                return;
+
+            if (!BmpPigeonhole.Instance.MidiBardCompatMode)
+                return;
+
+            if (_performers.Count() == 0)
+                return;
+
+            Task.Run(() =>
+            {
+                //if we are a not a local orchestra
+                if (!BmpPigeonhole.Instance.LocalOrchestra)
+                {
+                    var res = _performers.AsParallel().Where(i => i.Value.HostProcess == true);
+                    res.First().Value.Stop();
+                    return;
+                }
+
+                var perf = _performers.AsParallel().Where(i => i.Value.game.Pid == seerEvent.Game.Pid);
+                perf.First().Value.Stop();
+            });
         }
 
         /// <summary>

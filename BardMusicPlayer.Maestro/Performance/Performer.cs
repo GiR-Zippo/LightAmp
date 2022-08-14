@@ -32,7 +32,7 @@ namespace BardMusicPlayer.Maestro.Performance
         public Instrument ChosenInstrument { get; set; } = Instrument.Piano;
         public int OctaveShift { get; set; } = 0;
         public int TrackNumber { get { return _trackNumber; }
-        set{
+            set {
                 if (value == _trackNumber)
                     return;
 
@@ -66,7 +66,7 @@ namespace BardMusicPlayer.Maestro.Performance
         public Game game;
         public string PlayerName { get { return game.PlayerName ?? "Unknown"; } }
         public string HomeWorld { get { return game.HomeWorld ?? "Unknown"; } }
-
+        public string SongName { get { return _sequencer.LoadedBmpSong == null ? "" : _sequencer.LoadedBmpSong.Title; } }
         public string TrackInstrument 
         { 
             get {

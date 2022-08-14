@@ -65,6 +65,7 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void SelectSongByIndex(int idx)
         {
+            //are we at MB compat?
             if (!BmpPigeonhole.Instance.MidiBardCompatMode)
                 return;
 

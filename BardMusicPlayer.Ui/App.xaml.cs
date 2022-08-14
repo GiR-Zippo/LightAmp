@@ -1,7 +1,7 @@
 
 using System.Windows;
 using BardMusicPlayer.Coffer;
-using BardMusicPlayer.Grunt;
+using BardMusicPlayer.DalamudBridge;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BardMusicPlayer.Maestro;
@@ -41,10 +41,12 @@ namespace BardMusicPlayer.Ui
             BmpMaestro.Instance.Start();
             //Start seer
             BmpSeer.Instance.Start();
+
+            DalamudBridge.DalamudBridge.Instance.Start();
+
             //Start the scripting
             BmpScript.Instance.Start();
 
-            //BmpGrunt.Instance.Start();
             BmpSiren.Instance.Setup();
             BmpJamboree.Instance.Start();
         }
@@ -60,7 +62,7 @@ namespace BardMusicPlayer.Ui
 
             BmpScript.Instance.Stop();
 
-            //BmpGrunt.Instance.Stop();
+            DalamudBridge.DalamudBridge.Instance.Stop();
             BmpSeer.Instance.Stop();
             BmpSeer.Instance.DestroyFirewall("BardMusicPlayer");
             BmpCoffer.Instance.Dispose();

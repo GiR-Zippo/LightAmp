@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BardMusicPlayer.Maestro.Performance;
+using BardMusicPlayer.Quotidian.Enums;
 using BardMusicPlayer.Seer;
 using BardMusicPlayer.Transmogrify.Song;
 
@@ -67,11 +68,11 @@ namespace BardMusicPlayer.Maestro
         /// Sets the song title parsing bard
         /// </summary>
         /// <param name="performer"></param>
-        public Performer GetSongTitleParsingBard()
+        public KeyValuePair<TitleParsingHelper, Performer> GetSongTitleParsingBard()
         {
             if (_orchestrator != null)
                 return _orchestrator.GetSongTitleParsingBard();
-            return null;
+            return new KeyValuePair<TitleParsingHelper, Performer>(null, null);
         }
         #endregion
 
@@ -100,10 +101,10 @@ namespace BardMusicPlayer.Maestro
         /// Sets the song title parsing bard and the prefix like /yell
         /// </summary>
         /// <param name="performer"></param>
-        public void SetSongTitleParsingBard(string prefix, Performer performer)
+        public void SetSongTitleParsingBard(ChatMessageChannelType channel, string prefix, Performer performer, bool legacy = true)
         {
             if (_orchestrator != null)
-                _orchestrator.SetSongTitleParsingBard(prefix, performer);
+                _orchestrator.SetSongTitleParsingBard(channel, prefix, performer, legacy);
         }
 
         /// <summary>
