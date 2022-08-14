@@ -8,10 +8,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Transmogrify.Processor.Utilities;
 using BardMusicPlayer.Transmogrify.Song.Config;
@@ -21,8 +21,6 @@ using LiteDB;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
-using Melanchall.DryWetMidi.Tools;
-using Newtonsoft.Json;
 
 namespace BardMusicPlayer.Transmogrify.Song
 {
@@ -448,9 +446,8 @@ namespace BardMusicPlayer.Transmogrify.Song
                     string trackName = originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text;
                     if (trackName == null) trackName = "";
                     string o_trackName = trackName;
-                    trackName = trackName.ToLower().Trim().Replace(" ", String.Empty);
 
-                    Regex rex = new Regex(@"^([A-Za-z]+)([-+]\d)?");
+                    Regex rex = new Regex(@"^([A-Za-z _]+)([-+]\d)?");
                     if (rex.Match(trackName) is Match match)
                     {
                         if (!string.IsNullOrEmpty(match.Groups[1].Value))
@@ -482,26 +479,28 @@ namespace BardMusicPlayer.Transmogrify.Song
                     newChunk = new TrackChunk(new SequenceTrackNameEvent(trackName));
                     #endregion Tracknaming and octave shifting
 
-//Create Progchange Event
-                    foreach (var timedEvent in originalChunk.GetTimedEvents())
+                    //Create Progchange Event if no IgnoreProgChange is set
+                    if (!BmpPigeonhole.Instance.IgnoreProgChange || o_trackName.Contains("Program:ElectricGuitar"))
                     {
-                        var programChangeEvent = timedEvent.Event as ProgramChangeEvent;
-                        if (programChangeEvent == null)
-                            continue;
-                        //Skip all except guitar | implement if we need this again
-                        if ((programChangeEvent.ProgramNumber < 27) || (programChangeEvent.ProgramNumber > 31))
-                            continue;
-
-                        var channel = programChangeEvent.Channel;
-                        using (var manager = new TimedEventsManager(newChunk.Events))
+                        foreach (var timedEvent in originalChunk.GetTimedEvents())
                         {
-                            TimedEventsCollection timedEvents = manager.Events;
-                            timedEvents.Add(new TimedEvent(new ProgramChangeEvent(programChangeEvent.ProgramNumber), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote/* Absolute time too */));
+                            var programChangeEvent = timedEvent.Event as ProgramChangeEvent;
+                            if (programChangeEvent == null)
+                                continue;
+                            //Skip all except guitar | implement if we need this again
+                            if ((programChangeEvent.ProgramNumber < 27) || (programChangeEvent.ProgramNumber > 31))
+                                continue;
+
+                            var channel = programChangeEvent.Channel;
+                            using (var manager = new TimedEventsManager(newChunk.Events))
+                            {
+                                TimedEventsCollection timedEvents = manager.Events;
+                                timedEvents.Add(new TimedEvent(new ProgramChangeEvent(programChangeEvent.ProgramNumber), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote/* Absolute time too */));
+                            }
                         }
                     }
-
                     //Create lyrics
-                    foreach (var timedEvent in originalChunk.GetTimedEvents())
+                    /*foreach (var timedEvent in originalChunk.GetTimedEvents())
                     {
                         var lyricsEvent = timedEvent.Event as LyricEvent;
                         if (lyricsEvent == null)
@@ -510,9 +509,9 @@ namespace BardMusicPlayer.Transmogrify.Song
                         using (var manager = new TimedEventsManager(newChunk.Events))
                         {
                             TimedEventsCollection timedEvents = manager.Events;
-                            timedEvents.Add(new TimedEvent(new LyricEvent(lyricsEvent.Text), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote/* Absolute time too */));
+                            timedEvents.Add(new TimedEvent(new LyricEvent(lyricsEvent.Text), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote));
                         }
-                    }
+                    }*/
 
                     //Create Progchange Event
                     /*foreach (var timedEvent in originalChunk.GetTimedEvents())
@@ -934,6 +933,7 @@ namespace BardMusicPlayer.Transmogrify.Song
 
                 loaderWatch.Stop();
                 Console.WriteLine("Export finished MS: " + loaderWatch.ElapsedMilliseconds);
+                
                 return stream;
             }
             catch (Exception ex)

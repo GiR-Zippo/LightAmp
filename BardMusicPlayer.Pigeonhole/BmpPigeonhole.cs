@@ -165,6 +165,11 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual bool EnsembleKeepTrackSetting { get; set; } = false;
 
         /// <summary>
+        /// ignores the progchange
+        /// </summary>
+        public virtual bool IgnoreProgChange { get; set; } = false;
+
+        /// <summary>
         /// start the performer by it's own ready signal
         /// </summary>
         public virtual bool EnsembleStartIndividual { get; set; } = true;
