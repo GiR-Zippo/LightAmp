@@ -236,7 +236,11 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void PlaylistContainer_RightButton(object sender, MouseButtonEventArgs e)
         {
-            BmpSong song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem);
+            TextBlock celltext = sender as TextBlock;
+            if (celltext.Text.Equals(""))
+                return;
+
+            BmpSong song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, celltext.Text);
             SongEditWindow sew = new SongEditWindow(song);
         }
 
