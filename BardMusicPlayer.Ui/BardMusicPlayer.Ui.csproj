@@ -297,8 +297,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\BardExtSettings.xaml.cs">
-      <DependentUpon>BardExtSettings.xaml</DependentUpon>
+    <Compile Include="Controls\BardExtSettingsWindow.xaml.cs">
+      <DependentUpon>BardExtSettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\NetworkWindow.xaml.cs">
       <DependentUpon>NetworkWindow.xaml</DependentUpon>
@@ -311,6 +311,9 @@
     </Compile>
     <Compile Include="Controls\OctaveNumericUpDown.xaml.cs">
       <DependentUpon>OctaveNumericUpDown.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SongEditWindow.xaml.cs">
+      <DependentUpon>SongEditWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TrackNumericUpDown.xaml.cs">
       <DependentUpon>TrackNumericUpDown.xaml</DependentUpon>
@@ -347,7 +350,7 @@
     <Compile Include="UI_Skinned\SongBrowserWindow\SongbrowserWindow.xaml.cs">
       <DependentUpon>SongbrowserWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="Controls\BardExtSettings.xaml">
+    <Page Include="Controls\BardExtSettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -362,6 +365,10 @@
     <Page Include="Controls\OctaveNumericUpDown.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\SongEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TrackNumericUpDown.xaml">
       <SubType>Designer</SubType>

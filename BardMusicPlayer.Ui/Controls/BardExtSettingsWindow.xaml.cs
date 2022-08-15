@@ -13,14 +13,14 @@ using BardMusicPlayer.Quotidian.Enums;
 namespace BardMusicPlayer.Ui.Controls
 {
     /// <summary>
-    /// Interaktionslogik für BardExtSettings.xaml
+    /// Interaktionslogik für BardExtSettingsWindow.xaml
     /// </summary>
-    public partial class BardExtSettings : Window
+    public partial class BardExtSettingsWindow : Window
     {
         private Performer _performer = null;
         private List<CheckBox> _cpuBoxes = new List<CheckBox>();
 
-        public BardExtSettings(Performer performer)
+        public BardExtSettingsWindow(Performer performer)
         {
             _performer = performer;
             InitializeComponent();

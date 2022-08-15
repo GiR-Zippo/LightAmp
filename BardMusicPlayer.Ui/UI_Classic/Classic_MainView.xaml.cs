@@ -17,7 +17,7 @@ namespace BardMusicPlayer.Ui.Classic
     {
         private int MaxTracks = 1;
         private bool _directLoaded { get; set; } = false; //indicates if a song was loaded directly or from playlist
-        private NetworkPlayWindow _networkWindow = null;
+        //private NetworkPlayWindow _networkWindow = null;
         public Classic_MainView()
         {
             InitializeComponent();

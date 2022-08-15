@@ -173,7 +173,7 @@ namespace BardMusicPlayer.Ui.Controls
                 if (SelectedBard == null)
                     return;
 
-                BardExtSettings bardExtSettings = new BardExtSettings(SelectedBard);
+                BardExtSettingsWindow bardExtSettings = new BardExtSettingsWindow(SelectedBard);
                 bardExtSettings.Activate();
                 bardExtSettings.Visibility = Visibility.Visible;
             }

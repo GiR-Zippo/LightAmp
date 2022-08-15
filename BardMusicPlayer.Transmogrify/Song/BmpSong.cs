@@ -40,6 +40,11 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <summary>
         /// 
         /// </summary>
+        public string DisplayedTitle { get; set; } = "";
+
+        /// <summary>
+        /// 
+        /// </summary>
         public List<string> Tags { get; set; } = new();
 
         /// <summary>

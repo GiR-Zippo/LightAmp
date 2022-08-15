@@ -71,7 +71,9 @@
                         </Button.ContextMenu>
                     </Button>
 
-                    <DataGrid x:Name="PlaylistContainer" Grid.Row="1" Grid.ColumnSpan="6" AutoGenerateColumns="False" PreviewMouseDoubleClick="PlaylistContainer_PreviewMouseDoubleClick" 
+                    <DataGrid x:Name="PlaylistContainer" Grid.Row="1" Grid.ColumnSpan="6" AutoGenerateColumns="False" 
+                        PreviewMouseDoubleClick="PlaylistContainer_PreviewMouseDoubleClick" 
+                        PreviewMouseRightButtonDown="PlaylistContainer_RightButton"
                         AllowDrop="true" 
                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <DataGrid.ColumnHeaderStyle>

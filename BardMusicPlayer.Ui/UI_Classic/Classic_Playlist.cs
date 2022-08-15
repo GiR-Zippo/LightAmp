@@ -1,6 +1,7 @@
 ﻿using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Transmogrify.Song;
+using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
 using Microsoft.Win32;
 using System;
@@ -226,6 +227,17 @@ namespace BardMusicPlayer.Ui.Classic
             this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
             _directLoaded = false;
             return;
+        }
+
+        /// <summary>
+        /// Opens the edit window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PlaylistContainer_RightButton(object sender, MouseButtonEventArgs e)
+        {
+            BmpSong song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem);
+            SongEditWindow sew = new SongEditWindow(song);
         }
 
         /// <summary>
