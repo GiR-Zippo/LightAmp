@@ -19,9 +19,10 @@ namespace BardMusicPlayer.Ui.Controls
                 return;
             }
             this.Visibility = Visibility.Visible;
+
             _song = song;
             Internal_TrackName.Text = _song.Title;
-            Displayed_TrackName.Text = _song.DisplayedTitle;            
+            Displayed_TrackName.Text = _song.DisplayedTitle;
         }
 
         private void CopyI_D_Click(object sender, RoutedEventArgs e)
