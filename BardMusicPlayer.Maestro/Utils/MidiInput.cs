@@ -14,10 +14,10 @@ namespace BardMusicPlayer.Maestro.Utils
 {
     public static class MidiInput
     {
-        public class MidiInputDescription
+        public struct MidiInputDescription
         {
-            public string name = string.Empty;
-            public int id = 0;
+            public string name;
+            public int id;
             public MidiInputDescription(string n, int i)
             {
                 name = n;
