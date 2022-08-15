@@ -72,7 +72,8 @@ namespace BardMusicPlayer.Maestro
         {
             if (_orchestrator != null)
                 return _orchestrator.GetSongTitleParsingBard();
-            return new KeyValuePair<TitleParsingHelper, Performer>(null, null);
+            
+            return new KeyValuePair<TitleParsingHelper, Performer>(new TitleParsingHelper{}, null);
         }
         #endregion
 

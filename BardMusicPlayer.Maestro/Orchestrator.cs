@@ -20,11 +20,11 @@ using BardMusicPlayer.Transmogrify.Song;
 
 namespace BardMusicPlayer.Maestro
 {
-    public class TitleParsingHelper
+    public struct TitleParsingHelper
     {
-        public ChatMessageChannelType channelType { get; set; } = ChatMessageChannelType.None;
-        public bool legacy { get; set; } = true;
-        public string prefix { get; set; } = "";
+        public ChatMessageChannelType channelType { get; set; }
+        public bool legacy { get; set; }
+        public string prefix { get; set; }
     }
 
     /// <summary>
@@ -39,8 +39,8 @@ namespace BardMusicPlayer.Maestro
     {
         private Sequencer _sequencer { get; set; } = null;
         private CancellationTokenSource _updaterTokenSource;
-        private bool LocalOchestraInitialized { get; set;} = false;
-        private KeyValuePair<TitleParsingHelper, Performer> _song_Title_Parsing_Performer { get; set; } = new KeyValuePair<TitleParsingHelper, Performer>(null, null);
+        private bool LocalOchestraInitialized { get; set; } = false;
+        private KeyValuePair<TitleParsingHelper, Performer> _song_Title_Parsing_Performer { get; set; } = new KeyValuePair<TitleParsingHelper, Performer>(new TitleParsingHelper{}, null);
 
         public int HostPid { get; set; } = 0;
 
@@ -301,7 +301,7 @@ namespace BardMusicPlayer.Maestro
         {
             if (p == null)
             {
-                _song_Title_Parsing_Performer = new KeyValuePair<TitleParsingHelper, Performer>(null, null);
+                _song_Title_Parsing_Performer = new KeyValuePair<TitleParsingHelper, Performer>(new TitleParsingHelper { }, null);
                 return;
             }
 
