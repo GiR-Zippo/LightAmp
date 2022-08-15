@@ -86,7 +86,7 @@ namespace BardMusicPlayer.Coffer
                 bson => DeserializeTrackChunk(bson.AsBinary)
             );
 
-            var dbi = new LiteDatabase(dbPath, mapper);
+            var dbi = new LiteDatabase(@"filename="+dbPath+"; journal = false", mapper);
             MigrateDatabase(dbi);
 
             return new BmpCoffer(dbi);
@@ -126,7 +126,7 @@ namespace BardMusicPlayer.Coffer
                 bson => DeserializeTrackChunk(bson.AsBinary)
             );
 
-            var dbi = new LiteDatabase(file, mapper);
+            var dbi = new LiteDatabase(@"filename=" + file + "; journal = false", mapper); //turn journal off, for big containers
             MigrateDatabase(dbi);
 
             _instance = new BmpCoffer(dbi);
