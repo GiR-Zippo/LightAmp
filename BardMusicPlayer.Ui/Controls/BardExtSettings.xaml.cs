@@ -132,7 +132,6 @@ namespace BardMusicPlayer.Ui.Controls
                         break;
                 }
                 GameExtensions.SendText(_performer.game, chanType, ChatInputText.Text);
-                //ChatInputText.Text = "";
             }
         }
 
