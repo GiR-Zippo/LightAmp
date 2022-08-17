@@ -45,12 +45,18 @@ namespace BardMusicPlayer.Ui.Classic
         /* Song Select */
         private void SongName_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (PlaybackFunctions.LoadSong())
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
-                SongName.Text = PlaybackFunctions.GetSongName();
-                InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
-                _directLoaded = true;
+                if (PlaybackFunctions.LoadSong())
+                {
+                    SongName.Text = PlaybackFunctions.GetSongName();
+                    InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
+                    _directLoaded = true;
+                }
             }
+
+            if (e.RightButton == MouseButtonState.Pressed)
+                SongName.SelectAll();
         }
 
         /* All tracks */

@@ -131,7 +131,9 @@ namespace BardMusicPlayer.Ui.Controls
                         chanType = ChatMessageChannelType.Yell;
                         break;
                 }
-                GameExtensions.SendText(_performer.game, chanType, ChatInputText.Text);
+                string text = new string(ChatInputText.Text.ToCharArray());
+                GameExtensions.SendText(_performer.game, chanType, text);
+                ChatInputText.Text = "";
             }
         }
 

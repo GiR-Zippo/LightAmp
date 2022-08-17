@@ -267,9 +267,7 @@ namespace BardMusicPlayer.Maestro.Performance
                     }
                 }
                 else
-                {
                     _sequencer.Pause();
-                }
             }
         }
 

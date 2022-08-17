@@ -91,7 +91,7 @@
                         </ComboBox>
 
                         <Label      Grid.Row="2" Grid.Column="0" Content="Textmessage:" />
-                        <TextBox    Grid.Row="2" Grid.Column="1" x:Name="ChatInputText" KeyDown="ChatInputText_KeyDown" />
+                        <TextBox    Grid.Row="2" Grid.Column="1" x:Name="ChatInputText" KeyDown="ChatInputText_KeyDown" HorizontalScrollBarVisibility="Visible" Height="40" Width="240"/>
                         <Separator  Grid.Row="4" Grid.ColumnSpan="8" />
                     </Grid>
 
