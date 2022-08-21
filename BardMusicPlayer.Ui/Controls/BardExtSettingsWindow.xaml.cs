@@ -7,8 +7,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Runtime.InteropServices;
-using BardMusicPlayer.Quotidian.Enums;
+using BardMusicPlayer.Quotidian.Structs;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -129,6 +128,15 @@ namespace BardMusicPlayer.Ui.Controls
                         break;
                     case 1:
                         chanType = ChatMessageChannelType.Yell;
+                        break;
+                    case 2:
+                        chanType = ChatMessageChannelType.Group;
+                        break;
+                    case 3:
+                        chanType = ChatMessageChannelType.FC;
+                        break;
+                    case 4:
+                        chanType = ChatMessageChannelType.None;
                         break;
                 }
                 string text = new string(ChatInputText.Text.ToCharArray());

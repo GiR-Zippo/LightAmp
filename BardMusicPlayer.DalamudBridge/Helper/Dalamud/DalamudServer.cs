@@ -9,7 +9,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using BardMusicPlayer.Quotidian.Enums;
+using BardMusicPlayer.Quotidian.Structs;
 using H.Formatters;
 using H.Pipes;
 using H.Pipes.AccessControl;

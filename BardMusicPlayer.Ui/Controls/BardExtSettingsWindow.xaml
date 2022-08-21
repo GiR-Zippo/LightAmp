@@ -87,7 +87,9 @@
                         <ComboBox Grid.Row="1" Grid.Column="1" x:Name="Chat_Type" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120">
                             <ComboBoxItem>say</ComboBoxItem>
                             <ComboBoxItem>yell</ComboBoxItem>
-                            <ComboBoxItem>shout</ComboBoxItem>
+                            <ComboBoxItem>group</ComboBoxItem>
+                            <ComboBoxItem>company</ComboBoxItem>
+                            <ComboBoxItem>makro</ComboBoxItem>
                         </ComboBox>
 
                         <Label      Grid.Row="2" Grid.Column="0" Content="Textmessage:" />

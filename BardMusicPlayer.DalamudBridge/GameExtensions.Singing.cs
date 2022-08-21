@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using BardMusicPlayer.DalamudBridge.Helper.Dalamud;
-using BardMusicPlayer.Quotidian.Enums;
+using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
 
 namespace BardMusicPlayer.DalamudBridge
