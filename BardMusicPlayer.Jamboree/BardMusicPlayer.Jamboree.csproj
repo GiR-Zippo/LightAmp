@@ -25,13 +25,6 @@
   </PropertyGroup>
 
     <ItemGroup>
-        <ContentWithTargetPath Include="bin\$(Platform)\$(Configuration)\$(TargetFramework)\libzt.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <TargetPath>libzt.dll</TargetPath>
-        </ContentWithTargetPath>
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="LibZeroTier" Version="1.0.8" />
       <PackageReference Include="ZeroTier.Sockets" Version="1.8.4" />
     </ItemGroup>
@@ -42,7 +35,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Lib\" />
     <Folder Include="PartyClient\ZeroTier\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Lib\libzt.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
