@@ -40,9 +40,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Lib\libzt.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+      <ContentWithTargetPath Include="Lib\libzt.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <TargetPath>libzt.dll</TargetPath>
+      </ContentWithTargetPath>
+      <None Include="Lib\libzt.dll" />
   </ItemGroup>
 
 </Project>
