@@ -91,7 +91,7 @@ namespace BardMusicPlayer.Ui.Classic
             var inputbox = new TextInputWindow("Playlistname");
             if (inputbox.ShowDialog() == true)
             {
-                if (inputbox.ResponseText.Length < 0)
+                if (inputbox.ResponseText.Length < 1)
                     return;
 
                 _currentPlaylist = PlaylistFunctions.CreatePlaylist(inputbox.ResponseText);
