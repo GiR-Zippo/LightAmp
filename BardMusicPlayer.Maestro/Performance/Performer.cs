@@ -66,10 +66,22 @@ namespace BardMusicPlayer.Maestro.Performance
         public Game game;
         public string PlayerName { get { return game.PlayerName ?? "Unknown"; } }
         public string HomeWorld { get { return game.HomeWorld ?? "Unknown"; } }
-        public string SongName { get { 
-            return _sequencer.LoadedBmpSong == null ? "" : 
-                  (_sequencer.LoadedBmpSong.DisplayedTitle.Length < 2 ? _sequencer.LoadedBmpSong.Title : _sequencer.LoadedBmpSong.DisplayedTitle); 
-            } }
+        public string SongName 
+        { 
+            get
+            {
+                if (_sequencer.LoadedBmpSong == null) //no song, no title
+                    return "";
+                
+                if (_sequencer.LoadedBmpSong.DisplayedTitle == null) //no displayed title, pretent the normal title
+                    return _sequencer.LoadedBmpSong.Title;
+
+                if (_sequencer.LoadedBmpSong.DisplayedTitle.Length < 2) //title with 1 char makes no sence for me
+                    return _sequencer.LoadedBmpSong.Title;
+
+                return _sequencer.LoadedBmpSong.DisplayedTitle; //finally, display the title
+            } 
+        }
         public string TrackInstrument 
         { 
             get {
