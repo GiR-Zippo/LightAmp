@@ -91,6 +91,9 @@ namespace BardMusicPlayer.Ui.Classic
             var inputbox = new TextInputWindow("Playlistname");
             if (inputbox.ShowDialog() == true)
             {
+                if (inputbox.ResponseText.Length < 0)
+                    return;
+
                 _currentPlaylist = PlaylistFunctions.CreatePlaylist(inputbox.ResponseText);
                 PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
                 _showingPlaylists = false;
@@ -374,7 +377,7 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void Search_Click(object sender, RoutedEventArgs e)
         {
-            var inputbox = new TextInputWindow("Search for...");
+            var inputbox = new TextInputWindow("Search for...", 80);
             inputbox.Focus();
             if (inputbox.ShowDialog() == true)
             {
