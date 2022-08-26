@@ -705,7 +705,7 @@ namespace BardMusicPlayer.Maestro
             if (BmpPigeonhole.Instance.AutostartMethod != 2)
                 return;
 
-            //predelay calc
+            //delay calc
             int delayvalue = 0;
             if (BmpPigeonhole.Instance.EnsemblePlayDelay)
             {
@@ -715,8 +715,9 @@ namespace BardMusicPlayer.Maestro
                     delayvalue = 2490;
             }
 
-            //main delay
+            //main delay, currently not needed
             //int rdelay = (int)(Quotidian.UtcMilliTime.Clock.Time.Now - seerEvent.TimeStamp); delayvalue - rdelay
+
             //if we are a single bard
             //- start and exit
             if (!BmpPigeonhole.Instance.LocalOrchestra)
