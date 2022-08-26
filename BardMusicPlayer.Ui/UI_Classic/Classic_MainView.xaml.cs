@@ -36,11 +36,13 @@ namespace BardMusicPlayer.Ui.Classic
             BmpMaestro.Instance.OnTrackNumberChanged    += Instance_TrackNumberChanged;
             BmpMaestro.Instance.OnOctaveShiftChanged    += Instance_OctaveShiftChanged;
             BmpSeer.Instance.ChatLog                    += Instance_ChatLog;
+
             Siren_Volume.Value = BmpSiren.Instance.GetVolume();
             BmpSiren.Instance.SynthTimePositionChanged  += Instance_SynthTimePositionChanged;
+
             SongBrowser.OnLoadSongFromBrowser           += Instance_SongBrowserLoadedSong;
 
-            BmpSeer.Instance.MidibardPlaylistEvent    += Instance_MidibardPlaylistEvent;
+            BmpSeer.Instance.MidibardPlaylistEvent      += Instance_MidibardPlaylistEvent;
 
             Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
             LoadConfig();

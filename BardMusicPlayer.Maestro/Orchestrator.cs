@@ -706,10 +706,8 @@ namespace BardMusicPlayer.Maestro
                 return;
 
             //predelay calc
-            int delayvalue = 100;
-            if (!BmpPigeonhole.Instance.EnsemblePlayDelay)
-                delayvalue = 100;
-            else
+            int delayvalue = 0;
+            if (BmpPigeonhole.Instance.EnsemblePlayDelay)
             {
                 if (BmpPigeonhole.Instance.MidiBardCompatMode)
                     delayvalue = 6250;
@@ -718,8 +716,7 @@ namespace BardMusicPlayer.Maestro
             }
 
             //main delay
-            int rdelay = (int)(Quotidian.UtcMilliTime.Clock.Time.Now - seerEvent.TimeStamp);
-
+            //int rdelay = (int)(Quotidian.UtcMilliTime.Clock.Time.Now - seerEvent.TimeStamp); delayvalue - rdelay
             //if we are a single bard
             //- start and exit
             if (!BmpPigeonhole.Instance.LocalOrchestra)
@@ -728,7 +725,7 @@ namespace BardMusicPlayer.Maestro
                 if (perf == null)
                     return;
                 if (seerEvent.Game.Pid == perf.game.Pid)
-                    start(delayvalue - rdelay, seerEvent.Game.Pid);
+                    start(delayvalue, seerEvent.Game.Pid);
                 return;
             }
 
@@ -756,7 +753,7 @@ namespace BardMusicPlayer.Maestro
             //- start and exit
             if (BmpPigeonhole.Instance.EnsembleStartIndividual)
             {
-                start(delayvalue - rdelay, seerEvent.Game.Pid);
+                start(delayvalue, seerEvent.Game.Pid);
                 return;
             }
 
