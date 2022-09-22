@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright(c) 2021 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
@@ -328,7 +328,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                     int noteVelocity = int.Parse(index.ToString()) + 1;
 
                     Dictionary<int, Dictionary<long, Note>> allNoteEvents = new Dictionary<int, Dictionary<long, Note>>();
-                    for (int i = 0; i < 127; i++) allNoteEvents.Add(i, new Dictionary<long, Note>());
+                    for (int i = 0; i < 128; i++) allNoteEvents.Add(i, new Dictionary<long, Note>());
 
                     foreach (Note note in originalChunk.GetNotes())
                     {
