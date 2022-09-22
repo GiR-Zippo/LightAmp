@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls"
         mc:Ignorable="d"
         Title="BardExtSettingsWindow" Height="400" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow">
     <Grid>
@@ -98,7 +99,12 @@
                     </Grid>
 
                     <Grid Grid.Row="3" Grid.Column="2">
-                        <CheckBox Visibility="Hidden"  Grid.Row="7" Grid.Column="2" x:Name="Singer" Content="This bard is a singer" Checked="Singer_Checked" Unchecked="Singer_Checked"/>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label    Grid.Column="0" Content="Lyrics Track Number:"/>
+                        <control:NumericUpDown Grid.Column="1" x:Name="Lyrics_TrackNr"   PreviewMouseUp="Lyrics_TrackNr_PreviewMouseUp" Value="-1"  ToolTip="Enables the lyrics parsing &#13;0 means stop lyrics parsing &#13;1 the first lyrics track (lyric tracks are separate from the music tracks)" />
                     </Grid>
 
                 </Grid>

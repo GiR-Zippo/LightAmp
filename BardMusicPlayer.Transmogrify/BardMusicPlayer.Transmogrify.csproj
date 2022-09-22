@@ -27,4 +27,8 @@
     <ProjectReference Include="..\BardMusicPlayer.Quotidian\BardMusicPlayer.Quotidian.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Song\Importers\LRC\" />
+  </ItemGroup>
+
 </Project>

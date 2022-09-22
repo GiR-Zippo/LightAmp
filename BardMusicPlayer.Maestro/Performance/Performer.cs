@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.DalamudBridge;
 using BardMusicPlayer.Maestro.Events;
 using BardMusicPlayer.Maestro.FFXIV;
 using BardMusicPlayer.Maestro.Sequencing;
@@ -10,6 +11,7 @@ using BardMusicPlayer.Maestro.Utils;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
+using Melanchall.DryWetMidi.Interaction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +30,7 @@ namespace BardMusicPlayer.Maestro.Performance
         private int _trackNumber { get; set; } = 1;
         private long _lastNoteTimestamp = 0;
         private bool _livePlayDelay { get; set; } = false;
-        public bool IsSinger { get; set; } = false;
+        public int SingerTrackNr { get; set; } = 0;
         public Instrument ChosenInstrument { get; set; } = Instrument.Piano;
         public int OctaveShift { get; set; } = 0;
         public int TrackNumber { get { return _trackNumber; }
@@ -92,12 +94,6 @@ namespace BardMusicPlayer.Maestro.Performance
                     if (this._trackNumber >= _sequencer.Sequence.Count)
                         return "None";
 
-                    var t = _sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].SourceTrackChunk.Events.OfType<Melanchall.DryWetMidi.Core.SequenceTrackNameEvent>().FirstOrDefault()?.Text;
-                    if (t != null)
-                    {
-                        if (t.StartsWith("Lyric:"))
-                            return t;
-                    }
                     Transmogrify.Song.Config.ClassicProcessorConfig classicConfig = (Transmogrify.Song.Config.ClassicProcessorConfig)_sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].ConfigContainers[0].ProcessorConfig; // track -1 cuz track 0 isn't in this container
                     return classicConfig.Instrument.Name;
                 }
@@ -337,9 +333,6 @@ namespace BardMusicPlayer.Maestro.Performance
 
         public void OpenInstrument()
         {
-            if (IsSinger)
-                return;
-
             if (!game.InstrumentHeld.Equals(Instrument.None))
                 return;
 
@@ -351,9 +344,6 @@ namespace BardMusicPlayer.Maestro.Performance
 
         public async Task<int> ReplaceInstrument()
         {
-            if (IsSinger)
-                return 0;
-
             if (!trackAndChannelOk())
                 return 0;
 
@@ -390,9 +380,6 @@ namespace BardMusicPlayer.Maestro.Performance
         /// </summary>
         public void EnsembleAccept()
         {
-            if (IsSinger)
-                return;
-
             if (!_forcePlayback)
             {
                 if (!this.PerformerEnabled)
@@ -474,9 +461,6 @@ namespace BardMusicPlayer.Maestro.Performance
 
         private void InternalNote(Object o, Sanford.Multimedia.Midi.ChannelMessageEventArgs args)
         {
-            if (IsSinger)
-                return;
-
             Sanford.Multimedia.Midi.ChannelMessageBuilder builder = new Sanford.Multimedia.Midi.ChannelMessageBuilder(args.Message);
 
             NoteEvent noteEvent = new NoteEvent
@@ -509,9 +493,6 @@ namespace BardMusicPlayer.Maestro.Performance
 
         private void InternalProg(object sender, Sanford.Multimedia.Midi.ChannelMessageEventArgs args)
         {
-            if (IsSinger)
-                return;
-
             if (!_forcePlayback)
             {
                 if (!this.PerformerEnabled)
@@ -587,13 +568,14 @@ namespace BardMusicPlayer.Maestro.Performance
 
         private void IntenalLyrics(object sender, Sanford.Multimedia.Midi.MetaMessageEventArgs e)
         {
-            if (!IsSinger)
+            if (SingerTrackNr < 0) //0 mean no singer
                 return;
 
             Sanford.Multimedia.Midi.MetaTextBuilder builder = new Sanford.Multimedia.Midi.MetaTextBuilder(e.Message);
             string text = builder.Text;
-            if (_sequencer.GetTrackNum(e.MidiTrack) == _trackNumber)
-                SendText(text);
+            var t = mainSequencer.MaxTrack;
+            if (_sequencer.GetTrackNum(e.MidiTrack) == SingerTrackNr+ mainSequencer.LyricStartTrack-1)
+                GameExtensions.SendText(game, ChatMessageChannelType.Say, text);
         }
 #endregion
     }

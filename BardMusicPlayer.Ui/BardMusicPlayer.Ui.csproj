@@ -303,6 +303,9 @@
     <Compile Include="Controls\NetworkWindow.xaml.cs">
       <DependentUpon>NetworkWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\NumericUpDown.xaml.cs">
+      <DependentUpon>NumericUpDown.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\SongBrowser.xaml.cs">
       <DependentUpon>SongBrowser.xaml</DependentUpon>
     </Compile>
@@ -355,6 +358,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\NetworkWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\NumericUpDown.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

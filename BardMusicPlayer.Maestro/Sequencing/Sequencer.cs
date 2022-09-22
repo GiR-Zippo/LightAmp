@@ -113,7 +113,6 @@ namespace BardMusicPlayer.Maestro.Sequencing
                 float ms = GetTimeFromTick(CurrentTick);
                 TimeSpan t = TimeSpan.FromMilliseconds(ms);
                 return string.Format("{0:D2}:{1:D2}", (int)t.TotalMinutes, t.Seconds);
-                //return string.Format("{0}", CurrentTick);
             }
         }
 
@@ -134,7 +133,6 @@ namespace BardMusicPlayer.Maestro.Sequencing
                 float ms = GetTimeFromTick(MaxTick - 1);
                 TimeSpan t = TimeSpan.FromMilliseconds(ms);
                 return string.Format("{0:D2}:{1:D2}", (int)t.TotalMinutes, t.Seconds);
-                //return string.Format("{0}", MaxTick);
             }
         }
 
@@ -157,7 +155,30 @@ namespace BardMusicPlayer.Maestro.Sequencing
                 return loadedTrack;
             }
         }
+
+        int _lyricStartTrackIndex = 0;
+        public int LyricStartTrack
+        {
+            get
+            {
+                return _lyricStartTrackIndex;
+            }
+        }
+
+        int _maxTracks = 0;
         public int MaxTrack
+        {
+            get
+            {
+                if (_maxTracks < 0)
+                {
+                    return 0;
+                }
+                return _maxTracks;
+            }
+        }
+
+        public int MaxAllTrack
         {
             get
             {
@@ -179,15 +200,6 @@ namespace BardMusicPlayer.Maestro.Sequencing
                 }
                 if (BmpPigeonhole.Instance.PlayAllTracks) return Sequence[0];
                 else return Sequence[loadedTrack];
-            }
-        }
-
-        int lyricCount = 0;
-        public int LyricNum
-        {
-            get
-            {
-                return lyricCount;
             }
         }
 
@@ -368,7 +380,6 @@ namespace BardMusicPlayer.Maestro.Sequencing
             {
                 MetaTextBuilder builder = new MetaTextBuilder(e.Message);
                 OnTrackNameChange?.Invoke(this, builder.Text);
-                Console.WriteLine("Instrument name: " + builder.Text);
             }
         }
 
@@ -556,6 +567,8 @@ namespace BardMusicPlayer.Maestro.Sequencing
             }
 
             // Parse track names and octave shifts
+            _maxTracks = -1;
+            _lyricStartTrackIndex = -1;
             foreach (Track track in Sequence)
             {
                 foreach (MidiEvent ev in track.Iterator())
@@ -565,14 +578,22 @@ namespace BardMusicPlayer.Maestro.Sequencing
                         if (metaMsg.MetaType == MetaType.TrackName)
                         {
                             MetaTextBuilder builder = new MetaTextBuilder(metaMsg);
-                            this.ParseTrackName(track, builder.Text);
+                            if (builder.Text.ToLower().Contains("lyrics:") && (_lyricStartTrackIndex == -1))
+                                _lyricStartTrackIndex = _maxTracks + 1;
+                            else
+                            {
+                                this.ParseTrackName(track, builder.Text);
+                                _maxTracks++;
+                            }
+                            
                         }
                     }
                 }
             }
 
+
+
             loadedTrack = trackNum;
-            lyricCount = 0;
             // Search beginning for text stuff
             foreach (MidiEvent ev in LoadedTrack.Iterator())
             {
@@ -582,10 +603,10 @@ namespace BardMusicPlayer.Maestro.Sequencing
                     {
                         OnMetaMessagePlayed(this, new MetaMessageEventArgs(LoadedTrack, msg));
                     }
-                    if (msg.MetaType == MetaType.Lyric)
+                    /*if (msg.MetaType == MetaType.Lyric)
                     {
                         lyricCount++;
-                    }
+                    }*/
                 }
                 if (ev.MidiMessage is ChannelMessage chanMsg)
                 {
@@ -597,7 +618,6 @@ namespace BardMusicPlayer.Maestro.Sequencing
             }
 
             OnLoad?.Invoke(this, EventArgs.Empty);
-            Console.WriteLine("Loaded Midi [" + loadedFilename + "] t" + trackNum);
         }
     }
 }

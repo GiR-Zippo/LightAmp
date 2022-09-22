@@ -129,6 +129,9 @@ namespace BardMusicPlayer.Ui.Controls
         {
             Performer game = (sender as TrackNumericUpDown).DataContext as Performer;
             BmpMaestro.Instance.SetTracknumber(game, s);
+
+            TrackNumericUpDown ctl = sender as TrackNumericUpDown;
+            ctl.OnValueChanged -= OnValueChanged;
         }
 
         /* Octave UP/Down */
@@ -142,6 +145,9 @@ namespace BardMusicPlayer.Ui.Controls
         {
             Performer performer = (sender as OctaveNumericUpDown).DataContext as Performer;
             BmpMaestro.Instance.SetOctaveshift(performer, s);
+
+            OctaveNumericUpDown ctl = sender as OctaveNumericUpDown;
+            ctl.OnValueChanged -= OnOctaveValueChanged;
         }
 
         private void HostChecker_Checked(object sender, RoutedEventArgs e)

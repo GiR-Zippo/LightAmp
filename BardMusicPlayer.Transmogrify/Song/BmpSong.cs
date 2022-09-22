@@ -16,6 +16,7 @@ using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Transmogrify.Processor.Utilities;
 using BardMusicPlayer.Transmogrify.Song.Config;
 using BardMusicPlayer.Transmogrify.Song.Importers;
+using BardMusicPlayer.Transmogrify.Song.Importers.LrcParser;
 using BardMusicPlayer.Transmogrify.Song.Utilities;
 using LiteDB;
 using Melanchall.DryWetMidi.Common;
@@ -114,10 +115,10 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <returns></returns>
         private static BmpSong OpenMidiFile(string path)
         {
-            if (!File.Exists(path)) throw new BmpTransmogrifyException("File " + path + " does not exist!");
+            if (!File.Exists(path)) 
+                throw new BmpTransmogrifyException("File " + path + " does not exist!");
 
             using var fileStream = File.OpenRead(path);
-
             var midiFile = fileStream.ReadAsMidiFile();
             fileStream.Dispose();
 
@@ -159,6 +160,35 @@ namespace BardMusicPlayer.Transmogrify.Song
                 TrackContainers = new Dictionary<long, TrackContainer>(),
                 Duration = midiFileDuration
             };
+
+            //Get the lrc file for the midi, if there's any
+            if (path.Substring(path.Length - 4).Equals(".mid"))
+            {
+                string fn = path.Substring(0, path.Length - 3);
+                if (File.Exists(fn + "lrc"))
+                {
+                    var t = Lyrics.Parse(File.ReadAllText(fn + "lrc"));
+                    song.DisplayedTitle = t.Lyrics.MetaData.Title;
+                    //foreach (var line in t.Lyrics.Lines)
+                    {
+                        //Console.WriteLine(line.Timestamp);
+                        var thisTrack = new TrackChunk(new SequenceTrackNameEvent("Lyrics: "));
+                        using (var manager = new TimedEventsManager(thisTrack.Events))
+                        {
+                            TimedEventsCollection timedEvents = manager.Events;
+                            foreach (var line in t.Lyrics.Lines)
+                            {
+                                Console.WriteLine(line.Timestamp);
+                                var timedEvent = new TimedEvent(new LyricEvent(line.Content));
+                                timedEvent.SetTime(new MetricTimeSpan(line.Timestamp.Hour, line.Timestamp.Minute, line.Timestamp.Second, line.Timestamp.Millisecond),
+                                tempoMap);
+                                timedEvents.Add(timedEvent);                            
+                            }
+                        }
+                        midiFile.Chunks.Add(thisTrack);
+                    }
+                }
+            }
 
             var trackChunkArray = midiFile.GetTrackChunks().ToArray();
 
@@ -308,11 +338,20 @@ namespace BardMusicPlayer.Transmogrify.Song
                 {
                     if (trackChunk.Events.Count > 0)
                     {
-                        if (trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text != null)
-                            if ((trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).Contains("lyric:"))
-                                continue;
                         allTracks.AddObjects(trackChunk.GetNotes());
                         allTracks.AddObjects(trackChunk.GetTimedEvents());
+
+                        //Cleanup track 0
+                        using (TimedEventsManager timedEventsManager = allTracks.ManageTimedEvents())
+                        {
+                            TimedEventsCollection events = timedEventsManager.Events;
+                            List<TimedEvent> tlist = events.Where(e => e.Event is LyricEvent).ToList();
+                            foreach (TimedEvent tevent in tlist)
+                                events.Remove(tevent);
+                            tlist = events.Where(e => e.Event is ProgramChangeEvent).ToList();
+                            foreach (TimedEvent tevent in tlist)
+                                events.Remove(tevent);
+                        }
                     }
                     var thisTrack = new TrackChunk(new SequenceTrackNameEvent(trackChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text));
                     thisTrack.AddObjects(trackChunk.GetNotes());
@@ -380,7 +419,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                     newChunk.AddObjects(allNoteEvents.SelectMany(s => s.Value).Select(s => s.Value).ToArray());
                     allNoteEvents = null;
                     watch.Stop();
-                    Debug.WriteLine("step 2: " + noteVelocity + ": " + watch.ElapsedMilliseconds);
+                    Debug.WriteLine("step 2 [Fix Chords]: " + noteVelocity + ": " + watch.ElapsedMilliseconds);
                     watch = Stopwatch.StartNew();
 
                     Note[] notesToFix = newChunk.GetNotes().Reverse().ToArray();
@@ -482,7 +521,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                         trackName = o_trackName;
 
                     newChunk = new TrackChunk(new SequenceTrackNameEvent(trackName));
-                    #endregion Tracknaming and octave shifting
+#endregion Tracknaming and octave shifting
 
                     //Create Progchange Event if no IgnoreProgChange is set
                     if (!BmpPigeonhole.Instance.IgnoreProgChange || o_trackName.Contains("Program:ElectricGuitar"))
@@ -500,12 +539,15 @@ namespace BardMusicPlayer.Transmogrify.Song
                             using (var manager = new TimedEventsManager(newChunk.Events))
                             {
                                 TimedEventsCollection timedEvents = manager.Events;
-                                timedEvents.Add(new TimedEvent(new ProgramChangeEvent(programChangeEvent.ProgramNumber), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote/* Absolute time too */));
+                                if ((5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote) < 0)
+                                    timedEvents.Add(new TimedEvent(new ProgramChangeEvent(programChangeEvent.ProgramNumber), 5000));
+                                else
+                                    timedEvents.Add(new TimedEvent(new ProgramChangeEvent(programChangeEvent.ProgramNumber), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote/* Absolute time too */));
                             }
                         }
                     }
                     //Create lyrics
-                    /*foreach (var timedEvent in originalChunk.GetTimedEvents())
+                    foreach (var timedEvent in originalChunk.GetTimedEvents())
                     {
                         var lyricsEvent = timedEvent.Event as LyricEvent;
                         if (lyricsEvent == null)
@@ -514,9 +556,12 @@ namespace BardMusicPlayer.Transmogrify.Song
                         using (var manager = new TimedEventsManager(newChunk.Events))
                         {
                             TimedEventsCollection timedEvents = manager.Events;
-                            timedEvents.Add(new TimedEvent(new LyricEvent(lyricsEvent.Text), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote));
+                            if ((5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote) < 5000)
+                                timedEvents.Add(new TimedEvent(new LyricEvent(lyricsEvent.Text), 5000));
+                            else
+                                timedEvents.Add(new TimedEvent(new LyricEvent(lyricsEvent.Text), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote));
                         }
-                    }*/
+                    }
 
                     //Create Progchange Event
                     /*foreach (var timedEvent in originalChunk.GetTimedEvents())
@@ -616,8 +661,6 @@ namespace BardMusicPlayer.Transmogrify.Song
 
                 using (var manager = new TimedEventsManager(newMidiFile.GetTrackChunks().First().Events))
                     manager.Events.Add(new TimedEvent(new MarkerEvent(), (newMidiFile.GetDuration<MetricTimeSpan>().TotalMicroseconds / 1000)));
-
-                //newMidiFile.Write(stream, MidiFileFormat.MultiTrack, new WritingSettings { });
 
                 newMidiFile.Write(stream, MidiFileFormat.MultiTrack, settings: new WritingSettings
                 {

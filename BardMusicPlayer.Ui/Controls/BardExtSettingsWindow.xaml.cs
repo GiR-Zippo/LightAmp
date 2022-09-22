@@ -49,7 +49,7 @@ namespace BardMusicPlayer.Ui.Controls
             }
 
 
-            this.Singer.IsChecked = performer.IsSinger;
+            this.Lyrics_TrackNr.Value = performer.SingerTrackNr.ToString();
 
             PopulateCPUTab();
 
@@ -145,13 +145,21 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
-        private void Singer_Checked(object sender, RoutedEventArgs e)
+        private void Lyrics_TrackNr_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            _performer.IsSinger = (bool)Singer.IsChecked;
+            NumericUpDown ctl = sender as NumericUpDown;
+            ctl.OnValueChanged += Lyrics_TrackNr_OnValueChanged;
         }
 
-        #region CPU-Tab
-        private void PopulateCPUTab()
+        private void Lyrics_TrackNr_OnValueChanged(object sender, int s)
+        {
+            _performer.SingerTrackNr = s;
+            NumericUpDown ctl = sender as NumericUpDown;
+            ctl.OnValueChanged -= Lyrics_TrackNr_OnValueChanged;
+        }
+
+    #region CPU-Tab
+    private void PopulateCPUTab()
         {
             //Get the our application's process.
             Process process = _performer.game.Process;
