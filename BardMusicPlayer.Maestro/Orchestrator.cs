@@ -730,26 +730,6 @@ namespace BardMusicPlayer.Maestro
                 return;
             }
 
-
-            /* Set this to a task
-            var result = _performers.Where(perf => perf.Value.IsSinger == true);
-            if (result != null)
-            {
-                if (result.Count() > 0)
-                {
-                    System.Diagnostics.Stopwatch w = new System.Diagnostics.Stopwatch();
-                    w.Start();
-                    foreach (var perfo in result)
-                    {
-                        delayvalue = (delayvalue + 5500) - (int)w.ElapsedMilliseconds;
-                        if (delayvalue < 0)
-                            delayvalue = 0;
-                        start(delayvalue, perfo.Value.game.Pid);
-                    };
-                    w.Stop();
-                }
-            }*/
-
             //local orchestra, each bard started indiviual
             //- start and exit
             if (BmpPigeonhole.Instance.EnsembleStartIndividual)
