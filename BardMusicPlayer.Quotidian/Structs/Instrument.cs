@@ -314,15 +314,17 @@ namespace BardMusicPlayer.Quotidian.Structs
 
             if (Equals(Oboe)) return 50;
 
+            if (Equals(Flute)) return 50;
+
             if (Equals(Bongo)) return 50;
 
             if (Equals(BassDrum)) return 50;
 
             if (Equals(SnareDrum)) return 50;
 
-            if (Equals(Cymbal)) return 50;
-
             if (Equals(Timpani)) return 50;
+
+            if (Equals(Piano)) return 50;
 
             if (Equals(Lute) && note < 15) return 0;
 
@@ -331,8 +333,6 @@ namespace BardMusicPlayer.Quotidian.Structs
             if (Equals(Harp)) return 50;
 
             if (Equals(Fiddle)) return 50;
-
-            if (Equals(ElectricGuitarMuted)) return 50;
 
             return 100;
         }
