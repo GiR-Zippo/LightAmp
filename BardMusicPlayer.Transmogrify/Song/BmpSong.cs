@@ -594,22 +594,22 @@ namespace BardMusicPlayer.Transmogrify.Song
                 newTrackChunks.TryRemove(newTrackChunks.Count, out TrackChunk trackZero);
                 newMidiFile.Chunks.Add(trackZero);
                 newMidiFile.TimeDivision = new TicksPerQuarterNoteTimeDivision(375);
-                using (TempoMapManager tempoManager = newMidiFile.ManageTempoMap()) tempoManager.SetTempo(0, Tempo.FromBeatsPerMinute(160));
-                //old div
-                //newMidiFile.TimeDivision = new TicksPerQuarterNoteTimeDivision(600);
-                //using (TempoMapManager tempoManager = newMidiFile.ManageTempoMap()) tempoManager.SetTempo(0, Tempo.FromBeatsPerMinute(100));
+                using (TempoMapManager tempoManager = newMidiFile.ManageTempoMap()) 
+                    tempoManager.SetTempo(0, Tempo.FromBeatsPerMinute(160));
+
                 newMidiFile.Chunks.AddRange(newTrackChunks.Values);
 
                 tempoMap = newMidiFile.GetTempoMap();
-                long delta = newMidiFile.GetTrackChunks().GetNotes().First().GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000;
+                long delta = (newMidiFile.GetTrackChunks().GetNotes().First().GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000);
 
                 Parallel.ForEach(newMidiFile.GetTrackChunks(), chunk =>
                 {
+                    int offset = Instrument.Parse(chunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).SampleOffset; //get the offset
                     using (var notesManager = chunk.ManageNotes())
                     {
                         foreach (Note note in notesManager.Notes)
                         {
-                            long newStart = note.Time - delta;
+                            long newStart = note.Time + offset - delta;
                             note.Time = newStart;
                         }
                     }
@@ -621,7 +621,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                             if (programChangeEvent == null)
                                 continue;
 
-                            long newStart = _event.Time - delta;
+                            long newStart = _event.Time + offset - delta;
                             if (newStart <= -1)
                                 manager.Events.Remove(_event);
                             else
