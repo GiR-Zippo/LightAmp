@@ -34,12 +34,12 @@ namespace BardMusicPlayer.Transmogrify.Song
         public ObjectId Id { get; set; } = null;
 
         /// <summary>
-        /// 
+        /// the internal title / showed in playlist
         /// </summary>
         public string Title { get; set; } = "";
 
         /// <summary>
-        /// 
+        /// The displayed title in chat
         /// </summary>
         public string DisplayedTitle { get; set; } = "";
 
@@ -49,14 +49,19 @@ namespace BardMusicPlayer.Transmogrify.Song
         public List<string> Tags { get; set; } = new();
 
         /// <summary>
-        /// 
+        /// TempoMap
         /// </summary>
         public TempoMap SourceTempoMap { get; set; } = TempoMap.Default;
 
         /// <summary>
-        /// 
+        /// TrackContainer
         /// </summary>
         public Dictionary<long, TrackContainer> TrackContainers { get; set; } = new();
+
+        /// <summary>
+        /// Lyrics
+        /// </summary>
+        public Dictionary<DateTime, string> LyricsContainer { get; set; } = new();
 
         public TimeSpan Duration { get; set; } = new();
 
@@ -169,24 +174,9 @@ namespace BardMusicPlayer.Transmogrify.Song
                 {
                     var t = Lyrics.Parse(File.ReadAllText(fn + "lrc"));
                     song.DisplayedTitle = t.Lyrics.MetaData.Title;
-                    //foreach (var line in t.Lyrics.Lines)
-                    {
-                        //Console.WriteLine(line.Timestamp);
-                        var thisTrack = new TrackChunk(new SequenceTrackNameEvent("Lyrics: "));
-                        using (var manager = new TimedEventsManager(thisTrack.Events))
-                        {
-                            TimedEventsCollection timedEvents = manager.Events;
-                            foreach (var line in t.Lyrics.Lines)
-                            {
-                                Console.WriteLine(line.Timestamp);
-                                var timedEvent = new TimedEvent(new LyricEvent(line.Content));
-                                timedEvent.SetTime(new MetricTimeSpan(line.Timestamp.Hour, line.Timestamp.Minute, line.Timestamp.Second, line.Timestamp.Millisecond),
-                                tempoMap);
-                                timedEvents.Add(timedEvent);                            
-                            }
-                        }
-                        midiFile.Chunks.Add(thisTrack);
-                    }
+
+                    foreach (var line in t.Lyrics.Lines)
+                        song.LyricsContainer.Add(line.Timestamp, line.Content);
                 }
             }
 
@@ -546,7 +536,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                             }
                         }
                     }
-                    //Create lyrics
+                    //Create lyrics from midi
                     foreach (var timedEvent in originalChunk.GetTimedEvents())
                     {
                         var lyricsEvent = timedEvent.Event as LyricEvent;
@@ -563,7 +553,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                         }
                     }
 
-                    //Create Progchange Event
+                    //Create Aftertouch Event
                     /*foreach (var timedEvent in originalChunk.GetTimedEvents())
                     {
                         var programChangeEvent = timedEvent.Event as ChannelAftertouchEvent;
@@ -656,6 +646,21 @@ namespace BardMusicPlayer.Transmogrify.Song
 
                     }
                 });
+
+                //Append the lyrics from the lrc
+                var lrcTrack = new TrackChunk(new SequenceTrackNameEvent("Lyrics: "));
+                using (var manager = new TimedEventsManager(lrcTrack.Events))
+                {
+                    TimedEventsCollection timedEvents = manager.Events;
+                    foreach (var line in LyricsContainer)
+                    {
+                        var timedEvent = new TimedEvent(new LyricEvent(line.Value));
+                        timedEvent.SetTime(new MetricTimeSpan(line.Key.Hour, line.Key.Minute, line.Key.Second, line.Key.Millisecond), tempoMap);
+                        timedEvents.Add(timedEvent);
+                    }
+                }
+                newMidiFile.Chunks.Add(lrcTrack);
+
 
                 var stream = new MemoryStream();
 
