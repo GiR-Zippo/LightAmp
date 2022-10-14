@@ -595,27 +595,38 @@ namespace BardMusicPlayer.Transmogrify.Song
                 Parallel.ForEach(newMidiFile.GetTrackChunks(), chunk =>
                 {
                     int offset = Instrument.Parse(chunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).SampleOffset; //get the offset
-                    using (var notesManager = chunk.ManageNotes())
+                    /*using (var notesManager = chunk.ManageNotes())
                     {
                         foreach (Note note in notesManager.Notes)
                         {
                             long newStart = note.Time + offset - delta;
                             note.Time = newStart;
                         }
-                    }
+                    }*/
                     using (var manager = chunk.ManageTimedEvents())
                     {
                         foreach (TimedEvent _event in manager.Events)
                         {
                             var programChangeEvent = _event.Event as ProgramChangeEvent;
-                            if (programChangeEvent == null)
-                                continue;
+                            var noteEvent = _event.Event as NoteEvent;
+                            //Prog alignment
+                            if (programChangeEvent != null)
+                            {
+                                long newStart = _event.Time + offset - delta;
+                                if (newStart <= -1)
+                                    manager.Events.Remove(_event);
+                                else
+                                    _event.Time = newStart;
 
-                            long newStart = _event.Time + offset - delta;
-                            if (newStart <= -1)
-                                manager.Events.Remove(_event);
-                            else
+                                if ((programChangeEvent.ProgramNumber >=27) && (programChangeEvent.ProgramNumber <= 31))
+                                    offset = Instrument.ParseByProgramChange(programChangeEvent.ProgramNumber).SampleOffset;
+                            }
+                            //Note alignment
+                            else if (noteEvent != null)
+                            {
+                                long newStart = _event.Time + offset - delta;
                                 _event.Time = newStart;
+                            }
                         }
 
                         foreach (TimedEvent _event in manager.Events)
