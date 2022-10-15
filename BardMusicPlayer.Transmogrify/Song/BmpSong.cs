@@ -63,6 +63,9 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// </summary>
         public Dictionary<DateTime, string> LyricsContainer { get; set; } = new();
 
+        /// <summary>
+        /// Song duration
+        /// </summary>
         public TimeSpan Duration { get; set; } = new();
 
 
@@ -618,6 +621,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                                 else
                                     _event.Time = newStart;
 
+                                //if theres a new offset, use this one
                                 if ((programChangeEvent.ProgramNumber >=27) && (programChangeEvent.ProgramNumber <= 31))
                                     offset = Instrument.ParseByProgramChange(programChangeEvent.ProgramNumber).SampleOffset;
                             }
