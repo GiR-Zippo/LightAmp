@@ -33,5 +33,14 @@ namespace BardMusicPlayer.DalamudBridge
                 return Task.FromResult(DalamudBridge.Instance.DalamudServer.SendChat(game.Pid, type, text));
             return Task.FromResult(false);
         }
+
+        public static Task<bool> OpenInstrument(this Game game, int instrumentID)
+        {
+            if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
+
+            if (DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid))
+                return Task.FromResult(DalamudBridge.Instance.DalamudServer.SendInstrumentOpen(game.Pid, instrumentID));
+            return Task.FromResult(false);
+        }
     }
 }

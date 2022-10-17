@@ -11,10 +11,8 @@ using BardMusicPlayer.Maestro.Utils;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
-using Melanchall.DryWetMidi.Interaction;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Maestro.Performance
@@ -339,7 +337,11 @@ namespace BardMusicPlayer.Maestro.Performance
             if (!trackAndChannelOk())
                 return;
 
-            _hook.SendSyncKeybind(game.InstrumentKeys[Instrument.Parse(TrackInstrument)]);
+            if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
+                GameExtensions.OpenInstrument(game, Instrument.Parse(TrackInstrument).Index);
+            else
+                _hook.SendSyncKeybind(game.InstrumentKeys[Instrument.Parse(TrackInstrument)]);
+
         }
 
         public async Task<int> ReplaceInstrument()
@@ -354,12 +356,19 @@ namespace BardMusicPlayer.Maestro.Performance
                 else
                 {
                     _hook.ClearLastPerformanceKeybinds();
-                    _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
+                    if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
+                        await GameExtensions.OpenInstrument(game, 0);
+                    else
+                        _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
                     await Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay).ConfigureAwait(false);
                 }
             }
 
-            _hook.SendSyncKeybind(game.InstrumentKeys[Instrument.Parse(TrackInstrument)]);
+            if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
+                await GameExtensions.OpenInstrument(game, Instrument.Parse(TrackInstrument).Index);
+            else
+                _hook.SendSyncKeybind(game.InstrumentKeys[Instrument.Parse(TrackInstrument)]);
+
             return 0;
         }
 
@@ -372,7 +381,11 @@ namespace BardMusicPlayer.Maestro.Performance
                 return;
 
             _hook.ClearLastPerformanceKeybinds();
-            _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
+
+            if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
+                GameExtensions.OpenInstrument(game, 0);
+            else
+                _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
         }
 
         /// <summary>

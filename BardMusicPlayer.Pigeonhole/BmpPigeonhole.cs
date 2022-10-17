@@ -204,6 +204,10 @@ namespace BardMusicPlayer.Pigeonhole
         /// </summary>
         public virtual bool MidiBardCompatMode { get; set; } = false;
 
+        /// <summary>
+        /// Use the Hypnotoad for instruemtn eq
+        /// </summary>
+        public virtual bool UsePluginForInstrumentOpen { get; set; } = false;
 
         /// <summary>
         /// Defaults to log level Info

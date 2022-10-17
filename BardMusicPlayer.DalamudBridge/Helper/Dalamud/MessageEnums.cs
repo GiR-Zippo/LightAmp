@@ -6,6 +6,7 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
     {
         None,
         Handshake,
-        Chat
+        Chat,
+        Instrument
     }
 }
