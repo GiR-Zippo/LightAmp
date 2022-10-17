@@ -9,4 +9,12 @@ For further informations or a quick start, just go to the [Wiki page](https://gi
 
 If you need the compiled version, go to the [Releases](https://github.com/GiR-Zippo/LightAmp/releases)
 
+## Hypnotoad
+
+The LightAmp can be used with the [Hypnotoad] (https://github.com/GiR-Zippo/Hypnotoad-Plugin) to output lyrics.
+
+Copy this url to your Dalamud and search for the hypnotoad
+
+`https://raw.githubusercontent.com/GiR-Zippo/Hypnotoad-Plugin/master/PluginDir/pluginmaster.json`
+
 Feel free to use, modify or fork it.
