@@ -96,6 +96,19 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             return true;
         }
 
+        internal bool SendAcceptEnsemble(int pid, bool arg)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.AcceptReply,
+                message = ""
+            });
+            return true;
+        }
+
         /// <summary>
         /// If message from client rec
         /// </summary>

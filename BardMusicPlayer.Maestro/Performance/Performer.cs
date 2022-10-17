@@ -402,6 +402,12 @@ namespace BardMusicPlayer.Maestro.Performance
                     return;
             }
 
+            if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
+            {
+                GameExtensions.AcceptEnsemble(game, true);
+                return;
+            }
+
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
             Task.Delay(200);
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
