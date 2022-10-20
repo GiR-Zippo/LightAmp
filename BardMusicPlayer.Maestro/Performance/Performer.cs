@@ -4,6 +4,7 @@
  */
 
 using BardMusicPlayer.DalamudBridge;
+using BardMusicPlayer.DalamudBridge.Helper.Dalamud;
 using BardMusicPlayer.Maestro.Events;
 using BardMusicPlayer.Maestro.FFXIV;
 using BardMusicPlayer.Maestro.Sequencing;
@@ -337,8 +338,10 @@ namespace BardMusicPlayer.Maestro.Performance
             if (!trackAndChannelOk())
                 return;
 
+            //GameExtensions.OpenInstrument(game, Instrument.Parse(TrackInstrument).Index).Wait();
+
             if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
-                GameExtensions.OpenInstrument(game, Instrument.Parse(TrackInstrument).Index);
+                DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = Instrument.Parse(TrackInstrument).Index});
             else
                 _hook.SendSyncKeybind(game.InstrumentKeys[Instrument.Parse(TrackInstrument)]);
 
@@ -357,7 +360,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 {
                     _hook.ClearLastPerformanceKeybinds();
                     if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
-                        await GameExtensions.OpenInstrument(game, 0);
+                        DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = 0 });
                     else
                         _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
                     await Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay).ConfigureAwait(false);
@@ -365,7 +368,7 @@ namespace BardMusicPlayer.Maestro.Performance
             }
 
             if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
-                await GameExtensions.OpenInstrument(game, Instrument.Parse(TrackInstrument).Index);
+                DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = Instrument.Parse(TrackInstrument).Index });
             else
                 _hook.SendSyncKeybind(game.InstrumentKeys[Instrument.Parse(TrackInstrument)]);
 
@@ -383,7 +386,7 @@ namespace BardMusicPlayer.Maestro.Performance
             _hook.ClearLastPerformanceKeybinds();
 
             if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
-                GameExtensions.OpenInstrument(game, 0);
+                DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = 0 });
             else
                 _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
         }
@@ -404,7 +407,7 @@ namespace BardMusicPlayer.Maestro.Performance
 
             if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
             {
-                GameExtensions.AcceptEnsemble(game, true);
+                DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.AcceptReply, game = game, BoolData = true});
                 return;
             }
 
