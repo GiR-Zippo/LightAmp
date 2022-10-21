@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright(c) 2022 GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
@@ -676,7 +676,7 @@ namespace BardMusicPlayer.Maestro
                 }
 
                 //if we autoequip the orchestra, just do it
-                if (BmpPigeonhole.Instance.EnsembleAutoEquip && BmpPigeonhole.Instance.LocalOrchestra)
+                if (BmpPigeonhole.Instance.AutoEquipBards && BmpPigeonhole.Instance.LocalOrchestra)
                 {
                     Parallel.ForEach(_performers, perf =>
                     {
@@ -688,7 +688,7 @@ namespace BardMusicPlayer.Maestro
             Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
             if (perf != null)
             {
-                if (BmpPigeonhole.Instance.SoloBardAutoEquip)
+                if (BmpPigeonhole.Instance.AutoEquipBards)
                     _ = perf.ReplaceInstrument().Result;
 
                 perf.Sequencer.PlayEnded += Sequencer_PlayEnded;
