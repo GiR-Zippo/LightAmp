@@ -330,6 +330,9 @@ namespace BardMusicPlayer.Maestro.Performance
             }
         }
 
+        /// <summary>
+        /// Open an instrument
+        /// </summary>
         public void OpenInstrument()
         {
             if (!game.InstrumentHeld.Equals(Instrument.None))
@@ -338,15 +341,16 @@ namespace BardMusicPlayer.Maestro.Performance
             if (!trackAndChannelOk())
                 return;
 
-            //GameExtensions.OpenInstrument(game, Instrument.Parse(TrackInstrument).Index).Wait();
-
             if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
                 DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = Instrument.Parse(TrackInstrument).Index});
             else
                 _hook.SendSyncKeybind(game.InstrumentKeys[Instrument.Parse(TrackInstrument)]);
-
         }
 
+        /// <summary>
+        /// Replace the instrument
+        /// </summary>
+        /// <returns></returns>
         public async Task<int> ReplaceInstrument()
         {
             if (!trackAndChannelOk())
@@ -359,6 +363,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 else
                 {
                     _hook.ClearLastPerformanceKeybinds();
+
                     if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
                         DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = 0 });
                     else
@@ -416,6 +421,9 @@ namespace BardMusicPlayer.Maestro.Performance
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
         }
 
+        /// <summary>
+        /// Close the input device
+        /// </summary>
         public void Close()
         {
             if (_sequencer is Sequencer)
@@ -590,7 +598,7 @@ namespace BardMusicPlayer.Maestro.Performance
 
         private void IntenalLyrics(object sender, Sanford.Multimedia.Midi.MetaMessageEventArgs e)
         {
-            if (SingerTrackNr < 0) //0 mean no singer
+            if (SingerTrackNr <= 0) //0 mean no singer
                 return;
 
             Sanford.Multimedia.Midi.MetaTextBuilder builder = new Sanford.Multimedia.Midi.MetaTextBuilder(e.Message);
