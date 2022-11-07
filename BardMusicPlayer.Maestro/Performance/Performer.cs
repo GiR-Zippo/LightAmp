@@ -461,6 +461,11 @@ namespace BardMusicPlayer.Maestro.Performance
             Task.Delay((text.Length * 8) + 20).Wait();
             _hook.SendSyncKeybind(Quotidian.Enums.Keys.Enter);
         }
+
+        public void SendText(ChatMessageChannelType type, string text)
+        {
+            GameExtensions.SendText(game, type, text);
+        }
         #endregion
 
         #region private

@@ -47,12 +47,12 @@ namespace BardMusicPlayer.Script
             selectedBardName = name;
         }
 
-        public void Print(string text)
+        public void Print(Quotidian.Structs.ChatMessageChannelType type, string text)
         {
             if (selectedBard != -1)
-                BmpMaestro.Instance.SendText(selectedBard, text);
+                BmpMaestro.Instance.SendText(selectedBard, type, text);
             else
-                BmpMaestro.Instance.SendText(selectedBardName, text);
+                BmpMaestro.Instance.SendText(selectedBardName, type, text);
         }
 
         #endregion

@@ -10,6 +10,7 @@ namespace BasicSharp
 
         //Keywords
         Print,
+        Macro,
         If,
         EndIf,
         Then,

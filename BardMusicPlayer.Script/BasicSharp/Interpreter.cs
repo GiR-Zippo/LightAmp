@@ -1,3 +1,4 @@
+using BardMusicPlayer.Quotidian.Structs;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -6,7 +7,7 @@ namespace BasicSharp
 {
     public class Interpreter
     {
-        public delegate void PrintFunction(string text);
+        public delegate void PrintFunction(ChatMessageChannelType type, string text);
         public delegate void SelectedBard(int num);
         public delegate void SelectedBardAsString(string name);
         public delegate string InputFunction();
@@ -124,6 +125,7 @@ namespace BasicSharp
             switch (keyword)
             {
                 case Token.Print: Print(); break;
+                case Token.Macro: Macro(); break;
                 case Token.Input: Input(); break;
                 case Token.Goto: Goto(); break;
                 case Token.If: If(); break;
@@ -158,7 +160,12 @@ namespace BasicSharp
 
         void Print()
         {
-            printHandler?.Invoke(Expr().ToString());
+            printHandler?.Invoke(ChatMessageChannelType.Say, Expr().ToString());
+        }
+
+        void Macro()
+        {
+            printHandler?.Invoke(ChatMessageChannelType.None, "/" + Expr().ToString());
         }
 
         void Input()

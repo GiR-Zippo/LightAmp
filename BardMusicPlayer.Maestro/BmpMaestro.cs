@@ -276,14 +276,14 @@ namespace BardMusicPlayer.Maestro
         /// <summary>
         /// Send a chat text; 0 for all or number in list
         /// </summary>
-        public void SendText(int num, string text)
+        public void SendText(int num, ChatMessageChannelType type, string text)
         {
             var perf = _orchestrator.GetAllPerformers();
             if (num == 0)
             {
                 System.Threading.Tasks.Parallel.ForEach(perf, p =>
                 {
-                    p.SendText(text);
+                    p.SendText(type, text);
                 });
             }
             else
@@ -291,7 +291,7 @@ namespace BardMusicPlayer.Maestro
                 try
                 {
                     Performer performer = perf.ElementAt(num - 1);
-                    performer.SendText(text);
+                    performer.SendText(type, text);
                 }
                 catch {}
             }
@@ -300,14 +300,14 @@ namespace BardMusicPlayer.Maestro
         /// <summary>
         /// Send a chat text; "All" or specific bard name
         /// </summary>
-        public void SendText(string BardName, string text)
+        public void SendText(string BardName, ChatMessageChannelType type, string text)
         {
             var perf = _orchestrator.GetAllPerformers();
             if (BardName.Equals("All"))
             {
                 System.Threading.Tasks.Parallel.ForEach(perf, p =>
                 {
-                    p.SendText(text);
+                    p.SendText(type, text);
                 });
             }
             else
@@ -315,7 +315,7 @@ namespace BardMusicPlayer.Maestro
                 try
                 {
                     Performer performer = perf.AsParallel().Where(p => p.game.PlayerName.Equals(BardName)).First();
-                    performer.SendText(text);
+                    performer.SendText(type, text);
                 }
                 catch {}
             }
