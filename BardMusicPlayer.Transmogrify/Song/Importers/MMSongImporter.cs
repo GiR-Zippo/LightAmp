@@ -90,6 +90,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                             foreach (var seqData in lyrics.sequence)
                             {
                                 var f = lyrics.lines[seqData.Value];
+                                f = f.Replace("/s ", "");
                                 timedEvents.Add(new TimedEvent(new LyricEvent(lyrics.lines[seqData.Value]), seqData.Key));
                             }
                         }
