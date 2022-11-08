@@ -75,6 +75,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="5"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
@@ -106,7 +107,14 @@
                         <Label    Grid.Column="0" Content="Lyrics Track Number:"/>
                         <control:NumericUpDown Grid.Column="1" x:Name="Lyrics_TrackNr"   PreviewMouseUp="Lyrics_TrackNr_PreviewMouseUp" Value="-1"  ToolTip="Enables the lyrics parsing &#13;0 means stop lyrics parsing &#13;1 the first lyrics track (lyric tracks are separate from the music tracks)" />
                     </Grid>
-
+                    <Grid Grid.Row="4" Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label    Grid.Column="0" Content="Set Gfx to low:"/>
+                        <CheckBox Grid.Column="1" x:Name="GfxTest" Click="GfxTest_Checked" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </Grid>
 
 

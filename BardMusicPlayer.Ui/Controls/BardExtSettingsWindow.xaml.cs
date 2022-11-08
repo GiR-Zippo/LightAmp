@@ -8,6 +8,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BardMusicPlayer.Quotidian.Structs;
+using Melanchall.DryWetMidi.Core;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -48,11 +50,9 @@ namespace BardMusicPlayer.Ui.Controls
 
             }
 
-
             this.Lyrics_TrackNr.Value = performer.SingerTrackNr.ToString();
-
+            GfxTest.IsChecked = _performer.LowGfxMode;
             PopulateCPUTab();
-
         }
 
         private void Songtitle_Post_Type_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -234,5 +234,19 @@ namespace BardMusicPlayer.Ui.Controls
         }
 
         #endregion
+
+        private void GfxTest_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((bool)GfxTest.IsChecked)
+            {
+                GameExtensions.GfxSetLow(_performer.game, true);
+                _performer.LowGfxMode = true;
+            }
+            else
+            {
+                GameExtensions.GfxSetLow(_performer.game, false);
+                _performer.LowGfxMode = false;
+            }
+        }
     }
 }

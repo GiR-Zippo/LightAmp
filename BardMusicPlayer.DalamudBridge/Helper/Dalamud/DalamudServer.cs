@@ -109,6 +109,19 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             return true;
         }
 
+        internal bool SendGfxLow(int pid, bool arg)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.SetGfx,
+                message = arg ? "1" : "0"
+            });
+            return true;
+        }
+
         /// <summary>
         /// If message from client rec
         /// </summary>

@@ -8,6 +8,7 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         Handshake,
         Chat,
         Instrument,
-        AcceptReply
+        AcceptReply,
+        SetGfx
     }
 }
