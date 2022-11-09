@@ -38,6 +38,9 @@
                         <CheckBox Content="Autoequip" x:Name="Autoequip_CheckBox" Unchecked="Autoequip_CheckBox_Checked" Checked="Autoequip_CheckBox_Checked"/>
                         <MenuItem Header="Load Performer Settings"       Click="Load_Performer_Settings" />
                         <MenuItem Header="Save Performer Settings"       Click="Save_Performer_Settings" />
+                        <MenuItem Header=""/>
+                        <CheckBox Content="Set all Gfx to low" x:Name="GfxLow_CheckBox" Unchecked="GfxLow_CheckBox_Checked" Checked="GfxLow_CheckBox_Checked"/>
+
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
@@ -67,6 +70,13 @@
                         <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding PlayerName}"                                   MouseDown="Bard_MouseDown"/>
                         <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding HomeWorld, Mode=OneTime, StringFormat=m\\:ss}" MouseDown="Bard_MouseDown" />
 
+<!--
+                        <ComboBox Grid.Column="3" Grid.Row="0" x:Name="Autostart_source" SelectionChanged="Autostart_source_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                            <ComboBoxItem>Disabled</ComboBoxItem>
+                            <ComboBoxItem>Chat</ComboBoxItem>
+                            <ComboBoxItem>Metronome</ComboBoxItem>
+                        </ComboBox>
+-->
                         <TextBlock Grid.Column="3" Grid.Row="1" Text="{Binding TrackInstrument,  StringFormat=m\\:ss}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">

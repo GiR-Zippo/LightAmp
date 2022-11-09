@@ -261,6 +261,15 @@ namespace BardMusicPlayer.Ui.Controls
             fileStream.Close();
         }
 
+        private void GfxLow_CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            foreach (var p in Bards)
+            {
+                p.LowGfxMode = GfxLow_CheckBox.IsChecked ?? false;
+                DalamudBridge.GameExtensions.GfxSetLow(p.game, GfxLow_CheckBox.IsChecked ?? false);
+            }
+        }
+
         /// <summary>
         /// Button context menu routine
         /// </summary>

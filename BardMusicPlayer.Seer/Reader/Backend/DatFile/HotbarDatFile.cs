@@ -137,6 +137,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
             };
             return ac;
         }
+
         ~HotbarDatFile() => Dispose();
         public void Dispose()
         {

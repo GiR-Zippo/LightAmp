@@ -680,17 +680,18 @@ namespace BardMusicPlayer.Maestro
                 {
                     Parallel.ForEach(_performers, perf =>
                     {
-                        _ = perf.Value.ReplaceInstrument();
+                        if (!perf.Value.HostProcess)
+                            _ = perf.Value.ReplaceInstrument();
                     });
                 }
             }
 
+            //Look up for our host bard
             Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
             if (perf != null)
             {
                 if (BmpPigeonhole.Instance.AutoEquipBards)
                     _ = perf.ReplaceInstrument().Result;
-
                 perf.Sequencer.PlayEnded += Sequencer_PlayEnded;
             }
 
