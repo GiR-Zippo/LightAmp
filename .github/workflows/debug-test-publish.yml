@@ -1,0 +1,33 @@
+name: Test and Publish Debug
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    runs-on: windows-latest
+
+    env:
+      Solution_Name: LightAmp
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Install .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+
+    - name: Build with dotnet
+      run: dotnet build --configuration Debug
+
+    - name: Store artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: LightAmp
+        path: BardMusicPlayer.Ui\bin\Debug\net48\*.exe
+        if-no-files-found: error
+        retention-days: 1
