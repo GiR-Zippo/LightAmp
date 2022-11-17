@@ -106,6 +106,9 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
+            if (_Macros.Count <= 0)
+                return;
+
             var openFileDialog = new Microsoft.Win32.SaveFileDialog
             {
                 Filter = "Macrolist | *.cfg"
