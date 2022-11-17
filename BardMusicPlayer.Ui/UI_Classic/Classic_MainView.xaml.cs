@@ -306,7 +306,7 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Info_Button_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            /*var openFileDialog = new Microsoft.Win32.OpenFileDialog
             {
                 Filter = "BASIC file|*.bas",
                 Multiselect = false
@@ -322,6 +322,9 @@ namespace BardMusicPlayer.Ui.Classic
             /*if (_networkWindow == null)
                 _networkWindow = new NetworkPlayWindow();
             _networkWindow.Visibility = Visibility.Visible;*/
+
+            MacroLaunchpad macroLaunchpad = new MacroLaunchpad();
+            macroLaunchpad.Visibility = Visibility.Visible;
         }
 
         /// <summary>

@@ -60,10 +60,10 @@ namespace BardMusicPlayer.Seer
                 _eventQueueLowPriority  = new ConcurrentQueue<SeerEvent>();
                 _eventQueueOpen         = true;
 
-                DatReader     = new ReaderHandler(this, new DatFileReaderBackend(1));
-                MemoryReader  = new ReaderHandler(this, new SharlayanReaderBackend(1));
-                NetworkReader = new ReaderHandler(this, new MachinaReaderBackend(1));
-
+                DatReader      = new ReaderHandler(this, new DatFileReaderBackend(1));
+                MemoryReader   = new ReaderHandler(this, new SharlayanReaderBackend(1));
+                NetworkReader  = new ReaderHandler(this, new MachinaReaderBackend(1));
+                GfxSettingsLow = CheckIfGfxIsLow();
                 _eventTokenSource = new CancellationTokenSource();
                 Task.Factory.StartNew(() => RunEventQueue(_eventTokenSource.Token), TaskCreationOptions.LongRunning);
 

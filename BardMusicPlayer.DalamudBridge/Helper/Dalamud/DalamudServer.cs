@@ -139,6 +139,19 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
                 _clients.TryAdd(t, e.Connection.PipeName);
                 Debug.WriteLine($"Dalamud client Id {e.Connection.PipeName} {t} connected");
             }
+            if (inMsg.msgType == MessageType.SetGfx)
+            {
+                try
+                {
+                    var t = inMsg.message;
+                    int pid = Convert.ToInt32(t.Split(':')[0]);
+                    bool lowsettings = Convert.ToBoolean(t.Split(':')[1]);
+                    if (Seer.BmpSeer.Instance.Games.ContainsKey(pid))
+                        Seer.BmpSeer.Instance.Games[pid].GfxSettingsLow = lowsettings;
+                }
+                catch
+                {}
+            }
         }
 
         /// <summary>

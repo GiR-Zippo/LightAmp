@@ -51,7 +51,7 @@ namespace BardMusicPlayer.Ui.Controls
             }
 
             this.Lyrics_TrackNr.Value = performer.SingerTrackNr.ToString();
-            GfxTest.IsChecked = _performer.LowGfxMode;
+            GfxTest.IsChecked = _performer.game.GfxSettingsLow;
             PopulateCPUTab();
         }
 
@@ -239,13 +239,17 @@ namespace BardMusicPlayer.Ui.Controls
         {
             if ((bool)GfxTest.IsChecked)
             {
+                if (_performer.game.GfxSettingsLow)
+                    return;
                 GameExtensions.GfxSetLow(_performer.game, true);
-                _performer.LowGfxMode = true;
+                _performer.game.GfxSettingsLow = true;
             }
             else
             {
+                if (!_performer.game.GfxSettingsLow)
+                    return;
                 GameExtensions.GfxSetLow(_performer.game, false);
-                _performer.LowGfxMode = false;
+                _performer.game.GfxSettingsLow = false;
             }
         }
     }

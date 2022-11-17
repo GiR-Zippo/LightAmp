@@ -61,7 +61,6 @@ namespace BardMusicPlayer.Maestro.Performance
         }
 
         public bool PerformerEnabled { get; set; } = true;
-        public bool LowGfxMode { get; set; } = false; //has to be here atm
         public EventHandler onUpdate;
         public bool HostProcess { get; set; } = false;
         public int PId = 0;
