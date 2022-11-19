@@ -129,6 +129,24 @@ namespace BardMusicPlayer.Maestro
         }
 
         /// <summary>
+        /// sets the speed for bard
+        /// </summary>
+        public void SetSpeedShift(Performer p, float percentage)
+        {
+            if (_orchestrator != null)
+                _orchestrator.SetSpeedshift(p, percentage);
+        }
+
+        /// <summary>
+        /// sets the speed for host performer
+        /// </summary>
+        public void SetSpeedShiftOnHost(float percentage)
+        {
+            if (_orchestrator != null)
+                _orchestrator.SetSpeedshiftOnHost(percentage);
+        }
+
+        /// <summary>
         /// Sets the playback at position (timeindex in ticks)
         /// </summary>
         /// <param name="ticks">time ticks</param>

@@ -7,6 +7,10 @@ using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Siren;
+using BasicSharp;
+using BardMusicPlayer.Quotidian;
+using System.Numerics;
+using Newtonsoft.Json.Linq;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -35,6 +39,7 @@ namespace BardMusicPlayer.Ui.Classic
             BmpMaestro.Instance.OnPlaybackStopped       += Instance_PlaybackStopped;
             BmpMaestro.Instance.OnTrackNumberChanged    += Instance_TrackNumberChanged;
             BmpMaestro.Instance.OnOctaveShiftChanged    += Instance_OctaveShiftChanged;
+            BmpMaestro.Instance.OnSpeedChanged          += Instance_OnSpeedChange;
             BmpSeer.Instance.ChatLog                    += Instance_ChatLog;
 
             Siren_Volume.Value = BmpSiren.Instance.GetVolume();
@@ -94,6 +99,11 @@ namespace BardMusicPlayer.Ui.Classic
             this.Dispatcher.BeginInvoke(new Action(() => this.OctaveShiftChanged(e)));
         }
 
+        private void Instance_OnSpeedChange(object sender, Maestro.Events.SpeedShiftEvent e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => this.SpeedShiftChange(e)));
+        }
+
         private void Instance_ChatLog(Seer.Events.ChatLog seerEvent)
         {
             this.Dispatcher.BeginInvoke(new Action(() => this.AppendChatLog(seerEvent)));
@@ -139,7 +149,7 @@ namespace BardMusicPlayer.Ui.Classic
             UpdateStats(e);
             //update heatmap
             KeyHeat.initUI(PlaybackFunctions.CurrentSong, NumValue, OctaveNumValue);
-
+            SpeedNumValue = 1.0f;
             if (PlaybackFunctions.PlaybackState != PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
                 Play_Button_State(false);
 
@@ -188,6 +198,12 @@ namespace BardMusicPlayer.Ui.Classic
         {
             if (e.IsHost)
                 OctaveNumValue = e.OctaveShift;
+        }
+
+        public void SpeedShiftChange(Maestro.Events.SpeedShiftEvent e)
+        {
+            if (e.IsHost)
+                SpeedNumValue = e.SpeedShift;
         }
 
         public void AppendChatLog(Seer.Events.ChatLog ev)
@@ -297,6 +313,45 @@ namespace BardMusicPlayer.Ui.Classic
             }
         }
         #endregion
+
+        #region Speed shift
+        private float _speedNumValue = 1.0f;
+        public float SpeedNumValue
+        {
+            get { return _speedNumValue; }
+            set
+            {
+                _speedNumValue = value;
+                speed_txtNum.Text = (value*100).ToString()+"%";
+            }
+        }
+
+        private void speed_txtNum_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (speed_txtNum == null)
+                return;
+
+            int t = 0;
+            if (int.TryParse(speed_txtNum.Text.Replace(@"%", ""), out t))
+            {
+                var speedShift = (Convert.ToDouble(t) / 100).Clamp(0.1f, 2.0f);
+                BmpMaestro.Instance.SetSpeedShiftOnHost((float)speedShift);
+            }
+        }
+
+        private void speed_cmdUp_Click(object sender, RoutedEventArgs e)
+        {
+            var speedShift = (SpeedNumValue +0.01);
+            BmpMaestro.Instance.SetSpeedShiftOnHost((float)speedShift);
+        }
+
+        private void speed_cmdDown_Click(object sender, RoutedEventArgs e)
+        {
+            var speedShift = (SpeedNumValue - 0.01);
+            BmpMaestro.Instance.SetSpeedShiftOnHost((float)speedShift);
+        }
+        #endregion
+
 
         private void Info_Button_Click(object sender, RoutedEventArgs e)
         {

@@ -328,8 +328,6 @@
                                 <Button Grid.Column="3" x:Name="Siren_Stop" Content="Stop" Click="Siren_Stop_Click" Height="20" Width="30" />
                                 <Button Grid.Column="6" x:Name="Siren_SaveLRC" Content="Save Lrc" Click="Siren_Save_LRC_Click" Height="20" Width="50" />
                             </Grid>
-
-
                         </Grid>
                     </TabItem>
                     <TabItem Header="SongBrowser">
@@ -346,8 +344,8 @@
                     <ColumnDefinition Width="25"/>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="60"/>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" x:Name="Rewind" Content="⏪" Click="Rewind_Click" Margin="2,0,3,0" />
                 <TextBox Grid.Column="1" x:Name="SongName" PreviewMouseDown="SongName_PreviewMouseDown" Height="25" TextWrapping="Wrap" Text="Songname" FontSize="16" TextAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="True" Margin="3,0,5,0"/>
@@ -367,24 +365,8 @@
                         <Button Grid.Row="1" x:Name="track_cmdDown" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Segoe MDL2 Assets" Content="&#xE70D;" Click="track_cmdDown_Click" Width="12" TextOptions.TextHintingMode="Fixed"/>
                     </Grid>
                 </Grid>
-                <!-- Octave Selection-->
-                <Grid Grid.Column="3" HorizontalAlignment="Left" Width="38">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" x:Name="octave_txtNum" x:FieldModifier="private" Text="ø0" TextChanged="octave_txtNum_TextChanged" TextAlignment="Center" FontSize="14" HorizontalAlignment="Right" Width="28" Height="25" VerticalAlignment="Top" />
-                    <Grid Grid.Column="1" Margin="0,0,-7,0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="12"/>
-                            <RowDefinition Height="12"/>
-                        </Grid.RowDefinitions>
-                        <Button Grid.Row="0" x:Name="octave_cmdUp"   FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Segoe MDL2 Assets" Content="&#xE70E;" Click="octave_cmdUp_Click"   Width="12" TextOptions.TextHintingMode="Fixed" />
-                        <Button Grid.Row="1" x:Name="octave_cmdDown" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Segoe MDL2 Assets" Content="&#xE70D;" Click="octave_cmdDown_Click" Width="12" TextOptions.TextHintingMode="Fixed"/>
-                    </Grid>
-                </Grid>
                 <!-- End Track Selection-->
-                <Button Grid.Column="4" Content="All tracks" x:Name="all_tracks_button" Click="all_tracks_button_Click" HorizontalAlignment="Right" Width="69" FontSize="12"/>
+                <Button Grid.Column="4" Content="All tracks" x:Name="all_tracks_button" Click="all_tracks_button_Click" HorizontalAlignment="Right" Width="60" FontSize="12"/>
             </Grid>
             <!-- Playbar Row -->
             <Grid Grid.Row="2" Grid.ColumnSpan="3">
@@ -397,7 +379,50 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="40"/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Row="0" Grid.ColumnSpan="3" FontSize="10" Content="Performing"/>
+                <Grid Grid.Row="0" Grid.ColumnSpan="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" FontSize="10" Content="Performing"/>
+
+                    <!-- Octave Selection-->
+                    <Grid Grid.Column="1" HorizontalAlignment="Left" Width="38">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" x:Name="octave_txtNum" x:FieldModifier="private" Text="ø0" TextChanged="octave_txtNum_TextChanged" TextAlignment="Center" FontSize="14" HorizontalAlignment="Right" Width="28" Height="25" VerticalAlignment="Top" />
+                        <Grid Grid.Column="1" Margin="0,0,-7,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="12"/>
+                                <RowDefinition Height="12"/>
+                            </Grid.RowDefinitions>
+                            <Button Grid.Row="0" x:Name="octave_cmdUp"   FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Segoe MDL2 Assets" Content="&#xE70E;" Click="octave_cmdUp_Click"   Width="12" TextOptions.TextHintingMode="Fixed" />
+                            <Button Grid.Row="1" x:Name="octave_cmdDown" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Segoe MDL2 Assets" Content="&#xE70D;" Click="octave_cmdDown_Click" Width="12" TextOptions.TextHintingMode="Fixed"/>
+                        </Grid>
+                    </Grid>
+                    <!-- Speed Selection-->
+                    <Grid Grid.Column="3" HorizontalAlignment="Left" Width="Auto">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" x:Name="speed_txtNum" x:FieldModifier="private" Text="100%" TextChanged="speed_txtNum_TextChanged" TextAlignment="Justify" HorizontalAlignment="Stretch" Width="48" Height="25" VerticalAlignment="Stretch" FontSize="14" />
+                        <Grid Grid.Column="1" Margin="0,0,-7,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="12"/>
+                                <RowDefinition Height="12"/>
+                            </Grid.RowDefinitions>
+                            <Button Grid.Row="0" x:Name="speed_cmdUp"   FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Segoe MDL2 Assets" Content="&#xE70E;" Click="speed_cmdUp_Click"   Width="12" TextOptions.TextHintingMode="Fixed" />
+                            <Button Grid.Row="1" x:Name="speed_cmdDown" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Segoe MDL2 Assets" Content="&#xE70D;" Click="speed_cmdDown_Click" Width="12" TextOptions.TextHintingMode="Fixed"/>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                
                 <Label Grid.Row="1" Grid.Column="0" x:Name="ElapsedTime" Content="00:00" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                 <Slider Grid.Row="1" Grid.Column="1" x:Name="Playbar_Slider" Height="25" ValueChanged="Playbar_Slider_ValueChanged" Thumb.DragStarted="Playbar_Slider_DragStarted" Thumb.DragCompleted="Playbar_Slider_DragCompleted" VerticalAlignment="Center" UseLayoutRounding="True" />
                 <Label  Grid.Row="1" Grid.Column="2" x:Name="TotalTime" Content="00:00" HorizontalAlignment="Right" Width="44" Height="25"  />

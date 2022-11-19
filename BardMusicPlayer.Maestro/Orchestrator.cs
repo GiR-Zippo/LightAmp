@@ -13,7 +13,6 @@ using BardMusicPlayer.Maestro.Events;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Maestro.Sequencing;
 using BardMusicPlayer.Pigeonhole;
-using BardMusicPlayer.Quotidian.Enums;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
 using BardMusicPlayer.Transmogrify.Song;
@@ -187,6 +186,38 @@ namespace BardMusicPlayer.Maestro
                 return;
             p.OctaveShift = octave;
             BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(p.game, octave, p.HostProcess));
+        }
+
+        /// <summary>
+        /// sets the speed for host performer (used for Ui)
+        /// </summary>
+        /// <param name="performer"></param>
+        /// <param name="octave"></param>
+        public void SetSpeedshiftOnHost(float speed)
+        {
+            foreach (var perf in _performers)
+            {
+                if (perf.Value.HostProcess)
+                {
+                    perf.Value.Sequencer.Speed = speed;
+                    BmpMaestro.Instance.PublishEvent(new SpeedShiftEvent(perf.Value.game, speed, perf.Value.HostProcess));
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
+        /// sets the speedshift for performer
+        /// </summary>
+        /// <param name="performer"></param>
+        /// <param name="octave"></param>
+        public void SetSpeedshift(Performer p, float speed)
+        {
+            if (p == null)
+                return;
+
+            p.Sequencer.Speed = speed;
+            BmpMaestro.Instance.PublishEvent(new SpeedShiftEvent(p.game, speed, p.HostProcess));
         }
 
         /// <summary>
