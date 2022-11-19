@@ -1,15 +1,9 @@
-﻿using BardMusicPlayer.Transmogrify.Song.Importers;
-using BardMusicPlayer.Ui.Controls;
-using Microsoft.Win32;
+﻿using BardMusicPlayer.Ui.Controls;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Windows;
-using static BasicSharp.Interpreter;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -21,7 +15,7 @@ namespace BardMusicPlayer.Ui.Classic
 
     public partial class MacroLaunchpad : Window
     {
-        public ObservableCollection<Macro> _Macros { get; private set; }
+        public List<Macro> _Macros { get; private set; }
         public Macro SelectedMacro { get; set; }
 
         public MacroLaunchpad()
@@ -29,13 +23,13 @@ namespace BardMusicPlayer.Ui.Classic
             InitializeComponent();
 
             this.DataContext = this;
-            _Macros = new ObservableCollection<Macro>();
-            _Macros.CollectionChanged += Macros_CollectionChanged;
+            _Macros = new List<Macro>();
+            MacroList.ItemsSource = _Macros;
         }
 
-        private void Macros_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void Macros_CollectionChanged()
         {
-            this.MacroList.ItemsSource = _Macros;
+            MacroList.ItemsSource = _Macros;
             this.MacroList.Items.Refresh();
         }
 
@@ -46,9 +40,10 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void MacroList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            SelectedMacro = MacroList.SelectedItem as Macro;
-            Debug.WriteLine(SelectedMacro.File);
+            if (SelectedMacro == null)
+                return;
 
+            SelectedMacro = MacroList.SelectedItem as Macro;
             if (!File.Exists(SelectedMacro.File))
                 return;
             
@@ -67,18 +62,22 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedMacro == null)
-                SelectedMacro = new Macro();
+            var newMacro = new Macro();
 
-            MacroEditWindow macroEdit = new MacroEditWindow(SelectedMacro);
+            MacroEditWindow macroEdit = new MacroEditWindow(newMacro);
             macroEdit.Visibility = Visibility.Visible;
             macroEdit.Closed += MacroEdit_Closed;
-            _Macros.Add(SelectedMacro);
+            _Macros.Add(newMacro);
+            Macros_CollectionChanged();
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)
         {
+            if (SelectedMacro == null)
+                return;
             _Macros.Remove(SelectedMacro);
+            SelectedMacro = null;
+            Macros_CollectionChanged();
         }
 
         private void Load_Click(object sender, RoutedEventArgs e)
@@ -102,6 +101,8 @@ namespace BardMusicPlayer.Ui.Classic
             var x = JsonConvert.DeserializeObject<List<Macro>>(new UTF8Encoding(true).GetString(data));
             foreach (var m in x)
                 _Macros.Add(m);
+
+            Macros_CollectionChanged();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -123,14 +124,13 @@ namespace BardMusicPlayer.Ui.Classic
             FileStream fileStream = File.Create(openFileDialog.FileName);
             fileStream.Write(content, 0, content.Length);
             fileStream.Close();
-        }
 
+            Macros_CollectionChanged();
+        }
 
         private void MacroEdit_Closed(object sender, System.EventArgs e)
         {
             this.MacroList.Items.Refresh();
         }
-
-
     }
 }

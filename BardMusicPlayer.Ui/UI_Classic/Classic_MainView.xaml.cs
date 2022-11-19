@@ -7,10 +7,7 @@ using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Siren;
-using BasicSharp;
 using BardMusicPlayer.Quotidian;
-using System.Numerics;
-using Newtonsoft.Json.Linq;
 
 namespace BardMusicPlayer.Ui.Classic
 {
