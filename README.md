@@ -11,10 +11,14 @@ If you need the compiled version, go to the [Releases](https://github.com/GiR-Zi
 
 ## Hypnotoad
 
-The LightAmp can be used with the [Hypnotoad](https://github.com/GiR-Zippo/Hypnotoad-Plugin) to output lyrics.
+The LightAmp can be used with the [Hypnotoad](https://github.com/GiR-Zippo/Hypnotoad-Plugin) to output lyrics and many more.
 
 Copy this url to your Dalamud and search for the hypnotoad
 
 `https://raw.githubusercontent.com/GiR-Zippo/Hypnotoad-Plugin/master/PluginDir/pluginmaster.json`
 
 Feel free to use, modify or fork it.
+
+## Thx
+
+Thank you for your help Ugly Dolls, T'Sync, City-Wok, Meowchestra, Cupcakes & the Strudels, Ori, Nozomi and Debra.
