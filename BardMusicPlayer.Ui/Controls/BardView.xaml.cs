@@ -227,6 +227,13 @@ namespace BardMusicPlayer.Ui.Controls
                 if (pconfig.AffinityMask != 0)
                     p.First().game.SetAffinity(pconfig.AffinityMask);
             }
+
+            //Set Thymms box, cuz if u use this function, you know what you are doing
+            if (!BmpPigeonhole.Instance.EnsembleKeepTrackSetting)
+            {
+                BmpPigeonhole.Instance.EnsembleKeepTrackSetting = true;
+                Globals.Globals.ReloadConfig();
+            }
         }
 
         /// <summary>
