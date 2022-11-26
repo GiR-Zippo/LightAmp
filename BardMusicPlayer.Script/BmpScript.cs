@@ -5,6 +5,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
@@ -16,7 +17,6 @@ namespace BardMusicPlayer.Script
     public class BmpScript
     {
         private static readonly Lazy<BmpScript> LazyInstance = new(() => new BmpScript());
-        private Task task = null;
 
         /// <summary>
         /// 
@@ -26,14 +26,17 @@ namespace BardMusicPlayer.Script
         private BmpScript()
         {
         }
+        public static BmpScript Instance => LazyInstance.Value;
+
+        public event EventHandler<bool> OnRunningStateChanged;
+
+        private Thread thread = null;
+        private Interpreter basic = null;
 
         private int selectedBard        { get; set; } = 0;
         private string selectedBardName { get; set; } = "";
 
-        public static BmpScript Instance => LazyInstance.Value;
-
-
-        #region Routine Handlers
+#region Routine Handlers
 
         public void SetSelectedBard(int num)
         {
@@ -55,13 +58,32 @@ namespace BardMusicPlayer.Script
                 BmpMaestro.Instance.SendText(selectedBardName, type, text);
         }
 
-        #endregion
+#endregion
+
+#region accessors
+        public void StopExecution()
+        {
+            if (thread == null)
+                return;
+            if (basic == null)
+                return;
+
+            basic.StopExec();
+
+            if (thread.ThreadState == ThreadState.Running)
+                thread.Abort();
+        }
+
+#endregion 
 
         public void LoadAndRun(string basicfile)
         {
             Task task = Task.Run(() =>
             {
-                Interpreter basic = new Interpreter(File.ReadAllText(basicfile));
+                thread = Thread.CurrentThread;
+                if (OnRunningStateChanged != null)
+                    OnRunningStateChanged(this, true);
+                basic = new Interpreter(File.ReadAllText(basicfile));
                 basic.printHandler += Print;
                 basic.selectedBardHandler += SetSelectedBard;
                 basic.selectedBardAsStringHandler += SetSelectedBardName;
@@ -73,6 +95,10 @@ namespace BardMusicPlayer.Script
                 {
                     Console.WriteLine("Error");
                 }
+                if (OnRunningStateChanged != null)
+                    OnRunningStateChanged(this, false);
+
+                basic = null;
             });
         }
 

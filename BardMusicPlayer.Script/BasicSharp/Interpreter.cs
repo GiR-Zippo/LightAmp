@@ -35,6 +35,8 @@ namespace BasicSharp
 
         private bool exit; // do we need to exit?
 
+        public void StopExec() { exit = true; }
+
         public Interpreter(string input)
         {
             this.lex = new Lexer(input);

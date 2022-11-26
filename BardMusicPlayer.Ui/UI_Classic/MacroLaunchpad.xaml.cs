@@ -1,5 +1,7 @@
-﻿using BardMusicPlayer.Ui.Controls;
+﻿using BardMusicPlayer.Script;
+using BardMusicPlayer.Ui.Controls;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -21,10 +23,20 @@ namespace BardMusicPlayer.Ui.Classic
         public MacroLaunchpad()
         {
             InitializeComponent();
+            BmpScript.Instance.OnRunningStateChanged += Instance_OnRunningStateChanged;
+
 
             this.DataContext = this;
             _Macros = new List<Macro>();
             MacroList.ItemsSource = _Macros;
+        }
+
+        private void Instance_OnRunningStateChanged(object sender, bool e)
+        {
+            if (e)
+                this.Dispatcher.BeginInvoke(new Action(() => StopIndicator.Content = "Stop" ));
+            else
+                this.Dispatcher.BeginInvoke(new Action(() => StopIndicator.Content = ""));
         }
 
         private void Macros_CollectionChanged()
@@ -131,6 +143,11 @@ namespace BardMusicPlayer.Ui.Classic
         private void MacroEdit_Closed(object sender, System.EventArgs e)
         {
             this.MacroList.Items.Refresh();
+        }
+
+        private void StopIndicator_Click(object sender, RoutedEventArgs e)
+        {
+            BmpScript.Instance.StopExecution();
         }
     }
 }
