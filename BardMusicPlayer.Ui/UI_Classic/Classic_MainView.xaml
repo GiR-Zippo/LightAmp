@@ -280,8 +280,15 @@
                                 <ColumnDefinition Width="50"/>
                                 <ColumnDefinition Width="100"/>
                             </Grid.ColumnDefinitions>
-                            <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Content="Song title:"/>
-                            <Label Grid.Row="1" Grid.Column="4" Grid.ColumnSpan="4" x:Name="Siren_SongName" Content="No song loaded"/>
+                            <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="Song title:"/>
+                                <Label Grid.Column="1" x:Name="Siren_SongName" Content="No song loaded"/>
+                            </Grid>
+
                             <DataGrid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" ItemsSource="{Binding}"
                                 RowEditEnding="Siren_Lyrics_RowEditEnding"
                                 PreviewMouseDown="Siren_Lyrics_PreviewMouseRightButtonDown"
