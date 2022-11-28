@@ -30,7 +30,9 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro.Native
             mid.midiTracks.Add(getMidiHeader()); //First, untitled track
             foreach (Track track in tracks)
             {
-                mid.midiTracks.Add(track.getMidi());
+                var t = track.getMidi();
+                if (t != null)
+                    mid.midiTracks.Add(t);
             }
             return mid;
         }
@@ -876,6 +878,10 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro.Native
 
         public MidiTrack getMidi()
         {
+            //if there is nothing, return null
+            if (notes.Count - 1 < 0)
+                return null;
+
             var midiTrack = new MidiTrack();
             midiTrack.messages.Add(new MidiMessage("midi_port", new string[] { ""+port }, 0));
             midiTrack.messages.Add(new MidiMessage("track_name", new string[] { name }, 0));
