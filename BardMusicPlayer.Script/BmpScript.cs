@@ -98,6 +98,9 @@ namespace BardMusicPlayer.Script
                 if (OnRunningStateChanged != null)
                     OnRunningStateChanged(this, false);
 
+                basic.printHandler -= Print;
+                basic.selectedBardHandler -= SetSelectedBard;
+                basic.selectedBardAsStringHandler -= SetSelectedBardName;
                 basic = null;
             });
         }
