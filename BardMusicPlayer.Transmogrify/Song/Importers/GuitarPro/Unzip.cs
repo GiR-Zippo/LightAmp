@@ -404,10 +404,6 @@ using System.Text;
         /// <returns>The <see cref="DateTime"/> instance.</returns>
         public static DateTime ConvertToDateTime(int dosTimestamp)
         {
-        
-
-        return DateTime.Now;
-            return new DateTime((dosTimestamp >> 25) + 1980, (dosTimestamp >> 21) & 15, (dosTimestamp >> 16) & 31,
-                (dosTimestamp >> 11) & 31, (dosTimestamp >> 5) & 63, (dosTimestamp & 31) * 2);
+            return DateTime.Now;
         }
     }

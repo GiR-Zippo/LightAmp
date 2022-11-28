@@ -159,7 +159,6 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
             if (length + start > data.Length)
             {
                 return new byte[Math.Max(0, length)];
-                return null;
             }
 
             byte[] ret = new byte[length];

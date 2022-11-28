@@ -6,7 +6,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
     {
 
         static string xml;
-        public List<Track> tracks;
+        //public List<Track> tracks;
 
         public GP7File(string data)
         {

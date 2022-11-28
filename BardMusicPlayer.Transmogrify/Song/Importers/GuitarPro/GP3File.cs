@@ -572,13 +572,13 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
             - *6*: quarter*/
             switch (value)
             {
-                case 1: return Duration.hundredTwentyEigth; break;
-                case 2: return Duration.sixtyFourth; break;
-                case 3: return Duration.thirtySecond; break;
-                case 4: return Duration.sixteenth; break;
-                case 5: return Duration.eigth; break;
-                case 6: return Duration.quarter; break;
-                default: return Duration.sixtyFourth; break;
+                case 1: return Duration.hundredTwentyEigth;
+                case 2: return Duration.sixtyFourth;
+                case 3: return Duration.thirtySecond;
+                case 4: return Duration.sixteenth;
+                case 5: return Duration.eigth;
+                case 6: return Duration.quarter;
+                default: return Duration.sixtyFourth;
             }
         }
 

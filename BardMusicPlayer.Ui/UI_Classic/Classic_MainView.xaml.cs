@@ -8,9 +8,6 @@ using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Siren;
 using BardMusicPlayer.Quotidian;
-using Microsoft.Win32;
-using System.IO;
-using BardMusicPlayer.Transmogrify.Song;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -379,27 +376,6 @@ namespace BardMusicPlayer.Ui.Classic
                 SongName.Text = PlaybackFunctions.GetSongName();
                 InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
                 _directLoaded = true;
-            }
-        }
-
-        private void ExportAsMidi(object sender, RoutedEventArgs e)
-        {
-            BmpSong song = PlaybackFunctions.CurrentSong;
-            Stream myStream;
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-            saveFileDialog.Filter = "MIDI file (*.mid)|*.mid";
-            saveFileDialog.FilterIndex = 2;
-            saveFileDialog.RestoreDirectory = true;
-            saveFileDialog.OverwritePrompt = true;
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                if ((myStream = saveFileDialog.OpenFile()) != null)
-                {
-                    song.GetExportMidi().WriteTo(myStream);
-                    myStream.Close();
-                }
             }
         }
     }
