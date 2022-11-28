@@ -81,6 +81,8 @@ namespace BardMusicPlayer.Transmogrify.Song
                 song = CovertMidiToSong(MMSongImporter.OpenMMSongFile(path), path);
             else if (Path.GetExtension(path).Equals(".mml"))
                 song = CovertMidiToSong(MMLSongImporter.OpenMMLSongFile(path), path);
+            else if (Path.GetExtension(path).Contains(".gp"))
+                song = CovertMidiToSong(Importers.GuitarPro.ImportGuitarPro.OpenGTPSongFile(path), path);
             else
                 song = OpenMidiFile(path);
             return Task.FromResult(song);
@@ -719,7 +721,6 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <returns></returns>
         public MemoryStream GetExportMidi()
         {
-
             List<TrackChunk> c = new List<TrackChunk>();
             foreach (var tc in TrackContainers.Values)
                 c.Add(tc.SourceTrackChunk);
