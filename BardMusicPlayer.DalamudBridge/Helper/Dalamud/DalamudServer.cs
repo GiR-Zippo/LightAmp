@@ -64,10 +64,11 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         internal bool IsConnected(int pid) => _clients.ContainsKey(pid) && _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected) is not null;
 
         /// <summary>
-        /// 
+        /// send a text to the toad, to type during playback
         /// </summary>
-        /// <param name="pid"></param>
-        /// <param name="text"></param>
+        /// <param name="pid">proc Id</param>
+        /// <param name="chanType">channel type</param>
+        /// <param name="text">the message</param>
         /// <returns></returns>
         internal bool SendChat(int pid, ChatMessageChannelType chanType, string text)
         {
@@ -83,6 +84,12 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             return true;
         }
 
+        /// <summary>
+        /// Send intrument open action to the toad
+        /// </summary>
+        /// <param name="pid">proc Id</param>
+        /// <param name="instrumentID">XIV instrument numer</param>
+        /// <returns></returns>
         internal bool SendInstrumentOpen(int pid, int instrumentID)
         {
             if (!IsConnected(pid))
@@ -96,6 +103,12 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             return true;
         }
 
+        /// <summary>
+        /// accept ensemble request action
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <param name="arg"></param>
+        /// <returns></returns>
         internal bool SendAcceptEnsemble(int pid, bool arg)
         {
             if (!IsConnected(pid))
@@ -109,6 +122,12 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             return true;
         }
 
+        /// <summary>
+        /// switch gfx to low and back
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <param name="arg"></param>
+        /// <returns></returns>
         internal bool SendGfxLow(int pid, bool arg)
         {
             if (!IsConnected(pid))
@@ -118,6 +137,19 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             {
                 msgType = MessageType.SetGfx,
                 message = arg ? "1" : "0"
+            });
+            return true;
+        }
+
+        internal bool SendStartEnsemble(int pid)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.StartEnsemble,
+                message = ""
             });
             return true;
         }

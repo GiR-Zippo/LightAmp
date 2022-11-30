@@ -10,6 +10,11 @@ namespace BardMusicPlayer.DalamudBridge
     {
         private static readonly SemaphoreSlim LyricSemaphoreSlim = new (1,1);
 
+        public static bool IsConnected(int pid)
+        {
+            return DalamudBridge.Instance.DalamudServer.IsConnected(pid);
+        }
+
         /// <summary>
         /// Sends a lyric line via say
         /// </summary>
@@ -83,6 +88,21 @@ namespace BardMusicPlayer.DalamudBridge
 
             if (DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid))
                 return Task.FromResult(DalamudBridge.Instance.DalamudServer.SendGfxLow(game.Pid, low));
+            return Task.FromResult(false);
+        }
+
+        /// <summary>
+        /// starts the ensemble check
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="low"></param>
+        /// <returns></returns>
+        public static Task<bool> StartEnsemble(this Game game)
+        {
+            if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
+
+            if (DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid))
+                return Task.FromResult(DalamudBridge.Instance.DalamudServer.SendStartEnsemble(game.Pid));
             return Task.FromResult(false);
         }
     }
