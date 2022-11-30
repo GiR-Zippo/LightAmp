@@ -272,6 +272,20 @@ namespace BardMusicPlayer.Maestro
         }
 
         /// <summary>
+        /// Start the ensemble check
+        /// </summary>
+        public void StartEnsCheck()
+        {
+            if (_orchestrator == null)
+                return;
+            
+            if (_orchestrator.HostGame == null)
+                return;
+
+            DalamudBridge.GameExtensions.StartEnsemble(_orchestrator.HostGame);
+        }
+
+        /// <summary>
         /// Equip the bard with it's instrument
         /// </summary>
         public void EquipInstruments()
@@ -296,6 +310,9 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void SendText(int num, ChatMessageChannelType type, string text)
         {
+            if (_orchestrator == null)
+                return;
+            
             var perf = _orchestrator.GetAllPerformers();
             if (num == 0)
             {
@@ -320,6 +337,9 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void SendText(string BardName, ChatMessageChannelType type, string text)
         {
+            if (_orchestrator == null)
+                return;
+
             var perf = _orchestrator.GetAllPerformers();
             if (BardName.Equals("All"))
             {
