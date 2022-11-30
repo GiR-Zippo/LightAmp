@@ -6,6 +6,8 @@ using System.Windows.Media;
 using BardMusicPlayer.Ui.Functions;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -40,6 +42,23 @@ namespace BardMusicPlayer.Ui.Classic
                 PlaybackFunctions.PlaySong(0);
                 Play_Button_State(true);
             }
+        }
+
+
+        private void Play_Button_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
+                return;
+
+            if (!BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
+                return;
+
+            Task task = Task.Run(() =>
+            {
+                BmpMaestro.Instance.EquipInstruments();
+                Task.Delay(2000).Wait();
+                BmpMaestro.Instance.StartEnsCheck();
+            });
         }
 
         /* Song Select */
