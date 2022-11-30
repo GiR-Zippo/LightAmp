@@ -97,6 +97,11 @@ namespace BardMusicPlayer.Ui.Controls
             this.Dispatcher.BeginInvoke(new Action(() => this.BardsList.ItemsSource = Bards));
         }
 
+        private void RdyCheck_Click(object sender, RoutedEventArgs e)
+        {
+            BmpMaestro.Instance.StartEnsCheck();
+        }
+
         private void OpenInstrumentButton_Click(object sender, RoutedEventArgs e)
         {
             BmpMaestro.Instance.EquipInstruments();
