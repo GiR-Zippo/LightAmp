@@ -405,7 +405,7 @@ namespace BardMusicPlayer.Maestro.Performance
         }
 
         /// <summary>
-        /// Accept the ready check
+        /// do the ready check
         /// </summary>
         public void DoReadyCheck()
         {
