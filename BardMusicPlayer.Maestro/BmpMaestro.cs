@@ -279,10 +279,10 @@ namespace BardMusicPlayer.Maestro
             if (_orchestrator == null)
                 return;
             
-            if (_orchestrator.HostGame == null)
-                return;
-
-            DalamudBridge.GameExtensions.StartEnsemble(_orchestrator.HostGame);
+            var perf = _orchestrator.GetAllPerformers();
+            foreach (var p in perf)
+                if (p.HostProcess)
+                    p.DoReadyCheck();
         }
 
         /// <summary>

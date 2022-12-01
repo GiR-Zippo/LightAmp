@@ -36,7 +36,7 @@ namespace BardMusicPlayer.Ui.Classic
             if (e)
                 this.Dispatcher.BeginInvoke(new Action(() => StopIndicator.Content = "Stop" ));
             else
-                this.Dispatcher.BeginInvoke(new Action(() => StopIndicator.Content = ""));
+                this.Dispatcher.BeginInvoke(new Action(() => StopIndicator.Content = "Idle"));
         }
 
         private void Macros_CollectionChanged()
