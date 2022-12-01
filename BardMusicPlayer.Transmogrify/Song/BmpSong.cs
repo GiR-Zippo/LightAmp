@@ -470,7 +470,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                             else if (notesToFix[j].Length < 100 && notesToFix[j + 1].Time <= notesToFix[j].Time + notesToFix[j].Length + 25)
                             {
                                 dur = notesToFix[j + 1].Time - notesToFix[j].Time - 25;
-                                dur = dur < 25 ? 1 : dur;
+                                dur = dur < 25 ? 25 : dur;
                             }
                         }
                         fixedNotes.Add(new Note(noteNum, dur, time)
