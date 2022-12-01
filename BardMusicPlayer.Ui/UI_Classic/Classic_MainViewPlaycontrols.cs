@@ -50,9 +50,6 @@ namespace BardMusicPlayer.Ui.Classic
             if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
                 return;
 
-            if (!BmpPigeonhole.Instance.UsePluginForInstrumentOpen)
-                return;
-
             Task task = Task.Run(() =>
             {
                 BmpMaestro.Instance.EquipInstruments();
