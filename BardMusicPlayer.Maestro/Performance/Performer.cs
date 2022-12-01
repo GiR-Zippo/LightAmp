@@ -14,6 +14,7 @@ using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Maestro.Performance
@@ -61,7 +62,7 @@ namespace BardMusicPlayer.Maestro.Performance
         }
 
         public bool PerformerEnabled { get; set; } = true;
-        public EventHandler onUpdate;
+        public bool UsesDalamud {  get { return BmpPigeonhole.Instance.UsePluginForInstrumentOpen && GameExtensions.IsConnected(PId); } }
         public bool HostProcess { get; set; } = false;
         public int PId = 0;
         public Game game;

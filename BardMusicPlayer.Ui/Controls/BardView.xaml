@@ -60,14 +60,15 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4" />      <!-- 0 Spacer-->
                             <ColumnDefinition Width="130" />    <!-- 1 -->
-                            <ColumnDefinition Width="*" />      <!-- 2 Spacer-->
+                            <ColumnDefinition Width="Auto" />      <!-- 2 Spacer-->
                             <ColumnDefinition Width="140" />    <!-- 3 -->
-                            <ColumnDefinition Width="10" />     <!-- 4 spacer-->
-                            <ColumnDefinition Width="40" />     <!-- 5 -->
-                            <ColumnDefinition Width="40" />     <!-- 6 spacer-->
-                            <ColumnDefinition Width="35" />     <!-- 7 -->
-                            <ColumnDefinition Width="15" />     <!-- 8 spacer-->
-                            <ColumnDefinition Width="40" />     <!-- 9 -->
+                            <ColumnDefinition Width="10" />     <!-- 4 dalamud-->
+                            <ColumnDefinition Width="10" />     <!-- 5 spacer-->
+                            <ColumnDefinition Width="40" />     <!-- 6 track-->
+                            <ColumnDefinition Width="40" />     <!-- 7 octave-->
+                            <ColumnDefinition Width="35" />     <!-- 8 -->
+                            <ColumnDefinition Width="10" />     <!-- 9 spacer-->
+                            <ColumnDefinition Width="40" />     <!-- 10 -->
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding PlayerName}"                                   MouseDown="Bard_MouseDown"/>
@@ -95,15 +96,30 @@
                             </TextBlock.Style>
                         </TextBlock>
 
-                        <TextBlock Grid.Column="5" Grid.Row="0" Text="Track" HorizontalAlignment="Center" />
-                        <control:TrackNumericUpDown Grid.Column="5" Grid.Row="1"  x:Name="TrackControl"   PreviewMouseUp="TrackNumericUpDown_MouseUp"   Value="{Binding TrackNumber}"/>
-                        <control:OctaveNumericUpDown Grid.Column="6" Grid.Row="1" x:Name="OctaveControl"  PreviewMouseUp="OctaveControl_PreviewMouseUp" Value="{Binding OctaveShift}"/>
+                        <TextBlock Grid.Column="4" Grid.Row="1" Text="">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding UsesDalamud}" Value="False">
+                                            <Setter Property="Background" Value="Yellow"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding UsesDalamud}" Value="True">
+                                            <Setter Property="Background" Value="GreenYellow"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
 
-                        <TextBlock Grid.Column="7" Grid.Row="0" Text="Host" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <CheckBox  Grid.Column="7" Grid.Row="1" x:Name="HostChecker" HorizontalAlignment="Center" Checked="HostChecker_Checked" IsChecked="{Binding HostProcess, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="6" Grid.Row="0" Text="Track" HorizontalAlignment="Center" />
+                        <control:TrackNumericUpDown Grid.Column="6" Grid.Row="1"  x:Name="TrackControl"   PreviewMouseUp="TrackNumericUpDown_MouseUp"   Value="{Binding TrackNumber}"/>
+                        <control:OctaveNumericUpDown Grid.Column="7" Grid.Row="1" x:Name="OctaveControl"  PreviewMouseUp="OctaveControl_PreviewMouseUp" Value="{Binding OctaveShift}"/>
 
-                        <TextBlock Grid.Column="9" Grid.Row="0" Text="Enabled" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <CheckBox  Grid.Column="9" Grid.Row="1" x:Name="PerfomerEnabled" HorizontalAlignment="Center" Checked="PerfomerEnabledChecker_Checked" IsChecked="{Binding PerformerEnabled, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="8" Grid.Row="0" Text="Host" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <CheckBox  Grid.Column="8" Grid.Row="1" x:Name="HostChecker" HorizontalAlignment="Center" Checked="HostChecker_Checked" IsChecked="{Binding HostProcess, Mode=TwoWay}"/>
+
+                        <TextBlock Grid.Column="10" Grid.Row="0" Text="Enabled" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <CheckBox  Grid.Column="10" Grid.Row="1" x:Name="PerfomerEnabled" HorizontalAlignment="Center" Checked="PerfomerEnabledChecker_Checked" IsChecked="{Binding PerformerEnabled, Mode=TwoWay}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
