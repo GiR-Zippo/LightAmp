@@ -342,7 +342,7 @@ namespace BardMusicPlayer.Maestro.Performance
             if (!trackAndChannelOk())
                 return;
 
-            if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen && GameExtensions.IsConnected(PId))
+            if (UsesDalamud)
                 DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = Instrument.Parse(TrackInstrument).Index });
             else
             {
@@ -369,7 +369,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 {
                     _hook.ClearLastPerformanceKeybinds();
 
-                    if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen && GameExtensions.IsConnected(PId))
+                    if (UsesDalamud)
                         DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = 0 });
                     else
                         _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
@@ -377,7 +377,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 }
             }
 
-            if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen && GameExtensions.IsConnected(PId))
+            if (UsesDalamud)
                 DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = Instrument.Parse(TrackInstrument).Index });
             else
             {
@@ -399,7 +399,7 @@ namespace BardMusicPlayer.Maestro.Performance
 
             _hook.ClearLastPerformanceKeybinds();
 
-            if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen && GameExtensions.IsConnected(PId))
+            if (UsesDalamud)
                 DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = 0 });
             else
                 _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.ESC]);
@@ -419,7 +419,7 @@ namespace BardMusicPlayer.Maestro.Performance
                     return;
             }
 
-            if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen && GameExtensions.IsConnected(PId))
+            if (UsesDalamud)
             {
                 GameExtensions.StartEnsemble(game);
                 return;
@@ -451,7 +451,7 @@ namespace BardMusicPlayer.Maestro.Performance
                     return;
             }
 
-            if (BmpPigeonhole.Instance.UsePluginForInstrumentOpen && GameExtensions.IsConnected(PId))
+            if (UsesDalamud)
             {
                 DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.AcceptReply, game = game, BoolData = true});
                 return;
@@ -506,6 +506,28 @@ namespace BardMusicPlayer.Maestro.Performance
         public void SendText(ChatMessageChannelType type, string text)
         {
             GameExtensions.SendText(game, type, text);
+        }
+
+        public void TapKey(string modifier, string character)
+        {
+            try
+            {
+                Quotidian.Enums.Keys key = Quotidian.Enums.KeyTranslation.ASCIIToGame[character];
+                if (key == null)
+                    return;
+
+                if (modifier.ToLower().Contains("shift"))
+                    key = (int)Quotidian.Enums.Keys.Shift + key;
+                else if (modifier.ToLower().Contains("ctrl"))
+                    key = (int)Quotidian.Enums.Keys.Control + key;
+                else if (modifier.ToLower().Contains("alt"))
+                    key = (int)Quotidian.Enums.Keys.Alt + key;
+                _hook.SendSyncKeybind(key);
+            }
+            catch
+            {
+
+            }
         }
         #endregion
 
