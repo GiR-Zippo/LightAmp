@@ -27,6 +27,7 @@ namespace BasicSharp
         End,
         Assert,
         Select,
+        UnSelect,
         Sleep,
         TapKey,
 

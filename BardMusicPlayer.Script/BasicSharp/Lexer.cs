@@ -96,6 +96,7 @@ namespace BasicSharp
                     case "NOT": return Token.Not;
                     case "ASSERT": return Token.Assert;
                     case "SELECT": return Token.Select;
+                    case "UNSELECT": return Token.UnSelect;
                     case "SLEEP": return Token.Sleep;
                     case "TAPKEY": return Token.TapKey;
                     case "REM":

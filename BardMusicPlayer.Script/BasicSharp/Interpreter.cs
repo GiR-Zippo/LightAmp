@@ -12,12 +12,14 @@ namespace BasicSharp
         public delegate void TapKeyFunction(string modifier, string character);
         public delegate void SelectedBard(int num);
         public delegate void SelectedBardAsString(string name);
+        public delegate void UnSelectBard(string name);
         public delegate string InputFunction();
 
         public PrintFunction printHandler;
         public TapKeyFunction tapKeyHandler;
         public SelectedBard  selectedBardHandler;
         public SelectedBardAsString selectedBardAsStringHandler;
+        public UnSelectBard unselectBardHandler;
 
         public InputFunction inputHandler;
 
@@ -142,6 +144,7 @@ namespace BasicSharp
                 case Token.End: End(); break;
                 case Token.Assert: Assert(); break;
                 case Token.Select: Select(); break;
+                case Token.UnSelect: UnSelect(); break;
                 case Token.Sleep: Sleep(); break;
                 case Token.TapKey: TapKey(); break;
                 case Token.Identifier:
@@ -394,6 +397,13 @@ namespace BasicSharp
                 selectedBardHandler?.Invoke((int)v.Real);
             else
                 selectedBardAsStringHandler?.Invoke(v.ToString());
+        }
+
+        void UnSelect()
+        {
+            var v = Expr();
+            if (v.Type == ValueType.String)
+                unselectBardHandler?.Invoke(v.ToString());
         }
 
         void Sleep()

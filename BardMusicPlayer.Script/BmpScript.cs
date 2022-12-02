@@ -4,10 +4,13 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Pigeonhole;
@@ -36,6 +39,7 @@ namespace BardMusicPlayer.Script
         private Interpreter basic = null;
 
         private string selectedBardName { get; set; } = "";
+        private List<string> unselected_bards { get; set; } = null;
 
 #region Routine Handlers
 
@@ -66,14 +70,35 @@ namespace BardMusicPlayer.Script
             selectedBardName = name;
         }
 
+        public void UnSelectBardName(string name)
+        {
+            if (name.ToLower().Equals(""))
+                unselected_bards.Clear();
+            else
+            {
+                if (name.Contains(","))
+                {
+                    var names = name.Split(',');
+                    Parallel.ForEach(names, n =>
+                    {
+                        string cname = n.Trim();
+                        if (cname != "")
+                            unselected_bards.Add(cname);
+                    });
+                }
+                else
+                    unselected_bards.Add(name);
+            }
+        }
+
         public void Print(Quotidian.Structs.ChatMessageChannelType type, string text)
         {
-            BmpMaestro.Instance.SendText(selectedBardName, type, text);
+            BmpMaestro.Instance.SendText(selectedBardName, type, text, unselected_bards);
         }
 
         public void TapKey(string modifier, string character)
         {
-            BmpMaestro.Instance.TapKey(selectedBardName, modifier, character);
+            BmpMaestro.Instance.TapKey(selectedBardName, modifier, character, unselected_bards);
         }
 
         #endregion
@@ -101,11 +126,14 @@ namespace BardMusicPlayer.Script
                 thread = Thread.CurrentThread;
                 if (OnRunningStateChanged != null)
                     OnRunningStateChanged(this, true);
+
+                unselected_bards = new List<string>();
                 basic = new Interpreter(File.ReadAllText(basicfile));
                 basic.printHandler += Print;
                 basic.tapKeyHandler += TapKey;
                 basic.selectedBardHandler += SetSelectedBard;
                 basic.selectedBardAsStringHandler += SetSelectedBardName;
+                basic.unselectBardHandler += UnSelectBardName;
                 try
                 {
                     basic.Exec();
@@ -117,10 +145,12 @@ namespace BardMusicPlayer.Script
                 if (OnRunningStateChanged != null)
                     OnRunningStateChanged(this, false);
 
+                unselected_bards = null;
                 basic.printHandler -= Print;
                 basic.tapKeyHandler -= TapKey;
                 basic.selectedBardHandler -= SetSelectedBard;
                 basic.selectedBardAsStringHandler -= SetSelectedBardName;
+                basic.unselectBardHandler -= UnSelectBardName;
                 basic = null;
             });
         }

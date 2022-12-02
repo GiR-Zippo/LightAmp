@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Quotidian.Structs;
@@ -308,7 +309,7 @@ namespace BardMusicPlayer.Maestro
         /// <summary>
         /// Send a chat text; "All" or specific bard name
         /// </summary>
-        public void SendText(string BardName, ChatMessageChannelType type, string text)
+        public void SendText(string BardName, ChatMessageChannelType type, string text, List<string> unselected_bards = null)
         {
             if (_orchestrator == null)
                 return;
@@ -321,7 +322,13 @@ namespace BardMusicPlayer.Maestro
             {
                 System.Threading.Tasks.Parallel.ForEach(perf, p =>
                 {
-                    p.SendText(type, text);
+                    if (unselected_bards == null || unselected_bards.Count() <= 0)
+                        p.SendText(type, text);
+                    else
+                    {
+                        if (!unselected_bards.Contains(p.game.PlayerName))
+                            p.SendText(type, text);
+                    }
                 });
             }
             else
@@ -335,7 +342,7 @@ namespace BardMusicPlayer.Maestro
             }
         }
 
-        public void TapKey(string BardName, string modifier, string character)
+        public void TapKey(string BardName, string modifier, string character, List<string> unselected_bards = null)
         {
             if (_orchestrator == null)
                 return;
@@ -348,7 +355,13 @@ namespace BardMusicPlayer.Maestro
             {
                 System.Threading.Tasks.Parallel.ForEach(perf, p =>
                 {
-                    p.TapKey(modifier, character);
+                    if (unselected_bards == null || unselected_bards.Count() <= 0)
+                        p.TapKey(modifier, character);
+                    else
+                    {
+                        if (!unselected_bards.Contains(p.game.PlayerName))
+                            p.TapKey(modifier, character);
+                    }
                 });
             }
             else
