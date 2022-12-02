@@ -5,9 +5,11 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BardMusicPlayer.Maestro;
+using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BasicSharp;
@@ -33,34 +35,50 @@ namespace BardMusicPlayer.Script
         private Thread thread = null;
         private Interpreter basic = null;
 
-        private int selectedBard        { get; set; } = 0;
         private string selectedBardName { get; set; } = "";
 
 #region Routine Handlers
 
         public void SetSelectedBard(int num)
         {
-            selectedBardName = "";
-            selectedBard = num;
+            if (num == 0)
+            {
+                selectedBardName = "all";
+                return;
+            }
+
+            var plist = BmpMaestro.Instance.GetAllPerformers();
+            if (plist.Count() <= 0)
+            {
+                selectedBardName = "";
+                return;
+            }
+
+            Performer performer = plist.ElementAt(num - 1);
+            if (performer != null)
+                selectedBardName = performer.game.PlayerName;
+            else
+                selectedBardName = "";
         }
 
         public void SetSelectedBardName(string name)
         {
-            selectedBard = -1;
             selectedBardName = name;
         }
 
         public void Print(Quotidian.Structs.ChatMessageChannelType type, string text)
         {
-            if (selectedBard != -1)
-                BmpMaestro.Instance.SendText(selectedBard, type, text);
-            else
-                BmpMaestro.Instance.SendText(selectedBardName, type, text);
+            BmpMaestro.Instance.SendText(selectedBardName, type, text);
         }
 
-#endregion
+        public void TapKey(string modifier, string character)
+        {
+            BmpMaestro.Instance.TapKey(selectedBardName, modifier, character);
+        }
 
-#region accessors
+        #endregion
+
+        #region accessors
         public void StopExecution()
         {
             if (thread == null)
@@ -85,6 +103,7 @@ namespace BardMusicPlayer.Script
                     OnRunningStateChanged(this, true);
                 basic = new Interpreter(File.ReadAllText(basicfile));
                 basic.printHandler += Print;
+                basic.tapKeyHandler += TapKey;
                 basic.selectedBardHandler += SetSelectedBard;
                 basic.selectedBardAsStringHandler += SetSelectedBardName;
                 try
@@ -99,6 +118,7 @@ namespace BardMusicPlayer.Script
                     OnRunningStateChanged(this, false);
 
                 basic.printHandler -= Print;
+                basic.tapKeyHandler -= TapKey;
                 basic.selectedBardHandler -= SetSelectedBard;
                 basic.selectedBardAsStringHandler -= SetSelectedBardName;
                 basic = null;

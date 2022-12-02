@@ -306,33 +306,6 @@ namespace BardMusicPlayer.Maestro
 
         #region Routines for Scripting
         /// <summary>
-        /// Send a chat text; 0 for all or number in list
-        /// </summary>
-        public void SendText(int num, ChatMessageChannelType type, string text)
-        {
-            if (_orchestrator == null)
-                return;
-            
-            var perf = _orchestrator.GetAllPerformers();
-            if (num == 0)
-            {
-                System.Threading.Tasks.Parallel.ForEach(perf, p =>
-                {
-                    p.SendText(type, text);
-                });
-            }
-            else
-            {
-                try
-                {
-                    Performer performer = perf.ElementAt(num - 1);
-                    performer.SendText(type, text);
-                }
-                catch {}
-            }
-        }
-
-        /// <summary>
         /// Send a chat text; "All" or specific bard name
         /// </summary>
         public void SendText(string BardName, ChatMessageChannelType type, string text)
@@ -340,8 +313,11 @@ namespace BardMusicPlayer.Maestro
             if (_orchestrator == null)
                 return;
 
+            if (BardName == "")
+                return;
+
             var perf = _orchestrator.GetAllPerformers();
-            if (BardName.Equals("All"))
+            if (BardName.ToLower().Equals("all"))
             {
                 System.Threading.Tasks.Parallel.ForEach(perf, p =>
                 {
@@ -356,6 +332,33 @@ namespace BardMusicPlayer.Maestro
                     performer.SendText(type, text);
                 }
                 catch {}
+            }
+        }
+
+        public void TapKey(string BardName, string modifier, string character)
+        {
+            if (_orchestrator == null)
+                return;
+
+            if (BardName == "")
+                return;
+
+            var perf = _orchestrator.GetAllPerformers();
+            if (BardName.ToLower().Equals("all"))
+            {
+                System.Threading.Tasks.Parallel.ForEach(perf, p =>
+                {
+                    p.TapKey(modifier, character);
+                });
+            }
+            else
+            {
+                try
+                {
+                    Performer performer = perf.AsParallel().Where(p => p.game.PlayerName.Equals(BardName)).First();
+                    performer.TapKey(modifier, character);
+                }
+                catch { }
             }
         }
         #endregion

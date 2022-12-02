@@ -1,6 +1,7 @@
 using BardMusicPlayer.Quotidian.Structs;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace BasicSharp
@@ -8,11 +9,13 @@ namespace BasicSharp
     public class Interpreter
     {
         public delegate void PrintFunction(ChatMessageChannelType type, string text);
+        public delegate void TapKeyFunction(string modifier, string character);
         public delegate void SelectedBard(int num);
         public delegate void SelectedBardAsString(string name);
         public delegate string InputFunction();
 
         public PrintFunction printHandler;
+        public TapKeyFunction tapKeyHandler;
         public SelectedBard  selectedBardHandler;
         public SelectedBardAsString selectedBardAsStringHandler;
 
@@ -140,6 +143,7 @@ namespace BasicSharp
                 case Token.Assert: Assert(); break;
                 case Token.Select: Select(); break;
                 case Token.Sleep: Sleep(); break;
+                case Token.TapKey: TapKey(); break;
                 case Token.Identifier:
                     if (lastToken == Token.Equal) Let();
                     else if (lastToken == Token.Colon) Label();
@@ -158,6 +162,14 @@ namespace BasicSharp
                 GetNextToken();
                 Statment();
             }
+        }
+
+        void TapKey()
+        {
+            var t = Expr().ToString();
+            GetNextToken();
+            var p = Expr().ToString();
+            tapKeyHandler?.Invoke(t,p);
         }
 
         void Print()

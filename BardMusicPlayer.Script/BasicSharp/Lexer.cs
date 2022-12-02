@@ -97,6 +97,7 @@ namespace BasicSharp
                     case "ASSERT": return Token.Assert;
                     case "SELECT": return Token.Select;
                     case "SLEEP": return Token.Sleep;
+                    case "TAPKEY": return Token.TapKey;
                     case "REM":
                         while (lastChar != '\n') GetChar();
                         GetChar();

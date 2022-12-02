@@ -28,6 +28,7 @@ namespace BasicSharp
         Assert,
         Select,
         Sleep,
+        TapKey,
 
         NewLine,
         Colon,
