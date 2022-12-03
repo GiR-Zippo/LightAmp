@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using Timer = System.Timers.Timer;
@@ -14,14 +13,12 @@ using Sanford.Multimedia.Midi;
 using System.Text.RegularExpressions;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Pigeonhole;
-using BardMusicPlayer.Maestro.Utils;
 using BardMusicPlayer.Maestro.Sequencing.Internal;
 using BardMusicPlayer.Transmogrify.Song;
-using Melanchall.DryWetMidi.Interaction;
 
 namespace BardMusicPlayer.Maestro.Sequencing
 {
-    public class Sequencer : Sequencer_Internal
+    public sealed class Sequencer : Sequencer_Internal
     {
         InputDevice midiInput = null;
 
@@ -65,7 +62,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
             }
         }
 
-        string loadedFilename = string.Empty;
+        string loadedFilename => string.Empty;
         public string LoadedFilename
         {
             get
@@ -112,7 +109,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
             {
                 float ms = GetTimeFromTick(CurrentTick);
                 TimeSpan t = TimeSpan.FromMilliseconds(ms);
-                return string.Format("{0:D2}:{1:D2}", (int)t.TotalMinutes, t.Seconds);
+                return $"{(int)t.TotalMinutes:D2}:{t.Seconds:D2}";
             }
         }
 
@@ -132,7 +129,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
             {
                 float ms = GetTimeFromTick(MaxTick - 1);
                 TimeSpan t = TimeSpan.FromMilliseconds(ms);
-                return string.Format("{0:D2}:{1:D2}", (int)t.TotalMinutes, t.Seconds);
+                return $"{(int)t.TotalMinutes:D2}:{t.Seconds:D2}";
             }
         }
 
@@ -166,17 +163,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
         }
 
         int _maxTracks = 0;
-        public int MaxTrack
-        {
-            get
-            {
-                if (_maxTracks < 0)
-                {
-                    return 0;
-                }
-                return _maxTracks;
-            }
-        }
+        public int MaxTrack => _maxTracks < 0 ? 0 : _maxTracks;
 
         public int MaxAllTrack
         {
@@ -195,11 +182,9 @@ namespace BardMusicPlayer.Maestro.Sequencing
             get
             {
                 if (loadedTrack >= Sequence.Count || loadedTrack < 0)
-                {
                     return null;
-                }
-                if (BmpPigeonhole.Instance.PlayAllTracks) return Sequence[0];
-                else return Sequence[loadedTrack];
+
+                return BmpPigeonhole.Instance.PlayAllTracks ? Sequence[0] : Sequence[CurrentTrack];
             }
         }
 
@@ -256,7 +241,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
             base.Pause();
         }
 
-        public float GetTimeFromTick(int tick)
+        public static float GetTimeFromTick(int tick)
         {
             if (tick <= 0)
             {
@@ -294,62 +279,58 @@ namespace BardMusicPlayer.Maestro.Sequencing
 
         public void OpenInputDevice(string device)
         {
-            for (int i = 0; i < InputDevice.DeviceCount; i++)
+            for (var i = 0; i < InputDevice.DeviceCount; i++)
             {
-                MidiInCaps cap = InputDevice.GetDeviceCapabilities(i);
-                if (cap.name == device)
-                {
-                    try
-                    {
-                        midiInput = new InputDevice(i);
-                        midiInput.StartRecording();
-                        midiInput.ChannelMessageReceived += OnSimpleChannelMessagePlayed;
+                var cap = InputDevice.GetDeviceCapabilities(i);
+                if (cap.name != device) 
+                    continue;
 
-                        Console.WriteLine(string.Format("{0} opened.", cap.name));
-                    }
-                    catch (InputDeviceException)
-                    {
-                        Console.WriteLine(string.Format("Couldn't open input {0}.", device));
-                    }
+                try
+                {
+                    midiInput = new InputDevice(i);
+                    midiInput.StartRecording();
+                    midiInput.ChannelMessageReceived += OnSimpleChannelMessagePlayed;
+
+                    Console.WriteLine("{0} opened.", cap.name);
+                }
+                catch (InputDeviceException)
+                {
+                    Console.WriteLine("Couldn't open input {0}.", device);
                 }
             }
         }
 
         public void CloseInputDevice()
         {
-            if (midiInput != null)
-            {
-                if (!midiInput.IsDisposed)
-                {
-                    midiInput.StopRecording();
-                    midiInput.Close();
-                }
-            }
+            if (midiInput is not { IsDisposed: false }) 
+                return;
+
+            midiInput.StopRecording();
+            midiInput.Close();
         }
 
         private void OnSimpleChannelMessagePlayed(object sender, ChannelMessageEventArgs e)
         {
-            ChannelMessageBuilder builder = new ChannelMessageBuilder(e.Message);
-            int note = builder.Data1;
-            int vel = builder.Data2;
-            ChannelCommand cmd = e.Message.Command;
-            if ((cmd == ChannelCommand.NoteOff) || (cmd == ChannelCommand.NoteOn && vel == 0))
+            var builder = new ChannelMessageBuilder(e.Message);
+            var note = builder.Data1;
+            var vel = builder.Data2;
+            var cmd = e.Message.Command;
+            if (cmd == ChannelCommand.NoteOff || (cmd == ChannelCommand.NoteOn && vel == 0)) OffNote?.Invoke(this, e);
+            switch (cmd)
             {
-                OffNote?.Invoke(this, e);
-            }
-            if ((cmd == ChannelCommand.NoteOn) && vel > 0)
-            {
-                OnNote?.Invoke(this, e);
-            }
-            if (cmd == ChannelCommand.ProgramChange)
-            {
-                string instName = Instrument.ParseByProgramChange(e.Message.Data1);
-                if (!string.IsNullOrEmpty(instName))
-                    ProgChange?.Invoke(this, e);
-            }
-            if (cmd == ChannelCommand.ChannelPressure)
-            {
-                ChannelAfterTouch?.Invoke(this, e);
+                case ChannelCommand.NoteOn when vel > 0:
+                    OnNote?.Invoke(this, e);
+                    break;
+                case ChannelCommand.ProgramChange:
+                {
+                    string instName = Instrument.ParseByProgramChange(e.Message.Data1);
+                    if (!string.IsNullOrEmpty(instName))
+                        ProgChange?.Invoke(this, e);
+                    break;
+                }
+                case ChannelCommand.ChannelPressure:
+                    ChannelAfterTouch?.Invoke(this, e);
+                    break;
             }
         }
 
@@ -359,26 +340,33 @@ namespace BardMusicPlayer.Maestro.Sequencing
         }
         private void OnMetaMessagePlayed(object sender, MetaMessageEventArgs e)
         {
-            if (e.Message.MetaType == MetaType.Tempo)
+            switch (e.Message.MetaType)
             {
-                TempoChangeBuilder builder = new TempoChangeBuilder(e.Message);
-                midiTempo = (60000000 / builder.Tempo);
-                OnTempoChange?.Invoke(this, midiTempo);
+                case MetaType.Tempo:
+                {
+                    var builder = new TempoChangeBuilder(e.Message);
+                    midiTempo = 60000000 / builder.Tempo;
+                    OnTempoChange?.Invoke(this, midiTempo);
+                    break;
+                }
+                case MetaType.Lyric:
+                    OnLyric?.Invoke(this, e);
+                    break;
+                case MetaType.TrackName:
+                {
+                    var builder = new MetaTextBuilder(e.Message);
+                    ParseTrackName(e.MidiTrack, builder.Text);
+                    if (e.MidiTrack == LoadedTrack)
+                        OnTrackNameChange?.Invoke(this, builder.Text);
+                    break;
+                }
             }
-            if (e.Message.MetaType == MetaType.Lyric)
+
+            if (e.Message.MetaType != MetaType.InstrumentName) 
+                return;
+
             {
-                OnLyric?.Invoke(this, e);
-            }
-            if (e.Message.MetaType == MetaType.TrackName)
-            {
-                MetaTextBuilder builder = new MetaTextBuilder(e.Message);
-                ParseTrackName(e.MidiTrack, builder.Text);
-                if (e.MidiTrack == LoadedTrack)
-                    OnTrackNameChange?.Invoke(this, builder.Text);
-            }
-            if (e.Message.MetaType == MetaType.InstrumentName)
-            {
-                MetaTextBuilder builder = new MetaTextBuilder(e.Message);
+                var builder = new MetaTextBuilder(e.Message);
                 OnTrackNameChange?.Invoke(this, builder.Text);
             }
         }
@@ -386,9 +374,8 @@ namespace BardMusicPlayer.Maestro.Sequencing
         public void ParseTrackName(Track track, string trackName)
         {
             if (track == null)
-            {
                 return;
-            }
+
             if (string.IsNullOrEmpty(trackName))
             {
                 preferredInstruments[track] = Instrument.Piano;
@@ -396,69 +383,56 @@ namespace BardMusicPlayer.Maestro.Sequencing
             }
             else
             {
-                Regex rex = new Regex(@"^([A-Za-z]+)([-+]\d)?");
-                if (rex.Match(trackName) is Match match)
-                {
-                    string instrument = match.Groups[1].Value;
-                    string octaveshift = match.Groups[2].Value;
+                var rex = new Regex(@"^([A-Za-z]+)([-+]\d)?");
+                var match = rex.Match(trackName);
 
-                    bool foundInstrument = false;
+                var instrument = match.Groups[1].Value;
+                var octaveshift = match.Groups[2].Value;
 
-                    if (!string.IsNullOrEmpty(instrument))
+                var foundInstrument = false;
+
+                if (!string.IsNullOrEmpty(instrument))
+                    if (Instrument.TryParse(instrument, out var tempInst))
                     {
-                        if (Instrument.TryParse(instrument, out Instrument tempInst))
-                        {
-                            preferredInstruments[track] = tempInst;
-                            foundInstrument = true;
-                        }
+                        preferredInstruments[track] = tempInst;
+                        foundInstrument = true;
                     }
-                    if (foundInstrument)
-                    {
-                        if (!string.IsNullOrEmpty(octaveshift))
-                        {
-                            if (int.TryParse(octaveshift, out int os))
-                            {
-                                if (Math.Abs(os) <= 4)
-                                {
-                                    preferredOctaveShift[track] = os;
-                                }
-                            }
-                        }
-                    }
-                }
+
+                if (!foundInstrument)
+                    return;
+
+                if (string.IsNullOrEmpty(octaveshift))
+                    return;
+
+                if (!int.TryParse(octaveshift, out var os))
+                    return;
+
+                if (Math.Abs(os) <= 4) 
+                    preferredOctaveShift[track] = os;
             }
         }
 
         public Instrument GetTrackPreferredInstrument(int tracknumber)
         {
-            if (tracknumber >= preferredInstruments.Count)
-                return Instrument.None;
-
-            return preferredInstruments.ElementAt(tracknumber).Value;
+            return tracknumber >= preferredInstruments.Count
+                ? Instrument.None
+                : preferredInstruments.ElementAt(tracknumber).Value;
         }
 
         public Instrument GetTrackPreferredInstrument(Track track)
         {
-            if (track != null)
-            {
-                if (preferredInstruments.ContainsKey(track))
-                {
-                    return preferredInstruments[track];
-                }
-            }
-            return Instrument.Piano;
+            if (track == null) 
+                return Instrument.Piano;
+
+            return preferredInstruments.ContainsKey(track) ? preferredInstruments[track] : Instrument.Piano;
         }
 
         public int GetTrackPreferredOctaveShift(Track track)
         {
-            if (track != null)
-            {
-                if (preferredOctaveShift.ContainsKey(track))
-                {
-                    return preferredOctaveShift[track];
-                }
-            }
-            return 0;
+            if (track == null) 
+                return 0;
+
+            return preferredOctaveShift.ContainsKey(track) ? preferredOctaveShift[track] : 0;
         }
 
         public void Load(BmpSong bmpSong, int trackNum = 1)
@@ -478,10 +452,8 @@ namespace BardMusicPlayer.Maestro.Sequencing
             OnTempoChange?.Invoke(this, 0);
 
             loadedError = string.Empty;
-            if (trackNum >= Sequence.Count)
-            {
-                trackNum = Sequence.Count - 1;
-            }
+            if (trackNum >= Sequence.Count) trackNum = Sequence.Count - 1;
+
             intendedTrack = trackNum;
 
             preferredInstruments.Clear();
@@ -489,22 +461,12 @@ namespace BardMusicPlayer.Maestro.Sequencing
 
             // Collect statistics
             notesPlayedCount.Clear();
-            foreach (Track track in Sequence)
+            foreach (var track in Sequence)
             {
                 notesPlayedCount[track] = 0;
-                foreach (MidiEvent ev in track.Iterator())
-                {
-                    if (ev.MidiMessage is ChannelMessage chanMsg)
-                    {
-                        if (chanMsg.Command == ChannelCommand.NoteOn)
-                        {
-                            if (chanMsg.Data2 > 0)
-                            {
-                                notesPlayedCount[track]++;
-                            }
-                        }
-                    }
-                }
+                foreach (var ev in track.Iterator().Where(static ev =>
+                             ev.MidiMessage is ChannelMessage { Command: ChannelCommand.NoteOn, Data2: > 0 }))
+                    notesPlayedCount[track]++;
             }
 
             // Count notes and select fìrst that actually has stuff
@@ -512,38 +474,23 @@ namespace BardMusicPlayer.Maestro.Sequencing
             {
                 while (trackNum < Sequence.Count)
                 {
-                    int tnotes = 0;
+                    var tnotes = 0;
 
-                    foreach (MidiEvent ev in Sequence[trackNum].Iterator())
-                    {
-                        if (intendedTrack == 1)
+                    foreach (var ev in Sequence[trackNum].Iterator().Where(ev => intendedTrack == 1))
+                        switch (ev.MidiMessage)
                         {
-                            if (ev.MidiMessage is ChannelMessage chanMsg)
-                            {
-                                if (chanMsg.Command == ChannelCommand.NoteOn)
-                                {
-                                    tnotes++;
-                                }
-                            }
-                            if (ev.MidiMessage is MetaMessage metaMsg)
-                            {
-                                if (metaMsg.MetaType == MetaType.Lyric)
-                                {
-                                    tnotes++;
-                                }
-                            }
+                            case ChannelMessage { Command: ChannelCommand.NoteOn }:
+                            case MetaMessage { MetaType: MetaType.Lyric }:
+                                tnotes++;
+                                break;
                         }
-                    }
 
                     if (tnotes == 0)
-                    {
                         trackNum++;
-                    }
                     else
-                    {
                         break;
-                    }
                 }
+
                 if (trackNum == Sequence.Count)
                 {
                     Console.WriteLine("No playable track...");
@@ -552,70 +499,46 @@ namespace BardMusicPlayer.Maestro.Sequencing
             }
 
             // Show initial tempo
-            foreach (MidiEvent ev in Sequence[0].Iterator())
-            {
-                if (ev.AbsoluteTicks == 0)
-                {
-                    if (ev.MidiMessage is MetaMessage metaMsg)
-                    {
-                        if (metaMsg.MetaType == MetaType.Tempo)
-                        {
-                            OnMetaMessagePlayed(this, new MetaMessageEventArgs(Sequence[0], metaMsg));
-                        }
-                    }
-                }
-            }
+            foreach (var ev in Sequence[0].Iterator().Where(static ev => ev.AbsoluteTicks == 0))
+                if (ev.MidiMessage is MetaMessage { MetaType: MetaType.Tempo } metaMsg)
+                    OnMetaMessagePlayed(this, new MetaMessageEventArgs(Sequence[0], metaMsg));
 
             // Parse track names and octave shifts
             _maxTracks = -1;
             _lyricStartTrackIndex = -1;
-            foreach (Track track in Sequence)
-            {
-                foreach (MidiEvent ev in track.Iterator())
-                {
-                    if (ev.MidiMessage is MetaMessage metaMsg)
+            foreach (var track in Sequence)
+                foreach (var ev in track.Iterator())
+                    if (ev.MidiMessage is MetaMessage { MetaType: MetaType.TrackName } metaMsg)
                     {
-                        if (metaMsg.MetaType == MetaType.TrackName)
+                        var builder = new MetaTextBuilder(metaMsg);
+                        if (builder.Text.ToLower().Contains("lyrics:") && _lyricStartTrackIndex == -1)
                         {
-                            MetaTextBuilder builder = new MetaTextBuilder(metaMsg);
-                            if (builder.Text.ToLower().Contains("lyrics:") && (_lyricStartTrackIndex == -1))
-                                _lyricStartTrackIndex = _maxTracks + 1;
-                            else
-                            {
-                                this.ParseTrackName(track, builder.Text);
-                                _maxTracks++;
-                            }
-                            
+                            _lyricStartTrackIndex = _maxTracks + 1;
+                        }
+                        else
+                        {
+                            ParseTrackName(track, builder.Text);
+                            _maxTracks++;
                         }
                     }
-                }
-            }
-
 
 
             loadedTrack = trackNum;
             // Search beginning for text stuff
-            foreach (MidiEvent ev in LoadedTrack.Iterator())
-            {
-                if (ev.MidiMessage is MetaMessage msg)
+            foreach (var ev in LoadedTrack.Iterator())
+                switch (ev.MidiMessage)
                 {
-                    if (msg.MetaType == MetaType.TrackName)
-                    {
+                    case MetaMessage { MetaType: MetaType.TrackName } msg:
                         OnMetaMessagePlayed(this, new MetaMessageEventArgs(LoadedTrack, msg));
-                    }
+                        break;
                     /*if (msg.MetaType == MetaType.Lyric)
                     {
                         lyricCount++;
                     }*/
-                }
-                if (ev.MidiMessage is ChannelMessage chanMsg)
-                {
-                    if (chanMsg.Command == ChannelCommand.ProgramChange)
-                    {
+                    case ChannelMessage { Command: ChannelCommand.ProgramChange } chanMsg:
                         OnSimpleChannelMessagePlayed(this, new ChannelMessageEventArgs(Sequence[0], chanMsg));
-                    }
+                        break;
                 }
-            }
 
             OnLoad?.Invoke(this, EventArgs.Empty);
         }

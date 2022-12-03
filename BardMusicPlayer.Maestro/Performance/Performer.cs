@@ -14,12 +14,11 @@ using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
 using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Maestro.Performance
 {
-    public class Performer
+    public sealed class Performer
     {
         private FFXIVHook _hook = new FFXIVHook();
         private System.Timers.Timer _startDelayTimer { get; set; } = new System.Timers.Timer();
@@ -38,7 +37,7 @@ namespace BardMusicPlayer.Maestro.Performance
                 if (value == _trackNumber)
                     return;
 
-                if ((_sequencer == null) || (_sequencer.LoadedTrack == null))
+                if (_sequencer?.LoadedTrack == null)
                 {
                     BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(game, _trackNumber, HostProcess));
                     return;
@@ -53,11 +52,11 @@ namespace BardMusicPlayer.Maestro.Performance
                 _trackNumber = value;
                 BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(game, _trackNumber, HostProcess));
                 var tOctaveShift = mainSequencer.GetTrackPreferredOctaveShift(_sequencer.Sequence[this._trackNumber]);
-                if (tOctaveShift != OctaveShift)
-                {
-                    OctaveShift = tOctaveShift;
-                    BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(game, OctaveShift, HostProcess));
-                }
+                if (tOctaveShift == OctaveShift) 
+                    return;
+
+                OctaveShift = tOctaveShift;
+                BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(game, OctaveShift, HostProcess));
             }
         }
 
@@ -87,7 +86,7 @@ namespace BardMusicPlayer.Maestro.Performance
         public string TrackInstrument 
         { 
             get {
-                    if (_sequencer == null || _sequencer.LoadedBmpSong == null)
+                    if (_sequencer?.LoadedBmpSong == null)
                         return "Unknown";
                     if (TrackNumber == 0)
                         return "None";
@@ -158,13 +157,13 @@ namespace BardMusicPlayer.Maestro.Performance
         {
             this.ChosenInstrument = this.ChosenInstrument;
 
-            if (arg != null)
-            {
-                _hook.Hook(arg.Process, false);
-                PId = arg.Pid;
-                game = arg;
-                _startDelayTimer.Elapsed += startDelayTimer_Elapsed;
-            }
+            if (arg == null) 
+                return;
+
+            _hook.Hook(arg.Process, false);
+            PId = arg.Pid;
+            game = arg;
+            _startDelayTimer.Elapsed += startDelayTimer_Elapsed; _startDelayTimer.Elapsed += startDelayTimer_Elapsed;
         }
 
         public void ProcessOnNote(NoteEvent note)
