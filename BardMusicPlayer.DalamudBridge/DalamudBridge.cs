@@ -9,9 +9,9 @@ using BardMusicPlayer.Seer;
 
 namespace BardMusicPlayer.DalamudBridge
 {
-    public partial class DalamudBridge
+    public sealed partial class DalamudBridge
     {
-        private static readonly Lazy<DalamudBridge> LazyInstance = new(() => new DalamudBridge());
+        private static readonly Lazy<DalamudBridge> LazyInstance = new(static () => new DalamudBridge());
 
         /// <summary>
         /// 

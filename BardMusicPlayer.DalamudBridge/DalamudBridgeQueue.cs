@@ -1,17 +1,10 @@
-﻿using BardMusicPlayer.Quotidian.Structs;
-using BardMusicPlayer.Seer;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace BardMusicPlayer.DalamudBridge
 {
-    public partial class DalamudBridge
+    public sealed partial class DalamudBridge
     {
         private ConcurrentQueue<DalamudBridgeCommandStruct> _eventQueue;
         private bool _eventQueueOpen;
@@ -43,7 +36,7 @@ namespace BardMusicPlayer.DalamudBridge
                     catch
                     { }
                 }
-                await Task.Delay(25, token).ContinueWith(tsk => { });
+                await Task.Delay(25, token).ContinueWith(static tsk => { }, token);
             }
         }
 

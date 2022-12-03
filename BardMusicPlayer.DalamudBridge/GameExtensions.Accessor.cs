@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using BardMusicPlayer.DalamudBridge.Helper.Dalamud;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
 
@@ -25,9 +24,9 @@ namespace BardMusicPlayer.DalamudBridge
         {
             if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
 
-            if (DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid))
-                return Task.FromResult(DalamudBridge.Instance.DalamudServer.SendChat(game.Pid, ChatMessageChannelType.Say, text));
-            return Task.FromResult(false);
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendChat(game.Pid, ChatMessageChannelType.Say,
+                                       text));
         }
 
         /// <summary>
@@ -41,9 +40,8 @@ namespace BardMusicPlayer.DalamudBridge
         {
             if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
 
-            if (DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid))
-                return Task.FromResult(DalamudBridge.Instance.DalamudServer.SendChat(game.Pid, type, text));
-            return Task.FromResult(false);
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendChat(game.Pid, type, text));
         }
 
         /// <summary>
@@ -56,9 +54,8 @@ namespace BardMusicPlayer.DalamudBridge
         {
             if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
 
-            if (DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid))
-                return Task.FromResult(DalamudBridge.Instance.DalamudServer.SendInstrumentOpen(game.Pid, instrumentID));
-            return Task.FromResult(false);
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendInstrumentOpen(game.Pid, instrumentID));
         }
 
         /// <summary>
@@ -71,9 +68,8 @@ namespace BardMusicPlayer.DalamudBridge
         {
             if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
 
-            if (DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid))
-                return Task.FromResult(DalamudBridge.Instance.DalamudServer.SendAcceptEnsemble(game.Pid, arg));
-            return Task.FromResult(false);
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendAcceptEnsemble(game.Pid, arg));
         }
 
         /// <summary>
@@ -86,24 +82,21 @@ namespace BardMusicPlayer.DalamudBridge
         {
             if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
 
-            if (DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid))
-                return Task.FromResult(DalamudBridge.Instance.DalamudServer.SendGfxLow(game.Pid, low));
-            return Task.FromResult(false);
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendGfxLow(game.Pid, low));
         }
 
         /// <summary>
         /// starts the ensemble check
         /// </summary>
         /// <param name="game"></param>
-        /// <param name="low"></param>
         /// <returns></returns>
         public static Task<bool> StartEnsemble(this Game game)
         {
             if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
 
-            if (DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid))
-                return Task.FromResult(DalamudBridge.Instance.DalamudServer.SendStartEnsemble(game.Pid));
-            return Task.FromResult(false);
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                       DalamudBridge.Instance.DalamudServer.SendStartEnsemble(game.Pid));
         }
     }
 }

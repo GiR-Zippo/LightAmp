@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using BardMusicPlayer.Quotidian.Structs;
+using BardMusicPlayer.Seer;
 using H.Formatters;
 using H.Pipes;
 using H.Pipes.AccessControl;
@@ -18,14 +19,14 @@ using Newtonsoft.Json;
 
 namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
 {
-    public class Message
+    public sealed class Message
     {
         public MessageType msgType { get; set; } = MessageType.None;
         public int  msgChannel { get; set; } = 0;
         public string message { get; set; } = "";
     }
 
-    internal class DalamudServer : IDisposable
+    internal sealed class DalamudServer : IDisposable
     {
         private readonly PipeServer<Message> _pipe;
         private readonly ConcurrentDictionary<int, string> _clients;
@@ -165,25 +166,29 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             if (inMsg == null)
                 return;
 
-            if (inMsg.msgType == MessageType.Handshake)
+
+            switch (inMsg.msgType)
             {
-                int t = Convert.ToInt32(inMsg.message);
-                _clients.TryAdd(t, e.Connection.PipeName);
-                Debug.WriteLine($"Dalamud client Id {e.Connection.PipeName} {t} connected");
-            }
-            if (inMsg.msgType == MessageType.SetGfx)
-            {
-                try
+                case MessageType.Handshake:
                 {
-                    var t = inMsg.message;
-                    int pid = Convert.ToInt32(t.Split(':')[0]);
-                    bool lowsettings = Convert.ToBoolean(t.Split(':')[1]);
-                    if (Seer.BmpSeer.Instance.Games.ContainsKey(pid))
-                        Seer.BmpSeer.Instance.Games[pid].GfxSettingsLow = lowsettings;
+                    var t = Convert.ToInt32(inMsg.message);
+                    _clients.TryAdd(t, e.Connection.PipeName);
+                    Debug.WriteLine($"Dalamud client Id {e.Connection.PipeName} {t} connected");
+                    break;
                 }
-                catch
-                {}
+                case MessageType.SetGfx:
+                   try
+                    {
+                        var t = inMsg.message;
+                        var pid = Convert.ToInt32(t.Split(':')[0]);
+                        var lowsettings = Convert.ToBoolean(t.Split(':')[1]);
+                        if (BmpSeer.Instance.Games.ContainsKey(pid))
+                            BmpSeer.Instance.Games[pid].GfxSettingsLow = lowsettings;
+                    }
+                    catch { }
+                    break;
             }
+
         }
 
         /// <summary>

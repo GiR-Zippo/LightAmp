@@ -2,7 +2,7 @@
 
 namespace BardMusicPlayer.DalamudBridge
 {
-    public class DalamudBridgeException : BmpException
+    public sealed class DalamudBridgeException : BmpException
     {
         internal DalamudBridgeException() : base()
         {
