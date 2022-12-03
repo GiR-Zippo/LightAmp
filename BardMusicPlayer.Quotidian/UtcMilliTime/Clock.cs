@@ -13,7 +13,7 @@ namespace BardMusicPlayer.Quotidian.UtcMilliTime
 {
     public sealed class Clock : ITime
     {
-        private static readonly Lazy<Clock> instance = new(() => new Clock());
+        private static readonly Lazy<Clock> instance = new(static () => new Clock());
         public static Clock Time => instance.Value;
         [System.Runtime.InteropServices.DllImport("kernel32")]
         static extern ulong GetTickCount64();
@@ -142,11 +142,11 @@ namespace BardMusicPlayer.Quotidian.UtcMilliTime
                 ntpCall.methodsCompleted += 1;
                 successfully_synced = ntpCall.methodsCompleted == 4;
                 ntpCall.latency.Stop();
-                if (successfully_synced && !ntpCall.priorSyncState && instance.Value.NetworkTimeAcquired != null)
-                {
-                    NTPEventArgs args = new NTPEventArgs(ntpCall.serverResolved, ntpCall.latency.ElapsedMilliseconds, instance.Value.Skew);
-                    instance.Value.NetworkTimeAcquired.Invoke(new object(), args);
-                }
+                if (!successfully_synced || ntpCall.priorSyncState || instance.Value.NetworkTimeAcquired == null) 
+                    return;
+
+                var args = new NTPEventArgs(ntpCall.serverResolved, ntpCall.latency.ElapsedMilliseconds, instance.Value.Skew);
+                instance.Value.NetworkTimeAcquired.Invoke(new object(), args);
             }
             catch (Exception) { } // blank intentionally; documentation says "fail silently. Check the Time.Synchronized boolean property for the outcome."
             finally

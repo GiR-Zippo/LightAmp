@@ -80,7 +80,7 @@ namespace BardMusicPlayer.Quotidian
         public static List<string> Split(this string myString, char separator, char escapeCharacter = '\\')
         {
             if (myString.Count(c => c == escapeCharacter) % 2 != 0) myString = myString.Remove(myString.LastIndexOf("" + escapeCharacter, StringComparison.Ordinal), 1);
-            return myString.Split(escapeCharacter).Select((element, index) => index % 2 == 0 ? element.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries) : new[] { element }) .SelectMany(element => element).ToList();
+            return myString.Split(escapeCharacter).Select((element, index) => index % 2 == 0 ? element.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries) : new[] { element }) .SelectMany(static element => element).ToList();
         }
         public static MemoryStream Rewind(this MemoryStream memoryStream, long position = 0)
         {
@@ -102,7 +102,7 @@ namespace BardMusicPlayer.Quotidian
         internal class IdentityFunction<TElement> {
             public static Func<TElement, TElement> Instance
             {
-                get { return x => x; }
+                get { return static x => x; }
             }
         }
         public static T Remove<T>(this Stack<T> stack, T element)

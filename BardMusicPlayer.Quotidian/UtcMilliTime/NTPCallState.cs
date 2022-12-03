@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 namespace BardMusicPlayer.Quotidian.UtcMilliTime
 {
-    public class NTPCallState
+    public sealed class NTPCallState
     {
         public bool priorSyncState;
         public byte[] buffer = new byte[Constants.bytes_per_buffer];
@@ -32,11 +32,12 @@ namespace BardMusicPlayer.Quotidian.UtcMilliTime
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
             socket = null;
-            if (latency != null)
-            {
-                if (latency.IsRunning) latency.Stop();
-                latency = null;
-            }
+            if (latency == null) 
+                return;
+
+            if (latency.IsRunning) 
+                latency.Stop();
+            latency = null;
         }
     }
 }

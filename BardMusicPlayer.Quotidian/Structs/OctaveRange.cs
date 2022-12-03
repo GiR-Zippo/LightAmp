@@ -119,8 +119,10 @@ namespace BardMusicPlayer.Quotidian.Structs
         public int CompareTo(object obj)
         {
             if (obj == null) return 1;
-            if (!(obj is OctaveRange)) throw new ArgumentException("This is not an OctaveRange");
-            return Index - ((OctaveRange) obj).Index;
+            if (obj is not OctaveRange range)
+                throw new ArgumentException("This is not an OctaveRange");
+
+            return Index - range.Index;
         }
 
         public int CompareTo(OctaveRange other) => Index - other.Index;

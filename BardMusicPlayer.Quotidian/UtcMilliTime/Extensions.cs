@@ -18,8 +18,9 @@ namespace BardMusicPlayer.Quotidian.UtcMilliTime
         /// <returns>string like 2019-08-10T22:08:14.102Z</returns>
         public static string ToIso8601String(this long timestamp, bool suppressMilliseconds = false)
         {
-            if (suppressMilliseconds) return timestamp.ToUtcDateTime().ToString(Constants.iso_8601_without_milliseconds);
-            return timestamp.ToUtcDateTime().ToString(Constants.iso_8601_with_milliseconds);
+            return timestamp.ToUtcDateTime().ToString(suppressMilliseconds
+                ? Constants.iso_8601_without_milliseconds
+                : Constants.iso_8601_with_milliseconds);
         }
         /// <summary>
         /// Transform a DateTime to UtcMilliTime. Fractional milliseconds are truncated

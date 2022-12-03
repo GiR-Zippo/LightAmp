@@ -170,8 +170,10 @@ namespace BardMusicPlayer.Quotidian.Structs
         public int CompareTo(object obj)
         {
             if (obj == null) return 1;
-            if (!(obj is Instrument)) throw new ArgumentException("This is not an Instrument");
-            return Index - ((Instrument)obj).Index;
+            if (obj is not Instrument instrument) 
+                throw new ArgumentException("This is not an Instrument");
+
+            return Index - instrument.Index;
         }
 
         public int CompareTo(Instrument other) => Index - other.Index;
@@ -287,9 +289,9 @@ namespace BardMusicPlayer.Quotidian.Structs
                 result = All.First(x => x.Name.Equals(instrument, StringComparison.CurrentCultureIgnoreCase));
                 return true;
             }
-            foreach (var instr in All)
+            foreach (var instr in All.Where(instr =>
+                         instr.AlternativeNames.Any(x => x.Equals(instrument, StringComparison.CurrentCultureIgnoreCase))))
             {
-                if (!instr.AlternativeNames.Any(x => x.Equals(instrument, StringComparison.CurrentCultureIgnoreCase))) continue;
                 result = instr;
                 return true;
             }
