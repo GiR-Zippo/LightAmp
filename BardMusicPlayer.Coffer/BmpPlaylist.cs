@@ -12,7 +12,7 @@ namespace BardMusicPlayer.Coffer
     public sealed class BmpPlaylist
     {
         [BsonId]
-        public ObjectId Id { get; set; } = null;
+        public ObjectId Id { get; set; }
 
         public string Name { get; set; }
 

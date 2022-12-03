@@ -8,7 +8,7 @@ using BardMusicPlayer.Quotidian;
 
 namespace BardMusicPlayer.Coffer
 {
-    public class BmpCofferException : BmpException
+    public sealed class BmpCofferException : BmpException
     {
         public BmpCofferException(string message) : base(message) { }
 
