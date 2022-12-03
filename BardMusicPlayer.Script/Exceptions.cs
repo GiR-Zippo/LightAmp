@@ -7,7 +7,7 @@ using BardMusicPlayer.Quotidian;
 
 namespace BardMusicPlayer.Script
 {
-    public class BmpScriptException : BmpException
+    public sealed class BmpScriptException : BmpException
     {
         internal BmpScriptException() : base()
         {

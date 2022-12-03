@@ -19,9 +19,9 @@ using BasicSharp;
 
 namespace BardMusicPlayer.Script
 {
-    public class BmpScript
+    public sealed class BmpScript
     {
-        private static readonly Lazy<BmpScript> LazyInstance = new(() => new BmpScript());
+        private static readonly Lazy<BmpScript> LazyInstance = new(static () => new BmpScript());
 
         /// <summary>
         /// 
@@ -124,8 +124,7 @@ namespace BardMusicPlayer.Script
             Task task = Task.Run(() =>
             {
                 thread = Thread.CurrentThread;
-                if (OnRunningStateChanged != null)
-                    OnRunningStateChanged(this, true);
+                OnRunningStateChanged?.Invoke(this, true);
 
                 unselected_bards = new List<string>();
                 basic = new Interpreter(File.ReadAllText(basicfile));
@@ -142,8 +141,7 @@ namespace BardMusicPlayer.Script
                 {
                     Console.WriteLine("Error");
                 }
-                if (OnRunningStateChanged != null)
-                    OnRunningStateChanged(this, false);
+                OnRunningStateChanged?.Invoke(this, false);
 
                 unselected_bards = null;
                 basic.printHandler -= Print;

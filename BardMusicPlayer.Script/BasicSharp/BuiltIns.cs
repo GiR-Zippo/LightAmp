@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BasicSharp
 {
-    class BuiltIns
+    internal abstract class BuiltIns
     {
         public static void InstallAll(Interpreter interpreter)
         {

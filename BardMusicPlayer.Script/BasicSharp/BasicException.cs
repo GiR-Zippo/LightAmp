@@ -2,7 +2,7 @@
 
 namespace BasicSharp
 {
-    class BasicException : Exception
+    internal sealed class BasicException : Exception
     {
         public int line;
         public BasicException()

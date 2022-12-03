@@ -1,12 +1,10 @@
 using BardMusicPlayer.Quotidian.Structs;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace BasicSharp
 {
-    public class Interpreter
+    public sealed class Interpreter
     {
         public delegate void PrintFunction(ChatMessageChannelType type, string text);
         public delegate void TapKeyFunction(string modifier, string character);
@@ -28,7 +26,7 @@ namespace BasicSharp
         private Token lastToken; // last seen token
 
         private Dictionary<string, Value> vars; // all variables are stored here
-        private Dictionary<string, Marker> labels; // already seen labels 
+        private Dictionary<string, Marker> labels; // already seen labels
         private Dictionary<string, Marker> loops; // for loops
 
         public delegate Value BasicFunction(Interpreter interpreter, List<Value> args);

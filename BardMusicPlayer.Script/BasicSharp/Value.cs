@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace BasicSharp
 {
@@ -31,24 +32,24 @@ namespace BasicSharp
 
         public Value Convert(ValueType type)
         {
-            if (this.Type != type)
+            if (Type == type) 
+                return this;
+
+            switch (type)
             {
-                switch (type)
-                {
-                    case ValueType.Real:
-                        this.Real = double.Parse(this.String);
-                        this.Type = ValueType.Real;
-                        break;
-                    case ValueType.String:
-                        this.String = this.Real.ToString();
-                        this.Type = ValueType.String;
-                        break;
-                }
+                case ValueType.Real:
+                    Real = double.Parse(String);
+                    Type = ValueType.Real;
+                    break;
+                case ValueType.String:
+                    String = Real.ToString(CultureInfo.InvariantCulture);
+                    Type = ValueType.String;
+                    break;
             }
             return this;
         }
 
-        public Value UnaryOp(Token tok)
+        public readonly Value UnaryOp(Token tok)
         {
             if (Type != ValueType.Real)
             {
@@ -65,7 +66,7 @@ namespace BasicSharp
             throw new Exception("Unknown unary operator.");
         }
 
-        public Value BinOp(Value b, Token tok)
+        public readonly Value BinOp(Value b, Token tok)
         {
             Value a = this;
             if (a.Type != b.Type)
@@ -121,7 +122,7 @@ namespace BasicSharp
             throw new Exception("Unknown binary operator.");
         }
 
-        public override string ToString()
+        public readonly override string ToString()
         {
             if (this.Type == ValueType.Real)
                 return this.Real.ToString();
