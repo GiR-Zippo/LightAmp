@@ -5,7 +5,6 @@
 
 using BardMusicPlayer.Maestro.Sequencing;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BardMusicPlayer.Maestro.Events
 {
@@ -20,11 +19,25 @@ namespace BardMusicPlayer.Maestro.Events
         }
         private Sequencer _sequencer;
         public int MaxTracks { get; }
-        public int TotalNoteCount => _sequencer.notesPlayedCount.Values.Sum();
-
+        public int TotalNoteCount
+        {
+            get
+            {
+                int sum = 0;
+                foreach (int s in _sequencer.notesPlayedCount.Values)
+                    sum += s;
+                return sum;
+            }
+        }
         public List<int> CurrentNoteCountForTracks
         {
-            get { return _sequencer.notesPlayedCount.Select(static s => s.Key.Count).ToList(); }
+            get
+            {
+                List<int> t = new List<int>();
+                foreach (var s in _sequencer.notesPlayedCount)
+                    t.Add(s.Key.Count);
+                return t;
+            }
         }
 
         public override bool IsValid() => true;

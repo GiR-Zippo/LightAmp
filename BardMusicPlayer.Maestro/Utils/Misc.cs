@@ -4,24 +4,25 @@
  */
 
 using Sanford.Multimedia.Midi;
+using System.Collections.Generic;
 
 namespace BardMusicPlayer.Maestro.Utils
 {
-    public sealed class NoteEvent
+    public class NoteEvent
     {
         public Track track;
         public int trackNum;
         public int note;
         public int origNote;
     };
-    public sealed class ProgChangeEvent
+    public class ProgChangeEvent
     {
         public Track track;
         public int trackNum;
         public int voice;
     };
 
-    public sealed class ChannelAfterTouchEvent
+    public class ChannelAfterTouchEvent
     {
         public Track track;
         public int trackNum;

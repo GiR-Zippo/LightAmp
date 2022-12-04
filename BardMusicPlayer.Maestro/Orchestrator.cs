@@ -33,7 +33,7 @@ namespace BardMusicPlayer.Maestro
     /// - load songs
     /// - manages play functions
     /// </summary>
-    public sealed class Orchestrator : IDisposable
+    public class Orchestrator : IDisposable
     {
         private Sequencer _sequencer { get; set; } = null;
         private CancellationTokenSource _updaterTokenSource;
@@ -78,7 +78,10 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public IEnumerable<Game> GetAllGames()
         {
-            return _performers.Select(static performer => performer.Value.game).ToList();
+            List<Game> games =  new List<Game>();
+            foreach (KeyValuePair<int, Performer> performer in _performers)
+                games.Add(performer.Value.game);
+            return games;
         }
 
         /// <summary>
@@ -86,7 +89,10 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public IEnumerable<Performer> GetAllPerformers()
         {
-            return _performers.Select(static performer => performer.Value).ToList();
+            List<Performer> games = new List<Performer>();
+            foreach (KeyValuePair<int, Performer> performer in _performers)
+                games.Add(performer.Value);
+            return games;
         }
 
         /// <summary>
@@ -95,8 +101,8 @@ namespace BardMusicPlayer.Maestro
         /// <returns>tracknumber</returns>
         public int GetHostBardTrack()
         {
-            var perf = _performers.FirstOrDefault(static perf => perf.Value.HostProcess).Value;
-            return perf?.TrackNumber ?? 1;
+            Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
+            return perf == null ? 1 : perf.TrackNumber;
         }
 
         /// <summary>
@@ -105,13 +111,14 @@ namespace BardMusicPlayer.Maestro
         /// <returns>tracknumber</returns>
         public int GetHostBardOctaveShift()
         {
-            var perf = _performers.FirstOrDefault(static perf => perf.Value.HostProcess).Value;
-            return perf?.OctaveShift ?? 1;
+            Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
+            return perf == null ? 1 : perf.OctaveShift;
         }
 
         /// <summary>
         /// Get the song parsing bard
         /// </summary>
+        /// <param name="p"></param>
         public KeyValuePair<TitleParsingHelper, Performer> GetSongTitleParsingBard()
         {
             return _song_Title_Parsing_Performer;
@@ -203,20 +210,22 @@ namespace BardMusicPlayer.Maestro
         /// <param name="octave"></param>
         public void SetOctaveshiftOnHost(int octave)
         {
-            foreach (var perf in _performers.Where(static perf => perf.Value.HostProcess))
+            foreach (var perf in _performers)
             {
-                perf.Value.OctaveShift = octave;
-                BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(perf.Value.game, octave,
-                    perf.Value.HostProcess));
-                return;
+                if (perf.Value.HostProcess)
+                {
+                    perf.Value.OctaveShift = octave;
+                    BmpMaestro.Instance.PublishEvent(new OctaveShiftChangedEvent(perf.Value.game, octave, perf.Value.HostProcess));
+                    return;
+                }
             }
         }
 
         /// <summary>
         /// sets the speedshift for performer
         /// </summary>
-        /// <param name="p"></param>
-        /// <param name="speed"></param>
+        /// <param name="performer"></param>
+        /// <param name="octave"></param>
         public void SetSpeedshift(Performer p, float speed)
         {
             if (p == null)
@@ -229,14 +238,18 @@ namespace BardMusicPlayer.Maestro
         /// <summary>
         /// sets the speed for host performer (used for Ui)
         /// </summary>
-        /// <param name="speed"></param>
+        /// <param name="performer"></param>
+        /// <param name="octave"></param>
         public void SetSpeedshiftOnHost(float speed)
         {
-            foreach (var perf in _performers.Where(static perf => perf.Value.HostProcess))
+            foreach (var perf in _performers)
             {
-                perf.Value.Sequencer.Speed = speed;
-                BmpMaestro.Instance.PublishEvent(new SpeedShiftEvent(perf.Value.game, speed, perf.Value.HostProcess));
-                return;
+                if (perf.Value.HostProcess)
+                {
+                    perf.Value.Sequencer.Speed = speed;
+                    BmpMaestro.Instance.PublishEvent(new SpeedShiftEvent(perf.Value.game, speed, perf.Value.HostProcess));
+                    return;
+                }
             }
         }
 
@@ -300,7 +313,7 @@ namespace BardMusicPlayer.Maestro
         /// <summary>
         /// sets the track for specific performer
         /// </summary>
-        /// <param name="perf"></param>
+        /// <param name="performer"></param>
         /// <param name="tracknumber"></param>
         public void SetTracknumber(Performer perf, int tracknumber)
         {
@@ -317,8 +330,13 @@ namespace BardMusicPlayer.Maestro
         /// <param name="tracknumber"></param>
         public void SetTracknumber(Game game, int tracknumber)
         {
-            foreach (var perf in _performers.Where(perf => perf.Value.game.Pid == game.Pid))
-                perf.Value.TrackNumber = tracknumber;
+            foreach (var perf in _performers)
+            {
+                if (perf.Value.game.Pid == game.Pid)
+                {
+                    perf.Value.TrackNumber = tracknumber;
+                }
+            }
         }
 
         /// <summary>
@@ -328,11 +346,14 @@ namespace BardMusicPlayer.Maestro
         /// <param name="tracknumber"></param>
         public void SetTracknumberOnHost(int tracknumber)
         {
-            foreach (var perf in _performers.Where(static perf => perf.Value.HostProcess))
+            foreach (var perf in _performers)
             {
-                perf.Value.TrackNumber = tracknumber;
-                BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(perf.Value.game, tracknumber, true));
-                return;
+                if (perf.Value.HostProcess)
+                {
+                    perf.Value.TrackNumber = tracknumber;
+                    BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(perf.Value.game, tracknumber, true));
+                    return;
+                }
             }
         }
 
@@ -355,10 +376,13 @@ namespace BardMusicPlayer.Maestro
         /// <param name="device"></param>
         public void OpenInputDevice(int device)
         {
-            foreach (var perf in _performers.Where(static perf => perf.Value.HostProcess))
+            foreach (var perf in _performers)
             {
-                perf.Value.Sequencer.CloseInputDevice();
-                perf.Value.Sequencer.OpenInputDevice(device);
+                if (perf.Value.HostProcess)
+                {
+                    perf.Value.Sequencer.CloseInputDevice();
+                    perf.Value.Sequencer.OpenInputDevice(device);
+                }
             }
         }
 
@@ -367,8 +391,11 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void CloseInputDevice()
         {
-            foreach (var perf in _performers.Where(static perf => perf.Value.HostProcess))
-                perf.Value.Sequencer.CloseInputDevice();
+            foreach (var perf in _performers)
+            {
+                if (perf.Value.HostProcess)
+                    perf.Value.Sequencer.CloseInputDevice();
+            }
         }
         #endregion
 
@@ -379,13 +406,13 @@ namespace BardMusicPlayer.Maestro
         /// <param name="delay">in ms</param>
         public void Start(int delay)
         {
-            if (!_performers.Any())
+            if (_performers.Count() == 0)
                 return;
 
             //if we are a not a local orchestra
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
-                var res = _performers.Find(static i => i.Value.HostProcess == true);
+                var res = _performers.Find(i => i.Value.HostProcess == true);
                 res.Value.Play(true, delay);
                 return;
             }
@@ -397,7 +424,7 @@ namespace BardMusicPlayer.Maestro
             sw.Start();
             Parallel.ForEach(_performers, perf =>
             {
-                delay -= (int)sw.ElapsedMilliseconds;
+                delay = delay - (int)sw.ElapsedMilliseconds;
                 if (delay < 0)
                     delay = 0;
                 perf.Value.Play(true, delay);
@@ -409,13 +436,13 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void Pause()
         {
-            if (!_performers.Any())
+            if (_performers.Count() == 0)
                 return;
 
             //if we are a not a local orchestra
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
-                var res = _performers.AsParallel().Where(static i => i.Value.HostProcess == true);
+                var res = _performers.AsParallel().Where(i => i.Value.HostProcess == true);
                 res.First().Value.Play(false);
                 return;
             }
@@ -429,13 +456,13 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void Stop()
         {
-            if (!_performers.Any())
+            if (_performers.Count() == 0)
                 return;
 
             //if we are a not a local orchestra
             if (!BmpPigeonhole.Instance.LocalOrchestra)
             {
-                var res = _performers.AsParallel().Where(static i => i.Value.HostProcess == true);
+                var res = _performers.AsParallel().Where(i => i.Value.HostProcess == true);
                 res.First().Value.Stop();
                 return;
             }
@@ -451,7 +478,11 @@ namespace BardMusicPlayer.Maestro
         {
             try
             {
-                Parallel.ForEach(_performers, static perf => { perf.Value.OpenInstrument(); });
+                var pList = _performers;
+                Parallel.ForEach(pList, perf =>
+                {
+                    perf.Value.OpenInstrument();
+                });
             }
             catch { }
             
@@ -464,7 +495,11 @@ namespace BardMusicPlayer.Maestro
         {
             try
             {
-                Parallel.ForEach(_performers, static perf => { perf.Value.CloseInstrument(); });
+                var pList = _performers;
+                Parallel.ForEach(pList, perf =>
+                {
+                    perf.Value.CloseInstrument();
+                });
             }
             catch { }
         }
@@ -475,10 +510,11 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public void Dispose()
         {
-            _sequencer?.Dispose();
-
+            if (_sequencer != null)
+                _sequencer.Dispose();
             // Dispose managed resources.
-            _updaterTokenSource?.Cancel();
+            if (_updaterTokenSource != null)
+                _updaterTokenSource.Cancel();
 
             foreach (var perf in _performers)
                 perf.Value.Close();
@@ -496,7 +532,10 @@ namespace BardMusicPlayer.Maestro
         /// <param name="game">the found game</param>
         private void Instance_OnGameStarted(Game game)
         {
-            AddPerformer(game, BmpSeer.Instance.Games.Count == 1);
+            if (BmpSeer.Instance.Games.Count == 1)
+                AddPerformer(game, true);
+            else
+                AddPerformer(game, false);
         }
 
         /// <summary>
@@ -542,7 +581,7 @@ namespace BardMusicPlayer.Maestro
                         {
                             //Remove the old double performer
                             var chkperf = _performers.FindAll(i => i.Value.game.PlayerName == game.Key.PlayerName);
-                            if (chkperf.Count != 0)
+                            if (chkperf.Count() != 0)
                             {
                                 var x = chkperf.Find(i => i.Value.HomeWorld == game.Key.HomeWorld);
                                 if (x.Value != null)
@@ -577,8 +616,9 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         private void InitNewPerformance()
         {
-            if (_updaterTokenSource is { IsCancellationRequested: false })
-                _updaterTokenSource.Cancel();
+            if (_updaterTokenSource != null)
+                if (!_updaterTokenSource.IsCancellationRequested)
+                    _updaterTokenSource.Cancel();
 
             //if we have a local orchestra, spread the tracknumbers across the performers
             if (BmpPigeonhole.Instance.LocalOrchestra)
@@ -589,14 +629,17 @@ namespace BardMusicPlayer.Maestro
                     //Keep track settings for the performer
                     if (!BmpPigeonhole.Instance.EnsembleKeepTrackSetting)
                     {
-                        int result = _performers.Max(static p => p.Value.TrackNumber);
+                        int result = _performers.Max(p => p.Value.TrackNumber);
                         if (result != _sequencer.MaxTrack)
                             LocalOchestraInitialized = false;
                     }
                     else //reorder the performer
                     {
-                        foreach (var p in _performers.Where(p => p.Value.TrackNumber > _sequencer.MaxTrack))
-                            p.Value.PerformerEnabled = false;
+                        foreach (var p in _performers)
+                        {
+                            if (p.Value.TrackNumber > _sequencer.MaxTrack)
+                                p.Value.PerformerEnabled = false;
+                        }
                     }
 
                     //Renumber the performers if needed
@@ -632,7 +675,7 @@ namespace BardMusicPlayer.Maestro
             }
 
             //Look up for our host bard
-            Performer perf = _performers.FirstOrDefault(static perf => perf.Value.HostProcess).Value;
+            Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
             if (perf != null)
             {
                 if (BmpPigeonhole.Instance.AutoEquipBards)
@@ -681,7 +724,7 @@ namespace BardMusicPlayer.Maestro
         /// <param name="seerEvent"></param>
         private void Instance_EnsembleRequested(Seer.Events.EnsembleRequested seerEvent)
         {
-            //If we don't have a local ochestra enabled get outa here
+            //If we don't have alocal ochestra enabled get outa here
             if (!BmpPigeonhole.Instance.LocalOrchestra)
                 return;
 
@@ -695,8 +738,9 @@ namespace BardMusicPlayer.Maestro
             if (result.Key == seerEvent.Game.Pid)
                 result.Value.EnsembleAccept();
 
-            foreach (var i in _performers.Where(i => i.Value.game.Pid == seerEvent.Game.Pid))
-                i.Value.EnsembleAccept();
+            foreach (var i in _performers)
+                if (i.Value.game.Pid == seerEvent.Game.Pid)
+                    i.Value.EnsembleAccept();
             return 0;
         }
 
@@ -766,7 +810,7 @@ namespace BardMusicPlayer.Maestro
             if (!BmpPigeonhole.Instance.MidiBardCompatMode)
                 return;
 
-            if (!_performers.Any())
+            if (_performers.Count() == 0)
                 return;
 
             Task.Run(() =>
@@ -774,7 +818,7 @@ namespace BardMusicPlayer.Maestro
                 //if we are a not a local orchestra
                 if (!BmpPigeonhole.Instance.LocalOrchestra)
                 {
-                    var res = _performers.AsParallel().Where(static i => i.Value.HostProcess == true);
+                    var res = _performers.AsParallel().Where(i => i.Value.HostProcess == true);
                     res.First().Value.Stop();
                     return;
                 }
@@ -790,7 +834,7 @@ namespace BardMusicPlayer.Maestro
         /// <param name="delay">in ms</param>
         private void start(int delay, int Pid)
         {
-            if (!_performers.Any())
+            if (_performers.Count() == 0)
                 return;
 
             Performer perf = _performers.Find(i => i.Key == Pid).Value;
@@ -814,11 +858,14 @@ namespace BardMusicPlayer.Maestro
         private void Instance_InstrumentHeldChanged(Seer.Events.InstrumentHeldChanged seerEvent)
         {
             Game game = seerEvent.Game;
-            foreach (var perf in _performers.Where(perf => perf.Value.game.Equals(game)))
+            foreach (var perf in _performers)
             {
-                if (game.InstrumentHeld.Equals(Instrument.None))
-                    perf.Value.Stop();
-                perf.Value.PerformerEnabled = !game.InstrumentHeld.Equals(Instrument.None);
+                if (perf.Value.game.Equals(game))
+                {
+                    if (game.InstrumentHeld.Equals(Instrument.None))
+                        perf.Value.Stop();
+                    perf.Value.PerformerEnabled = !game.InstrumentHeld.Equals(Instrument.None);
+                }
             }
         }
         #endregion
@@ -829,16 +876,16 @@ namespace BardMusicPlayer.Maestro
         /// <param name="token"></param>
         private async Task Updater(CancellationToken token)
         {
-            Performer perf = _performers.FirstOrDefault(static perf => perf.Value.HostProcess).Value;
+            Performer perf = _performers.Where(perf => perf.Value.HostProcess).FirstOrDefault().Value;
             while (!token.IsCancellationRequested)
             {
                 //Get host performer
                 if (perf == null)
-                    perf = _performers.Find(static perf => perf.Value.HostProcess).Value;
+                    perf = _performers.Find(perf => perf.Value.HostProcess).Value;
                 else
                     BmpMaestro.Instance.PublishEvent(new CurrentPlayPositionEvent(perf.Sequencer.CurrentTimeAsTimeSpan, perf.Sequencer.CurrentTick));
 
-                await Task.Delay(200, token).ContinueWith(static tsk => { }, token);
+                await Task.Delay(200, token).ContinueWith(tsk => { });
             }
             return;
         }

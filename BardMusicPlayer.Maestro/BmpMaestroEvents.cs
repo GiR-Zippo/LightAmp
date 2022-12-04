@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Maestro
 {
-    public sealed partial class BmpMaestro
+    public partial class BmpMaestro
     {
         public EventHandler<CurrentPlayPositionEvent> OnPlaybackTimeChanged;
         public EventHandler<MaxPlayTimeEvent> OnSongMaxTime;
@@ -47,35 +47,52 @@ namespace BardMusicPlayer.Maestro
                                 OnSongMaxTime(this, maxPlayTime);
                                 break;
                             case SongLoadedEvent songloaded:
-                                OnSongLoaded?.Invoke(this, songloaded);
+                                if (OnSongLoaded == null)
+                                    break;
+                                OnSongLoaded(this, songloaded);
                                 break;
                             case PlaybackStartedEvent playbackStarted:
-                                OnPlaybackStarted?.Invoke(this, playbackStarted.Started);
+                                if (OnPlaybackStarted == null)
+                                    break;
+                                OnPlaybackStarted(this, playbackStarted.Started);
                                 break;
                             case PlaybackStoppedEvent playbackStopped:
-                                OnPlaybackStopped?.Invoke(this, playbackStopped.Stopped);
+                                if (OnPlaybackStopped == null)
+                                    break;
+                                OnPlaybackStopped(this, playbackStopped.Stopped);
                                 break;
                             case PerformersChangedEvent performerChanged:
-                                OnPerformerChanged?.Invoke(this, performerChanged.Changed);
+                                if (OnPerformerChanged == null)
+                                    break;
+                                OnPerformerChanged(this, performerChanged.Changed);
                                 break;
                             case TrackNumberChangedEvent trackNumberChanged:
-                                OnTrackNumberChanged?.Invoke(this, trackNumberChanged);
+                                if (OnTrackNumberChanged == null)
+                                    break;
+                                OnTrackNumberChanged(this, trackNumberChanged);
                                 break;
                             case OctaveShiftChangedEvent octaveShiftChanged:
-                                OnOctaveShiftChanged?.Invoke(this, octaveShiftChanged);
+                                if (OnOctaveShiftChanged == null)
+                                    break;
+                                OnOctaveShiftChanged(this, octaveShiftChanged);
                                 break;
                             case SpeedShiftEvent speedChanged:
-                                OnSpeedChanged?.Invoke(this, speedChanged);
+                                if (OnSpeedChanged == null)
+                                    break;
+                                OnSpeedChanged(this, speedChanged);
                                 break;
                             case PerformerUpdate performerUpdate:
-                                OnPerformerUpdate?.Invoke(this, performerUpdate);
+                                if (OnPerformerUpdate == null)
+                                    break;
+                                OnPerformerUpdate(this, performerUpdate);
                                 break;
-                        }
+
+                        };
                     }
                     catch
                     { }
                 }
-                await Task.Delay(25, token).ContinueWith(static tsk=> { }, token);
+                await Task.Delay(25, token).ContinueWith(tsk=> { });
             }
         }
 

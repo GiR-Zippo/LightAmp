@@ -16,7 +16,7 @@ using Timer = System.Timers.Timer;
 
 namespace BardMusicPlayer.Maestro.FFXIV
 {
-    public sealed class FFXIVHook
+    public class FFXIVHook
     {
 
         #region WIN32
@@ -174,14 +174,22 @@ namespace BardMusicPlayer.Maestro.FFXIV
         public EventHandler<Keys> OnKeyPressed;
 
         private Process referenceProcess;
-        public Process Process { get; private set; }
+        public Process Process
+        {
+            get
+            {
+                return referenceProcess;
+            }
+        }
 
         public FFXIVHook() { }
 
         public bool Hook(Process process, bool useCallback = true)
         {
-            if (process == null) return false;
-
+            if (process == null)
+            {
+                return false;
+            }
             if (_hookID != IntPtr.Zero)
             {
                 Unhook();
@@ -189,20 +197,29 @@ namespace BardMusicPlayer.Maestro.FFXIV
             referenceProcess = process;
             mainWindowHandle = process.MainWindowHandle;
 
-            if (!useCallback) return true;
-
-            proc = HookCallback;
-            _hookID = SetWindowsHookEx(WH_KEYBOARD_LL, proc, IntPtr.Zero, 0);
-            return _hookID != IntPtr.Zero;
+            if (useCallback)
+            {
+                proc = new MessageProc(HookCallback);
+                _hookID = SetWindowsHookEx(WH_KEYBOARD_LL, proc, IntPtr.Zero, 0);
+                if (_hookID != IntPtr.Zero)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
         }
-
         public void Unhook()
         {
-            if (_hookID == IntPtr.Zero) return;
-
-            UnhookWindowsHookEx(_hookID);
-            Process = null;
-            _hookID = IntPtr.Zero;
+            if (_hookID != IntPtr.Zero)
+            {
+                UnhookWindowsHookEx(_hookID);
+                referenceProcess = null;
+                _hookID = IntPtr.Zero;
+            }
         }
 
         public void FocusWindow()
