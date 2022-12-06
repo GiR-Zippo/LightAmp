@@ -1,4 +1,4 @@
-/*
+#region
  * Copyright(c) 2007-2020 Ryan Wilson syndicated.life@gmail.com (http://syndicated.life/)
  * Licensed under the MIT license. See https://github.com/FFXIVAPP/sharlayan/blob/master/LICENSE.md for full license information.
  */
@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Models;
+
+#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
 {
@@ -32,12 +34,10 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                 if (list.Any())
                 {
                     foreach (var item in list)
-                    {
                         if (item.Value == string.Empty)
                             Locations[item.Key] = item;
                         else
                             item.Value = item.Value.Replace("*", "?");
-                    }
 
                     list.RemoveAll(a => Locations.ContainsKey(a.Key));
                     FindExtendedSignatures(list);
@@ -48,7 +48,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                 IsScanning = false;
                 return true;
             };
-            func.BeginInvoke(delegate { }, func);
+            func.BeginInvoke(static delegate { }, func);
         }
 
         private void FindExtendedSignatures(IEnumerable<Signature> signatures)
@@ -56,8 +56,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             var notFound = new List<Signature>(signatures);
             var baseAddress = MemoryHandler.ProcessModel.Process.MainModule.BaseAddress;
             var searchEnd = IntPtr.Add(baseAddress, MemoryHandler.ProcessModel.Process.MainModule.ModuleMemorySize);
-            var searchStart = baseAddress;
-            ResolveLocations(baseAddress, searchStart, searchEnd, ref notFound);
+            ResolveLocations(baseAddress, baseAddress, searchEnd, ref notFound);
         }
 
         private void ResolveLocations(IntPtr baseAddress, IntPtr searchStart, IntPtr searchEnd,
@@ -67,14 +66,14 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             var list = new List<Signature>();
             var num = 0;
             while (searchStart.ToInt64() < searchEnd.ToInt64())
-            {
                 try
                 {
                     var regionSize = new IntPtr(4608);
                     if (IntPtr.Add(searchStart, 4608).ToInt64() > searchEnd.ToInt64())
-                        regionSize = (IntPtr) (searchEnd.ToInt64() - searchStart.ToInt64());
+                        regionSize = (IntPtr)(searchEnd.ToInt64() - searchStart.ToInt64());
+
                     if (UnsafeNativeMethods.ReadProcessMemory(MemoryHandler.ProcessHandle, searchStart, array,
-                        regionSize, out var _))
+                            regionSize, out _))
                     {
                         foreach (var item in notFound)
                         {
@@ -85,7 +84,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                                 continue;
                             }
 
-                            var pointer = new IntPtr((long) (baseAddress + num * 4096));
+                            var pointer = new IntPtr((long)(baseAddress + num * 4096));
                             item.SigScanAddress = new IntPtr(IntPtr.Add(pointer, num2 + item.Offset).ToInt64());
                             if (!Locations.ContainsKey(item.Key)) Locations.Add(item.Key, item);
                         }
@@ -101,7 +100,6 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                 {
                     MemoryHandler?.RaiseException(ex);
                 }
-            }
         }
 
         private static int FindSuperSignature(IReadOnlyList<byte> buffer, IReadOnlyList<byte> pattern)
@@ -121,12 +119,10 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             {
                 int position;
                 for (position = last;
-                    pattern[position] == buffer[position + offset] || pattern[position] == 63;
-                    position--)
-                {
+                     pattern[position] == buffer[position + offset] || pattern[position] == 63;
+                     position--)
                     if (position == 0)
                         return offset;
-                }
 
                 offset += badShift[buffer[offset + last]];
             }
@@ -145,10 +141,11 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
 
             var diff = last - idx;
             if (diff == 0) diff = 1;
-            for (idx = 0; idx <= 255; ++idx)
-                badShift[idx] = diff;
-            for (idx = last - diff; idx < last; ++idx)
-                badShift[pattern[idx]] = last - idx;
+
+            for (idx = 0; idx <= 255; ++idx) badShift[idx] = diff;
+
+            for (idx = last - diff; idx < last; ++idx) badShift[pattern[idx]] = last - idx;
+
             return badShift;
         }
 
@@ -170,10 +167,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                     if (signature[num2] == wildcard)
                         array[num] = wildcard;
                     else
-                    {
-                        array[num] = (byte) ((array2[char.ToUpper(signature[num2]) - 48] << 4) |
-                                             array2[char.ToUpper(signature[num2 + 1]) - 48]);
-                    }
+                        array[num] = (byte)((array2[char.ToUpper(signature[num2]) - 48] << 4) |
+                                            array2[char.ToUpper(signature[num2 + 1]) - 48]);
 
                     num2 += 2;
                     num++;

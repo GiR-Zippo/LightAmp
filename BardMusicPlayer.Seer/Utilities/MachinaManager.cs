@@ -1,4 +1,4 @@
-﻿/*
+#region
  * Copyright(c) 2022 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
@@ -8,15 +8,21 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Machina.FFXIV;
+using Machina.FFXIV.Oodle;
 using Machina.Infrastructure;
+
+#endregion
 
 namespace BardMusicPlayer.Seer.Utilities
 {
-    internal class MachinaManager : IDisposable
+    internal sealed class MachinaManager : IDisposable
     {
-        internal static MachinaManager Instance => LazyInstance.Value;
+        private static readonly Lazy<MachinaManager> LazyInstance = new(static () => new MachinaManager());
 
-        private static readonly Lazy<MachinaManager> LazyInstance = new(() => new MachinaManager());
+        private static readonly List<int> Lengths = new() { 48, 56, 88, 656, 664, 928, 3576 };
+        private readonly object _lock;
+        private readonly FFXIVNetworkMonitor _monitor;
+        private bool _monitorRunning;
 
         private MachinaManager()
         {
@@ -29,62 +35,12 @@ namespace BardMusicPlayer.Seer.Utilities
             {
                 MonitorType = NetworkMonitorType.RawSocket,
                 OodlePath = BmpSeer.Instance.Games.Values.First().GamePath + @"\game\ffxiv_dx11.exe",
-                OodleImplementation = Machina.FFXIV.Oodle.OodleImplementation.Ffxiv
+                OodleImplementation = OodleImplementation.Ffxiv
             };
             _monitor.MessageReceivedEventHandler += MessageReceivedEventHandler;
         }
 
-        private static readonly List<int> Lengths = new() {48, 56, 88, 656, 664, 928, 3576 };
-        private readonly FFXIVNetworkMonitor _monitor;
-        private readonly object _lock;
-        private bool _monitorRunning;
-
-        internal delegate void MessageReceivedHandler(int processId, byte[] message);
-
-        internal event MessageReceivedHandler MessageReceived;
-
-        internal void AddGame(int pid)
-        {
-            lock (_lock)
-            {
-                if (_monitorRunning)
-                {
-                    _monitor.Stop();
-                    _monitorRunning = false;
-                }
-
-                _monitor.ProcessIDList.Add((uint) pid);
-                _monitor.Start();
-                _monitorRunning = true;
-            }
-        }
-
-        internal void RemoveGame(int pid)
-        {
-            lock (_lock)
-            {
-                if (_monitorRunning)
-                {
-                    _monitor.Stop();
-                    _monitorRunning = false;
-                }
-
-                _monitor.ProcessIDList.Remove((uint) pid);
-                if (_monitor.ProcessIDList.Count <= 0) return;
-
-                _monitor.Start();
-                _monitorRunning = true;
-            }
-        }
-
-        private void MessageReceivedEventHandler(TCPConnection connection, long epoch, byte[] message)
-        {
-            if (Lengths.Contains(message.Length)) 
-            //if (message.Length > 28)
-                MessageReceived?.Invoke((int) connection.ProcessId, message);
-        }
-
-        ~MachinaManager() { Dispose(); }
+        internal static MachinaManager Instance => LazyInstance.Value;
 
         public void Dispose()
         {
@@ -100,5 +56,55 @@ namespace BardMusicPlayer.Seer.Utilities
                 _monitor.MessageReceivedEventHandler -= MessageReceivedEventHandler;
             }
         }
+
+        internal event MessageReceivedHandler MessageReceived;
+
+        internal void AddGame(int pid)
+        {
+            lock (_lock)
+            {
+                if (_monitorRunning)
+                {
+                    _monitor.Stop();
+                    _monitorRunning = false;
+                }
+
+                _monitor.ProcessIDList.Add((uint)pid);
+                _monitor.Start();
+                _monitorRunning = true;
+            }
+        }
+
+        internal void RemoveGame(int pid)
+        {
+            lock (_lock)
+            {
+                if (_monitorRunning)
+                {
+                    _monitor.Stop();
+                    _monitorRunning = false;
+                }
+
+                _monitor.ProcessIDList.Remove((uint)pid);
+                if (_monitor.ProcessIDList.Count <= 0) return;
+
+                _monitor.Start();
+                _monitorRunning = true;
+            }
+        }
+
+        private void MessageReceivedEventHandler(TCPConnection connection, long epoch, byte[] message)
+        {
+            if (Lengths.Contains(message.Length))
+                //if (message.Length > 28)
+                MessageReceived?.Invoke((int)connection.ProcessId, message);
+        }
+
+        ~MachinaManager()
+        {
+            Dispose();
+        }
+
+        internal delegate void MessageReceivedHandler(int processId, byte[] message);
     }
 }

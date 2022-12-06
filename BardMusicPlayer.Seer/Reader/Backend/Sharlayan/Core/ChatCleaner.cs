@@ -1,4 +1,4 @@
-/*
+#region
  * Copyright(c) 2007-2020 Ryan Wilson syndicated.life@gmail.com (http://syndicated.life/)
  * Licensed under the MIT license. See https://github.com/FFXIVAPP/sharlayan/blob/master/LICENSE.md for full license information.
  */
@@ -13,13 +13,16 @@ using System.Text.RegularExpressions;
 using System.Web;
 using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Utilities;
 
+#endregion
+
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Core
 {
-    internal class ChatCleaner : INotifyPropertyChanged
+    internal sealed class ChatCleaner : INotifyPropertyChanged
     {
         private const RegexOptions DefaultOptions = RegexOptions.Compiled | RegexOptions.ExplicitCapture;
         private static readonly Regex Checks = new(@"^00(20|21|23|27|28|46|47|48|49|5C)$", DefaultOptions);
         private static bool _colorFound;
+        private readonly MemoryHandler _memoryHandler;
 
         private readonly Regex _playerRegEx =
             new(
@@ -27,21 +30,18 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Core
                 , DefaultOptions);
 
         private string _result;
-        private readonly MemoryHandler _memoryHandler;
 
         public ChatCleaner(MemoryHandler memoryHandler, string line)
         {
             _memoryHandler = memoryHandler;
-            Result         = ProcessName(line);
+            Result = ProcessName(line);
         }
 
         public ChatCleaner(MemoryHandler memoryHandler, byte[] bytes)
         {
             _memoryHandler = memoryHandler;
-            Result         = ProcessFullLine(bytes).Trim();
+            Result = ProcessFullLine(bytes).Trim();
         }
-
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
         public string Result
         {
@@ -63,6 +63,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Core
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged = static delegate { };
+
         private string ProcessFullLine(byte[] bytes)
         {
             var line = HttpUtility.HtmlDecode(Encoding.UTF8.GetString(bytes.ToArray())).Replace("  ", " ");
@@ -70,7 +72,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Core
             {
                 var autoTranslateList = new List<byte>();
                 var newList = new List<byte>();
-                for (var x = 0; x < bytes.Count(); x++)
+                for (var x = 0; x < bytes.Length; x++)
                 {
                     if (bytes[x] == 238)
                     {
@@ -139,13 +141,11 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Core
                                     _ => 0
                                 };
                                 if (id != 0)
-                                {
                                     if (CompletionLookup.TryGetCompletion(id, out var completion))
                                     {
-                                        var c = string.Format("{{{0}}}", completion);
+                                        var c = $"{{{completion}}}";
                                         newList.AddRange(Encoding.UTF8.GetBytes(c));
                                     }
-                                }
 
                                 x += limit;
                             }
@@ -208,20 +208,16 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Core
 
                     // remove single placement
                     cleaned = cleaned.Replace(fullName, "•name•");
-                    switch (Regex.IsMatch(cleaned, @"^([Vv]ous|[Dd]u|[Yy]ou)"))
+                    cleaned = Regex.IsMatch(cleaned, @"^([Vv]ous|[Dd]u|[Yy]ou)") switch
                     {
-                        case true:
-                            cleaned = cleaned.Substring(1).Replace("•name•", string.Empty);
-                            break;
-                        case false:
-                            cleaned = cleaned.Replace("•name•", player);
-                            break;
-                    }
+                        true => cleaned.Substring(1).Replace("•name•", string.Empty),
+                        false => cleaned.Replace("•name•", player)
+                    };
                 }
 
                 cleaned = Regex.Replace(cleaned, @"[\r\n]+", string.Empty);
                 cleaned = Regex.Replace(cleaned, @"[\x00-\x1F]+", string.Empty);
-                line    = cleaned;
+                line = cleaned;
             }
             catch (Exception ex)
             {

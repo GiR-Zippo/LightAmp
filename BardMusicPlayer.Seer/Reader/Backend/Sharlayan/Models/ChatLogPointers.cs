@@ -5,7 +5,7 @@
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Models
 {
-    internal class ChatLogPointers
+    internal sealed class ChatLogPointers
     {
         public uint LineCount { get; set; }
 

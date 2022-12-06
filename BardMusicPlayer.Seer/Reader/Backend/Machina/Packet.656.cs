@@ -1,4 +1,4 @@
-﻿/*
+#region
  * Copyright(c) 2022 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
@@ -7,12 +7,14 @@ using System;
 using System.Text;
 using BardMusicPlayer.Seer.Events;
 
+#endregion
+
 namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 {
-    internal partial class Packet
+    internal sealed partial class Packet
     {
         /// <summary>
-        /// Handles older game version Player Spawn.
+        ///     Handles older game version Player Spawn.
         /// </summary>
         /// <param name="timeStamp"></param>
         /// <param name="otherActorId"></param>
@@ -25,19 +27,15 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                 if (otherActorId != myActorId) return;
 
                 var homeWorldId = BitConverter.ToUInt16(message, 38);
-                var playerName = Encoding.UTF8.GetString(message, 588, 32).Trim((char) 0);
+                var playerName = Encoding.UTF8.GetString(message, 588, 32).Trim((char)0);
 
                 if (World.Ids.ContainsKey(homeWorldId))
-                {
                     _machinaReader.ReaderHandler.Game.PublishEvent(new HomeWorldChanged(EventSource.Machina,
                         World.Ids[homeWorldId]));
-                }
 
                 if (string.IsNullOrEmpty(playerName))
-                {
                     _machinaReader.ReaderHandler.Game.PublishEvent(new PlayerNameChanged(EventSource.Machina,
                         playerName));
-                }
             }
             catch (Exception ex)
             {

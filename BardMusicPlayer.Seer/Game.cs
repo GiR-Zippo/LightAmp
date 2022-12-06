@@ -3,6 +3,8 @@
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
+#region
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,16 +17,13 @@ using BardMusicPlayer.Seer.Reader.Backend.DatFile;
 using BardMusicPlayer.Seer.Reader.Backend.Machina;
 using BardMusicPlayer.Seer.Reader.Backend.Sharlayan;
 
+#endregion
+
 namespace BardMusicPlayer.Seer
 {
-    public partial class Game : IDisposable, IEquatable<Game>
+    public sealed partial class Game : IDisposable, IEquatable<Game>
     {
         private readonly string _uuid;
-
-        // readers
-        internal ReaderHandler DatReader;
-        internal ReaderHandler MemoryReader;
-        internal ReaderHandler NetworkReader;
 
         // reader events
         private Dictionary<Type, long> _eventDedupeHistory;
@@ -35,101 +34,26 @@ namespace BardMusicPlayer.Seer
         // reader events processor
         private CancellationTokenSource _eventTokenSource;
 
+        // readers
+        internal ReaderHandler DatReader;
+        internal ReaderHandler MemoryReader;
+        internal ReaderHandler NetworkReader;
+
         internal Game(Process process)
         {
-            _uuid   = Guid.NewGuid().ToString();
+            _uuid = Guid.NewGuid().ToString();
             Process = process;
         }
 
-        internal bool Initialize()
-        {
-            try
-            {
-                if (Process is null || Process.Id < 1 || Pid != 0)
-                {
-                    BmpSeer.Instance.PublishEvent(new GameExceptionEvent(this, Pid,
-                        new BmpSeerException("Game process is null or already initialized.")));
-                    return false;
-                }
-
-                Pid = Process.Id;
-                InitInformation();
-
-                _eventDedupeHistory     = new Dictionary<Type, long>();
-                _eventQueueHighPriority = new ConcurrentQueue<SeerEvent>();
-                _eventQueueLowPriority  = new ConcurrentQueue<SeerEvent>();
-                _eventQueueOpen         = true;
-
-                DatReader      = new ReaderHandler(this, new DatFileReaderBackend(1));
-                MemoryReader   = new ReaderHandler(this, new SharlayanReaderBackend(1));
-                NetworkReader  = new ReaderHandler(this, new MachinaReaderBackend(1));
-                GfxSettingsLow = CheckIfGfxIsLow();
-                _eventTokenSource = new CancellationTokenSource();
-                Task.Factory.StartNew(() => RunEventQueue(_eventTokenSource.Token), TaskCreationOptions.LongRunning);
-
-                BmpSeer.Instance.PublishEvent(new GameStarted(this, Pid));
-            }
-            catch (Exception ex)
-            {
-                BmpSeer.Instance.PublishEvent(new GameExceptionEvent(this, Pid, ex));
-                return false;
-            }
-
-            return true;
-        }
-
-        internal void PublishEvent(SeerEvent seerEvent)
-        {
-            if (!_eventQueueOpen) return;
-
-            if (seerEvent.HighPriority) _eventQueueHighPriority.Enqueue(seerEvent);
-            else _eventQueueLowPriority.Enqueue(seerEvent);
-        }
-
-        private async Task RunEventQueue(CancellationToken token)
-        {
-            while (!token.IsCancellationRequested)
-            {
-                while (_eventQueueHighPriority.TryDequeue(out var high))
-                {
-                    try
-                    {
-                        OnEventReceived(high);
-                    }
-                    catch (Exception ex)
-                    {
-                        BmpSeer.Instance.PublishEvent(new GameExceptionEvent(this, Pid, ex));
-                    }
-                }
-
-                if (_eventQueueLowPriority.TryDequeue(out var low))
-                {
-                    try
-                    {
-                        OnEventReceived(low);
-                    }
-                    catch (Exception ex)
-                    {
-                        BmpSeer.Instance.PublishEvent(new GameExceptionEvent(this, Pid, ex));
-                    }
-                }
-
-                await Task.Delay(1, token);
-            }
-        }
-
-        ~Game() { Dispose(); }
-
         public void Dispose()
         {
-            if ((_eventQueueHighPriority != null) && (_eventQueueHighPriority != null) && (_eventDedupeHistory != null))
+            if (_eventQueueHighPriority is { } && _eventDedupeHistory != null)
                 BmpSeer.Instance.PublishEvent(new GameStopped(Pid));
 
             _eventQueueOpen = false;
             try
-            { 
-                if (_eventTokenSource != null)
-                    _eventTokenSource.Cancel();
+            {
+                _eventTokenSource?.Cancel();
             }
             catch (Exception ex)
             {
@@ -166,20 +90,16 @@ namespace BardMusicPlayer.Seer
             try
             {
                 if (_eventQueueHighPriority != null)
-                {
                     while (_eventQueueHighPriority.TryDequeue(out _))
                     {
                     }
-                }
 
                 if (_eventQueueHighPriority != null)
-                {
                     while (_eventQueueLowPriority.TryDequeue(out _))
                     {
                     }
-                }
-                if (_eventDedupeHistory != null)
-                    _eventDedupeHistory.Clear();
+
+                _eventDedupeHistory?.Clear();
             }
             catch (Exception ex)
             {
@@ -187,14 +107,6 @@ namespace BardMusicPlayer.Seer
             }
 
             GC.SuppressFinalize(this);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is null) return false;
-            if (ReferenceEquals(this, obj)) return true;
-
-            return obj.GetType() == GetType() && Equals((Game) obj);
         }
 
         public bool Equals(Game other)
@@ -205,22 +117,118 @@ namespace BardMusicPlayer.Seer
             return _uuid == other._uuid;
         }
 
-        public override int GetHashCode() => _uuid != null ? _uuid.GetHashCode() : 0;
+        internal bool Initialize()
+        {
+            try
+            {
+                if (Process is null || Process.Id < 1 || Pid != 0)
+                {
+                    BmpSeer.Instance.PublishEvent(new GameExceptionEvent(this, Pid,
+                        new BmpSeerException("Game process is null or already initialized.")));
+                    return false;
+                }
 
-        public static bool operator ==(Game game, Game otherGame) => game is not null && game.Equals(otherGame);
+                Pid = Process.Id;
+                InitInformation();
 
-        public static bool operator !=(Game game, Game otherGame) => game is not null && !game.Equals(otherGame);
+                _eventDedupeHistory = new Dictionary<Type, long>();
+                _eventQueueHighPriority = new ConcurrentQueue<SeerEvent>();
+                _eventQueueLowPriority = new ConcurrentQueue<SeerEvent>();
+                _eventQueueOpen = true;
+
+                DatReader = new ReaderHandler(this, new DatFileReaderBackend(1));
+                MemoryReader = new ReaderHandler(this, new SharlayanReaderBackend(1));
+                NetworkReader = new ReaderHandler(this, new MachinaReaderBackend(1));
+                GfxSettingsLow = CheckIfGfxIsLow();
+                _eventTokenSource = new CancellationTokenSource();
+                Task.Factory.StartNew(() => RunEventQueue(_eventTokenSource.Token), TaskCreationOptions.LongRunning);
+
+                BmpSeer.Instance.PublishEvent(new GameStarted(this, Pid));
+            }
+            catch (Exception ex)
+            {
+                BmpSeer.Instance.PublishEvent(new GameExceptionEvent(this, Pid, ex));
+                return false;
+            }
+
+            return true;
+        }
+
+        internal void PublishEvent(SeerEvent seerEvent)
+        {
+            if (!_eventQueueOpen) return;
+
+            if (seerEvent.HighPriority) _eventQueueHighPriority.Enqueue(seerEvent);
+            else _eventQueueLowPriority.Enqueue(seerEvent);
+        }
+
+        private async Task RunEventQueue(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                while (_eventQueueHighPriority.TryDequeue(out var high))
+                    try
+                    {
+                        OnEventReceived(high);
+                    }
+                    catch (Exception ex)
+                    {
+                        BmpSeer.Instance.PublishEvent(new GameExceptionEvent(this, Pid, ex));
+                    }
+
+                if (_eventQueueLowPriority.TryDequeue(out var low))
+                    try
+                    {
+                        OnEventReceived(low);
+                    }
+                    catch (Exception ex)
+                    {
+                        BmpSeer.Instance.PublishEvent(new GameExceptionEvent(this, Pid, ex));
+                    }
+
+                await Task.Delay(1, token);
+            }
+        }
+
+        ~Game()
+        {
+            Dispose();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+
+            return obj.GetType() == GetType() && Equals((Game)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return _uuid != null ? _uuid.GetHashCode() : 0;
+        }
+
+        public static bool operator ==(Game game, Game otherGame)
+        {
+            return game is not null && game.Equals(otherGame);
+        }
+
+        public static bool operator !=(Game game, Game otherGame)
+        {
+            return game is not null && !game.Equals(otherGame);
+        }
 
         public IntPtr GetAffinity()
         {
-            return this.Process.ProcessorAffinity;
+            return Process.ProcessorAffinity;
         }
 
         public void SetAffinity(long AffinityMask)
         {
             if (AffinityMask == 0)
                 return;
-            this.Process.ProcessorAffinity = (IntPtr)AffinityMask;
+
+            Process.ProcessorAffinity = (IntPtr)AffinityMask;
         }
     }
 }

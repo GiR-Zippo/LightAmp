@@ -1,9 +1,13 @@
-﻿/*
+/*
  * Copyright(c) 2022 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
+#region
+
 using System;
+
+#endregion
 
 namespace BardMusicPlayer.Seer.Events
 {
@@ -17,21 +21,27 @@ namespace BardMusicPlayer.Seer.Events
 
         public Exception Exception { get; }
 
-        public override bool IsValid() => true;
+        public override bool IsValid()
+        {
+            return true;
+        }
     }
 
-    public class GameExceptionEvent : SeerExceptionEvent
+    public sealed class GameExceptionEvent : SeerExceptionEvent
     {
         internal GameExceptionEvent(Game game, int pid, Exception exception) : base(exception, EventSource.Game)
         {
             EventType = GetType();
-            Game      = game;
-            Pid       = pid;
+            Game = game;
+            Pid = pid;
         }
 
         public int Pid { get; }
 
-        public override bool IsValid() => true;
+        public override bool IsValid()
+        {
+            return true;
+        }
     }
 
     public sealed class BackendExceptionEvent : SeerExceptionEvent
@@ -42,6 +52,9 @@ namespace BardMusicPlayer.Seer.Events
             EventType = GetType();
         }
 
-        public override bool IsValid() => true;
+        public override bool IsValid()
+        {
+            return true;
+        }
     }
 }

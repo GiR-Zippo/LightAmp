@@ -1,4 +1,4 @@
-﻿/*
+#region
  * Copyright(c) 2021 MoogleTroupe, 2018-2020 parulina
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
@@ -7,11 +7,16 @@ using System;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Core.Enums;
 
+#endregion
+
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
 {
-    internal partial class Reader
+    internal sealed partial class Reader
     {
-        public bool CanGetPerformance() => Scanner.Locations.ContainsKey(Signatures.PerformanceStatusKey);
+        public bool CanGetPerformance()
+        {
+            return Scanner.Locations.ContainsKey(Signatures.PerformanceStatusKey);
+        }
 
         public Instrument GetPerformance()
         {
@@ -23,7 +28,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
                 var performanceData = MemoryHandler.GetByteArray(Scanner.Locations[Signatures.PerformanceStatusKey],
                     MemoryHandler.Structures.PerformanceInfo.SourceSize);
 
-                var status = (Performance.Status) performanceData[MemoryHandler.Structures.PerformanceInfo.Status];
+                var status = (Performance.Status)performanceData[MemoryHandler.Structures.PerformanceInfo.Status];
                 var instrument = Instrument.Parse(performanceData[MemoryHandler.Structures.PerformanceInfo.Instrument]);
 
                 switch (status)

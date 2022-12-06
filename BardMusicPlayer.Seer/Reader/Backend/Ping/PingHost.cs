@@ -1,37 +1,37 @@
-﻿using System;
-using System.Text;
-using System.Net;
+﻿#region
+
+using System;
 using System.Net.NetworkInformation;
-using System.ComponentModel;
+using System.Text;
 using System.Threading;
 using BardMusicPlayer.Seer.Events;
+
+#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Ping
 {
     public class PingHost
     {
-        public static Game _game { get; private set; }
-
         public PingHost(string args, Game game)
         {
             if (args.Length == 0)
                 throw new ArgumentException("Ping needs a host or IP Address.");
-            _game = game;
-            string who = args;
-            AutoResetEvent waiter = new AutoResetEvent(false);
 
-            System.Net.NetworkInformation.Ping pingSender = new System.Net.NetworkInformation.Ping();
+            _game = game;
+            var waiter = new AutoResetEvent(false);
+
+            var pingSender = new System.Net.NetworkInformation.Ping();
 
             // When the PingCompleted event is raised,
             // the PingCompletedCallback method is called.
-            pingSender.PingCompleted += new PingCompletedEventHandler(PingCompletedCallback);
+            pingSender.PingCompleted += PingCompletedCallback;
 
             // Create a buffer of 32 bytes of data to be transmitted.
-            string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-            byte[] buffer = Encoding.ASCII.GetBytes(data);
+            const string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+            var buffer = Encoding.ASCII.GetBytes(data);
 
-            int timeout = 12000;
-            PingOptions options = new PingOptions(64, true);
+            const int timeout = 12000;
+            var options = new PingOptions(64, true);
 
             Console.WriteLine("Time to live: {0}", options.Ttl);
             Console.WriteLine("Don't fragment: {0}", options.DontFragment);
@@ -39,13 +39,15 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Ping
             // Send the ping asynchronously.
             // Use the waiter as the user token.
             // When the callback completes, it can wake up this thread.
-            pingSender.SendAsync(who, timeout, buffer, options, waiter);
+            pingSender.SendAsync(args, timeout, buffer, options, waiter);
 
             // Prevent this example application from ending.
             // A real application should do something useful
             // when possible.
             waiter.WaitOne();
         }
+
+        public static Game _game { get; private set; }
 
         private static void PingCompletedCallback(object sender, PingCompletedEventArgs e)
         {
@@ -57,7 +59,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Ping
             if (e.Error != null)
                 ((AutoResetEvent)e.UserState).Set();
 
-            PingReply reply = e.Reply;
+            var reply = e.Reply;
 
             DisplayReply(reply);
 
@@ -71,15 +73,14 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Ping
                 return;
 
             Console.WriteLine("ping status: {0}", reply.Status);
-            if (reply.Status == IPStatus.Success)
-            {
-                Console.WriteLine("Address: {0}", reply.Address.ToString());
-                Console.WriteLine("RoundTrip time: {0}", reply.RoundtripTime);
-                Console.WriteLine("Time to live: {0}", reply.Options.Ttl);
-                Console.WriteLine("Don't fragment: {0}", reply.Options.DontFragment);
-                Console.WriteLine("Buffer size: {0}", reply.Buffer.Length);
-                _game.PublishEvent(new LatencyUpdate(EventSource.Machina, reply.RoundtripTime));
-            }
+            if (reply.Status != IPStatus.Success) return;
+
+            Console.WriteLine("Address: {0}", reply.Address);
+            Console.WriteLine("RoundTrip time: {0}", reply.RoundtripTime);
+            Console.WriteLine("Time to live: {0}", reply.Options.Ttl);
+            Console.WriteLine("Don't fragment: {0}", reply.Options.DontFragment);
+            Console.WriteLine("Buffer size: {0}", reply.Buffer.Length);
+            _game.PublishEvent(new LatencyUpdate(EventSource.Machina, reply.RoundtripTime));
         }
     }
 }

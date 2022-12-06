@@ -1,10 +1,12 @@
-/*
+#region
  * Copyright(c) 2007-2020 Ryan Wilson syndicated.life@gmail.com (http://syndicated.life/)
  * Licensed under the MIT license. See https://github.com/FFXIVAPP/sharlayan/blob/master/LICENSE.md for full license information.
  */
 
 using System.Linq;
 using System.Text;
+
+#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Utilities
 {
@@ -16,17 +18,14 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Utilities
 
             var stringBuilder = new StringBuilder(xValue.Length);
 
-            foreach (var item in xValue.Where(xChar => IsLegalXmlChar(xChar)))
-            {
-                stringBuilder.Append(item);
-            }
+            foreach (var item in xValue.Where(static xChar => IsLegalXmlChar(xChar))) stringBuilder.Append(item);
 
             return stringBuilder.ToString();
         }
 
-        private static bool IsLegalXmlChar(int xChar) => xChar == 9 || xChar == 10 || xChar == 13 ||
-                                                         xChar >= 32 && xChar <= 55295 ||
-                                                         xChar >= 57344 && xChar <= 65533 ||
-                                                         xChar >= 65536 && xChar <= 1114111;
+        private static bool IsLegalXmlChar(int xChar)
+        {
+            return xChar is 9 or 10 or 13 or >= 32 and <= 55295 or >= 57344 and <= 65533 or >= 65536 and <= 1114111;
+        }
     }
 }

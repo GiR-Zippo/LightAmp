@@ -1,7 +1,9 @@
 ﻿/*
- * Copyright(c) 2022 MoogleTroupe, sammhill, 2018-2020 parulina
+ * Copyright(c) 2022 MoogleTroupe, sammhill, GiR-Zippo, 2018-2020 parulina
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
+
+#region
 
 using System;
 using System.Collections.Generic;
@@ -11,17 +13,25 @@ using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer.Reader.Backend.DatFile.Objects;
 using BardMusicPlayer.Seer.Reader.Backend.DatFile.Utilities;
 
+#endregion
+
 namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
 {
-    internal class HotbarDatFile : IDisposable
+    internal sealed class HotbarDatFile : IDisposable
     {
+        private readonly string _filePath;
+        private readonly HotbarData _hotbarData = new();
 
         internal bool Fresh = true;
-        private string _filePath;
 
         internal HotbarDatFile(string filePath)
         {
             _filePath = filePath;
+        }
+
+        public void Dispose()
+        {
+            _hotbarData?.Dispose();
         }
 
         internal bool Load()
@@ -31,10 +41,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
 
             using var fileStream = File.Open(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var memStream = new MemoryStream();
-            if (fileStream.CanRead && fileStream.CanSeek)
-            {
-                fileStream.CopyTo(memStream);
-            }
+            if (fileStream.CanRead && fileStream.CanSeek) fileStream.CopyTo(memStream);
 
             fileStream.Dispose();
             if (memStream.Length == 0)
@@ -65,13 +72,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
                 while (reader.BaseStream.Position < dataSize)
                 {
                     var ac = ParseSection(reader);
-                    if (ac.Job == 0x17 || ac.Job == 0)
-                    {
-                        if (ac.Type == 0x1D)
-                        {
-                            _hotbarData[ac.Hotbar][ac.Slot][ac.Job] = ac;
-                        }
-                    }
+                    if (ac.Job != 0x17 && ac.Job != 0) continue;
+
+                    if (ac.Type == 0x1D) _hotbarData[ac.Hotbar][ac.Slot][ac.Job] = ac;
                 }
             }
             catch (Exception ex)
@@ -83,41 +86,57 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
                 reader.Dispose();
                 memStream.Dispose();
             }
+
             return true;
         }
 
-        private readonly HotbarData _hotbarData = new();
-
-        public List<HotbarSlot> GetSlotsFromType(SlotType type) => GetSlotsFromType((int)type);
-        public List<HotbarSlot> GetSlotsFromType(int type) => (from row in _hotbarData.Rows.Values from jobSlot in row.Slots.Values from slot in jobSlot.JobSlots.Values where slot.Type == type select slot).ToList();
-
-        public List<HotbarSlot> GetBRDSlots() => (from row in _hotbarData.Rows.Values from jobSlot in row.Slots.Values from slot in jobSlot.JobSlots.Values where slot.Job == 0x17 select slot).ToList();
-        public List<HotbarSlot> GetGlobalSlots() => (from row in _hotbarData.Rows.Values from jobSlot in row.Slots.Values from slot in jobSlot.JobSlots.Values where slot.Job == 0 select slot).ToList();
-
-        internal enum SlotType
+        public IEnumerable<HotbarSlot> GetSlotsFromType(SlotType type)
         {
-            Unknown,
-            Instrument = 0x1D,
-            InstrumentTone = Unknown // Leaving this as unknown as we can just use 'Instrument' for now, they have the same id in hex.
+            return GetSlotsFromType((int)type);
+        }
+
+        public IEnumerable<HotbarSlot> GetSlotsFromType(int type)
+        {
+            return (from row in _hotbarData.Rows.Values
+                from jobSlot in row.Slots.Values
+                from slot in jobSlot.JobSlots.Values
+                where slot.Type == type
+                select slot).ToList();
+        }
+
+        public List<HotbarSlot> GetBRDSlots()
+        {
+            return (from row in _hotbarData.Rows.Values
+                from jobSlot in row.Slots.Values
+                from slot in jobSlot.JobSlots.Values
+                where slot.Job == 0x17
+                select slot).ToList();
+        }
+
+        public List<HotbarSlot> GetGlobalSlots()
+        {
+            return (from row in _hotbarData.Rows.Values
+                from jobSlot in row.Slots.Values
+                from slot in jobSlot.JobSlots.Values
+                where slot.Job == 0
+                select slot).ToList();
         }
 
         public string GetInstrumentToneKeyMap(InstrumentTone instrumentTone)
         {
             var slots = GetSlotsFromType(SlotType.InstrumentTone);
-            foreach (var slot in slots.Where(slot => slot.Action == instrumentTone))
-            {
-                return slot.ToString();
-            }
+            foreach (var slot in slots.Where(slot => slot.Action == instrumentTone)) return slot.ToString();
+
             return string.Empty;
         }
 
         public string GetInstrumentKeyMap(Instrument instrument)
         {
             var slots = GetSlotsFromType(SlotType.Instrument);
-            foreach (var slot in slots.Where(slot => (slot.Action == instrument) && (slot.Job == 0x17) )) //read only the bard
-            {
+            //read only the bard
+            foreach (var slot in slots.Where(slot => slot.Action == instrument && slot.Job == 0x17))
                 return slot.ToString();
-            }
+
             return string.Empty;
         }
 
@@ -133,15 +152,23 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
                 Job = XorTools.ReadXorByte(stream, xor),
                 Hotbar = XorTools.ReadXorByte(stream, xor),
                 Slot = XorTools.ReadXorByte(stream, xor),
-                Type = XorTools.ReadXorByte(stream, xor),
+                Type = XorTools.ReadXorByte(stream, xor)
             };
             return ac;
         }
 
-        ~HotbarDatFile() => Dispose();
-        public void Dispose()
+        ~HotbarDatFile()
         {
-            _hotbarData?.Dispose();
+            Dispose();
+        }
+
+        internal enum SlotType
+        {
+            Unknown,
+            Instrument = 0x1D,
+
+            InstrumentTone =
+                Unknown // Leaving this as unknown as we can just use 'Instrument' for now, they have the same id in hex.
         }
     }
 }

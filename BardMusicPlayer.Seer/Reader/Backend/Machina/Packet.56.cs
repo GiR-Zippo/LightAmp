@@ -1,4 +1,4 @@
-﻿/*
+#region
  * Copyright(c) 2022 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
@@ -8,13 +8,15 @@ using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer.Events;
 using BardMusicPlayer.Seer.Utilities;
 
+#endregion
+
 namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 {
-    internal partial class Packet
+    internal sealed partial class Packet
     {
         /// <summary>
-        /// Handles Ensemble Request, Ensemble Reject, and Instrument Equip/De-Equip.
-        /// Opcode 38
+        ///     Handles Ensemble Request, Ensemble Reject, and Instrument Equip/De-Equip.
+        ///     Opcode 38
         /// </summary>
         /// <param name="timeStamp"></param>
         /// <param name="otherActorId"></param>
@@ -31,19 +33,18 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 
                 if (BitConverter.ToUInt16(message, 32) != 2
                     && !(
-                        BitConverter.ToUInt32(message, 36) == 16 && BitConverter.ToUInt32(message, 40) > 0 &&
-                        BitConverter.ToUInt32(message, 40) < 64 && BitConverter.ToUInt32(message, 44) == 0 &&
-                        BitConverter.ToUInt32(message, 48) == 0
+                        (BitConverter.ToUInt32(message, 36) == 16 && BitConverter.ToUInt32(message, 40) > 0 &&
+                         BitConverter.ToUInt32(message, 40) < 64 && BitConverter.ToUInt32(message, 44) == 0 &&
+                         BitConverter.ToUInt32(message, 48) == 0)
                         ||
-                        BitConverter.ToUInt32(message, 36) == 1 && BitConverter.ToUInt32(message, 40) == 0 &&
-                        BitConverter.ToUInt32(message, 44) == 0 && BitConverter.ToUInt32(message, 48) == 0
+                        (BitConverter.ToUInt32(message, 36) == 1 && BitConverter.ToUInt32(message, 40) == 0 &&
+                         BitConverter.ToUInt32(message, 44) == 0 && BitConverter.ToUInt32(message, 48) == 0)
                     ))
-                {
                     try
                     {
                         if (BitConverter.ToUInt16(message, 48) == 0 && ValidTempo(message[50]) &&
                             ValidTimeSig(message[51])
-                        ) // 00 00 [tempo] [timesig]
+                           ) // 00 00 [tempo] [timesig]
                         {
                             var partyLeader = BitConverter.ToUInt32(message, 40);
                             if (!ActorIdTools.RangeOkay(partyLeader)) return;
@@ -56,7 +57,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                             if (!ActorIdTools.RangeOkay(partyMember)) return;
 
                             uint reply = message[48];
-                            if (reply > 2) 
+                            if (reply > 2)
                                 return;
 
                             switch (reply)
@@ -66,10 +67,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                                 case 1: // "ready" reply.
                                     break;
                                 case 2: // rejected or timed out replying
-                                    _machinaReader.ReaderHandler.Game.PublishEvent( new EnsembleRejected(EventSource.Machina));
+                                    _machinaReader.ReaderHandler.Game.PublishEvent(
+                                        new EnsembleRejected(EventSource.Machina));
                                     break;
-                                default:
-                                    return;
                             }
                         }
                     }
@@ -79,9 +79,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                             new BmpSeerMachinaException("Exception in Packet.Size56 (ensemble action): " +
                                                         ex.Message)));
                     }
-                }
                 else
-                {
                     try
                     {
                         var category = BitConverter.ToUInt16(message, 32); // category
@@ -93,20 +91,20 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                                 var param3 = BitConverter.ToUInt32(message, 44);
                                 var param4 = BitConverter.ToUInt32(message, 48);
                                 if (param3 == 0 && param4 == 0)
-                                {
                                     switch (param1)
                                     {
                                         case 16: // equip instrument
-                                            _machinaReader.ReaderHandler.Game.PublishEvent(new InstrumentHeldChanged(EventSource.Machina, Instrument.Parse((int) param2)));
+                                            _machinaReader.ReaderHandler.Game.PublishEvent(
+                                                new InstrumentHeldChanged(EventSource.Machina,
+                                                    Instrument.Parse((int)param2)));
                                             break;
                                         case 1: // de-equip instrument
                                             if (param2 == 0)
-                                            {
-                                                _machinaReader.ReaderHandler.Game.PublishEvent(new InstrumentHeldChanged(EventSource.Machina, Instrument.Parse((int) param2)));
-                                            }
+                                                _machinaReader.ReaderHandler.Game.PublishEvent(
+                                                    new InstrumentHeldChanged(EventSource.Machina,
+                                                        Instrument.Parse((int)param2)));
                                             break;
                                     }
-                                }
 
                                 break;
                         }
@@ -116,7 +114,6 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         _machinaReader.ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,
                             new BmpSeerMachinaException("Exception in Packet.Size56 (equip action): " + ex.Message)));
                     }
-                }
             }
             catch (Exception ex)
             {

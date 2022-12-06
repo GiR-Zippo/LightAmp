@@ -3,41 +3,54 @@
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
+#region
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using WindowsFirewallHelper;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer.Events;
 using BardMusicPlayer.Seer.Utilities;
+using WindowsFirewallHelper;
+
+#endregion
 
 namespace BardMusicPlayer.Seer
 {
-    public partial class BmpSeer : IDisposable
+    public sealed partial class BmpSeer : IDisposable
     {
-        private static readonly Lazy<BmpSeer> LazyInstance = new(() => new BmpSeer());
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool Started { get; private set; }
+        private static readonly Lazy<BmpSeer> LazyInstance = new(static () => new BmpSeer());
 
         private readonly ConcurrentDictionary<int, Game> _games;
 
-        private BmpSeer() { _games = new ConcurrentDictionary<int, Game>(); }
+        private BmpSeer()
+        {
+            _games = new ConcurrentDictionary<int, Game>();
+        }
+
+        /// <summary>
+        /// </summary>
+        public bool Started { get; private set; }
 
         public static BmpSeer Instance => LazyInstance.Value;
 
         /// <summary>
-        /// Current active games
+        ///     Current active games
         /// </summary>
         public IReadOnlyDictionary<int, Game> Games => new ReadOnlyDictionary<int, Game>(_games);
 
+        public void Dispose()
+        {
+            Stop();
+            MachinaManager.Instance.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
         /// <summary>
-        /// Configure the firewall for Machina
+        ///     Configure the firewall for Machina
         /// </summary>
         /// <param name="appName">This application name.</param>
         /// <returns>true if successful</returns>
@@ -48,13 +61,11 @@ namespace BardMusicPlayer.Seer
                 if (!FirewallManager.IsServiceRunning) return true;
 
                 if (FirewallManager.Instance.Rules.Any(x => x.Name != null && x.Name.Equals(appName)))
-                {
                     FirewallManager.Instance.Rules.Remove(
                         FirewallManager.Instance.Rules.First(x => x.Name.Equals(appName)));
-                }
 
                 var rule = FirewallManager.Instance.CreateApplicationRule(
-                    @appName,
+                    appName,
                     FirewallAction.Allow,
                     Assembly.GetEntryAssembly()?.Location
                 );
@@ -70,7 +81,7 @@ namespace BardMusicPlayer.Seer
         }
 
         /// <summary>
-        /// Unconfigure the firewall for Machina
+        ///     Unconfigure the firewall for Machina
         /// </summary>
         /// <param name="appName">This application name.</param>
         /// <returns>true if successful</returns>
@@ -81,10 +92,8 @@ namespace BardMusicPlayer.Seer
                 if (!FirewallManager.IsServiceRunning) return true;
 
                 if (FirewallManager.Instance.Rules.Any(x => x.Name != null && x.Name.Equals(appName)))
-                {
                     FirewallManager.Instance.Rules.Remove(
                         FirewallManager.Instance.Rules.First(x => x.Name.Equals(appName)));
-                }
 
                 return true;
             }
@@ -96,7 +105,7 @@ namespace BardMusicPlayer.Seer
         }
 
         /// <summary>
-        /// Start Seer monitoring.
+        ///     Start Seer monitoring.
         /// </summary>
         public void Start()
         {
@@ -110,7 +119,7 @@ namespace BardMusicPlayer.Seer
         }
 
         /// <summary>
-        /// Stop Seer monitoring.
+        ///     Stop Seer monitoring.
         /// </summary>
         public void Stop()
         {
@@ -119,23 +128,16 @@ namespace BardMusicPlayer.Seer
             StopProcessWatcher();
             StopEventsHandler();
 
-            foreach (var game in _games.Values)
-            {
-                game?.Dispose();
-            }
+            foreach (var game in _games.Values) game?.Dispose();
 
             _games.Clear();
 
             Started = false;
         }
 
-        ~BmpSeer() { Dispose(); }
-
-        public void Dispose()
+        ~BmpSeer()
         {
-            Stop();
-            MachinaManager.Instance.Dispose();
-            GC.SuppressFinalize(this);
+            Dispose();
         }
     }
 }

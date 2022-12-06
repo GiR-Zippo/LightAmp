@@ -1,10 +1,12 @@
-/*
+#region
  * Copyright(c) 2007-2020 Ryan Wilson syndicated.life@gmail.com (http://syndicated.life/)
  * Licensed under the MIT license. See https://github.com/FFXIVAPP/sharlayan/blob/master/LICENSE.md for full license information.
  */
 
 using System;
 using System.Runtime.InteropServices;
+
+#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
 {

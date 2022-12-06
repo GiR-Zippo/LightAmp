@@ -1,20 +1,23 @@
-﻿/*
+/*
  * Copyright(c) 2022 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
 namespace BardMusicPlayer.Seer.Events
 {
-    public class MachinaManagerLogEvent : SeerEvent
+    public sealed class MachinaManagerLogEvent : SeerEvent
     {
-        public MachinaManagerLogEvent(string message) : base(EventSource.MachinaManager, 0, false)
+        public MachinaManagerLogEvent(string message) : base(EventSource.MachinaManager)
         {
             EventType = GetType();
-            Message   = message;
+            Message = message;
         }
 
         public string Message { get; }
 
-        public override bool IsValid() => true;
+        public override bool IsValid()
+        {
+            return true;
+        }
     }
 }

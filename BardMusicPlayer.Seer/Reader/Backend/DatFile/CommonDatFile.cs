@@ -3,25 +3,34 @@
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
+#region
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+#endregion
+
 namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
 {
-    internal class CommonDatFile : IDisposable
+    internal sealed class CommonDatFile : IDisposable
     {
+        private readonly string _filePath;
+
+        private readonly List<BarInfo> _hotbarBarInformation = new();
+        private readonly int startingByte = 1360; // Shared hotbar information starts here
 
         internal bool Fresh = true;
-        private string _filePath;
-        private int startingByte = 1360; // Shared hotbar information starts here
-
-        private List<BarInfo> _hotbarBarInformation = new List<BarInfo>();
 
         internal CommonDatFile(string filePath)
         {
             _filePath = filePath;
+        }
+
+        public void Dispose()
+        {
+            _hotbarBarInformation.Clear();
         }
 
         public bool Load()
@@ -31,10 +40,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
 
             using var fileStream = File.Open(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var memStream = new MemoryStream();
-            if (fileStream.CanRead && fileStream.CanSeek)
-            {
-                fileStream.CopyTo(memStream);
-            }
+            if (fileStream.CanRead && fileStream.CanSeek) fileStream.CopyTo(memStream);
 
             fileStream.Dispose();
             if (memStream.Length == 0)
@@ -47,10 +53,10 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
 
             reader.BaseStream.Seek(startingByte, SeekOrigin.Begin);
 
-            for (int i = 1; i < 11; i++) // 10 hotbars, indexed at 1 to match data file and game
+            for (var i = 1; i < 11; i++) // 10 hotbars, indexed at 1 to match data file and game
             {
                 var currentBarBytes = reader.ReadBytes(0x12); // Hotbar information is in blocks of 18 bytes
-                _hotbarBarInformation.Add(new BarInfo()
+                _hotbarBarInformation.Add(new BarInfo
                 {
                     HotbarNumber = i,
                     IsShared = currentBarBytes[16] == 0x31
@@ -60,13 +66,19 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
             return true;
         }
 
-        public List<BarInfo> GetBars() => _hotbarBarInformation.ToList();
-        public List<BarInfo> GetSharedBars() => _hotbarBarInformation.Where(x => x.IsShared).ToList();
-        public List<BarInfo> GetJobBars() => _hotbarBarInformation.Where(x => !x.IsShared).ToList();
-
-        public void Dispose()
+        public List<BarInfo> GetBars()
         {
-            _hotbarBarInformation.Clear();
+            return _hotbarBarInformation.ToList();
+        }
+
+        public List<BarInfo> GetSharedBars()
+        {
+            return _hotbarBarInformation.Where(static x => x.IsShared).ToList();
+        }
+
+        public List<BarInfo> GetJobBars()
+        {
+            return _hotbarBarInformation.Where(static x => !x.IsShared).ToList();
         }
     }
 }

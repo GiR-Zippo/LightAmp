@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright(c) 2022 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
@@ -10,11 +10,14 @@ namespace BardMusicPlayer.Seer.Events
         internal IsBardChanged(EventSource readerBackendType, bool isBard) : base(readerBackendType)
         {
             EventType = GetType();
-            IsBard    = isBard;
+            IsBard = isBard;
         }
 
         public bool IsBard { get; }
 
-        public override bool IsValid() => true;
+        public override bool IsValid()
+        {
+            return true;
+        }
     }
 }

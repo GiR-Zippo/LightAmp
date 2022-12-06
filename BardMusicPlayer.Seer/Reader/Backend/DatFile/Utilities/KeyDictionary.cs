@@ -1,9 +1,11 @@
-﻿/*
+#region
  * Copyright(c) 2022 MoogleTroupe, parulina, GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
 using System.Collections.Generic;
+
+#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.DatFile.Utilities
 {
@@ -23,7 +25,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile.Utilities
             { 139, 221 }, // ]
             { 140, 222 }, // #
             { 141, 223 }, // `
-            { 142, 226 }  // <
+            { 142, 226 } // <
         };
 
         internal static readonly IReadOnlyDictionary<string, string> OemKeyFix = new Dictionary<string, string>

@@ -1,4 +1,4 @@
-/*
+#region
  * Copyright(c) 2007-2020 Ryan Wilson syndicated.life@gmail.com (http://syndicated.life/)
  * Licensed under the MIT license. See https://github.com/FFXIVAPP/sharlayan/blob/master/LICENSE.md for full license information.
  */
@@ -7,19 +7,23 @@ using System;
 using System.Collections.Generic;
 using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Models;
 
+#endregion
+
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
 {
-    internal class ChatLogReader
+    internal sealed class ChatLogReader
     {
+        private const int BUFFER_SIZE = 4000;
+        private readonly MemoryHandler _memoryHandler;
         public readonly List<int> Indexes = new();
         public ChatLogPointers ChatLogPointers;
         public int PreviousArrayIndex;
         public int PreviousOffset;
-        private readonly MemoryHandler _memoryHandler;
 
-        public ChatLogReader(MemoryHandler memoryHandler) { _memoryHandler = memoryHandler; }
-
-        private const int BUFFER_SIZE = 4000;
+        public ChatLogReader(MemoryHandler memoryHandler)
+        {
+            _memoryHandler = memoryHandler;
+        }
 
         public void EnsureArrayIndexes()
         {
@@ -44,7 +48,10 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             return entries;
         }
 
-        private List<byte> ResolveEntry(int offset, int length) =>
-            new(_memoryHandler.GetByteArray(new IntPtr(ChatLogPointers.LogStart + offset), length - offset));
+        private List<byte> ResolveEntry(int offset, int length)
+        {
+            return new List<byte>(_memoryHandler.GetByteArray(new IntPtr(ChatLogPointers.LogStart + offset),
+                length - offset));
+        }
     }
 }

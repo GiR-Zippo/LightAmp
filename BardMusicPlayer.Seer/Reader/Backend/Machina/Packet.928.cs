@@ -1,4 +1,4 @@
-﻿/*
+#region
  * Copyright(c) 2022 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.Text;
 using BardMusicPlayer.Seer.Events;
 
+#endregion
+
 namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 {
-    internal partial class Packet
+    internal sealed partial class Packet
     {
         /// <summary>
-        /// Contains contentId -> PlayerName.
+        ///     Contains contentId -> PlayerName.
         /// </summary>
         /// <param name="timeStamp"></param>
         /// <param name="otherActorId"></param>
@@ -44,7 +46,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         continue; // This player is too far away for us to consider them "in party."
                     }
 
-                    var playerName = Encoding.UTF8.GetString(message, 95 + i, 32).Trim((char) 0);
+                    var playerName = Encoding.UTF8.GetString(message, 95 + i, 32).Trim((char)0);
                     uint currentZoneId = BitConverter.ToUInt16(message, 60 + i);
                     uint currentWorldId = BitConverter.ToUInt16(message, 62 + i);
 
@@ -53,7 +55,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         case 0 when actorId != myActorId: // The first ActorId should always be this Game's ActorId.
                             return;
                         case 0 when actorId == myActorId: // Store location of this Game for lookup later.
-                            myZoneId  = currentZoneId;
+                            myZoneId = currentZoneId;
                             myWorldId = currentWorldId;
                             break;
                         default:
@@ -67,10 +69,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                 }
 
                 if (partyMembers.Count == 1)
-                {
                     // No party members nearby. Seer only accepts an empty collection for this case.
                     partyMembers.Clear();
-                }
 
                 _machinaReader.ReaderHandler.Game.PublishEvent(new PartyMembersChanged(EventSource.Machina,
                     partyMembers));

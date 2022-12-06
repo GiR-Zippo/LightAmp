@@ -1,10 +1,14 @@
-﻿/*
+/*
  * Copyright(c) 2022 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
+#region
+
 using System;
 using BardMusicPlayer.Quotidian.UtcMilliTime;
+
+#endregion
 
 namespace BardMusicPlayer.Seer.Events
 {
@@ -12,10 +16,10 @@ namespace BardMusicPlayer.Seer.Events
     {
         internal SeerEvent(EventSource eventSource, byte dedupeThreshold = 0, bool highPriority = false)
         {
-            EventSource     = eventSource;
+            EventSource = eventSource;
             DedupeThreshold = dedupeThreshold;
-            HighPriority    = highPriority;
-            TimeStamp       = Clock.Time.Now;
+            HighPriority = highPriority;
+            TimeStamp = Clock.Time.Now;
         }
 
         public long TimeStamp { get; }
@@ -31,8 +35,8 @@ namespace BardMusicPlayer.Seer.Events
         public Game Game { get; internal set; }
 
         /// <summary>
-        /// Used to determine if the Reader was able to successfully obtain the
-        /// data it was expecting to grab, and the Event is safe to use.
+        ///     Used to determine if the Reader was able to successfully obtain the
+        ///     data it was expecting to grab, and the Event is safe to use.
         /// </summary>
         /// <returns>True, if the Event should be used to update data.</returns>
         public abstract bool IsValid();

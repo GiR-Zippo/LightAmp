@@ -5,7 +5,7 @@
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Models.Structures
 {
-    internal class PartyMember
+    internal sealed class PartyMember
     {
         public int SourceSize { get; set; }
 
