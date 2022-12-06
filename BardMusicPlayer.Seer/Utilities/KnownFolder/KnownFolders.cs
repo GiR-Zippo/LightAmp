@@ -1,7 +1,9 @@
-#region
+/*
  * Copyright(c) 2017-2018 Syroot
  * Licensed under the MIT license. See https://gitlab.com/Syroot/KnownFolders/-/blob/master/LICENSE for full license information.
  */
+
+#region
 
 using System.Collections.Generic;
 
