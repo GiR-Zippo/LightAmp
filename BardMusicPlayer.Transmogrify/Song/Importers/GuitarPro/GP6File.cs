@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -11,53 +12,48 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 {
     public sealed class GP6File : GPFile
     {
-        private static readonly List<GP6Tempo> tempos = new();
-        private static List<GP6Chord> chords = new();
-        private static List<GP6Rhythm> rhythms = new();
-
-        public static int currentMeasure;
-        public static int currentTrack;
-
-        public static int totalLength;
-        public static int lengthPassed;
-
-
-        private readonly byte[] udata; //uncompressed data
-
+        private byte[] udata; //uncompressed data
+        private static List<GP6Tempo> tempos = new List<GP6Tempo>();
+        private static List<GP6Chord> chords = new List<GP6Chord>();
+        private static List<GP6Rhythm> rhythms = new List<GP6Rhythm>();
         //public List<Track> tracks;
         public GP6File(byte[] _data)
         {
             GPBase.pointer = 0;
-            udata = _data;
+            this.udata = _data;
         }
 
 
         private void decompressFile()
         {
-            var data = new List<byte>();
-            var bs = new BitStream(udata);
-            var estFileSize = BitConverter.ToInt32(udata, 4);
+            List<byte> data = new List<byte>();
+            BitStream bs = new BitStream(udata);
+            int estFileSize = System.BitConverter.ToInt32(udata, 4);
             bs.SkipBytes(8);
             while (!bs.finished)
             {
-                var isCompressed = bs.GetBit();
+                bool isCompressed = bs.GetBit();
 
                 if (isCompressed)
                 {
-                    var wordSize = bs.GetBitsBE(4);
-                    var offset = bs.GetBitsLE(wordSize);
-                    var length = bs.GetBitsLE(wordSize);
-                    var sourcePosition = data.Count - offset;
+                    int wordSize = bs.GetBitsBE(4);
+                    int offset = bs.GetBitsLE(wordSize);
+                    int length = bs.GetBitsLE(wordSize);
+                    int sourcePosition = data.Count - offset;
                     if (sourcePosition < 0) break;
+                    int to_read = Math.Min(length, offset);
+                    for (int r = sourcePosition; r < sourcePosition + to_read; r++)
+                    {
+                        data.Add(data[r]);
+                    }
 
-                    var to_read = Math.Min(length, offset);
-                    for (var r = sourcePosition; r < sourcePosition + to_read; r++) data.Add(data[r]);
                 }
                 else
                 {
-                    var byteLength = bs.GetBitsLE(2);
-                    for (var x = 0; x < byteLength; x++) data.Add(bs.GetByte());
+                    int byteLength = bs.GetBitsLE(2);
+                    for (int x = 0; x < byteLength; x++) data.Add(bs.GetByte());
                 }
+
             }
 
             GPBase.data = data.ToArray();
@@ -68,69 +64,67 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         {
             decompressFile();
 
-            var sb = new StringBuilder();
-            var startOfXml = 0;
-            for (var x = 0; x < GPBase.data.Length; x++) //8150
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            int startOfXml = 0;
+            for (int x = 0; x < GPBase.data.Length; x++) //8150
             {
                 //string hex = BitConverter.ToString(GPBase.data.ToList().GetRange(x,Math.Min(8150,GPBase.data.Length-x)).ToArray()).Replace("-", string.Empty);
-                sb.Append((char)GPBase.data[x]);
+                sb.Append((char)(GPBase.data[x]));
                 if (startOfXml == 0 && (char)GPBase.data[x] == '<' && (char)GPBase.data[x + 1] == 'G') startOfXml = x;
             }
-
-            var xml = sb.ToString();
-            for (var x = startOfXml; x < xml.Length; x += 8000)
+            string xml = sb.ToString();
+            for (int x = startOfXml; x < xml.Length; x += 8000)
             {
                 //Debug.Log(xml.Substring(x, 8000));
             }
+            Node parsedXml = ParseGP6(xml, startOfXml);
 
-            var parsedXml = ParseGP6(xml, startOfXml);
-
-            var gp5File = GP6NodeToGP5File(parsedXml.subnodes[0]);
+            GP5File gp5File = GP6NodeToGP5File(parsedXml.subnodes[0]);
             tracks = gp5File.tracks;
             self = gp5File;
         }
 
         public static GP5File GP6NodeToGP5File(Node node) //node = GPIF tag
         {
-            var file = new GP5File(new byte[] { })
-            {
-                version = "GUITAR PRO 6.0",
-                versionTuple = new[] { 6, 0 },
-                //set direct members of song:
-                title = node.getSubnodeByName("Score", true).subnodes[0].content,
-                subtitle = node.getSubnodeByName("Score").subnodes[1].content,
-                interpret = node.getSubnodeByName("Score").subnodes[2].content,
-                album = node.getSubnodeByName("Score").subnodes[3].content,
-                words = node.getSubnodeByName("Score").subnodes[4].content,
-                music = node.getSubnodeByName("Score").subnodes[5].content,
-                copyright = node.getSubnodeByName("Score").subnodes[7].content,
-                tab_author = node.getSubnodeByName("Score").subnodes[8].content,
-                instructional = node.getSubnodeByName("Score").subnodes[9].content,
-                notice = node.getSubnodeByName("Score").subnodes[10].content.Split('\n') //?
-            };
+            var file = new GP5File(new byte[] { });
+            file.version = "GUITAR PRO 6.0";
+            file.versionTuple = new int[] { 6, 0 };
+            //set direct members of song:
+            file.title = node.getSubnodeByName("Score", true).subnodes[0].content;
+            file.subtitle = node.getSubnodeByName("Score").subnodes[1].content;
+            file.interpret = node.getSubnodeByName("Score").subnodes[2].content;
+            file.album = node.getSubnodeByName("Score").subnodes[3].content;
+            file.words = node.getSubnodeByName("Score").subnodes[4].content;
+            file.music = node.getSubnodeByName("Score").subnodes[5].content;
+            file.copyright = node.getSubnodeByName("Score").subnodes[7].content;
+            file.tab_author = node.getSubnodeByName("Score").subnodes[8].content;
+            file.instructional = node.getSubnodeByName("Score").subnodes[9].content;
+            file.notice = node.getSubnodeByName("Score").subnodes[10].content.Split('\n'); //?
 
             //Page Layout
-            var nPageLayout = node.getSubnodeByName("Score", true).getSubnodeByName("PageSetup", true);
+            Node nPageLayout = node.getSubnodeByName("Score", true).getSubnodeByName("PageSetup", true);
             file.pageSetup = new PageSetup();
             if (nPageLayout != null)
             {
-                file.pageSetup.pageSize = new Point(int.Parse(nPageLayout.subnodes[0].content),
-                    int.Parse(nPageLayout.subnodes[1].content));
-                file.pageSetup.pageMargin = new Padding(int.Parse(nPageLayout.subnodes[5].content),
-                    int.Parse(nPageLayout.subnodes[3].content),
-                    int.Parse(nPageLayout.subnodes[4].content),
-                    int.Parse(nPageLayout.subnodes[6].content));
-                file.pageSetup.scoreSizeProportion = float.Parse(nPageLayout.subnodes[7].content);
-            }
 
+                file.pageSetup.pageSize = new Point(int.Parse(nPageLayout.subnodes[0].content), int.Parse(nPageLayout.subnodes[1].content, CultureInfo.InvariantCulture));
+                file.pageSetup.pageMargin = new Padding(int.Parse(nPageLayout.subnodes[5].content, CultureInfo.InvariantCulture),
+                    int.Parse(nPageLayout.subnodes[3].content, CultureInfo.InvariantCulture),
+                    int.Parse(nPageLayout.subnodes[4].content, CultureInfo.InvariantCulture),
+                    int.Parse(nPageLayout.subnodes[6].content, CultureInfo.InvariantCulture));
+                file.pageSetup.scoreSizeProportion = float.Parse(nPageLayout.subnodes[7].content, CultureInfo.InvariantCulture);
+            }
             file.lyrics = transferLyrics(node.getSubnodeByName("Tracks"));
             //tempo, key, midiChannels, directions only on a per track / per measureHeader (MasterBar) basis
 
             file.measureCount = node.getSubnodeByName("MasterBars", true).subnodes.Count;
             file.trackCount = node.getSubnodeByName("Tracks", true).subnodes.Count;
 
-            var nAutomations = node.getSubnodeByName("MasterTrack", true).getSubnodeByName("Automations", true);
-            foreach (var nAutomation in nAutomations.subnodes) tempos.Add(new GP6Tempo(nAutomation));
+            Node nAutomations = node.getSubnodeByName("MasterTrack", true).getSubnodeByName("Automations", true);
+            foreach (Node nAutomation in nAutomations.subnodes)
+            {
+                tempos.Add(new GP6Tempo(nAutomation));
+            }
 
             file.measureHeaders = transferMeasureHeaders(node.getSubnodeByName("MasterBars"), file);
             file.tracks = transferTracks(node.getSubnodeByName("Tracks", true), file);
@@ -138,124 +132,116 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
             chords = readChords(node.getSubnodeByName("Tracks", true));
             transferBars(node, file); //Bars > Voices > Beats > Notes
 
-            //TODO update global vars tempo, key, midiChannels, directions based on first value?*/
+            //TODO update global vars tempo, key, midiChannels, directions based on first value?
             return file;
         }
 
+        public static int currentMeasure = 0;
+        public static int currentTrack = 0;
+
         public static void transferBars(Node node, GP5File song)
         {
-            var nBars = node.getSubnodeByName("Bars", true);
-            var cnt = 0;
-            var barCnt = -1;
-            foreach (var nBar in nBars.subnodes)
+            Node nBars = node.getSubnodeByName("Bars", true);
+            int cnt = 0;
+            int barCnt = -1;
+            foreach (Node nBar in nBars.subnodes)
             {
+
                 var _bar = new Measure();
-                var clef = nBar.getSubnodeByName("Clef").content;
-                _bar.clef = clef switch
-                {
-                    "G2" => MeasureClef.treble,
-                    "F4" => MeasureClef.bass,
-                    "Neutral" => MeasureClef.neutral,
-                    _ => _bar.clef
-                };
+                string clef = nBar.getSubnodeByName("Clef").content;
+                if (clef.Equals("G2")) _bar.clef = MeasureClef.treble;
+                if (clef.Equals("F4")) _bar.clef = MeasureClef.bass;
+                if (clef.Equals("Neutral")) _bar.clef = MeasureClef.neutral;
                 //.. not important for this app.
 
-                var voices = nBar.getSubnodeByName("Voices").content.Split(' ');
+                string[] voices = nBar.getSubnodeByName("Voices").content.Split(' ');
                 _bar.track = song.tracks[cnt % song.trackCount];
                 if (cnt % song.trackCount == 0) barCnt++;
-
                 _bar.header = song.measureHeaders[barCnt];
                 currentMeasure = barCnt;
                 currentTrack = cnt % song.trackCount;
+                if (currentTrack == 9)
+                {
+                    int a = 3;
+                }
                 cnt++;
-                var nSimileMark = nBar.getSubnodeByName("SimileMark", true);
+                Node nSimileMark = nBar.getSubnodeByName("SimileMark", true);
                 if (nSimileMark != null)
-                    _bar.simileMark = nSimileMark.content switch
-                    {
-                        "Simple" => SimileMark.simple,
-                        "FirstOfDouble" => SimileMark.firstOfDouble,
-                        "SecondOfDouble" => SimileMark.secondOfDouble,
-                        _ => _bar.simileMark
-                    };
-
+                {
+                    if (nSimileMark.content.Equals("Simple")) _bar.simileMark = SimileMark.simple;
+                    if (nSimileMark.content.Equals("FirstOfDouble")) _bar.simileMark = SimileMark.firstOfDouble;
+                    if (nSimileMark.content.Equals("SecondOfDouble")) _bar.simileMark = SimileMark.secondOfDouble;
+                }
                 _bar.voices = new List<Voice>();
 
-                foreach (var voice in voices.Where(static voice => int.Parse(voice) >= 0))
-                    _bar.voices.Add(transferVoice(node, int.Parse(voice), _bar));
+                foreach (string voice in voices)
+                {
+                    var voiceParsed = int.Parse(voice, CultureInfo.InvariantCulture);
+                    if (voiceParsed >= 0)
+                    {
+                        _bar.voices.Add(transferVoice(node, voiceParsed, _bar));
+                    }
+                }
                 song.tracks[(cnt - 1) % song.trackCount].addMeasure(_bar);
             }
+
+
         }
 
         private static int flipDuration(Duration d)
         {
-            var ticks_per_beat = 960;
-            var result = 0;
+            int ticks_per_beat = 960;
+            int result = 0;
             switch (d.value)
             {
-                case 1:
-                    result += ticks_per_beat * 4;
-                    break;
-                case 2:
-                    result += ticks_per_beat * 2;
-                    break;
-                case 4:
-                    result += ticks_per_beat;
-                    break;
-                case 8:
-                    result += ticks_per_beat / 2;
-                    break;
-                case 16:
-                    result += ticks_per_beat / 4;
-                    break;
-                case 32:
-                    result += ticks_per_beat / 8;
-                    break;
-                case 64:
-                    result += ticks_per_beat / 16;
-                    break;
-                case 128:
-                    result += ticks_per_beat / 32;
-                    break;
+                case 1: result += ticks_per_beat * 4; break;
+                case 2: result += ticks_per_beat * 2; break;
+                case 4: result += ticks_per_beat; break;
+                case 8: result += ticks_per_beat / 2; break;
+                case 16: result += ticks_per_beat / 4; break;
+                case 32: result += ticks_per_beat / 8; break;
+                case 64: result += ticks_per_beat / 16; break;
+                case 128: result += ticks_per_beat / 32; break;
             }
-
             if (d.isDotted) result = (int)(result * 1.5f);
-
             if (d.isDoubleDotted) result = (int)(result * 1.75f);
 
             return result;
         }
 
+        public static int totalLength;
+        public static int lengthPassed = 0;
         public static Voice transferVoice(Node node, int index, Measure bar)
         {
             totalLength = flipDuration(bar.header.timeSignature.denominator) * bar.header.timeSignature.numerator;
             lengthPassed = 0;
-            var voice = new Voice();
-            var beats = node.getSubnodeByName("Voices", true).subnodes[index].getSubnodeByName("Beats", true).content
-                .Split(' ');
+            Voice voice = new Voice();
+            string[] beats = node.getSubnodeByName("Voices", true).subnodes[index].getSubnodeByName("Beats", true).content.Split(' ');
             voice.beats = new List<Beat>();
             voice.measure = bar;
 
-            foreach (var beat in beats) voice.beats.Add(transferBeat(node, int.Parse(beat), voice));
+            foreach (string beat in beats)
+            {
+                voice.beats.Add(transferBeat(node, int.Parse(beat, CultureInfo.InvariantCulture), voice));
+            }
             return voice;
         }
 
 
         public static Beat transferBeat(Node node, int index, Voice voice)
         {
-            var beat = new Beat();
-            var nBeat = node.getSubnodeByName("Beats", true).subnodes[index];
-            var nNotes = nBeat.getSubnodeByName("Notes");
+            Beat beat = new Beat();
+            Node nBeat = node.getSubnodeByName("Beats", true).subnodes[index];
+            Node nNotes = nBeat.getSubnodeByName("Notes");
             beat.notes = new List<Note>();
             beat.voice = voice;
-            beat.effect = new BeatEffect
-            {
-                mixTableChange = new MixTableChange()
-            };
+            beat.effect = new BeatEffect();
+            beat.effect.mixTableChange = new MixTableChange();
 
 
             //Beat Duration
             beat.duration = new Duration();
-            var rhythmRef = int.Parse(nBeat.getSubnodeByName("Rhythm", true).propertyValues[0]);
+            var rhythmRef = int.Parse(nBeat.getSubnodeByName("Rhythm", true).propertyValues[0], CultureInfo.InvariantCulture);
             beat.duration.value = rhythms[rhythmRef].noteValue;
             beat.duration.isDotted = rhythms[rhythmRef].augmentationDots == 1;
             beat.duration.isDoubleDotted = rhythms[rhythmRef].augmentationDots == 2;
@@ -267,112 +253,103 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
             {
                 lengthPassed += flipDuration(beat.duration);
 
-                foreach (var tempo in tempos)
+                foreach (GP6Tempo tempo in tempos)
+                {
                     if (tempo.bar == currentMeasure && tempo.transferred == false)
+                    {
+
                         if ((float)lengthPassed / totalLength > tempo.position)
                         {
                             //Place tempo value
                             float myTempo = tempo.tempo;
-                            switch (tempo.tempoType)
-                            {
-                                case 1:
-                                    myTempo /= 2.0f;
-                                    break;
-                                case 3:
-                                    myTempo *= 1.5f;
-                                    break;
-                                case 4:
-                                    myTempo *= 2.0f;
-                                    break;
-                                case 5:
-                                    myTempo *= 3.0f;
-                                    break;
-                            }
+                            if (tempo.tempoType == 1) myTempo /= 2.0f;
+                            if (tempo.tempoType == 3) myTempo *= 1.5f;
+                            if (tempo.tempoType == 4) myTempo *= 2.0f;
+                            if (tempo.tempoType == 5) myTempo *= 3.0f;
 
 
                             beat.effect.mixTableChange.tempo = new MixTableItem((int)myTempo, 0, true);
                             tempo.transferred = true;
                         }
-            }
 
+                    }
+                }
+            }
             if (nNotes == null) //No notes
             {
                 beat.status = BeatStatus.rest;
                 return beat;
             }
+            string[] notes = nNotes.content.Split(' ');
 
-            var notes = nNotes.content.Split(' ');
-
-            var nChord = nBeat.getSubnodeByName("Chord");
+            Node nChord = nBeat.getSubnodeByName("Chord");
             if (nChord != null)
             {
                 beat.effect.chord = new Chord(0);
-                foreach (var chord in chords.Where(chord =>
-                             chord.forTrack == beat.voice.measure.track.number &&
-                             chord.id == int.Parse(nChord.content))) beat.effect.chord.name = chord.name;
+                foreach (GP6Chord chord in chords)
+                {
+                    if (chord.forTrack == beat.voice.measure.track.number && chord.id == int.Parse(nChord.content, CultureInfo.InvariantCulture))
+                    {
+                        beat.effect.chord.name = chord.name;
+                    }
+                }
                 //Here later can go further infos..
             }
 
-            var velocity = Velocities.forte;
+            int velocity = Velocities.forte;
 
-            var nDynamic = nBeat.getSubnodeByName("Dynamic");
+            Node nDynamic = nBeat.getSubnodeByName("Dynamic");
             if (nDynamic != null)
             {
-                var dynamicSymbol = nDynamic.content;
+                string dynamicSymbol = nDynamic.content;
                 string[] GP6symbols = { "PPP", "PP", "P", "MP", "MF", "F", "FF", "FFF" };
-                int[] velocities =
+                int[] velocities = { Velocities.pianoPianissimo, Velocities.pianissimo, Velocities.piano,
+            Velocities.mezzoPiano,Velocities.mezzoForte, Velocities.forte, Velocities.fortissimo,
+            Velocities.forteFortissimo};
+                for (int x = 0; x < GP6symbols.Length; x++)
                 {
-                    Velocities.pianoPianissimo, Velocities.pianissimo, Velocities.piano,
-                    Velocities.mezzoPiano, Velocities.mezzoForte, Velocities.forte, Velocities.fortissimo,
-                    Velocities.forteFortissimo
-                };
-                for (var x = 0; x < GP6symbols.Length; x++)
-                    if (GP6symbols[x].Equals(dynamicSymbol))
-                    {
-                        velocity = velocities[x];
-                        break;
-                    }
+                    if (GP6symbols[x].Equals(dynamicSymbol)) { velocity = velocities[x]; break; }
+                }
             }
 
-            beat.effect.fadeIn = nBeat.getSubnodeByName("Fadding", true) != null &&
-                                 nBeat.getSubnodeByName("Fadding", true).content.Equals("FadeIn");
-            beat.effect.fadeOut = nBeat.getSubnodeByName("Fadding", true) != null &&
-                                  nBeat.getSubnodeByName("Fadding", true).content.Equals("FadeOut");
-            beat.effect.volumeSwell = nBeat.getSubnodeByName("Fadding", true) != null &&
-                                      nBeat.getSubnodeByName("Fadding", true).content.Equals("VolumeSwell");
+            beat.effect.fadeIn = nBeat.getSubnodeByName("Fadding", true) != null && nBeat.getSubnodeByName("Fadding", true).content.Equals("FadeIn");
+            beat.effect.fadeOut = nBeat.getSubnodeByName("Fadding", true) != null && nBeat.getSubnodeByName("Fadding", true).content.Equals("FadeOut");
+            beat.effect.volumeSwell = nBeat.getSubnodeByName("Fadding", true) != null && nBeat.getSubnodeByName("Fadding", true).content.Equals("VolumeSwell");
 
             if (nBeat.getSubnodeByName("FreeText", true) != null)
+            {
                 beat.text = new BeatText(nBeat.getSubnodeByName("FreeText", true).content);
+            }
 
-            var searchArpeggioParams = false;
-            var nArpeggio = nBeat.getSubnodeByName("Arpeggio");
+            bool searchArpeggioParams = false;
+            Node nArpeggio = nBeat.getSubnodeByName("Arpeggio");
             if (nArpeggio != null)
             {
-                var direction = nArpeggio.content;
-                var bsd = direction.Equals("Up") ? BeatStrokeDirection.up : BeatStrokeDirection.down;
-                beat.effect.stroke = new BeatStroke
-                {
-                    direction = bsd
-                };
+                string direction = nArpeggio.content;
+                BeatStrokeDirection bsd = (direction.Equals("Up")) ? BeatStrokeDirection.up : BeatStrokeDirection.down;
+                beat.effect.stroke = new BeatStroke();
+                beat.effect.stroke.direction = bsd;
                 searchArpeggioParams = true;
             }
 
 
-            var searchBrushParams = false;
-            var nProperties = nBeat.getSubnodeByName("Properties");
+
+            bool searchBrushParams = false;
+            Node nProperties = nBeat.getSubnodeByName("Properties");
             if (nProperties != null)
             {
                 //Whammy values in GP6 format: (GP7 below in subnode "Whammy")
-                var whammyBarOriginValue = 0.0f;
-                var whammyBarMiddleValue = 0.0f;
-                var whammyBarDestinationValue = 0.0f;
-                var whammyBarOriginOffset = 0.0f;
-                var whammyBarMiddleOffset1 = -1.0f;
-                var whammyBarMiddleOffset2 = -1.0f;
-                var whammyBarDestinationOffset = 100.0f;
-                var hasWhammy = false;
+                float whammyBarOriginValue = 0.0f;
+                float whammyBarMiddleValue = 0.0f;
+                float whammyBarDestinationValue = 0.0f;
+                float whammyBarOriginOffset = 0.0f;
+                float whammyBarMiddleOffset1 = -1.0f;
+                float whammyBarMiddleOffset2 = -1.0f;
+                float whammyBarDestinationOffset = 100.0f;
+                bool hasWhammy = false;
 
-                foreach (var nProperty in nProperties.subnodes)
+                foreach (Node nProperty in nProperties.subnodes)
+                {
                     switch (nProperty.propertyValues[0])
                     {
                         case "Slapped":
@@ -383,19 +360,17 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                             break;
                         case "Brush":
                             {
-                                var direction = nProperty.subnodes[0].content;
-                                var bsd = direction.Equals("Up") ? BeatStrokeDirection.up : BeatStrokeDirection.down;
-                                beat.effect.stroke = new BeatStroke
-                                {
-                                    direction = bsd
-                                };
+                                string direction = nProperty.subnodes[0].content;
+                                BeatStrokeDirection bsd = (direction.Equals("Up")) ? BeatStrokeDirection.up : BeatStrokeDirection.down;
+                                beat.effect.stroke = new BeatStroke();
+                                beat.effect.stroke.direction = bsd;
                                 searchBrushParams = true; //search in Xproperty
                                 break;
                             }
                         case "PickStroke":
                             {
-                                var direction = nProperty.subnodes[0].content;
-                                var bsd = direction.Equals("Up") ? BeatStrokeDirection.up : BeatStrokeDirection.down;
+                                string direction = nProperty.subnodes[0].content;
+                                BeatStrokeDirection bsd = (direction.Equals("Up")) ? BeatStrokeDirection.up : BeatStrokeDirection.down;
                                 beat.effect.pickStroke = bsd;
                                 break;
                             }
@@ -406,79 +381,69 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                             hasWhammy = true;
                             break;
                         case "WhammyBarOriginValue":
-                            whammyBarOriginValue = float.Parse(nProperty.subnodes[0].content);
+                            whammyBarOriginValue = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "WhammyBarMiddleValue":
-                            whammyBarMiddleValue = float.Parse(nProperty.subnodes[0].content);
+                            whammyBarMiddleValue = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "WhammyBarDestinationValue":
-                            whammyBarDestinationValue = float.Parse(nProperty.subnodes[0].content);
+                            whammyBarDestinationValue = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "WhammyBarMiddleOffset1":
-                            whammyBarMiddleOffset1 = float.Parse(nProperty.subnodes[0].content);
+                            whammyBarMiddleOffset1 = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "WhammyBarMiddleOffset2":
-                            whammyBarMiddleOffset2 = float.Parse(nProperty.subnodes[0].content);
+                            whammyBarMiddleOffset2 = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "WhammyBarOriginOffset":
-                            whammyBarOriginOffset = float.Parse(nProperty.subnodes[0].content);
+                            whammyBarOriginOffset = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "WhammyBarDestinationOffset":
-                            whammyBarDestinationOffset = float.Parse(nProperty.subnodes[0].content);
+                            whammyBarDestinationOffset = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
+                            break;
+                        default:
                             break;
                     }
+                }
 
                 if (hasWhammy)
                 {
                     if (whammyBarMiddleOffset1 == -1.0f)
                     {
-                        whammyBarMiddleOffset1 = whammyBarOriginOffset +
-                                                 (whammyBarDestinationOffset - whammyBarOriginOffset) / 2.0f;
-                        whammyBarMiddleValue = whammyBarOriginValue +
-                                               (whammyBarDestinationValue - whammyBarOriginValue) / 2.0f;
+                        whammyBarMiddleOffset1 = whammyBarOriginOffset + (whammyBarDestinationOffset - whammyBarOriginOffset) / 2.0f;
+                        whammyBarMiddleValue = whammyBarOriginValue + (whammyBarDestinationValue - whammyBarOriginValue) / 2.0f;
                     }
-
                     if (whammyBarMiddleOffset2 == -1.0f) whammyBarMiddleOffset2 = whammyBarMiddleOffset1;
+                    beat.effect.tremoloBar = new BendEffect();
+                    beat.effect.tremoloBar.type = BendType.none; //Not defined in GP6
+                    beat.effect.tremoloBar.points = new List<BendPoint>();
 
-                    beat.effect.tremoloBar = new BendEffect
-                    {
-                        type = BendType.none, //Not defined in GP6
-                        points = new List<BendPoint>
-                        {
-                            new(0.0f, whammyBarOriginValue),
-                            new(whammyBarOriginOffset, whammyBarOriginValue)
-                        }
-                    };
-
+                    beat.effect.tremoloBar.points.Add(new BendPoint(0.0f, whammyBarOriginValue));
+                    beat.effect.tremoloBar.points.Add(new BendPoint(whammyBarOriginOffset, whammyBarOriginValue));
                     //Peak or Valley
-                    if ((whammyBarMiddleValue - whammyBarOriginValue) *
-                        (whammyBarDestinationValue - whammyBarMiddleValue) < 0)
+                    if ((whammyBarMiddleValue - whammyBarOriginValue) * (whammyBarDestinationValue - whammyBarMiddleValue) < 0)
                     {
                         beat.effect.tremoloBar.points.Add(new BendPoint(whammyBarMiddleOffset1, whammyBarMiddleValue));
                         beat.effect.tremoloBar.points.Add(new BendPoint(whammyBarMiddleOffset2, whammyBarMiddleValue));
                     }
-
-                    beat.effect.tremoloBar.points.Add(new BendPoint(whammyBarDestinationOffset,
-                        whammyBarDestinationValue));
+                    beat.effect.tremoloBar.points.Add(new BendPoint(whammyBarDestinationOffset, whammyBarDestinationValue));
                     beat.effect.tremoloBar.points.Add(new BendPoint(100.0f, whammyBarDestinationValue));
                 }
             }
 
-            var nWhammy = nBeat.getSubnodeByName("Whammy", true);
+            Node nWhammy = nBeat.getSubnodeByName("Whammy", true);
             if (nWhammy != null)
             {
-                beat.effect.tremoloBar = new BendEffect
-                {
-                    type = BendType.none, //Not defined in GP6
-                    points = new List<BendPoint>()
-                };
-                var originValue = float.Parse(nWhammy.propertyValues[0]);
-                var middleValue = float.Parse(nWhammy.propertyValues[1]);
-                var destinationValue = float.Parse(nWhammy.propertyValues[2]);
-                var originOffset = float.Parse(nWhammy.propertyValues[3]);
-                var middleOffset1 = float.Parse(nWhammy.propertyValues[4]);
-                var middleOffset2 = float.Parse(nWhammy.propertyValues[5]);
-                var destinationOffset = float.Parse(nWhammy.propertyValues[6]);
+                beat.effect.tremoloBar = new BendEffect();
+                beat.effect.tremoloBar.type = BendType.none; //Not defined in GP6
+                beat.effect.tremoloBar.points = new List<BendPoint>();
+                float originValue = float.Parse(nWhammy.propertyValues[0], CultureInfo.InvariantCulture);
+                float middleValue = float.Parse(nWhammy.propertyValues[1], CultureInfo.InvariantCulture);
+                float destinationValue = float.Parse(nWhammy.propertyValues[2], CultureInfo.InvariantCulture);
+                float originOffset = float.Parse(nWhammy.propertyValues[3], CultureInfo.InvariantCulture);
+                float middleOffset1 = float.Parse(nWhammy.propertyValues[4], CultureInfo.InvariantCulture);
+                float middleOffset2 = float.Parse(nWhammy.propertyValues[5], CultureInfo.InvariantCulture);
+                float destinationOffset = float.Parse(nWhammy.propertyValues[6], CultureInfo.InvariantCulture);
 
                 beat.effect.tremoloBar.points.Add(new BendPoint(0.0f, originValue));
                 beat.effect.tremoloBar.points.Add(new BendPoint(originOffset, originValue));
@@ -488,112 +453,110 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                     beat.effect.tremoloBar.points.Add(new BendPoint(middleOffset1, middleValue));
                     beat.effect.tremoloBar.points.Add(new BendPoint(middleOffset2, middleValue));
                 }
-
                 beat.effect.tremoloBar.points.Add(new BendPoint(destinationOffset, destinationValue));
                 beat.effect.tremoloBar.points.Add(new BendPoint(100.0f, destinationValue));
             }
 
-            var nXProperty = nBeat.getSubnodeByName("XProperties");
+            Node nXProperty = nBeat.getSubnodeByName("XProperties");
             if (nXProperty != null)
             {
                 if (searchBrushParams)
                 {
-                    var duration = int.Parse(nXProperty.getSubnodeByProperty("id", "687935489").subnodes[0].content);
-                    var startsOnTime =
-                        float.Parse(nXProperty.getSubnodeByProperty("id", "687935490").subnodes[0].content);
+                    int duration = int.Parse(nXProperty.getSubnodeByProperty("id", "687935489").subnodes[0].content, CultureInfo.InvariantCulture);
+                    float startsOnTime = float.Parse(nXProperty.getSubnodeByProperty("id", "687935490").subnodes[0].content, CultureInfo.InvariantCulture);
                     beat.effect.stroke.setByGP6Standard(duration);
                     beat.effect.stroke.startTime = startsOnTime;
                 }
-
                 if (searchArpeggioParams)
                 {
-                    var duration = int.Parse(nXProperty.getSubnodeByProperty("id", "687931393").subnodes[0].content);
-                    var startsOnTime =
-                        float.Parse(nXProperty.getSubnodeByProperty("id", "687931394").subnodes[0].content);
+                    int duration = int.Parse(nXProperty.getSubnodeByProperty("id", "687931393").subnodes[0].content, CultureInfo.InvariantCulture);
+                    float startsOnTime = float.Parse(nXProperty.getSubnodeByProperty("id", "687931394").subnodes[0].content, CultureInfo.InvariantCulture);
                     beat.effect.stroke.setByGP6Standard(duration);
                     beat.effect.stroke.startTime = startsOnTime;
                 }
             }
 
             if (nBeat.getSubnodeByName("Wah") != null)
-                beat.effect.mixTableChange.wah = new WahEffect
-                {
-                    state = nBeat.getSubnodeByName("Wah").content.Equals("Open")
-                        ? WahState.opened
-                        : WahState.closed
-                };
+            {
+                beat.effect.mixTableChange.wah = new WahEffect();
+                beat.effect.mixTableChange.wah.state = (nBeat.getSubnodeByName("Wah").content.Equals("Open")) ? WahState.opened : WahState.closed;
+            }
 
             GraceEffect graceEffect = null; //Stay null if there is none
-            var nGraceEffect = nBeat.getSubnodeByName("GraceNotes");
+            Node nGraceEffect = nBeat.getSubnodeByName("GraceNotes");
             if (nGraceEffect != null)
             {
                 graceEffect = new GraceEffect();
-                var beforeBeat = nGraceEffect.content.Equals("BeforeBeat");
+                bool beforeBeat = nGraceEffect.content.Equals("BeforeBeat");
                 graceEffect.isOnBeat = !beforeBeat;
                 //All other infos will be filled in by the note
             }
 
-            var nTremolo = nBeat.getSubnodeByName("Tremolo");
-            var tremolo = "";
-            if (nTremolo != null) tremolo = nTremolo.content;
+            Node nTremolo = nBeat.getSubnodeByName("Tremolo");
+            string tremolo = "";
+            if (nTremolo != null)
+            {
+                tremolo = nTremolo.content;
+            }
 
             beat.notes = new List<Note>();
-            foreach (var note in notes)
+            foreach (string note in notes)
             {
                 //Give each Note a GraceEffect obj & Velocities val
                 //velocity;
-                beat.notes.Add(transferNote(node, int.Parse(note), beat, velocity, graceEffect, tremolo,
-                    out var tapping));
+                bool tapping;
+                beat.notes.Add(transferNote(node, int.Parse(note, CultureInfo.InvariantCulture), beat, velocity, graceEffect, tremolo, out tapping));
                 if (tapping) beat.effect.slapEffect = SlapEffect.tapping;
+
             }
 
             return beat;
         }
 
 
-        public static Note transferNote(Node node, int index, Beat beat, int velocity, GraceEffect graceEffect,
-            string tremolo, out bool tapping)
+
+        public static Note transferNote(Node node, int index, Beat beat, int velocity, GraceEffect graceEffect, string tremolo, out bool tapping)
         {
             tapping = false;
-            var note = new Note();
-            var nNote = node.getSubnodeByName("Notes", true).subnodes[index];
+            Note note = new Note();
+            Node nNote = node.getSubnodeByName("Notes", true).subnodes[index];
             note.beat = beat;
             note.effect = new NoteEffect();
             note.type = NoteType.normal;
 
             //Properties
-            var nProperties = nNote.getSubnodeByName("Properties", true);
+            Node nProperties = nNote.getSubnodeByName("Properties", true);
             if (nProperties != null)
             {
                 float harmonicFret = -1;
-                var harmonicType = "";
-                var bendDestOff = 100.0f;
-                var bendDestVal = 0.0f;
-                var bendMidOff1 = -1.0f;
-                var bendMidOff2 = -1.0f;
-                var bendMidVal = 0.0f;
-                var bendOrigVal = 0.0f;
-                var bendOrigOff = 0.0f;
-                var element = -1; //GP6-style drums
-                var variation = 0;
-                var bendEffect = new BendEffect();
-                var hasBendEffect = false;
+                string harmonicType = "";
+                float bendDestOff = 100.0f;
+                float bendDestVal = 0.0f;
+                float bendMidOff1 = -1.0f;
+                float bendMidOff2 = -1.0f;
+                float bendMidVal = 0.0f;
+                float bendOrigVal = 0.0f;
+                float bendOrigOff = 0.0f;
+                int element = -1; //GP6-style drums
+                int variation = 0;
+                BendEffect bendEffect = new BendEffect();
+                bool hasBendEffect = false;
 
-                foreach (var nProperty in nProperties.subnodes)
+                foreach (Node nProperty in nProperties.subnodes)
                 {
-                    if (nProperty.propertyValues[0].Equals("Element"))
-                        element = int.Parse(nProperty.subnodes[0].content);
-
-                    if (nProperty.propertyValues[0].Equals("Variation"))
-                        variation = int.Parse(nProperty.subnodes[0].content);
-
                     switch (nProperty.propertyValues[0])
                     {
+                        case "Element":
+                            element = int.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
+                            break;
+                        case "Variation":
+                            variation = int.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
+                            break;
                         case "Fret":
-                            note.value = int.Parse(nProperty.subnodes[0].content);
+                            note.value = int.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "String":
-                            note.str = int.Parse(nProperty.subnodes[0].content) + 1;
+                            note.str = int.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture) + 1;
                             break;
                         case "PalmMuted":
                             note.effect.palmMute = true;
@@ -602,7 +565,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                             note.type = NoteType.dead;
                             break;
                         case "HarmonicFret":
-                            harmonicFret = float.Parse(nProperty.subnodes[0].content);
+                            harmonicFret = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "HarmonicType":
                             harmonicType = nProperty.subnodes[0].content;
@@ -611,38 +574,70 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                             hasBendEffect = true;
                             break;
                         case "BendDestinationOffset":
-                            bendDestOff = float.Parse(nProperty.subnodes[0].content);
+                            bendDestOff = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "BendDestinationValue":
-                            bendDestVal = float.Parse(nProperty.subnodes[0].content);
+                            bendDestVal = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "BendMiddleOffset1":
-                            bendMidOff1 = float.Parse(nProperty.subnodes[0].content);
+                            bendMidOff1 = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "BendMiddleOffset2":
-                            bendMidOff2 = float.Parse(nProperty.subnodes[0].content);
+                            bendMidOff2 = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "BendMiddleValue":
-                            bendMidVal = float.Parse(nProperty.subnodes[0].content);
+                            bendMidVal = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "BendOriginValue":
-                            bendOrigVal = float.Parse(nProperty.subnodes[0].content);
+                            bendOrigVal = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "BendOriginOffset":
-                            bendOrigOff = float.Parse(nProperty.subnodes[0].content);
+                            bendOrigOff = float.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
                             break;
                         case "Slide":
                             {
                                 note.effect.slides = new List<SlideType>();
-                                var flags = int.Parse(nProperty.subnodes[0].content);
-                                if (flags % 2 == 1) note.effect.slides.Add(SlideType.shiftSlideTo);
-                                if ((flags >> 1) % 2 == 1) note.effect.slides.Add(SlideType.legatoSlideTo);
-                                if ((flags >> 2) % 2 == 1) note.effect.slides.Add(SlideType.outDownwards);
-                                if ((flags >> 3) % 2 == 1) note.effect.slides.Add(SlideType.outUpwards);
-                                if ((flags >> 4) % 2 == 1) note.effect.slides.Add(SlideType.intoFromBelow);
-                                if ((flags >> 5) % 2 == 1) note.effect.slides.Add(SlideType.intoFromAbove);
-                                if ((flags >> 6) % 2 == 1) note.effect.slides.Add(SlideType.pickScrapeOutDownwards);
-                                if ((flags >> 7) % 2 == 1) note.effect.slides.Add(SlideType.pickScrapeOutUpwards);
+                                var flags = uint.Parse(nProperty.subnodes[0].content, CultureInfo.InvariantCulture);
+                                if (flags % 2 == 1)
+                                {
+                                    note.effect.slides.Add(SlideType.shiftSlideTo);
+                                }
+
+                                if ((flags >> 1) % 2 == 1)
+                                {
+                                    note.effect.slides.Add(SlideType.legatoSlideTo);
+                                }
+
+                                if ((flags >> 2) % 2 == 1)
+                                {
+                                    note.effect.slides.Add(SlideType.outDownwards);
+                                }
+
+                                if ((flags >> 3) % 2 == 1)
+                                {
+                                    note.effect.slides.Add(SlideType.outUpwards);
+                                }
+
+                                if ((flags >> 4) % 2 == 1)
+                                {
+                                    note.effect.slides.Add(SlideType.intoFromBelow);
+                                }
+
+                                if ((flags >> 5) % 2 == 1)
+                                {
+                                    note.effect.slides.Add(SlideType.intoFromAbove);
+                                }
+
+                                if ((flags >> 6) % 2 == 1)
+                                {
+                                    note.effect.slides.Add(SlideType.pickScrapeOutDownwards);
+                                }
+
+                                if ((flags >> 7) % 2 == 1)
+                                {
+                                    note.effect.slides.Add(SlideType.pickScrapeOutUpwards);
+                                }
+
                                 break;
                             }
                         case "LeftHandTapped":
@@ -652,7 +647,10 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                         case "Tapped":
                             tapping = true;
                             break;
+                        default:
+                            break;
                     }
+
                 }
 
                 if (hasBendEffect)
@@ -662,7 +660,6 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                         bendMidOff1 = bendOrigOff + (bendDestOff - bendOrigOff) / 2.0f;
                         bendMidVal = bendOrigVal + (bendDestVal - bendOrigVal) / 2.0f;
                     }
-
                     if (bendMidOff2 == -1.0f) bendMidOff2 = bendMidOff1;
 
                     bendEffect.points.Add(new BendPoint(0.0f, bendOrigVal));
@@ -673,7 +670,6 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                         bendEffect.points.Add(new BendPoint(bendMidOff1, bendMidVal));
                         bendEffect.points.Add(new BendPoint(bendMidOff2, bendMidVal));
                     }
-
                     bendEffect.points.Add(new BendPoint(bendDestOff, bendDestVal));
                     bendEffect.points.Add(new BendPoint(100.0f, bendDestVal));
 
@@ -682,36 +678,25 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
                 if (harmonicFret != -1)
                 {
-                    switch (harmonicType)
+
+                    if (harmonicType.Equals("Natural") || harmonicType.Equals(""))
                     {
-                        case "Natural":
-                        case "":
-                            note.effect.harmonic = new NaturalHarmonic(); //Ignore the complicated GP3-5 settings
-                            break;
-                        //There should be during playback a function that reads only fret and type and creates the harmonic + for GP3-5 files that transfers the old format
-                        case "Artificial":
-                            note.effect.harmonic = new ArtificialHarmonic();
-                            break;
-                        case "Pinch":
-                            note.effect.harmonic = new PinchHarmonic();
-                            break;
-                        case "Tap":
-                            note.effect.harmonic = new TappedHarmonic();
-                            break;
-                        case "Semi":
-                            note.effect.harmonic = new SemiHarmonic();
-                            break;
-                        case "Feedback":
-                            note.effect.harmonic = new FeedbackHarmonic();
-                            break;
+                        note.effect.harmonic = new NaturalHarmonic();  //Ignore the complicated GP3-5 settings
                     }
+                    else if (harmonicType.Equals("Artificial"))      //There should be during playback a function that reads only fret and type and creates the harmonic + for GP3-5 files that transfers the old format
+                        note.effect.harmonic = new ArtificialHarmonic();
+                    else if (harmonicType.Equals("Pinch")) note.effect.harmonic = new PinchHarmonic();
+                    else if (harmonicType.Equals("Tap")) note.effect.harmonic = new TappedHarmonic();
+                    else if (harmonicType.Equals("Semi")) note.effect.harmonic = new SemiHarmonic();
+                    else if (harmonicType.Equals("Feedback")) note.effect.harmonic = new FeedbackHarmonic();
 
                     note.effect.harmonic.fret = harmonicFret;
+
                 }
 
                 if (element != -1) //GP6-style Drumset
                 {
-                    var midiValue = getGP6DrumValue(element, variation);
+                    int midiValue = getGP6DrumValue(element, variation);
                     note.value = midiValue;
                     note.str = 1;
                 }
@@ -719,35 +704,42 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
 
             //XProperties (are there more?)
-            var trillLength = 0;
-            var nXProperties = nNote.getSubnodeByName("XProperties", true);
-            var nTrillLength = nXProperties?.getSubnodeByProperty("id", "688062467");
-            if (nTrillLength != null) trillLength = int.Parse(nTrillLength.subnodes[0].content);
-
-            //Other Subnodes
-            var nTrill = nNote.getSubnodeByName("Trill");
-            if (nTrill != null)
+            int trillLength = 0;
+            Node nXProperties = nNote.getSubnodeByName("XProperties", true);
+            if (nXProperties != null)
             {
-                var secondNote = int.Parse(nTrill.content);
-                note.effect.trill = new TrillEffect
+                Node nTrillLength = nXProperties.getSubnodeByProperty("id", "688062467");
+                if (nTrillLength != null)
                 {
-                    fret = secondNote,
-                    duration = new Duration(trillLength)
-                };
+                    trillLength = int.Parse(nTrillLength.subnodes[0].content, CultureInfo.InvariantCulture);
+                }
             }
 
-            var nVibrato = nNote.getSubnodeByName("Vibrato");
-            if (nVibrato != null) note.effect.vibrato = true;
+            //Other Subnodes
+            Node nTrill = nNote.getSubnodeByName("Trill");
+            if (nTrill != null)
+            {
+                int secondNote = int.Parse(nTrill.content, CultureInfo.InvariantCulture);
+                note.effect.trill = new TrillEffect();
+                note.effect.trill.fret = secondNote;
+                note.effect.trill.duration = new Duration(trillLength);
+            }
 
+            Node nVibrato = nNote.getSubnodeByName("Vibrato");
+            if (nVibrato != null)
+            {
+                note.effect.vibrato = true;
+            }
             if (nNote.getSubnodeByName("LetRing") != null) note.effect.letRing = true;
-
-            var nAntiAccent = nNote.getSubnodeByName("AntiAccent");
-            if (nAntiAccent != null) note.effect.ghostNote = true;
-
-            var nAccent = nNote.getSubnodeByName("Accent");
+            Node nAntiAccent = nNote.getSubnodeByName("AntiAccent");
+            if (nAntiAccent != null)
+            {
+                note.effect.ghostNote = true;
+            }
+            Node nAccent = nNote.getSubnodeByName("Accent");
             if (nAccent != null)
             {
-                var val = int.Parse(nAccent.content);
+                int val = int.Parse(nAccent.content, CultureInfo.InvariantCulture);
                 note.effect.accentuatedNote = val == 4;
                 note.effect.heavyAccentuatedNote = val == 8;
                 note.effect.staccato = val == 1;
@@ -759,20 +751,14 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
             if (!tremolo.Equals(""))
             {
-                note.effect.tremoloPicking = new TremoloPickingEffect
-                {
-                    //1/2 = 8th, 1/4 = 16ths, 1/8 = 32nds
-                    duration = new Duration()
-                };
-                note.effect.tremoloPicking.duration.value = tremolo switch
-                {
-                    "1/2" => 8,
-                    "1/4" => 16,
-                    "1/8" => 32,
-                    _ => note.effect.tremoloPicking.duration.value
-                };
-            }
+                note.effect.tremoloPicking = new TremoloPickingEffect();
+                //1/2 = 8th, 1/4 = 16ths, 1/8 = 32nds
+                note.effect.tremoloPicking.duration = new Duration();
+                if (tremolo.Equals("1/2")) note.effect.tremoloPicking.duration.value = 8;
+                if (tremolo.Equals("1/4")) note.effect.tremoloPicking.duration.value = 16;
+                if (tremolo.Equals("1/8")) note.effect.tremoloPicking.duration.value = 32;
 
+            }
             note.effect.grace = graceEffect;
             note.velocity = velocity;
 
@@ -781,90 +767,91 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
         public static int getGP6DrumValue(int element, int variation)
         {
-            var val = element * 10 + variation;
-            return val switch
-            {
-                0 => 35,
-                10 => 38,
-                11 => 91,
-                12 => 37,
-                20 => 99,
-                30 => 56,
-                40 => 102,
-                50 => 43,
-                60 => 45,
-                70 => 47,
-                80 => 48,
-                90 => 50,
-                100 => 42,
-                101 => 92,
-                102 => 46,
-                110 => 44,
-                120 => 57,
-                130 => 49,
-                140 => 55,
-                150 => 51,
-                151 => 93,
-                152 => 53,
-                160 => 52,
-                _ => 0
-            };
+            int val = element * 10 + variation;
+            if (val == 0) return 35;
+            if (val == 10) return 38;
+            if (val == 11) return 91;
+            if (val == 12) return 37;
+            if (val == 20) return 99;
+            if (val == 30) return 56;
+            if (val == 40) return 102;
+            if (val == 50) return 43;
+            if (val == 60) return 45;
+            if (val == 70) return 47;
+            if (val == 80) return 48;
+            if (val == 90) return 50;
+            if (val == 100) return 42;
+            if (val == 101) return 92;
+            if (val == 102) return 46;
+            if (val == 110) return 44;
+            if (val == 120) return 57;
+            if (val == 130) return 49;
+            if (val == 140) return 55;
+            if (val == 150) return 51;
+            if (val == 151) return 93;
+            if (val == 152) return 53;
+            if (val == 160) return 52;
+            return 0;
         }
 
         public static List<GP6Chord> readChords(Node nTracks)
         {
             var ret_val = new List<GP6Chord>();
-            var tcnt = 0;
-            foreach (var nDiagrams in nTracks.subnodes.Select(static nTrack => nTrack.getSubnodeByName("Properties"))
-                         .Select(static nProperties => nProperties?.getSubnodeByProperty("name", "DiagramCollection")))
+            int tcnt = 0;
+            foreach (Node nTrack in nTracks.subnodes)
             {
-                if (nDiagrams != null)
+                Node nProperties = nTrack.getSubnodeByName("Properties");
+                if (nProperties != null)
                 {
-                    var nItems = nDiagrams.getSubnodeByName("Items");
-                    var chordcnt = 0;
-                    foreach (var chord in nItems.subnodes.Select(Item => new GP6Chord
+                    Node nDiagrams = nProperties.getSubnodeByProperty("name", "DiagramCollection");
+                    if (nDiagrams != null)
                     {
-                        id = chordcnt,
-                        forTrack = tcnt,
-                        name = Item.propertyValues[1]
-                    }))
-                    {
-                        //Here I can later parse the chord picture
-                        ret_val.Add(chord);
-                        chordcnt++;
+                        Node nItems = nDiagrams.getSubnodeByName("Items");
+                        int chordcnt = 0;
+                        foreach (Node Item in nItems.subnodes)
+                        {
+                            var chord = new GP6Chord();
+                            chord.id = chordcnt;
+                            chord.forTrack = tcnt;
+                            chord.name = Item.propertyValues[1];
+                            //Here I can later parse the chord picture
+                            ret_val.Add(chord);
+                            chordcnt++;
+                        }
                     }
                 }
 
 
                 tcnt++;
             }
-
             return ret_val;
         }
 
         public static List<GP6Rhythm> readRhythms(Node nRhythms)
         {
             var ret_val = new List<GP6Rhythm>();
-            var cnt = 0;
-            foreach (var nRhythm in nRhythms.subnodes)
+            int cnt = 0;
+            foreach (Node nRhythm in nRhythms.subnodes)
             {
                 string[] durations = { "Whole", "Half", "Quarter", "Eighth", "16th", "32nd" };
-                var noteValue = nRhythm.getSubnodeByName("NoteValue", true).content;
-                var note = 4;
-                for (var x = 0; x < durations.Length; x++)
-                    if (noteValue.Equals(durations[x]))
-                        note = (int)Math.Pow(2, x);
-
-                var nAug = nRhythm.getSubnodeByName("AugmentationDot", true);
-                var augCnt = 0;
-                if (nAug != null) augCnt = int.Parse(nAug.propertyValues[0]);
-
-                var nTuplet = nRhythm.getSubnodeByName("PrimaryTuplet");
+                string noteValue = nRhythm.getSubnodeByName("NoteValue", true).content;
+                int note = 4;
+                for (int x = 0; x < durations.Length; x++)
+                {
+                    if (noteValue.Equals(durations[x])) { note = (int)Math.Pow(2, x); }
+                }
+                Node nAug = nRhythm.getSubnodeByName("AugmentationDot", true);
+                int augCnt = 0;
+                if (nAug != null)
+                {
+                    augCnt = int.Parse(nAug.propertyValues[0], CultureInfo.InvariantCulture);
+                }
+                Node nTuplet = nRhythm.getSubnodeByName("PrimaryTuplet");
                 int n = 1, m = 1;
                 if (nTuplet != null)
                 {
-                    n = int.Parse(nTuplet.propertyValues[0]);
-                    m = int.Parse(nTuplet.propertyValues[1]);
+                    n = int.Parse(nTuplet.propertyValues[0], CultureInfo.InvariantCulture);
+                    m = int.Parse(nTuplet.propertyValues[1], CultureInfo.InvariantCulture);
                 }
 
                 ret_val.Add(new GP6Rhythm(cnt++, note, augCnt, n, m));
@@ -875,88 +862,80 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
         public static List<Track> transferTracks(Node nTracks, GP5File song)
         {
-            var ret_val = new List<Track>();
-            var cnt = 0;
-            foreach (var nTrack in nTracks.subnodes)
+            List<Track> ret_val = new List<Track>();
+            int cnt = 0;
+            foreach (Node nTrack in nTracks.subnodes)
             {
-                var _track = new Track(song, cnt++)
-                {
-                    name = nTrack.getSubnodeByName("Name").content
-                };
-                var colors = nTrack.getSubnodeByName("Color").content.Split(' ');
-                _track.color = new myColor(int.Parse(colors[0]), int.Parse(colors[1]), int.Parse(colors[2]));
+                Track _track = new Track(song, cnt++);
+                _track.name = nTrack.getSubnodeByName("Name").content;
+                string[] colors = nTrack.getSubnodeByName("Color").content.Split(' ');
+                _track.color = new myColor(int.Parse(colors[0]), int.Parse(colors[1]), int.Parse(colors[2], CultureInfo.InvariantCulture));
                 _track.channel = new MidiChannel();
 
-                var param = nTrack.getSubnodeByName("RSE").getSubnodeByName("ChannelStrip")
-                    .getSubnodeByName("Parameters").content.Split(' ');
+                string[] param = nTrack.getSubnodeByName("RSE").getSubnodeByName("ChannelStrip").getSubnodeByName("Parameters").content.Split(' ');
                 _track.channel.bank = 0;
-                _track.channel.balance = (int)(100 * float.Parse(param[11]));
-                _track.channel.volume = (int)(100 * float.Parse(param[12]));
+                _track.channel.balance = (int)(100 * float.Parse(param[11], CultureInfo.InvariantCulture));
+                _track.channel.volume = (int)(100 * float.Parse(param[12], CultureInfo.InvariantCulture));
 
 
-                var nMidi = nTrack.getSubnodeByName("GeneralMidi", true);
+
+                Node nMidi = nTrack.getSubnodeByName("GeneralMidi", true);
                 if (nMidi != null) //GP6
                 {
-                    _track.channel.instrument = int.Parse(nMidi.getSubnodeByName("Program").content);
-                    _track.channel.channel = int.Parse(nMidi.getSubnodeByName("PrimaryChannel").content);
-                    _track.channel.effectChannel = int.Parse(nMidi.getSubnodeByName("SecondaryChannel").content);
-                    _track.port = int.Parse(nMidi.getSubnodeByName("Port").content);
+                    _track.channel.instrument = int.Parse(nMidi.getSubnodeByName("Program").content, CultureInfo.InvariantCulture);
+                    _track.channel.channel = int.Parse(nMidi.getSubnodeByName("PrimaryChannel").content, CultureInfo.InvariantCulture);
+                    _track.channel.effectChannel = int.Parse(nMidi.getSubnodeByName("SecondaryChannel").content, CultureInfo.InvariantCulture);
+                    _track.port = int.Parse(nMidi.getSubnodeByName("Port").content, CultureInfo.InvariantCulture);
                 }
                 else
-                {
-                    //GP7
-                    _track.channel.instrument = int.Parse(nTrack.getSubnodeByName("Sounds").subnodes[0]
-                        .getSubnodeByName("MIDI").getSubnodeByName("Program").content);
-                    _track.channel.channel = int.Parse(nTrack.getSubnodeByName("MidiConnection")
-                        .getSubnodeByName("PrimaryChannel").content);
-                    _track.channel.effectChannel = int.Parse(nTrack.getSubnodeByName("MidiConnection")
-                        .getSubnodeByName("SecondaryChannel").content);
-                    _track.port = int.Parse(nTrack.getSubnodeByName("MidiConnection").getSubnodeByName("Port").content);
-                }
+                { //GP7
+                    _track.channel.instrument = int.Parse(nTrack.getSubnodeByName("Sounds").subnodes[0].getSubnodeByName("MIDI").getSubnodeByName("Program").content, CultureInfo.InvariantCulture);
+                    _track.channel.channel = int.Parse(nTrack.getSubnodeByName("MidiConnection").getSubnodeByName("PrimaryChannel").content, CultureInfo.InvariantCulture);
+                    _track.channel.effectChannel = int.Parse(nTrack.getSubnodeByName("MidiConnection").getSubnodeByName("SecondaryChannel").content, CultureInfo.InvariantCulture);
+                    _track.port = int.Parse(nTrack.getSubnodeByName("MidiConnection").getSubnodeByName("Port").content, CultureInfo.InvariantCulture);
 
+                }
                 _track.strings = new List<GuitarString>();
 
-                var nProperties = nTrack.getSubnodeByName("Properties");
-                var nTuning = nProperties?.getSubnodeByProperty("name", "Tuning");
-                if (nTuning != null)
-                {
-                    var tuning = nTuning.subnodes[0].content.Split(' ');
-                    var gcnt = 0;
-                    foreach (var str in tuning) _track.strings.Add(new GuitarString(gcnt++, int.Parse(str)));
-                }
-
+                Node nProperties = nTrack.getSubnodeByName("Properties");
                 if (nProperties != null)
                 {
-                    var nCapoFret = nProperties.getSubnodeByProperty("name", "CapoFret");
-                    var nFretCount = nProperties.getSubnodeByProperty("name", "FretCount");
-                    if (nCapoFret != null) _track.offset = int.Parse(nCapoFret.subnodes[0].content);
+                    Node nTuning = nProperties.getSubnodeByProperty("name", "Tuning");
+                    if (nTuning != null)
+                    {
+                        string[] tuning = nTuning.subnodes[0].content.Split(' ');
+                        int gcnt = 0;
+                        foreach (string str in tuning)
+                        {
+                            _track.strings.Add(new GuitarString(gcnt++, int.Parse(str, CultureInfo.InvariantCulture)));
+                        }
+                    }
+                }
+                if (nProperties != null)
+                {
+                    Node nCapoFret = nProperties.getSubnodeByProperty("name", "CapoFret");
+                    Node nFretCount = nProperties.getSubnodeByProperty("name", "FretCount");
+                    if (nCapoFret != null) _track.offset = int.Parse(nCapoFret.subnodes[0].content, CultureInfo.InvariantCulture);
 
                     _track.fretCount = 24;
-                    if (nFretCount != null)
-                        _track.fretCount = int.Parse(nFretCount.subnodes[0].content); //Not saved anymore
-
-                    var nPropertyName = nProperties.getSubnodeByName("Name", true);
+                    if (nFretCount != null) _track.fretCount = int.Parse(nFretCount.subnodes[0].content, CultureInfo.InvariantCulture); //Not saved anymore
+                    Node nPropertyName = nProperties.getSubnodeByName("Name", true);
                     if (nPropertyName != null)
-                        _track.tuningName = nPropertyName.subnodes.Count > 0
-                            ? nPropertyName.subnodes[0].content
-                            : nPropertyName.content;
+                    {
+                        if (nPropertyName.subnodes.Count > 0) { _track.tuningName = nPropertyName.subnodes[0].content; }
+                        else { _track.tuningName = nPropertyName.content; }
+                    }
                 }
-
                 _track.isPercussionTrack = _track.channel.channel == 9;
 
                 _track.settings = new TrackSettings();
 
-                var nPlaybackState = nTrack.getSubnodeByName("PlaybackState");
+                Node nPlaybackState = nTrack.getSubnodeByName("PlaybackState");
                 if (nPlaybackState != null)
-                    switch (nPlaybackState.content)
-                    {
-                        case "Solo":
-                            _track.isSolo = true;
-                            break;
-                        case "Mute":
-                            _track.isMute = true;
-                            break;
-                    }
+                {
+                    if (nPlaybackState.content.Equals("Solo")) _track.isSolo = true;
+                    if (nPlaybackState.content.Equals("Mute")) _track.isMute = true;
+                }
 
                 //Do not matter for me:
                 //_track.indicateTuning, track.settings
@@ -969,55 +948,50 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         public static List<MeasureHeader> transferMeasureHeaders(Node nMasterBars, GP5File song)
         {
             var ret_val = new List<MeasureHeader>();
-            var cnt = 0;
-            foreach (var nMasterBar in nMasterBars.subnodes)
+            int cnt = 0;
+            foreach (Node nMasterBar in nMasterBars.subnodes)
             {
                 var _measureHeader = new MeasureHeader();
-                var accidentals = int.Parse(nMasterBar.getSubnodeByName("Key", true).subnodes[0].content);
-                var mode = nMasterBar.getSubnodeByName("Key", true).subnodes[1].content.Equals("Major") ? 0 : 1;
-                _measureHeader.keySignature = (KeySignature)(accidentals * 10 + (accidentals < 0 ? -mode : mode));
+                int accidentals = int.Parse(nMasterBar.getSubnodeByName("Key", true).subnodes[0].content, CultureInfo.InvariantCulture);
+                int mode = (nMasterBar.getSubnodeByName("Key", true).subnodes[1].content.Equals("Major")) ? 0 : 1;
+                _measureHeader.keySignature = (KeySignature)(accidentals * 10 + ((accidentals < 0) ? -mode : mode));
 
                 _measureHeader.hasDoubleBar = nMasterBar.getSubnodeByName("DoubleBar", true) != null;
                 _measureHeader.direction = transferDirections(nMasterBar.getSubnodeByName("Directions", true));
                 _measureHeader.fromDirection = transferFromDirections(nMasterBar.getSubnodeByName("Directions", true));
-                _measureHeader.isRepeatOpen = nMasterBar.getSubnodeByName("Repeat", true) != null &&
-                                              nMasterBar.getSubnodeByName("Repeat", true).propertyValues[0]
-                                                  .Equals("true");
+                _measureHeader.isRepeatOpen = nMasterBar.getSubnodeByName("Repeat", true) != null && nMasterBar.getSubnodeByName("Repeat", true).propertyValues[0].Equals("true");
                 _measureHeader.repeatClose = 0;
-                if (nMasterBar.getSubnodeByName("Repeat", true) != null &&
-                    nMasterBar.getSubnodeByName("Repeat", true).propertyValues[1].Equals("true"))
-                    _measureHeader.repeatClose =
-                        int.Parse(nMasterBar.getSubnodeByName("Repeat", true).propertyValues[2]);
+                if (nMasterBar.getSubnodeByName("Repeat", true) != null && nMasterBar.getSubnodeByName("Repeat", true).propertyValues[1].Equals("true"))
+                    _measureHeader.repeatClose = int.Parse(nMasterBar.getSubnodeByName("Repeat", true).propertyValues[2], CultureInfo.InvariantCulture);
 
                 if (nMasterBar.getSubnodeByName("AlternateEndings", true) != null)
                 {
                     var _aes = nMasterBar.getSubnodeByName("AlternateEndings", true).content.Split(' ');
-                    foreach (var _ in _aes) _measureHeader.repeatAlternatives.Add(int.Parse(_));
+                    foreach (string _ in _aes)
+                    {
+                        _measureHeader.repeatAlternatives.Add(int.Parse(_, CultureInfo.InvariantCulture));
+                    }
                 }
-
                 _measureHeader.timeSignature = new TimeSignature(); //Time
-                var timeSig = nMasterBar.getSubnodeByName("Time", true).content.Split('/');
+                string[] timeSig = nMasterBar.getSubnodeByName("Time", true).content.Split('/');
 
-                _measureHeader.timeSignature.numerator = int.Parse(timeSig[0]);
-                _measureHeader.timeSignature.denominator = new Duration
-                {
-                    value = int.Parse(timeSig[1])
-                };
+                _measureHeader.timeSignature.numerator = int.Parse(timeSig[0], CultureInfo.InvariantCulture);
+                _measureHeader.timeSignature.denominator = new Duration();
+                _measureHeader.timeSignature.denominator.value = int.Parse(timeSig[1], CultureInfo.InvariantCulture);
 
                 _measureHeader.tripletFeel = TripletFeel.none;
                 if (nMasterBar.getSubnodeByName("TripletFeel", true) != null)
                 {
-                    var feel = nMasterBar.getSubnodeByName("TripletFeel", true).content;
-                    _measureHeader.tripletFeel = feel switch
-                    {
-                        "Triplet8th" => TripletFeel.eigth,
-                        "Triplet16th" => TripletFeel.sixteenth,
-                        "Dotted8th" => TripletFeel.dotted8th,
-                        "Dotted16th" => TripletFeel.dotted16th,
-                        "Scottish8th" => TripletFeel.scottish8th,
-                        "Scottish16th" => TripletFeel.scottish16th,
-                        _ => _measureHeader.tripletFeel
-                    };
+                    string feel = nMasterBar.getSubnodeByName("TripletFeel", true).content;
+                    if (feel.Equals("Triplet8th")) _measureHeader.tripletFeel = TripletFeel.eigth;
+                    if (feel.Equals("Triplet16th")) _measureHeader.tripletFeel = TripletFeel.sixteenth;
+                    if (feel.Equals("Dotted8th")) _measureHeader.tripletFeel = TripletFeel.dotted8th;
+                    if (feel.Equals("Dotted16th")) _measureHeader.tripletFeel = TripletFeel.dotted16th;
+                    if (feel.Equals("Scottish8th")) _measureHeader.tripletFeel = TripletFeel.scottish8th;
+                    if (feel.Equals("Scottish16th")) _measureHeader.tripletFeel = TripletFeel.scottish16th;
+
+
+
                 }
 
                 _measureHeader.song = song;
@@ -1037,82 +1011,72 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
         public static List<string> transferDirections(Node nDirections)
         {
-            var ret_val = new List<string>();
-            if (nDirections == null) return ret_val;
 
-            ret_val.AddRange(from nElement in nDirections.subnodes
-                             where nElement.name.Equals("Target")
-                             select nElement.content);
+            List<string> ret_val = new List<string>();
+            if (nDirections == null) return ret_val;
+            foreach (Node nElement in nDirections.subnodes)
+            {
+                if (nElement.name.Equals("Target")) ret_val.Add(nElement.content);
+            }
             return ret_val;
         }
-
         public static List<string> transferFromDirections(Node nDirections)
         {
-            var ret_val = new List<string>();
-            if (nDirections == null) return ret_val;
 
-            ret_val.AddRange(from nElement in nDirections.subnodes
-                             where nElement.name.Equals("Jump")
-                             select nElement.content);
+            List<string> ret_val = new List<string>();
+            if (nDirections == null) return ret_val;
+            foreach (Node nElement in nDirections.subnodes)
+            {
+                if (nElement.name.Equals("Jump")) ret_val.Add(nElement.content);
+            }
             return ret_val;
         }
 
         public static List<Lyrics> transferLyrics(Node nTracks)
         {
-            var ret_val = new List<Lyrics>();
+
+            List<Lyrics> ret_val = new List<Lyrics>();
             if (nTracks == null) return ret_val;
-
-            foreach (var nTrack in nTracks.subnodes)
+            foreach (Node nTrack in nTracks.subnodes)
             {
-                var nLyrics = nTrack.getSubnodeByName("Lyrics");
-                var lyrics = new Lyrics();
-                var cnt = 0;
-                foreach (var _line in nLyrics.subnodes.Select(static nLine => new LyricLine
+                Node nLyrics = nTrack.getSubnodeByName("Lyrics");
+                Lyrics lyrics = new Lyrics();
+                int cnt = 0;
+                foreach (Node nLine in nLyrics.subnodes)
                 {
-                    lyrics = nLine.subnodes[0].content,
-                    startingMeasure = int.Parse(nLine.subnodes[1].content)
-                }))
+                    var _line = new LyricLine();
+                    _line.lyrics = nLine.subnodes[0].content;
+                    _line.startingMeasure = int.Parse(nLine.subnodes[1].content, CultureInfo.InvariantCulture);
                     lyrics.lines[cnt++] = _line;
-
+                }
                 ret_val.Add(lyrics);
             }
-
             return ret_val;
         }
 
         public static Node ParseGP6(string xml, int start)
         {
             //Remove '<' chars inside CDATA tags
-            var skipMode = false;
-            for (var x = 0; x < xml.Length - 3; x++)
+            bool skipMode = false;
+            for (int x = 0; x < xml.Length - 3; x++)
             {
-                var sub = xml.Substring(x, 3);
+                string sub = xml.Substring(x, 3);
 
-                switch (sub)
-                {
-                    case "<!-":
-                        xml = xml.Substring(0, x) + '{' + xml.Substring(x + 1);
-                        continue;
-                    case "<![":
-                        skipMode = true;
-                        continue;
-                    case "]]>":
-                        skipMode = false;
-                        break;
-                }
-
+                if (sub.Equals("<!-")) { xml = xml.Substring(0, x) + '{' + xml.Substring(x + 1); continue; }
+                if (sub.Equals("<![")) { skipMode = true; continue; }
+                if (sub.Equals("]]>")) skipMode = false;
                 if (skipMode && xml[x] == '<') xml = xml.Substring(0, x) + '{' + xml.Substring(x + 1);
             }
 
-            var split = xml.Substring(start).Split('<');
-            var openTags = 0;
-            var stack = new List<Node>();
-            var mainNode = new Node(new List<Node>(), new List<string>(), new List<string>());
+            string[] split = xml.Substring(start).Split('<');
+            int openTags = 0;
+            List<Node> stack = new List<Node>();
+            Node mainNode = new Node(new List<Node>(), new List<string>(), new List<string>(), "");
             stack.Add(mainNode);
             //Parse all Tags
-            for (var x = 1; x < split.Length; x++)
+            for (int x = 1; x < split.Length; x++)
             {
-                if (split[x].StartsWith("/", StringComparison.Ordinal))
+                if (split[x].StartsWith("/"))
                 {
                     //Closes a tag.
                     openTags--;
@@ -1122,62 +1086,47 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
                     continue;
                 }
-
-                if (split[x].StartsWith("![", StringComparison.Ordinal))
+                if (split[x].StartsWith("!["))
+                {
                     //normal string value encased in ![CDATA[ and ]]>
                     //Already dealt with below (as content value of previous normal tag)
                     continue;
+                }
 
                 //Is normal Tag (might have parameters in tag and might be closed with />
-                var endOfTag = split[x].IndexOf(">", StringComparison.Ordinal);
+                int endOfTag = split[x].IndexOf(">");
                 if (endOfTag == -1) break; //File Error
-
-                var sb = new StringBuilder();
-                var firstSpace = split[x].IndexOf(' ');
-                var firstSlash = split[x].IndexOf('/');
+                StringBuilder sb = new StringBuilder();
+                int firstSpace = split[x].IndexOf(' ');
+                int firstSlash = split[x].IndexOf('/');
                 if (firstSpace == -1 || firstSpace > endOfTag) firstSpace = endOfTag;
-
                 if (firstSlash != -1 && firstSlash < firstSpace) firstSpace = firstSlash;
 
-                var tagName = split[x].Substring(0, firstSpace);
+                string tagName = split[x].Substring(0, firstSpace);
 
-                var pos = firstSpace;
-                var isSingleTag = false;
-                var collectingPropertyValue = false;
-                var property = new StringBuilder();
-                var propertyValue = new StringBuilder();
+                int pos = firstSpace;
+                bool isSingleTag = false;
+                bool collectingPropertyValue = false;
+                StringBuilder property = new StringBuilder();
+                StringBuilder propertyValue = new StringBuilder();
 
-                var propertyNames = new List<string>();
-                var propertyValues = new List<string>();
+                List<string> propertyNames = new List<string>();
+                List<string> propertyValues = new List<string>();
                 while (pos < endOfTag)
                 {
-                    switch (collectingPropertyValue)
+                    if (collectingPropertyValue && split[x][pos] != '"')
+                    { propertyValue.Append(split[x][pos]); pos++; continue; }
+                    if (collectingPropertyValue && split[x][pos] == '"')
                     {
-                        case true when split[x][pos] != '"':
-                            propertyValue.Append(split[x][pos]);
-                            pos++;
-                            continue;
-                        case true when split[x][pos] == '"':
-                            collectingPropertyValue = false;
-                            propertyValues.Add(propertyValue.ToString());
-                            propertyValue = new StringBuilder();
-                            pos++;
-                            continue;
-                    }
-
-                    if (split[x][pos] != ' ' && split[x][pos] != '=' && split[x][pos] != '/')
-                    {
-                        property.Append(split[x][pos]);
+                        collectingPropertyValue = false;
+                        propertyValues.Add(propertyValue.ToString());
+                        propertyValue = new StringBuilder();
                         pos++;
                         continue;
                     }
-
-                    if (split[x][pos] == '/')
-                    {
-                        isSingleTag = true;
-                        break;
-                    }
-
+                    if (split[x][pos] != ' ' && split[x][pos] != '=' && split[x][pos] != '/')
+                    { property.Append(split[x][pos]); pos++; continue; }
+                    if (split[x][pos] == '/') { isSingleTag = true; break; }
                     if (split[x][pos] == '=')
                     {
                         pos++;
@@ -1185,137 +1134,135 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                         property = new StringBuilder();
                         collectingPropertyValue = true;
                     }
-
                     pos++;
                 }
-
                 if (isSingleTag)
                 {
-                    stack[stack.Count - 1].subnodes
-                        .Add(new Node(new List<Node>(), propertyNames, propertyValues, tagName));
+                    stack[stack.Count - 1].subnodes.Add(new Node(new List<Node>(), propertyNames, propertyValues, tagName));
                     continue;
                 }
 
                 openTags++;
                 //Collect values outside of tag
-                var finalValue = "";
+                string finalValue = "";
                 if (x < split.Length - 1)
-                    finalValue = split[x + 1].StartsWith("![", StringComparison.Ordinal)
-                        ? split[x + 1].Substring(8, split[x + 1].LastIndexOf("]]>", StringComparison.Ordinal) - 8)
-                        : split[x].Substring(endOfTag + 1);
+                {
+                    if (split[x + 1].StartsWith("!["))
+                    {
+                        finalValue = split[x + 1].Substring(8, split[x + 1].LastIndexOf("]]>") - 8);
+
+                    }
+                    else
+                    {
+                        finalValue = split[x].Substring(endOfTag + 1);
+                    }
+                }
 
                 stack.Add(new Node(new List<Node>(), propertyNames, propertyValues, tagName, finalValue));
             }
-
             return stack[0];
         }
     }
 
     //XML Classes
 
-    public sealed class GP6Chord
+    public class GP6Chord
     {
-        public int forTrack;
-        public int id;
+        public int id = 0;
+        public int forTrack = 0;
         public string name = ""; //Values of this are found in Score->Properties->Property(DiagramCollection)
     }
-
-    public sealed class GP6Rhythm
+    public class GP6Rhythm
     {
-        public int augmentationDots; //0, 1 or 2
-        public int id;
+        public int id = 0;
         public int noteValue = 4; //4 = quarter, 16 = 16th etc.
-        public Tuplet primaryTuplet = new();
-
+        public int augmentationDots = 0; //0, 1 or 2
+        public Tuplet primaryTuplet = new Tuplet();
         public GP6Rhythm(int id, int noteValue, int augmentationDots, int n = 1, int m = 1)
         {
-            this.id = id;
-            this.noteValue = noteValue;
-            this.augmentationDots = augmentationDots;
+            this.id = id; this.noteValue = noteValue; this.augmentationDots = augmentationDots;
 
-            primaryTuplet = new Tuplet
-            {
-                enters = n,
-                times = m
-            };
+            this.primaryTuplet = new Tuplet();
+            primaryTuplet.enters = n;
+            primaryTuplet.times = m;
         }
     }
-
-    public sealed class GP6Tempo
+    public class GP6Tempo
     {
-        public int bar;
-        public bool linear;
-        public float position; //in % of full bar
+        public bool linear = false;
+        public int bar = 0;
+        public float position = 0.0f; //in % of full bar
+        public bool visible = true;
         public int tempo = 120;
         public int tempoType = 2;
-        public bool transferred;
-        public bool visible = true;
+        public bool transferred = false;
 
         public GP6Tempo(Node nAutomation) //Node with a type-subnote "Tempo"
         {
             linear = nAutomation.getSubnodeByName("Linear", true).content.Equals("true");
-            bar = int.Parse(nAutomation.getSubnodeByName("Bar", true).content);
-            position = float.Parse(nAutomation.getSubnodeByName("Position", true).content);
+            bar = int.Parse(nAutomation.getSubnodeByName("Bar", true).content, CultureInfo.InvariantCulture);
+            position = float.Parse(nAutomation.getSubnodeByName("Position", true).content, CultureInfo.InvariantCulture);
             visible = nAutomation.getSubnodeByName("Visible", true).content.Equals("true");
-            var t = nAutomation.getSubnodeByName("Value", true).content;
-            var ts = t.Split(' ');
-            tempo = (int)float.Parse(ts[0]);
-            tempoType = int.Parse(ts[1]);
+            string t = nAutomation.getSubnodeByName("Value", true).content;
+            string[] ts = t.Split(' ');
+            tempo = (int)float.Parse(ts[0], CultureInfo.InvariantCulture);
+            tempoType = int.Parse(ts[1], CultureInfo.InvariantCulture);
         }
-    }
 
-    public sealed class Node
+    }
+    public class Node
     {
-        public string content;
         public string name = "";
-        public List<string> propertyNames = new();
-        public List<string> propertyValues = new();
-        public List<Node> subnodes = new();
+        public List<Node> subnodes = new List<Node>();
+        public List<string> propertyNames = new List<string>();
+        public List<string> propertyValues = new List<string>();
+        public string content;
 
 
         public Node(List<Node> subnodes, List<string> propertyNames,
             List<string> propertyValues, string name = "", string content = "")
         {
-            this.subnodes = subnodes;
-            this.propertyNames = propertyNames;
-            this.propertyValues = propertyValues;
-            this.content = content;
+            this.subnodes = subnodes; this.propertyNames = propertyNames;
+            this.propertyValues = propertyValues; this.content = content;
             this.name = name;
         }
 
         public Node getSubnodeByProperty(string propertyName, string property)
         {
-            foreach (var n in subnodes)
+            foreach (Node n in subnodes)
             {
-                var cnt = 0;
-                var found = false;
-                foreach (var pn in n.propertyNames)
+                int cnt = 0; bool found = false;
+                foreach (string pn in n.propertyNames)
                 {
-                    if (pn.Equals(propertyName))
-                    {
-                        found = true;
-                        break;
-                    }
-
+                    if (pn.Equals(propertyName)) { found = true; break; }
                     cnt++;
                 }
-
                 if (!found) continue;
-
                 if (n.propertyValues[cnt].Equals(property)) return n;
             }
-
             return null;
         }
-
         public Node getSubnodeByName(string name, bool directOnly = false)
         {
             if (this.name.Equals(name)) return this;
+            if (directOnly) //Only search the direct children
+            {
+                foreach (Node n in subnodes)
+                {
+                    if (n.name.Equals(name)) return n;
+                }
+                return null;
+            }
+            else
+            {
+                foreach (Node n in subnodes)
+                {
+                    Node sub = n.getSubnodeByName(name);
+                    if (sub != null) return sub;
+                }
+            }
 
-            return directOnly
-                ? //Only search the direct children
-                subnodes.FirstOrDefault(n => n.name.Equals(name))
-                : subnodes.Select(n => n.getSubnodeByName(name)).FirstOrDefault(static sub => sub != null);
+            return null;
         }
     }
 
@@ -1565,14 +1512,12 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
     */
 
-    public sealed class BitStream
+    public class BitStream
     {
-        private static readonly int[] powers_rev = { 128, 64, 32, 16, 8, 4, 2, 1 };
-        private static readonly int[] powers = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
         public byte[] data;
-        public bool finished;
-        private int pointer;
-        private int subpointer;
+        private int pointer = 0;
+        private int subpointer = 0;
+        public bool finished = false;
 
         public BitStream(byte[] data)
         {
@@ -1580,68 +1525,70 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
             pointer = 0;
             subpointer = 0;
         }
-
         public bool GetBit()
         {
             if (finished) return false;
-
-            var ret_val = (data[pointer] >> (7 - subpointer)) % 2 == 1;
+            bool ret_val = (data[pointer] >> (7 - subpointer)) % 2 == 1;
             increase_subpointer();
             return ret_val;
         }
 
         public bool[] GetBits(int amount)
         {
-            var ret_val = new bool[amount];
-            for (var x = 0; x < amount; x++) ret_val[x] = GetBit();
-
+            bool[] ret_val = new bool[amount];
+            for (int x = 0; x < amount; x++)
+            {
+                ret_val[x] = GetBit();
+            }
             return ret_val;
         }
+
+        static private int[] powers_rev = new int[] { 128, 64, 32, 16, 8, 4, 2, 1 };
 
         public byte GetByte()
         {
             byte ret_val = 0x00;
-            for (var x = 0; x < 8; x++) ret_val |= (byte)(GetBit() ? powers_rev[x] : 0);
-
+            for (int x = 0; x < 8; x++)
+            {
+                ret_val |= (byte)(GetBit() ? (powers_rev[x]) : 0);
+            }
             return ret_val;
         }
+        static private int[] powers = new int[] { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
 
         public int GetBitsLE(int amount)
-        {
-            //returns the number represented by the next n bits, starting with the least significant bit
-            var ret_val = 0;
+        { //returns the number represented by the next n bits, starting with the least significant bit
+            int ret_val = 0;
 
-            for (var x = 0; x < amount; x++)
+            for (int x = 0; x < amount; x++)
             {
-                var val = GetBit();
+                bool val = GetBit();
                 ret_val |= val ? powers[x] : 0;
             }
-
             return ret_val;
         }
 
         public int GetBitsBE(int amount)
-        {
-            //returns the number represented by the next n bits, starting with the most significant bit
-            var ret_val = 0;
+        { //returns the number represented by the next n bits, starting with the most significant bit
+            int ret_val = 0;
 
-            for (var x = 0; x < amount; x++)
+            for (int x = 0; x < amount; x++)
             {
-                var val = GetBit();
+                bool val = GetBit();
                 ret_val |= val ? powers[amount - x - 1] : 0;
             }
-
             return ret_val;
         }
 
         public void SkipBits(int bits)
         {
-            for (var x = 0; x < bits; x++) increase_subpointer();
+            for (int x = 0; x < bits; x++) increase_subpointer();
         }
 
         public void SkipBytes(int bytes)
         {
-            for (var x = 0; x < bytes; x++) increase_pointer();
+            for (int x = 0; x < bytes; x++) increase_pointer();
+
         }
 
         private void increase_pointer()
@@ -1652,13 +1599,10 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         private void increase_subpointer()
         {
             subpointer++;
-            if (subpointer == 8)
-            {
-                subpointer = 0;
-                pointer++;
-            }
-
-            if (pointer >= data.Length) finished = true;
+            if (subpointer == 8) { subpointer = 0; pointer++; }
+            if (pointer >= data.Length) this.finished = true;
         }
+
+
     }
 }
