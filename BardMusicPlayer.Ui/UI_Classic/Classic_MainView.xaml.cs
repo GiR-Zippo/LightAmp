@@ -14,7 +14,7 @@ namespace BardMusicPlayer.Ui.Classic
     /// <summary>
     /// Interaktionslogik für Classic_MainView.xaml
     /// </summary>
-    public partial class Classic_MainView : UserControl
+    public sealed partial class Classic_MainView : UserControl
     {
         private int MaxTracks = 1;
         private bool _directLoaded { get; set; } = false; //indicates if a song was loaded directly or from playlist

@@ -8,15 +8,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BardMusicPlayer.Quotidian.Structs;
-using Melanchall.DryWetMidi.Core;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace BardMusicPlayer.Ui.Controls
 {
     /// <summary>
     /// Interaktionslogik für BardExtSettingsWindow.xaml
     /// </summary>
-    public partial class BardExtSettingsWindow : Window
+    public sealed partial class BardExtSettingsWindow : Window
     {
         private Performer _performer = null;
         private List<CheckBox> _cpuBoxes = new List<CheckBox>();
@@ -46,10 +44,7 @@ namespace BardMusicPlayer.Ui.Controls
                     else if (tpBard.Key.channelType.ChannelCode == ChatMessageChannelType.Shout.ChannelCode)
                         Songtitle_Chat_Type.SelectedIndex = 2;
 
-                    if (tpBard.Key.channelType.Equals(ChatMessageChannelType.None))
-                        Songtitle_Post_Type.SelectedIndex = 0;
-                    else
-                        Songtitle_Post_Type.SelectedIndex = 1;
+                    Songtitle_Post_Type.SelectedIndex = tpBard.Key.channelType.Equals(ChatMessageChannelType.None) ? 0 : 1;
                 }
             }
 
@@ -147,7 +142,7 @@ namespace BardMusicPlayer.Ui.Controls
         }
 
     #region CPU-Tab
-    private void PopulateCPUTab()
+        private void PopulateCPUTab()
         {
             //Get the our application's process.
             Process process = _performer.game.Process;
@@ -168,9 +163,11 @@ namespace BardMusicPlayer.Ui.Controls
                         break;
                     if (CPUDisplay.RowDefinitions.Count < res +1)
                         CPUDisplay.RowDefinitions.Add(new RowDefinition());
-                    var uc = new CheckBox();
-                    uc.Name = "CPU" + idx;
-                    uc.Content = "CPU" + idx;
+                    var uc = new CheckBox
+                    {
+                        Name = "CPU" + idx,
+                        Content = "CPU" + idx
+                    };
                     if ((AffinityMask & (1 << idx-1)) > 0) //-1 since we count at 1
                         uc.IsChecked = true;
                     _cpuBoxes.Add(uc);

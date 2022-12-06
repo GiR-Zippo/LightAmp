@@ -12,7 +12,7 @@ namespace BardMusicPlayer.Ui.Controls
     /// <summary>
     /// The songbrowser but much faster than the BMP 1.x had
     /// </summary>
-    public partial class SongBrowser : UserControl
+    public sealed partial class SongBrowser : UserControl
     {
         public EventHandler<string> OnLoadSongFromBrowser;
 

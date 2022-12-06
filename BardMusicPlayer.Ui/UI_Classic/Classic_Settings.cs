@@ -6,7 +6,7 @@ using System.Windows.Controls;
 
 namespace BardMusicPlayer.Ui.Classic
 {
-    public partial class Classic_MainView : UserControl
+    public sealed partial class Classic_MainView : UserControl
     {
         /// <summary>
         /// load the settings

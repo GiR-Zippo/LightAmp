@@ -5,7 +5,7 @@ namespace UI.Resources
     /// <summary>
     /// Interaktionslogik für TextInputWindow.xaml
     /// </summary>
-    public partial class TextInputWindow : Window
+    public sealed partial class TextInputWindow : Window
     {
         public TextInputWindow(string infotext, int maxinputlength = 42)
         {

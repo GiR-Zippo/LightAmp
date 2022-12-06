@@ -114,9 +114,7 @@ namespace BardMusicPlayer.Ui.Functions
         /// <returns>song name as string</returns>
         public static string GetSongName()
         {
-            if (CurrentSong == null)
-                return "please load a song";
-            return CurrentSong.Title;
+            return CurrentSong == null ? "please load a song" : CurrentSong.Title;
         }
 
         /// <summary>

@@ -9,13 +9,13 @@ using System.Windows;
 
 namespace BardMusicPlayer.Ui.Classic
 {
-    public class Macro
+    public sealed class Macro
     {
         public string DisplayedText { get; set; } = "";
         public string File { get; set; } = "";
     }
 
-    public partial class MacroLaunchpad : Window
+    public sealed partial class MacroLaunchpad : Window
     {
         public List<Macro> _Macros { get; private set; }
         public Macro SelectedMacro { get; set; }
@@ -33,10 +33,9 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Instance_OnRunningStateChanged(object sender, bool e)
         {
-            if (e)
-                this.Dispatcher.BeginInvoke(new Action(() => StopIndicator.Content = "Stop" ));
-            else
-                this.Dispatcher.BeginInvoke(new Action(() => StopIndicator.Content = "Idle"));
+            Dispatcher.BeginInvoke(e
+                ? new Action(() => { StopIndicator.Content = "Stop"; })
+                : () => StopIndicator.Content = "Idle");
         }
 
         private void Macros_CollectionChanged()
@@ -96,7 +95,7 @@ namespace BardMusicPlayer.Ui.Classic
         {
             var openFileDialog = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = "Macrolist | *.cfg",
+                Filter = "Macro List | *.cfg",
                 Multiselect = true
             };
 
@@ -124,7 +123,7 @@ namespace BardMusicPlayer.Ui.Classic
 
             var openFileDialog = new Microsoft.Win32.SaveFileDialog
             {
-                Filter = "Macrolist | *.cfg"
+                Filter = "Macro List | *.cfg"
             };
 
             if (openFileDialog.ShowDialog() != true)

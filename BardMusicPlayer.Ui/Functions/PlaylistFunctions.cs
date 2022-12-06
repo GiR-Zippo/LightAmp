@@ -29,10 +29,8 @@ namespace BardMusicPlayer.Ui.Functions
             if (openFileDialog.ShowDialog() != true)
                 return false;
 
-            foreach (var d in openFileDialog.FileNames)
+            foreach (var song in openFileDialog.FileNames.Select(d => BmpSong.OpenFile(d).Result))
             {
-                BmpSong song = BmpSong.OpenFile(d).Result;
-
                 if(currentPlaylist.SingleOrDefault(x => x.Title.Equals(song.Title)) == null)
                     currentPlaylist.Add(song);
 
@@ -106,15 +104,7 @@ namespace BardMusicPlayer.Ui.Functions
         /// <param name="songname"></param>
         public static BmpSong GetSongFromPlaylist(IPlaylist playlist, string songname)
         {
-            if (playlist == null)
-                return null;
-
-            foreach (var item in playlist)
-            {
-                if (item.Title == songname)
-                    return item;
-            }
-            return null;
+            return playlist?.FirstOrDefault(item => item.Title == songname);
         }
 
         /// <summary>
@@ -128,31 +118,25 @@ namespace BardMusicPlayer.Ui.Functions
             if (playlist == null)
                 return data;
 
-            foreach (var item in playlist)
-                data.Add(item.Title);
+            data.AddRange(playlist.Select(item => item.Title));
             return data;
         }
 
-        public static List<string> GetCurrentPlaylistItems(IPlaylist playlist, bool withupselector = false)
+        public static IEnumerable<string> GetCurrentPlaylistItems(IPlaylist playlist, bool withupselector = false)
         {
             List<string> data = new List<string>();
             if (playlist == null)
                 return data;
             if (withupselector)
                 data.Add("..");
-            foreach (var item in playlist)
-                data.Add(item.Title);
+            data.AddRange(playlist.Select(item => item.Title));
             return data;
         }
 
         public static TimeSpan GetTotalTime(IPlaylist playlist)
         {
             TimeSpan totalTime = new TimeSpan(0);
-            foreach (var p in playlist)
-            {
-                totalTime += p.Duration;
-            };
-            return totalTime;
+            return playlist.Aggregate(totalTime, (current, p) => current + p.Duration);
         }
     }
 }

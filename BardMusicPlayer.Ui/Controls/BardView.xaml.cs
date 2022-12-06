@@ -13,13 +13,14 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
+using BardMusicPlayer.DalamudBridge;
 
 namespace BardMusicPlayer.Ui.Controls
 {
     /// <summary>
     /// Interaktionslogik für BardView.xaml
     /// </summary>
-    public partial class BardView : UserControl
+    public sealed partial class BardView : UserControl
     {
         public BardView()
         {
@@ -131,7 +132,7 @@ namespace BardMusicPlayer.Ui.Controls
             ctl.OnValueChanged += OnValueChanged;
         }
 
-        private void OnValueChanged(object sender, int s)
+        private static void OnValueChanged(object sender, int s)
         {
             Performer game = (sender as TrackNumericUpDown).DataContext as Performer;
             BmpMaestro.Instance.SetTracknumber(game, s);
@@ -147,7 +148,7 @@ namespace BardMusicPlayer.Ui.Controls
             ctl.OnValueChanged += OnOctaveValueChanged;
         }
 
-        private void OnOctaveValueChanged(object sender, int s)
+        private static void OnOctaveValueChanged(object sender, int s)
         {
             Performer performer = (sender as OctaveNumericUpDown).DataContext as Performer;
             BmpMaestro.Instance.SetOctaveshift(performer, s);
@@ -180,15 +181,14 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void Bard_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 2)
-            {
-                if (SelectedBard == null)
-                    return;
+            if (e.ClickCount != 2)
+                return;
+            if (SelectedBard == null)
+                return;
 
-                BardExtSettingsWindow bardExtSettings = new BardExtSettingsWindow(SelectedBard);
-                bardExtSettings.Activate();
-                bardExtSettings.Visibility = Visibility.Visible;
-            }
+            var bardExtSettings = new BardExtSettingsWindow(SelectedBard);
+            bardExtSettings.Activate();
+            bardExtSettings.Visibility = Visibility.Visible;
         }
 
         private void Autoequip_CheckBox_Checked(object sender, RoutedEventArgs e)
@@ -206,21 +206,20 @@ namespace BardMusicPlayer.Ui.Controls
         {
             var openFileDialog = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = "Performerconfig | *.cfg",
+                Filter = "Performer Config | *.cfg",
                 Multiselect = true
             };
 
             if (openFileDialog.ShowDialog() != true)
                 return;
 
-            List<PerformerSettingData> pdatalist = new List<PerformerSettingData>();
             MemoryStream memoryStream = new MemoryStream();
             FileStream fileStream = File.Open(openFileDialog.FileName, FileMode.Open);
             fileStream.CopyTo(memoryStream);
             fileStream.Close();
 
             var data = memoryStream.ToArray();
-            pdatalist = JsonConvert.DeserializeObject<List<PerformerSettingData>>(new UTF8Encoding(true).GetString(data));
+            List<PerformerSettingData> pdatalist = JsonConvert.DeserializeObject<List<PerformerSettingData>>(new UTF8Encoding(true).GetString(data));
 
             foreach (var pconfig in pdatalist)
             {
@@ -234,11 +233,11 @@ namespace BardMusicPlayer.Ui.Controls
             }
 
             //Set Thymms box, cuz if u use this function, you know what you are doing
-            if (!BmpPigeonhole.Instance.EnsembleKeepTrackSetting)
-            {
-                BmpPigeonhole.Instance.EnsembleKeepTrackSetting = true;
-                Globals.Globals.ReloadConfig();
-            }
+            if (BmpPigeonhole.Instance.EnsembleKeepTrackSetting) 
+                return;
+
+            BmpPigeonhole.Instance.EnsembleKeepTrackSetting = true;
+            Globals.Globals.ReloadConfig();
         }
 
         /// <summary>
@@ -250,7 +249,7 @@ namespace BardMusicPlayer.Ui.Controls
         {
             var openFileDialog = new Microsoft.Win32.SaveFileDialog
             {
-                Filter = "Performerconfig | *.cfg"
+                Filter = "Performer Config | *.cfg"
             };
 
             if (openFileDialog.ShowDialog() != true)
@@ -275,13 +274,10 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void GfxLow_CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            foreach (var p in Bards)
+            foreach (var p in Bards.Where(p => p.game.GfxSettingsLow != GfxLow_CheckBox.IsChecked))
             {
-                if (p.game.GfxSettingsLow != GfxLow_CheckBox.IsChecked)
-                {
-                    p.game.GfxSettingsLow = GfxLow_CheckBox.IsChecked ?? false;
-                    DalamudBridge.GameExtensions.GfxSetLow(p.game, GfxLow_CheckBox.IsChecked ?? false);
-                }
+                p.game.GfxSettingsLow = GfxLow_CheckBox.IsChecked ?? false;
+                p.game.GfxSetLow(GfxLow_CheckBox.IsChecked ?? false);
             }
         }
 
@@ -301,7 +297,7 @@ namespace BardMusicPlayer.Ui.Controls
     /// <summary>
     /// Helperclass
     /// </summary>
-    public class PerformerSettingData
+    public sealed class PerformerSettingData
     {
         public string Name { get; set; } = "";
         public int Track { get; set; } = 0;

@@ -6,7 +6,6 @@ using System.Windows.Media;
 using BardMusicPlayer.Ui.Functions;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Ui.Classic
@@ -14,7 +13,7 @@ namespace BardMusicPlayer.Ui.Classic
     /// <summary>
     /// Interaktionslogik für Classic_MainView.xaml
     /// </summary>
-    public partial class Classic_MainView : UserControl
+    public sealed partial class Classic_MainView : UserControl
     {
         private bool _alltracks = false;
         private bool _Playbar_dragStarted = false;
@@ -23,10 +22,7 @@ namespace BardMusicPlayer.Ui.Classic
         /* Playbuttonstate */
         private void Play_Button_State(bool playing = false)
         {
-            if (!playing)
-                Play_Button.Content = @"▶";
-            else
-                Play_Button.Content = @"⏸";
+            Play_Button.Content = !playing ? @"▶" : @"⏸";
         }
 
         /* Playback */

@@ -1,7 +1,4 @@
-﻿using BardMusicPlayer.Coffer;
-using BardMusicPlayer.Transmogrify.Song;
-using BardMusicPlayer.Ui.Functions;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +8,7 @@ using System.Text;
 
 namespace BardMusicPlayer.Ui.Functions
 {
-    public class SongContainer
+    public sealed class SongContainer
     {
         public string Name { get; set; } = "";
         public byte[] Data { get; set; } = null;
@@ -54,8 +51,8 @@ namespace BardMusicPlayer.Ui.Functions
         public static void ImportPlaylist()
         {
             var httpClient = new HttpClient();
-            var publicFolderId = "1M1mU2ZxMgxz0_S274gf1oKLrea3AX_4Q";
-            var nextPageToken = "";
+            const string publicFolderId = "1M1mU2ZxMgxz0_S274gf1oKLrea3AX_4Q";
+            const string nextPageToken = "";
             do
             {
                 var folderContentsUri = $"https://drive.google.com/drive/folders/"+publicFolderId+ "?usp=sharing";
@@ -75,13 +72,14 @@ namespace BardMusicPlayer.Ui.Functions
                     if (data.Contains("<path fill=\"none\""))
                         continue;
 
-                    if (data.Contains("jsdata"))
-                    {
-                        var name = data.Split('"')[1];
-                        var path = data.Split(new string[] { "jsdata" }, StringSplitOptions.RemoveEmptyEntries)[1].Split(';')[3];
-                        songs_url.Add(new KeyValuePair<string, string>(name, path));
-                        Console.WriteLine(data);
-                    }
+                    if (!data.Contains("jsdata")) 
+                        continue;
+
+                    var name = data.Split('"')[1];
+                    var path =
+                        data.Split(new[] { "jsdata" }, StringSplitOptions.RemoveEmptyEntries)[1].Split(';')[3];
+                    songs_url.Add(new KeyValuePair<string, string>(name, path));
+                    Console.WriteLine(data);
                 }
                 Console.WriteLine(songs_url.ToString());
             } while (!String.IsNullOrEmpty(nextPageToken));
@@ -97,7 +95,7 @@ namespace BardMusicPlayer.Ui.Functions
             using (var stream = File.Open("output.mid", FileMode.Create))
             {
                 foreach(var data in file)
-                stream.WriteByte(data);
+                    stream.WriteByte(data);
             }
 
             return file;

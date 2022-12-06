@@ -21,7 +21,7 @@
     <sys:String x:Key="GAME_AMPFRONT"    xml:space="preserve">Brings the amp in front after a new song was loaded from the playlist</sys:String>
 
     <!-- Settings: Misc-->
-    <sys:String x:Key="MISC_AUTOSTART"   xml:space="preserve">Select the autostart trigger [Metronome is prefered]</sys:String>
+    <sys:String x:Key="MISC_AUTOSTART"   xml:space="preserve">Select the autostart trigger [Metronome is preferred]</sys:String>
     <sys:String x:Key="MISC_MIDIBARD"    xml:space="preserve">Enables the MidiBard sync start</sys:String>
     <sys:String x:Key="MISC_AUTOEQPLGN"  xml:space="preserve">Enables autoequip via Hypnotoad</sys:String>
     <sys:String x:Key="MISC_SKINNEDUI"   xml:space="preserve">Enables the Skinned Ui (needs a restart)</sys:String>

@@ -8,7 +8,7 @@ namespace BardMusicPlayer.Ui.Controls
     /// <summary>
     /// Interaktionslogik für NumericUpDown.xaml
     /// </summary>
-    public partial class OctaveNumericUpDown : UserControl
+    public sealed partial class OctaveNumericUpDown : UserControl
     {
         public EventHandler<int> OnValueChanged;
 
@@ -18,7 +18,7 @@ namespace BardMusicPlayer.Ui.Controls
         }
 
         public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register("Value", typeof(string), typeof(OctaveNumericUpDown), new PropertyMetadata(OnValueChangedCallBack));
+            DependencyProperty.Register(nameof(Value), typeof(string), typeof(OctaveNumericUpDown), new PropertyMetadata(OnValueChangedCallBack));
 
         public string Value
         {
@@ -29,13 +29,10 @@ namespace BardMusicPlayer.Ui.Controls
         private static void OnValueChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             OctaveNumericUpDown c = sender as OctaveNumericUpDown;
-            if (c != null)
-            {
-                c.OnValueChangedC(c.Value);
-            }
+            c?.OnValueChangedC(c.Value);
         }
 
-        protected virtual void OnValueChangedC(string c)
+        private void OnValueChangedC(string c)
         {
             NumValue = Convert.ToInt32(c);
         }

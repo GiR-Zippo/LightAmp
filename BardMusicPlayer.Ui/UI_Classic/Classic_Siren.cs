@@ -1,19 +1,13 @@
-﻿using BardMusicPlayer.Quotidian.Enums;
-using BardMusicPlayer.Siren;
+﻿using BardMusicPlayer.Siren;
 using BardMusicPlayer.Transmogrify.Song;
-using BardMusicPlayer.Transmogrify.Song.Importers;
-using BardMusicPlayer.Transmogrify.Song.Importers.LrcParser;
-using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
 using Microsoft.Win32;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -21,7 +15,7 @@ using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Classic
 {
-    public class LyricsContainer
+    public sealed class LyricsContainer
     {
         public LyricsContainer(DateTime t, string l) { time = t; line = l; }
         public DateTime time { get; set; }
@@ -31,7 +25,7 @@ namespace BardMusicPlayer.Ui.Classic
     /// <summary>
     /// Interaktionslogik für Classic_MainView.xaml
     /// </summary>
-    public partial class Classic_MainView : UserControl
+    public sealed partial class Classic_MainView : UserControl
     {
         ObservableCollection<LyricsContainer> lyricsData = new ObservableCollection<LyricsContainer>();
 
@@ -272,7 +266,7 @@ namespace BardMusicPlayer.Ui.Classic
         {
             var openFileDialog = new Microsoft.Win32.SaveFileDialog
             {
-                Filter = "Performerconfig | *.lrc"
+                Filter = "Lyrics File | *.lrc"
             };
 
             if (openFileDialog.ShowDialog() != true)

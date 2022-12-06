@@ -7,7 +7,7 @@ namespace BardMusicPlayer.Ui.Controls
     /// <summary>
     /// Interaktionslogik für SongEditWindow.xaml
     /// </summary>
-    public partial class SongEditWindow : Window
+    public sealed partial class SongEditWindow : Window
     {
         BmpSong _song;
         public SongEditWindow(BmpSong song)

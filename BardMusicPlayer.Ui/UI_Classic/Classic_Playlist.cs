@@ -9,7 +9,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using UI.Resources;
 
 namespace BardMusicPlayer.Ui.Classic
@@ -17,7 +16,7 @@ namespace BardMusicPlayer.Ui.Classic
     /// <summary>
     /// Interaktionslogik für Classic_MainView.xaml
     /// </summary>
-    public partial class Classic_MainView : UserControl
+    public sealed partial class Classic_MainView : UserControl
     {
         private bool _playlistRepeat = false;
         private bool _playlistShuffle = false;
@@ -40,10 +39,12 @@ namespace BardMusicPlayer.Ui.Classic
                 Random rnd = new Random();
                 int random = rnd.Next(1, PlaylistContainer.Items.Count);
 
-                if (random == PlaylistContainer.SelectedIndex) 
+                if (random == PlaylistContainer.SelectedIndex)
                     random = (random + 1) % PlaylistContainer.Items.Count;
-                if (random == 0)
+
+                if (random == 0) 
                     random = 1;
+
                 PlaylistContainer.SelectedIndex = random;
             }
             else
@@ -91,7 +92,7 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void Playlist_New_Button_Click(object sender, RoutedEventArgs e)
         {
-            var inputbox = new TextInputWindow("Playlistname");
+            var inputbox = new TextInputWindow("Playlist Name");
             if (inputbox.ShowDialog() == true)
             {
                 if (inputbox.ResponseText.Length < 1)
@@ -276,11 +277,8 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void PlaylistContainer_MouseMove(object sender, MouseEventArgs e)
         {
-            TextBlock celltext = sender as TextBlock;
-            if (celltext != null && e.LeftButton == MouseButtonState.Pressed && !_showingPlaylists)
-            {
+            if (sender is TextBlock celltext && e.LeftButton == MouseButtonState.Pressed && !_showingPlaylists)
                 DragDrop.DoDragDrop(PlaylistContainer, celltext, DragDropEffects.Move);
-            }
         }
 
         /// <summary>
