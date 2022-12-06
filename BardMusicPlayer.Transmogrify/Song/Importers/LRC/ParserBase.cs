@@ -1,6 +1,9 @@
-﻿using System;
+﻿#region
+
 using System.Collections.Generic;
 using System.Threading;
+
+#endregion
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
 {
@@ -9,18 +12,23 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
     {
         protected static readonly char[] LINE_BREAKS = "\r\n\u0085\u2028\u2029".ToCharArray();
 
-        public ParserBase(string data) => this.Data = data ?? "";
-
         protected readonly string Data;
+        public readonly LineCollection<TLine> Lines = new();
 
-        public readonly MetaDataDictionary MetaData = new MetaDataDictionary();
-        public readonly LineCollection<TLine> Lines = new LineCollection<TLine>();
+        public readonly MetaDataDictionary MetaData = new();
+
+        protected List<ParseException> Exceptions = new();
 
         private Lyrics<TLine> lyrics;
-        Lyrics<TLine> IParseResult<TLine>.Lyrics => LazyInitializer.EnsureInitialized(ref this.lyrics, () => new Lyrics<TLine>(this));
 
-        protected List<ParseException> Exceptions = new List<ParseException>();
+        protected ParserBase(string data)
+        {
+            Data = data ?? "";
+        }
 
-        IReadOnlyList<ParseException> IParseResult<TLine>.Exceptions => this.Exceptions;
+        Lyrics<TLine> IParseResult<TLine>.Lyrics =>
+            LazyInitializer.EnsureInitialized(ref lyrics, () => new Lyrics<TLine>(this));
+
+        IReadOnlyList<ParseException> IParseResult<TLine>.Exceptions => Exceptions;
     }
 }

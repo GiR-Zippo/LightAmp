@@ -1,4 +1,8 @@
-﻿using System;
+﻿#region
+
+using System;
+
+#endregion
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
 {

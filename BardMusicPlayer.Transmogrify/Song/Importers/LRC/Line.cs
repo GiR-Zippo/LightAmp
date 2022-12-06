@@ -1,23 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region
+
+using System;
+using System.Diagnostics;
 using System.Text;
+
+#endregion
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
 {
     /// <summary>
-    /// Represents single line of lyrics.
-    /// Format: <c>"[mm:ss.ff]Lyrics"</c>
+    ///     Represents single line of lyrics.
+    ///     Format: <c>"[mm:ss.ff]Lyrics"</c>
     /// </summary>
-    [System.Diagnostics.DebuggerDisplay(@"{ToString(),nq}")]
+    [DebuggerDisplay(@"{ToString(),nq}")]
     public class Line : IComparable<Line>, IComparable
     {
-        /// <summary>
-        /// Create new instance of <see cref="Line"/>.
-        /// </summary>
-        public Line() { }
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string content = "";
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal DateTime InternalTimestamp;
 
         /// <summary>
-        /// Create new instance of <see cref="Line"/>.
+        ///     Create new instance of <see cref="Line" />.
+        /// </summary>
+        public Line()
+        {
+        }
+
+        /// <summary>
+        ///     Create new instance of <see cref="Line" />.
         /// </summary>
         /// <param name="timestamp">Timestamp of this line.</param>
         /// <param name="content">Lyrics of this line.</param>
@@ -27,69 +39,82 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
             this.content = (content ?? "").Trim();
         }
 
-        [System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]
-        internal DateTime InternalTimestamp;
         /// <summary>
-        /// Timestamp of this line of lyrics.
+        ///     Timestamp of this line of lyrics.
         /// </summary>
-        /// <exception cref="ArgumentException"><see cref="DateTime.Kind"/> of value is not <see cref="DateTimeKind.Unspecified"/>.</exception>
+        /// <exception cref="ArgumentException">
+        ///     <see cref="DateTime.Kind" /> of value is not
+        ///     <see cref="DateTimeKind.Unspecified" />.
+        /// </exception>
         public DateTime Timestamp
         {
-            get => this.InternalTimestamp;
-            set => this.InternalTimestamp = value.ToTimestamp();
+            get => InternalTimestamp;
+            set => InternalTimestamp = value.ToTimestamp();
         }
 
-        [System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]
-        private string content = "";
         /// <summary>
-        /// Lyrics of this line.
+        ///     Lyrics of this line.
         /// </summary>
-        public virtual string Content { get => this.content; set => this.content = (value ?? "").Trim(); }
+        public virtual string Content
+        {
+            get => content;
+            set => content = (value ?? "").Trim();
+        }
+
+        int IComparable.CompareTo(object obj)
+        {
+            return CompareTo((Line)obj);
+        }
+
+        /// <inheritdoc />
+        public int CompareTo(Line other)
+        {
+            if (other is null)
+                return 1;
+
+            var ct = InternalTimestamp.CompareTo(other.InternalTimestamp);
+            return ct != 0 ? ct : string.CompareOrdinal(Content, other.Content);
+        }
 
         internal StringBuilder ToString(StringBuilder sb)
         {
-            return TimestampToString(sb).Append(this.Content);
+            return TimestampToString(sb).Append(Content);
         }
 
         internal StringBuilder TimestampToString(StringBuilder sb)
         {
             return sb.Append('[')
-                .Append(this.InternalTimestamp.ToLrcString())
+                .Append(InternalTimestamp.ToLrcString())
                 .Append(']');
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override string ToString()
-           => ToString(new StringBuilder(this.content.Length + 10)).ToString();
-
-        /// <inheritdoc/>
-        public int CompareTo(Line other)
         {
-            if (other is null)
-                return 1;
-            var ct = this.InternalTimestamp.CompareTo(other.InternalTimestamp);
-            if (ct != 0)
-                return ct;
-            return string.Compare(this.Content, other.Content);
+            return ToString(new StringBuilder(content.Length + 10)).ToString();
         }
-        int IComparable.CompareTo(object obj) => CompareTo((Line)obj);
     }
 
     /// <summary>
-    /// Represents single line of lyrics with specified speaker.
-    /// Format: <c>"[mm:ss.ff]Spearker: Lyrics"</c>
+    ///     Represents single line of lyrics with specified speaker.
+    ///     Format: <c>"[mm:ss.ff]Spearker: Lyrics"</c>
     /// </summary>
-    public class LineWithSpeaker : Line
+    public sealed class LineWithSpeaker : Line
     {
         private static readonly char[] invalidSpeakerChars = ":".ToCharArray();
 
-        /// <summary>
-        /// Create new instance of <see cref="Line"/>.
-        /// </summary>
-        public LineWithSpeaker() { }
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string speaker = "";
 
         /// <summary>
-        /// Create new instance of <see cref="Line"/>.
+        ///     Create new instance of <see cref="Line" />.
+        /// </summary>
+        public LineWithSpeaker()
+        {
+        }
+
+        /// <summary>
+        ///     Create new instance of <see cref="Line" />.
         /// </summary>
         /// <param name="timestamp">Timestamp of this line.</param>
         /// <param name="speaker">Speaker of this line.</param>
@@ -97,61 +122,66 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
         public LineWithSpeaker(DateTime timestamp, string speaker, string lyrics)
             : base(timestamp, null)
         {
-            this.Speaker = speaker;
-            this.Lyrics = lyrics;
+            Speaker = speaker;
+            Lyrics = lyrics;
         }
 
-        [System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]
-        private string speaker = "";
         /// <summary>
-        /// Speaker of this line.
+        ///     Speaker of this line.
         /// </summary>
         public string Speaker
         {
-            get => this.speaker;
+            get => speaker;
             set
             {
-                value = value ?? "";
+                value ??= "";
                 Helper.CheckString(nameof(value), value, invalidSpeakerChars);
-                this.speaker = value.Trim();
+                speaker = value.Trim();
             }
         }
-        /// <summary>
-        /// Lyrics of this line.
-        /// </summary>
-        public string Lyrics { get => base.Content; set => base.Content = value; }
 
         /// <summary>
-        /// Lyrics with speaker of this line.
+        ///     Lyrics of this line.
+        /// </summary>
+        public string Lyrics
+        {
+            get => base.Content;
+            set => base.Content = value;
+        }
+
+        /// <summary>
+        ///     Lyrics with speaker of this line.
         /// </summary>
         public override string Content
         {
             get
             {
-                if (string.IsNullOrEmpty(this.speaker))
+                if (string.IsNullOrEmpty(speaker))
                     return Lyrics;
-                if (string.IsNullOrEmpty(this.Lyrics))
+                if (string.IsNullOrEmpty(Lyrics))
                     return Speaker + ":";
+
                 return Speaker + ": " + Lyrics;
             }
             set
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    this.speaker = "";
-                    this.Lyrics = "";
+                    speaker = "";
+                    Lyrics = "";
                     return;
                 }
+
                 var pi = value.IndexOf(':');
                 if (pi < 0)
                 {
-                    this.speaker = "";
-                    this.Lyrics = value;
+                    speaker = "";
+                    Lyrics = value;
                 }
                 else
                 {
-                    this.Speaker = value.Substring(0, pi);
-                    this.Lyrics = value.Substring(pi + 1);
+                    Speaker = value.Substring(0, pi);
+                    Lyrics = value.Substring(pi + 1);
                 }
             }
         }

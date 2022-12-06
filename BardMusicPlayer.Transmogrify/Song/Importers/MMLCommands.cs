@@ -120,7 +120,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             return cmd;
         }
 
-        private static void AddPart(List<string> args, string token, string pattern)
+        private static void AddPart(ICollection<string> args, string token, string pattern)
         {
             string s = Regex.Match(token, pattern).Value;
             args.Add(s);
@@ -138,7 +138,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             Dotted = dotted;
         }
 
-        public TimeSpan ToTimeSpan(double secondsPerMeasure)
+        public readonly TimeSpan ToTimeSpan(double secondsPerMeasure)
         {
             double length = 1.0 / (double)Length;
             if (Dotted)

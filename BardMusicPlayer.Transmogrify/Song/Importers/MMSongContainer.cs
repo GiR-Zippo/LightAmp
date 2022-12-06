@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers
 {
-    public class MMSongContainer
+    public sealed class MMSongContainer
     {
         public List<MMSong> songs = new List<MMSong>();
         public MMSongContainer()
@@ -16,7 +16,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
         }
     }
 
-    public class MMSong
+    public sealed class MMSong
     {
         public List<MMBards> bards = new List<MMBards>();
         public List<MMLyrics> lyrics = new List<MMLyrics>();

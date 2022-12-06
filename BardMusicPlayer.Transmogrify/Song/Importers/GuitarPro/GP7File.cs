@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
+﻿namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 {
     public class GP7File : GPFile
     {
-
-        static string xml;
+        private static string xml;
         //public List<Track> tracks;
 
         public GP7File(string data)
@@ -16,13 +13,11 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
         public override void readSong()
         {
-            Node parsedXml = GP6File.ParseGP6(xml, 3);
-            GP5File gp5file = GP6File.GP6NodeToGP5File(parsedXml.subnodes[0]);
+            var parsedXml = GP6File.ParseGP6(xml, 3);
+            var gp5file = GP6File.GP6NodeToGP5File(parsedXml.subnodes[0]);
             tracks = gp5file.tracks;
             self = gp5file;
-            self.versionTuple = new int[] { 7, 0 };
+            self.versionTuple = new[] { 7, 0 };
         }
-
-
     }
 }

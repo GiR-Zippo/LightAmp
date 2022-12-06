@@ -1,44 +1,53 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+#endregion
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 {
-    abstract public class GPFile
+    public abstract class GPFile
     {
-        //Parent class for common type
-        abstract public void readSong();
+        public TripletFeel _tripletFeel;
+        public string album;
+        public string author;
 
 
         public GP4File.Clipboard clipboard = null;
+        public string copyright;
+        public List<DirectionSign> directions = new();
+        public bool hideTempo;
+        public string instructional;
+        public string interpret;
+        public List<Lyrics> lyrics = new();
         public RSEMasterEffect masterEffect = null;
+        public List<MeasureHeader> measureHeaders = new();
+        public string music;
         public PageSetup pageSetup = null;
+        public GPFile self;
+        public string subtitle;
+        public string tab_author;
         public int tempo;
         public string tempoName;
-        public bool hideTempo;
-        public List<DirectionSign> directions = new List<DirectionSign>();
-        public string words;
-        public string music;
-        public List<Track> tracks = new List<Track>();
-        public GPFile self;
         public string title;
-        public string subtitle;
-        public string interpret;
-        public string album;
-        public string author;
-        public string copyright;
-        public string tab_author;
-        public string instructional;
-        public int[] versionTuple = new int[] { };
+        public List<Track> tracks = new();
         public string version = "";
-        public List<Lyrics> lyrics = new List<Lyrics>();
-        public List<MeasureHeader> measureHeaders = new List<MeasureHeader>();
-        public TripletFeel _tripletFeel;
+        public int[] versionTuple = { };
+
+        public string words;
+
+        //Parent class for common type
+        public abstract void readSong();
     }
+
     public class GPBase
     {
         public const int bendPosition = 60;
         public const int bendSemitone = 25;
-        public static int pointer = 0;
+        public static int pointer;
         public static byte[] data;
 
         public static void skip(int count)
@@ -53,153 +62,137 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
         public static sbyte[] readSignedByte(int count = 1)
         {
-            byte[] unsigned = extract(pointer, count, true);
-            sbyte[] ret_val = new sbyte[unsigned.Length];
-            for (int x = 0; x < unsigned.Length; x++)
-            {
-                ret_val[x] = (sbyte)unsigned[x];
-            }
+            var unsigned = extract(pointer, count, true);
+            var ret_val = new sbyte[unsigned.Length];
+            for (var x = 0; x < unsigned.Length; x++) ret_val[x] = (sbyte)unsigned[x];
+
             return ret_val;
         }
 
         public static bool[] readBool(int count = 1)
         {
-            byte[] vals = extract(pointer, count, true);
-            bool[] ret_val = new bool[vals.Length];
-            for (int x = 0; x < vals.Length; x++)
-            {
-                ret_val[x] = (vals[x] != 0x0);
-            }
+            var vals = extract(pointer, count, true);
+            var ret_val = new bool[vals.Length];
+            for (var x = 0; x < vals.Length; x++) ret_val[x] = vals[x] != 0x0;
+
             return ret_val;
         }
 
         public static short[] readShort(int count = 1)
         {
-            byte[] vals = extract(pointer, count * 2, true);
-            short[] ret_val = new short[count];
-            for (int x = 0; x < vals.Length; x += 2)
-            {
-                ret_val[x / 2] = (short)(vals[x] + (vals[x + 1] << 8));
-            }
+            var vals = extract(pointer, count * 2, true);
+            var ret_val = new short[count];
+            for (var x = 0; x < vals.Length; x += 2) ret_val[x / 2] = (short)(vals[x] + (vals[x + 1] << 8));
+
             return ret_val;
         }
+
         public static int[] readInt(int count = 1)
         {
-            byte[] vals = extract(pointer, count * 4, true);
-            int[] ret_val = new int[count];
-            for (int x = 0; x < vals.Length; x += 4)
-            {
-                ret_val[x / 4] = (int)(vals[x] + (vals[x + 1] << 8) + (vals[x + 2] << 16) + (vals[x + 3] << 24));
-            }
+            var vals = extract(pointer, count * 4, true);
+            var ret_val = new int[count];
+            for (var x = 0; x < vals.Length; x += 4)
+                ret_val[x / 4] = vals[x] + (vals[x + 1] << 8) + (vals[x + 2] << 16) + (vals[x + 3] << 24);
+
             return ret_val;
         }
 
         public static float[] readFloat(int count = 1)
         {
-            byte[] vals = extract(pointer, count * 4, true);
-            float[] ret_val = new float[count];
-            for (int x = 0; x < vals.Length; x += 4)
-            {
-                ret_val[x / 4] = System.BitConverter.ToSingle(vals, x);
-            }
+            var vals = extract(pointer, count * 4, true);
+            var ret_val = new float[count];
+            for (var x = 0; x < vals.Length; x += 4) ret_val[x / 4] = BitConverter.ToSingle(vals, x);
+
             return ret_val;
         }
 
         public static double[] readDouble(int count = 1)
         {
-            byte[] vals = extract(pointer, count * 8, true);
-            double[] ret_val = new double[count];
-            for (int x = 0; x < vals.Length; x += 8)
-            {
-                ret_val[x / 8] = System.BitConverter.ToDouble(vals, x);
-            }
+            var vals = extract(pointer, count * 8, true);
+            var ret_val = new double[count];
+            for (var x = 0; x < vals.Length; x += 8) ret_val[x / 8] = BitConverter.ToDouble(vals, x);
+
             return ret_val;
         }
 
         public static string readString(int size, int length = 0)
         {
-            if (length == 0)
-            {
-                length = size;
-            }
-            int count = (size > 0) ? size : length;
-            byte[] ss = (length >= 0) ? extract(pointer, length, true) : extract(pointer, size, true);
+            if (length == 0) length = size;
+
+            var count = size > 0 ? size : length;
+            var ss = length >= 0 ? extract(pointer, length, true) : extract(pointer, size, true);
             skip(count - ss.Length);
-            return System.Text.Encoding.Default.GetString(ss);
+            return Encoding.Default.GetString(ss);
         }
 
         public static string readByteSizeString(int size)
         {
-            return readString(size, (int)readByte()[0]);
+            return readString(size, readByte()[0]);
         }
 
         public static string readIntSizeString()
         {
             return readString(readInt()[0]);
         }
+
         public static string readIntByteSizeString()
         {
             //Read length of the string increased by 1 and stored in 1 integer
             //followed by length of the string in 1 byte and finally followed by
             //character bytes.
 
-            int d = readInt()[0] - 1;
+            var d = readInt()[0] - 1;
 
             return readByteSizeString(d);
         }
 
 
-
         public static byte[] extract(int start, int length, bool advance_pointer)
         {
-            if (length <= 0)
-            {
-                return new byte[Math.Max(0, length)];
-            }
-            if (length + start > data.Length)
-            {
-                return new byte[Math.Max(0, length)];
-            }
+            if (length <= 0) return new byte[Math.Max(0, length)];
+            if (length + start > data.Length) return new byte[Math.Max(0, length)];
 
-            byte[] ret = new byte[length];
-            for (int x = start; x < start + length; x++)
-            {
-                ret[x - start] = data[x];
-            }
+            var ret = new byte[length];
+            for (var x = start; x < start + length; x++) ret[x - start] = data[x];
+
             if (advance_pointer) pointer += length;
 
             return ret;
         }
     }
 
-    public class Barre
+    public sealed class Barre
     {
-        public int start = 0;
-        public int end = 0;
+        public int end;
         public int fret;
+        public int start;
+
         public Barre(int fret = 0, int start = 0, int end = 0)
         {
-            this.start = start; this.fret = fret; this.end = end;
+            this.start = start;
+            this.fret = fret;
+            this.end = end;
         }
+
         public int[] range()
         {
-            return new int[] { start, end };
+            return new[] { start, end };
         }
     }
 
-    public class Beat
+    public sealed class Beat
     {
-        public Voice voice;
-        public List<Voice> voices = new List<Voice>();
+        public BeatDisplay display = new();
+        public Duration duration = new();
+        public BeatEffect effect = new();
         public Measure measure;
-        public Duration duration = new Duration();
-        public int start = Duration.quarterTime;
-        public BeatEffect effect = new BeatEffect();
+        public List<Note> notes = new();
         public Octave octave = Octave.none;
-        public BeatDisplay display = new BeatDisplay();
-        public List<Note> notes = new List<Note>();
+        public int start = Duration.quarterTime;
         public BeatStatus status;
-        public BeatText text = new BeatText();
+        public BeatText text = new();
+        public Voice voice;
+        public List<Voice> voices = new();
 
         public Beat(Voice voice = null)
         {
@@ -208,26 +201,18 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
         public int realStart()
         {
-            int offset = start + measure.start();
+            var offset = start + measure.start();
             return measure.header.realStart + offset;
         }
 
         public bool hasVibrato()
         {
-            foreach (Note note in notes)
-            {
-                if (note.effect.vibrato) return true;
-            }
-            return false;
+            return notes.Any(static note => note.effect.vibrato);
         }
 
         public bool hasHarmonic()
         {
-            foreach (Note note in notes)
-            {
-                if (note.effect.isHarmonic()) return true;
-            }
-            return false;
+            return notes.Any(static note => note.effect.isHarmonic());
         }
 
         public void addNote(Note note)
@@ -237,53 +222,71 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         }
     }
 
-    public class BeatDisplay
+    public sealed class BeatDisplay
     {
-        public bool breakBeam = false;
-        public bool forceBeam = false;
         public VoiceDirection beamDirection = VoiceDirection.none;
-        public TupletBracket tupletBracket = TupletBracket.none;
+        public bool breakBeam = false;
         public int breakSecondary = 0;
         public bool breakSecondaryTuplet = false;
+        public bool forceBeam = false;
         public bool forceBracket = false;
+        public TupletBracket tupletBracket = TupletBracket.none;
     }
 
-    public class BeatEffect
+    public sealed class BeatEffect
     {
+        public Chord chord = null;
         public bool fadeIn = false;
         public bool fadeOut = false;
-        public bool volumeSwell = false;
-
-        public BeatStrokeDirection pickStroke = BeatStrokeDirection.none;
         public bool hasRasgueado = false;
-        public BeatStroke stroke = null;
-        public SlapEffect slapEffect = SlapEffect.none;
-        public bool vibrato = false;
-        public Chord chord = null;
-        public BendEffect tremoloBar = null;
         public MixTableChange mixTableChange;
 
-        public bool isChord() { return chord != null; }
-        public bool isTremoloBar() { return tremoloBar != null; }
-        public bool isSlapEffect() { return slapEffect != SlapEffect.none; }
-        public bool hasPickStroke() { return pickStroke != BeatStrokeDirection.none; }
+        public BeatStrokeDirection pickStroke = BeatStrokeDirection.none;
+        public SlapEffect slapEffect = SlapEffect.none;
+        public BeatStroke stroke = null;
+        public BendEffect tremoloBar = null;
+        public bool vibrato = false;
+        public bool volumeSwell = false;
+
+        public bool isChord()
+        {
+            return chord != null;
+        }
+
+        public bool isTremoloBar()
+        {
+            return tremoloBar != null;
+        }
+
+        public bool isSlapEffect()
+        {
+            return slapEffect != SlapEffect.none;
+        }
+
+        public bool hasPickStroke()
+        {
+            return pickStroke != BeatStrokeDirection.none;
+        }
+
         public bool isDefault()
         {
-            BeatEffect def = new BeatEffect();
-            return (stroke == def.stroke && hasRasgueado == def.hasRasgueado &&
-                pickStroke == def.pickStroke && fadeIn == def.fadeIn &&
-                vibrato == def.vibrato && tremoloBar == def.tremoloBar &&
-                slapEffect == def.slapEffect);
-
+            var def = new BeatEffect();
+            return stroke == def.stroke && hasRasgueado == def.hasRasgueado &&
+                   pickStroke == def.pickStroke && fadeIn == def.fadeIn &&
+                   vibrato == def.vibrato && tremoloBar == def.tremoloBar &&
+                   slapEffect == def.slapEffect;
         }
     }
 
-    public class BeatStroke
+    public sealed class BeatStroke
     {
         public BeatStrokeDirection direction = BeatStrokeDirection.none;
-        public int value = 0; //4 = quarter etc.
-        public float startTime = 0.0f; //0 = falls on time, 1 = starts on time
-        public BeatStroke() { }
+        public float startTime; //0 = falls on time, 1 = starts on time
+        public int value; //4 = quarter etc.
+
+        public BeatStroke()
+        {
+        }
 
         public BeatStroke(BeatStrokeDirection d, int v, float s)
         {
@@ -296,85 +299,83 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         {
             //GP6 will use value as 30 to 480 (64th to quarter note)
             int[] possibleVals = { 1, 2, 4, 8, 16, 32, 64 };
-            int translated = 64 / (GP6Duration / 30);
-            int lastVal = 0;
-            foreach (int val in possibleVals)
+            var translated = 64 / (GP6Duration / 30);
+            var lastVal = 0;
+            foreach (var val in possibleVals)
             {
-                if (val == translated) { value = val; break; }
-                if (val > translated && lastVal < translated)
+                if (val == translated)
                 {
-                    value = (translated - lastVal > val - translated) ? val : lastVal;
+                    value = val;
                     break;
                 }
+
+                if (val > translated && lastVal < translated)
+                {
+                    value = translated - lastVal > val - translated ? val : lastVal;
+                    break;
+                }
+
                 lastVal = val;
             }
         }
 
         public int getIncrementTime(Beat beat)
         {
-            int duration = 0;
-            if (value > 0)
-            {
-                foreach (Voice voice in beat.voices)
-                {
-                    if (voice.isEmpty()) continue;
+            var duration = 0;
+            if (value <= 0) return 0;
 
-                    int currentDuration = voice.duration.time();
-                    if (duration == 0 || currentDuration < duration)
-                    {
-                        duration = ((currentDuration <= Duration.quarterTime) ? currentDuration : Duration.quarterTime);
-                    }
-                    if (duration > 0)
-                    {
-                        return (int)Math.Round((duration / 8.0f) * (4.0f / value));
-                    }
-                }
+            foreach (var currentDuration in from voice in beat.voices
+                                            where !voice.isEmpty()
+                                            select voice.duration.time())
+            {
+                if (duration == 0 || currentDuration < duration)
+                    duration = currentDuration <= Duration.quarterTime ? currentDuration : Duration.quarterTime;
+
+                if (duration > 0) return (int)Math.Round(duration / 8.0f * (4.0f / value));
             }
+
             return 0;
         }
 
         public BeatStroke swapDirection()
         {
-            if (direction == BeatStrokeDirection.up)
+            direction = direction switch
             {
-                direction = BeatStrokeDirection.down;
-            }
-            else if (direction == BeatStrokeDirection.down)
-            {
-                direction = BeatStrokeDirection.up;
-            }
+                BeatStrokeDirection.up => BeatStrokeDirection.down,
+                BeatStrokeDirection.down => BeatStrokeDirection.up,
+                _ => direction
+            };
             return new BeatStroke(direction, value, 0.0f);
         }
-
     }
 
-    public class BeatText
+    public sealed class BeatText
     {
         public string value;
+
         public BeatText(string value = "")
         {
             this.value = value;
         }
     }
 
-    public class BendEffect
+    public sealed class BendEffect
     {
         public const int semitoneLength = 1;
         public const int maxPosition = 12;
         public int maxValue = semitoneLength * 12;
+        public List<BendPoint> points = new();
         public BendType type = BendType.none;
         public int value = 0;
-        public List<BendPoint> points = new List<BendPoint>();
     }
 
-    public class BendPoint
+    public sealed class BendPoint
     {
-        public int position = 0;
+        public float GP6position;
+        public float GP6value;
+        public int position;
         public int value;
-
-        public float GP6position = 0;
-        public float GP6value = 0;
-        bool vibrato = false;
+        private bool vibrato;
 
         public BendPoint(int position = 0, int value = 0, bool vibrato = false)
         {
@@ -406,63 +407,56 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
         public int getTime(int duration)
         {
-            return (int)(duration * (float)position / (float)BendEffect.maxPosition);
+            return (int)(duration * (float)position / BendEffect.maxPosition);
         }
     }
 
-    public class Chord
+    public sealed class Chord
     {
-        public int[] strings;
-        public string name = "";
-        public List<Barre> barres = new List<Barre>();
-        public bool[] omissions = new bool[7];
-        public List<Fingering> fingerings = new List<Fingering>();
-        public bool newFormat;
-        public int firstFret;
-        public bool sharp;
-        public PitchClass root;
-        public ChordType type;
-        public ChordExtension extension;
-        public PitchClass bass;
-        public ChordAlteration tonality;
         public bool add;
-        public ChordAlteration fifth;
-        public ChordAlteration ninth;
+        public List<Barre> barres = new();
+        public PitchClass bass;
         public ChordAlteration eleventh;
+        public ChordExtension extension;
+        public ChordAlteration fifth;
+        public List<Fingering> fingerings = new();
+        public int firstFret;
+        public string name = "";
+        public bool newFormat;
+        public ChordAlteration ninth;
+        public bool[] omissions = new bool[7];
+        public PitchClass root;
+        public bool sharp;
         public bool show = true;
+        public int[] strings;
+        public ChordAlteration tonality;
+        public ChordType type;
 
         public Chord(int length)
         {
-
             strings = new int[length];
-            for (int x = 0; x < length; x++)
-            {
-                strings[x] = -1;
-            }
+            for (var x = 0; x < length; x++) strings[x] = -1;
         }
 
         public int[] notes()
         {
-            List<int> valids = new List<int>();
-            foreach (int s in strings)
-            {
-                if (s >= 0) valids.Add(s);
-            }
-            return valids.ToArray();
+            return strings.Where(static s => s >= 0).ToArray();
         }
     }
 
-    public class DirectionSign
+    public sealed class DirectionSign
     {
-        public string name = "";
-        public short measure = 0;
+        public short measure;
+        public string name;
+
         public DirectionSign(string name = "", short measure = 0)
         {
             this.name = name;
             this.measure = measure;
         }
     }
-    public class Duration
+
+    public sealed class Duration
     {
         public const int quarterTime = 960;
         public const int whole = 1;
@@ -474,212 +468,298 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         public const int sixtyFourth = 64;
         public const int hundredTwentyEigth = 128;
 
+        private const int minTime = (int)((int)(quarterTime * (4.0f / sixtyFourth)) * 2.0f / 3.0f);
+        public bool isDotted;
+        public bool isDoubleDotted;
+        public Tuplet tuplet = new();
+
         public int value = quarter;
-        public bool isDotted = false;
-        public bool isDoubleDotted = false;
-        public Tuplet tuplet = new Tuplet();
 
-        const int minTime = (int)((int)(quarterTime * (4.0f / sixtyFourth)) * 2.0f / 3.0f);
-        public Duration() { }
+        public Duration()
+        {
+        }
+
         public Duration(int time) //Does not recognize tuplets
-        { //From GP6 Format -> 30 = 64th, 480 = quarter, 1920 = whole
-            int substract = 0;
-            if (time >= 15) { value = hundredTwentyEigth; substract = 15; }
-            if (time >= 30) { value = sixtyFourth; substract = 30; }
-            if (time >= 60) { value = thirtySecond; substract = 60; }
-            if (time >= 120) { value = sixteenth; substract = 120; }
-            if (time >= 240) { value = eigth; substract = 240; }
-            if (time >= 480) { value = quarter; substract = 480; }
-            if (time >= 960) { value = half; substract = 960; }
-            if (time >= 1920) { value = whole; substract = 1920; }
+        {
+            //From GP6 Format -> 30 = 64th, 480 = quarter, 1920 = whole
+            var substract = 0;
+            if (time >= 15)
+            {
+                value = hundredTwentyEigth;
+                substract = 15;
+            }
+
+            if (time >= 30)
+            {
+                value = sixtyFourth;
+                substract = 30;
+            }
+
+            if (time >= 60)
+            {
+                value = thirtySecond;
+                substract = 60;
+            }
+
+            if (time >= 120)
+            {
+                value = sixteenth;
+                substract = 120;
+            }
+
+            if (time >= 240)
+            {
+                value = eigth;
+                substract = 240;
+            }
+
+            if (time >= 480)
+            {
+                value = quarter;
+                substract = 480;
+            }
+
+            if (time >= 960)
+            {
+                value = half;
+                substract = 960;
+            }
+
+            if (time >= 1920)
+            {
+                value = whole;
+                substract = 1920;
+            }
+
             time -= substract;
-            if (time >= (float)(value * 0.5f)) isDotted = true;
-            if (time >= (float)(value * 0.75f)) { isDotted = false; isDoubleDotted = true; }
+            if (time >= value * 0.5f) isDotted = true;
 
+            if (!(time >= value * 0.75f)) return;
 
-
+            isDotted = false;
+            isDoubleDotted = true;
         }
 
         public int time()
         {
-            int result = (int)(quarterTime * (4.0f / value));
+            var result = (int)(quarterTime * (4.0f / value));
             if (isDotted) result += (int)(result / 2.0f);
-            if (isDoubleDotted) result += (int)((result / 4.0f) * 3);
+
+            if (isDoubleDotted) result += (int)(result / 4.0f * 3);
+
             return tuplet.convertTime(result);
         }
-
     }
 
-    public class GraceEffect
+    public sealed class GraceEffect
     {
-        public int fret = 0;
         public int duration = -1;
-        public int velocity = Velocities.def;
-        public GraceEffectTransition transition = GraceEffectTransition.none;
-        public bool isOnBeat = false;
+        public int fret = 0;
         public bool isDead = false;
+        public bool isOnBeat = false;
+        public GraceEffectTransition transition = GraceEffectTransition.none;
+        public int velocity = Velocities.def;
 
         public int durationTime()
         {
             return (int)(Duration.quarterTime / 16.0f * duration);
-
         }
     }
 
-    public class GuitarString
+    public sealed class GuitarString
     {
         public int number, value;
+
         public GuitarString(int number, int value)
         {
-            this.number = number; this.value = value;
+            this.number = number;
+            this.value = value;
         }
     }
 
     public abstract class HarmonicEffect
     {
-        public float fret = 0;
-        public int type = 0;
+        public float fret;
+        public int type;
     }
-    public class NaturalHarmonic : HarmonicEffect { public NaturalHarmonic() { type = 1; } }
-    public class ArtificialHarmonic : HarmonicEffect
+
+    public sealed class NaturalHarmonic : HarmonicEffect
     {
-        public PitchClass pitch;
+        public NaturalHarmonic()
+        {
+            type = 1;
+        }
+    }
+
+    public sealed class ArtificialHarmonic : HarmonicEffect
+    {
         public Octave octave;
+        public PitchClass pitch;
+
         public ArtificialHarmonic(PitchClass pitch = null, Octave octave = 0)
         {
             this.pitch = pitch;
             this.octave = octave;
-            this.type = 2;
+            type = 2;
         }
     }
-    public class TappedHarmonic : HarmonicEffect
+
+    public sealed class TappedHarmonic : HarmonicEffect
     {
         public TappedHarmonic(int fret = 0)
         {
             this.fret = fret;
-            this.type = 3;
+            type = 3;
         }
     }
-    public class PinchHarmonic : HarmonicEffect { public PinchHarmonic() { type = 4; } }
-    public class SemiHarmonic : HarmonicEffect { public SemiHarmonic() { type = 5; } }
-    public class FeedbackHarmonic : HarmonicEffect { public FeedbackHarmonic() { type = 6; } }
-    public class LyricLine
+
+    public sealed class PinchHarmonic : HarmonicEffect
     {
-        public int startingMeasure = 1;
-        public string lyrics = "";
+        public PinchHarmonic()
+        {
+            type = 4;
+        }
     }
 
-    public class Lyrics
+    public sealed class SemiHarmonic : HarmonicEffect
     {
-        static int maxLineCount = 5;
-        public int trackChoice;
+        public SemiHarmonic()
+        {
+            type = 5;
+        }
+    }
+
+    public sealed class FeedbackHarmonic : HarmonicEffect
+    {
+        public FeedbackHarmonic()
+        {
+            type = 6;
+        }
+    }
+
+    public sealed class LyricLine
+    {
+        public string lyrics = "";
+        public int startingMeasure = 1;
+    }
+
+    public sealed class Lyrics
+    {
+        private static readonly int maxLineCount = 5;
         public LyricLine[] lines;
+        public int trackChoice;
 
 
         public Lyrics()
         {
             trackChoice = -1;
             lines = new LyricLine[maxLineCount];
-            for (int x = 0; x < maxLineCount; x++)
-            {
-                lines[x] = new LyricLine();
-            }
+            for (var x = 0; x < maxLineCount; x++) lines[x] = new LyricLine();
         }
     }
 
-    public class Marker
+    public sealed class Marker
     {
-        public string title = "Section";
-        public myColor color = new myColor(255, 0, 0);
+        public myColor color = new(255, 0, 0);
         public MeasureHeader measureHeader = null;
+        public string title = "Section";
     }
 
     public enum SimileMark
     {
-        none = 0, simple = 1, firstOfDouble = 2, secondOfDouble = 3
+        none = 0,
+        simple = 1,
+        firstOfDouble = 2,
+        secondOfDouble = 3
     }
-    public class Measure
+
+    public sealed class Measure
     {
         public const int maxVoices = 2;
-        public Track track;
-        public MeasureHeader header;
+        public List<Beat> beats = new();
         public MeasureClef clef = MeasureClef.treble;
-        public List<Voice> voices = new List<Voice>();
+        public MeasureHeader header;
         public LineBreak lineBreak = LineBreak.none;
-        public List<Beat> beats = new List<Beat>();
         public SimileMark simileMark = SimileMark.none;
+        public Track track;
+        public List<Voice> voices = new();
 
         public Measure(Track track = null, MeasureHeader header = null)
         {
             if (voices.Count == 0)
-            {
-                for (int x = 0; x < maxVoices; x++)
-                {
+                for (var x = 0; x < maxVoices; x++)
                     voices.Add(new Voice(this));
-                }
-            }
             this.header = header;
             this.track = track;
         }
 
         public bool isEmpty()
         {
-            foreach (Voice v in voices)
-            {
-                if (!v.isEmpty()) return false;
-            }
-            if (beats.Count != 0) return false;
-            return true;
+            if (voices.Any(static v => !v.isEmpty())) return false;
+
+            return beats.Count == 0;
         }
 
         public int end()
         {
             return start() + length();
         }
+
         public int number()
         {
             return header.number;
         }
+
         public KeySignature keySignature()
         {
             return header.keySignature;
         }
+
         public int repeatClose()
         {
             return header.repeatClose;
         }
+
         public int start()
         {
             return header.start;
         }
+
         public int length()
         {
             return header.length();
         }
+
         public Tempo tempo()
         {
             return header.tempo;
         }
+
         public TimeSignature timeSignature()
         {
             return header.timeSignature;
         }
+
         public bool isRepeatOpen()
         {
             return header.isRepeatOpen;
         }
+
         public TripletFeel tripletFeel()
         {
             return header.tripletFeel;
         }
+
         public bool hasMarker()
         {
             return header.hasMarker();
         }
+
         public Marker marker()
         {
             return header.marker;
         }
+
         public void addVoice(Voice voice)
         {
             voice.measure = this;
@@ -687,49 +767,63 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         }
     }
 
-    public class MeasureHeader
+    public sealed class MeasureHeader
     {
-        public GPFile song;
-        public RepeatGroup repeatGroup = null;
-        public int number = 0;
-        public int start = Duration.quarterTime;
-        public TimeSignature timeSignature = new TimeSignature();
-        public KeySignature keySignature = KeySignature.CMajor;
-        public Tempo tempo = new Tempo();
-        public TripletFeel tripletFeel = TripletFeel.none;
-        public bool isRepeatOpen = false;
-        public int repeatClose = -1;
-        public List<int> repeatAlternatives = new List<int>();
-        public int realStart = -1;
+        public List<string> direction = new();
+        public List<string> fromDirection = new();
         public bool hasDoubleBar = false;
+        public bool isRepeatOpen = false;
+        public KeySignature keySignature = KeySignature.CMajor;
         public Marker marker = null;
-        public List<string> direction = new List<string>();
-        public List<string> fromDirection = new List<string>();
+        public int number = 0;
+        public int realStart = -1;
+        public List<int> repeatAlternatives = new();
+        public int repeatClose = -1;
+        public RepeatGroup repeatGroup;
+        public GPFile song;
+        public int start = Duration.quarterTime;
+        public Tempo tempo = new();
+        public TimeSignature timeSignature = new();
+        public TripletFeel tripletFeel = TripletFeel.none;
 
         public bool hasMarker()
         {
-            return (marker != null);
+            return marker != null;
         }
 
         public int length()
         {
             return timeSignature.numerator * timeSignature.denominator.time();
         }
-
     }
 
-    public class MidiChannel
+    public sealed class MidiChannel
     {
-        public int channel, effectChannel, instrument, volume, balance, chorus,
-            reverb, phaser, tremolo, bank;
+        private static readonly int DEFAULT_PERCUSSION_CHANNEL = 9;
 
-        static int DEFAULT_PERCUSSION_CHANNEL = 9;
+        public int channel,
+            effectChannel,
+            instrument,
+            volume,
+            balance,
+            chorus,
+            reverb,
+            phaser,
+            tremolo,
+            bank;
 
         public MidiChannel()
         {
-            this.channel = 0; this.effectChannel = 1; this.instrument = 25; this.volume = 104;
-            this.balance = 64; this.chorus = 0; this.reverb = 0; this.phaser = 0;
-            this.tremolo = 0; this.bank = 0;
+            channel = 0;
+            effectChannel = 1;
+            instrument = 25;
+            volume = 104;
+            balance = 64;
+            chorus = 0;
+            reverb = 0;
+            phaser = 0;
+            tremolo = 0;
+            bank = 0;
         }
 
         public bool isPercussionChannel()
@@ -740,28 +834,33 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
     public enum WahState
     {
-        off = -2, none = -1, opened = 0, closed = 100
+        off = -2,
+        none = -1,
+        opened = 0,
+        closed = 100
     }
-    public class WahEffect
+
+    public sealed class WahEffect
     {
-        public WahState state = WahState.none;
         public bool display = false;
+        public WahState state = WahState.none;
     }
-    public class MixTableChange
+
+    public sealed class MixTableChange
     {
-        public string tempoName;
-        public bool hideTempo;
-        public bool useRSE;
-        public MixTableItem instrument = null;
-        public MixTableItem volume = null;
         public MixTableItem balance = null;
         public MixTableItem chorus = null;
-        public MixTableItem reverb = null;
+        public bool hideTempo;
+        public MixTableItem instrument = null;
         public MixTableItem phaser = null;
-        public MixTableItem tremolo = null;
-        public MixTableItem tempo = null;
-        public WahEffect wah = null;
+        public MixTableItem reverb = null;
         public RSEInstrument rse = null;
+        public MixTableItem tempo = null;
+        public string tempoName;
+        public MixTableItem tremolo = null;
+        public bool useRSE;
+        public MixTableItem volume = null;
+        public WahEffect wah = null;
 
         public MixTableChange(string tempoName = "", bool hideTempo = true, bool useRSE = true)
         {
@@ -772,51 +871,50 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
         public bool isJustWah()
         {
-            return (instrument == null && volume == null && balance == null && chorus == null && reverb == null &&
-                phaser == null && tremolo == null && wah != null);
+            return instrument == null && volume == null && balance == null && chorus == null && reverb == null &&
+                   phaser == null && tremolo == null && wah != null;
         }
-
     }
 
-    public class MixTableItem
+    public sealed class MixTableItem
     {
-        public int value;
-        public int duration;
         public bool allTracks;
+        public int duration;
+        public int value;
+
         public MixTableItem(int value = 0, int duration = 0, bool allTracks = false)
         {
             this.value = value;
             this.duration = duration;
             this.allTracks = allTracks;
         }
-
     }
 
-    public class myColor
+    public sealed class myColor
     {
-        float r, g, b, a = 1.0f;
+        private float r, g, b, a;
+
         public myColor(int r, int g, int b, int a = 255)
         {
-            this.r = (float)r / 255.0f;
-            this.g = (float)g / 255.0f;
-            this.b = (float)b / 255.0f;
-            this.a = (float)a / 255.0f;
+            this.r = r / 255.0f;
+            this.g = g / 255.0f;
+            this.b = b / 255.0f;
+            this.a = a / 255.0f;
         }
-
     }
 
-    public class Note
+    public sealed class Note
     {
         public Beat beat;
-        public int value = 0;
-        public int velocity = Velocities.def;
+        public int duration;
+        public double durationPercent = 1.0;
+        public NoteEffect effect = new();
         public int str = 0;
         public bool swapAccidentals = false;
-        public NoteEffect effect = new NoteEffect();
-        public double durationPercent = 1.0;
-        public NoteType type = NoteType.rest;
-        public int duration;
         public int tuplet;
+        public NoteType type = NoteType.rest;
+        public int value = 0;
+        public int velocity = Velocities.def;
 
         public Note(Beat beat = null)
         {
@@ -825,57 +923,82 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
         public int realValue()
         {
-            return (value + beat.voice.measure.track.strings[str - 1].value);
+            return value + beat.voice.measure.track.strings[str - 1].value;
         }
-
     }
 
-    public class NoteEffect
+    public sealed class NoteEffect
     {
-        public bool vibrato = false;
-        public List<SlideType> slides = new List<SlideType>();
-        public bool hammer = false;
-        public bool ghostNote = false;
         public bool accentuatedNote = false;
-        public bool heavyAccentuatedNote = false;
-        public bool palmMute = false;
-        public bool staccato = false;
-        public bool letRing = false;
-        public Fingering leftHandFinger = Fingering.open;
-        public Fingering rightHandFinger = Fingering.open;
-        public Note note = null;
         public BendEffect bend = null;
-        public HarmonicEffect harmonic = null;
+        public bool ghostNote = false;
         public GraceEffect grace = null;
-        public TrillEffect trill = null;
+        public bool hammer = false;
+        public HarmonicEffect harmonic = null;
+        public bool heavyAccentuatedNote = false;
+        public Fingering leftHandFinger = Fingering.open;
+        public bool letRing = false;
+        public Note note = null;
+        public bool palmMute = false;
+        public Fingering rightHandFinger = Fingering.open;
+        public List<SlideType> slides = new();
+        public bool staccato = false;
         public TremoloPickingEffect tremoloPicking = null;
+        public TrillEffect trill = null;
+        public bool vibrato = false;
 
         public bool isBend()
         {
-            return (bend != null && bend.points.Count > 0);
+            return bend != null && bend.points.Count > 0;
         }
-        public bool isHarmonic() { return harmonic != null; }
-        public bool isGrace() { return grace != null; }
-        public bool isTrill() { return trill != null; }
-        public bool isTremoloPicking() { return tremoloPicking != null; }
 
-        public bool isFingering() { return ((int)leftHandFinger > -1 || (int)rightHandFinger > -1); }
+        public bool isHarmonic()
+        {
+            return harmonic != null;
+        }
+
+        public bool isGrace()
+        {
+            return grace != null;
+        }
+
+        public bool isTrill()
+        {
+            return trill != null;
+        }
+
+        public bool isTremoloPicking()
+        {
+            return tremoloPicking != null;
+        }
+
+        public bool isFingering()
+        {
+            return (int)leftHandFinger > -1 || (int)rightHandFinger > -1;
+        }
     }
 
-    public class Padding
+    public sealed class Padding
     {
         public int right, top, left, bottom;
+
         public Padding(int right = 0, int top = 0, int left = 0, int bottom = 0)
         {
-            this.right = right; this.top = top; this.left = left; this.bottom = bottom;
+            this.right = right;
+            this.top = top;
+            this.left = left;
+            this.bottom = bottom;
         }
     }
-    public class Point
+
+    public sealed class Point
     {
         public int x, y;
+
         public Point(int x = 0, int y = 0)
         {
-            this.x = x; this.y = y;
+            this.x = x;
+            this.y = y;
         }
     }
 
@@ -893,8 +1016,18 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         pageNumber = 0x100,
         all = title | subtitle | artist | album | words | music | wordsAndMusic | copyright | pageNumber
     }
-    public class PageSetup
+
+    public sealed class PageSetup
     {
+        public string album = "%album%";
+        public string artist = "%artist%";
+        public string copyright = "Copyright %copyright%\nAll Rights Reserved - International Copyright Secured";
+        public HeaderFooterElements headerAndFooter = HeaderFooterElements.all;
+        public string music = "Music by %music%";
+        public Padding pageMargin = new(10, 15, 10, 10);
+
+        public string pageNumber = "Page %N%/%P%";
+
         /*The page setup describes how the document is rendered.
 
             Page setup contains page size, margins, paddings, and how the title
@@ -915,23 +1048,21 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
               supported by layout)
             - ``%P%``: will be replaced with the number of pages (if supported
               by layout)*/
-        public Point pageSize = new Point(210, 297);
-        public Padding pageMargin = new Padding(10, 15, 10, 10);
+        public Point pageSize = new(210, 297);
         public float scoreSizeProportion = 1.0f;
-        public HeaderFooterElements headerAndFooter = HeaderFooterElements.all;
-        public string title = "%title%";
         public string subtitle = "%subtitle%";
-        public string artist = "%artist%";
-        public string album = "%album%";
+        public string title = "%title%";
         public string words = "Words by %words%";
-        public string music = "Music by %music%";
         public string wordsAndMusic = "Words & Music by %WORDSMUSIC%";
-        public string copyright = "Copyright %copyright%\nAll Rights Reserved - International Copyright Secured";
-        public string pageNumber = "Page %N%/%P%";
-
     }
-    public class PitchClass
+
+    public sealed class PitchClass
     {
+        public int accidental;
+        public float actualOvertone;
+
+        public string intonation;
+
         /*Constructor provides several overloads. Each overload provides keyword
         argument *intonation* that may be either "sharp" or "flat".
 
@@ -969,33 +1100,37 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         >>> p = PitchClass('D#')
         >>> print p
         D#*/
-        public int just = 0;
-        public int accidental = 0;
-        public int value = 0;
-        public string intonation = null;
-        public float actualOvertone = 0.0f;
+        public int just;
+        public int value;
 
-        public PitchClass(int arg0i = 0, int arg1i = -1, string arg0s = "", string intonation = "", float actualOvertone = 0.0f)
+        public PitchClass(int arg0i = 0, int arg1i = -1, string arg0s = "", string intonation = "",
+            float actualOvertone = 0.0f)
         {
             string[] _notes_sharp = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
             string[] _notes_flat = { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" };
-            int value = 0;
-            string str = "";
-            int accidental = 0;
-            int pitch = 0;
+            var value = 0;
+            var accidental = 0;
             this.actualOvertone = actualOvertone; //Make it simpler to use later in internal format
 
             if (arg1i == -1)
             {
+                var str = "";
                 if (!arg0s.Equals(""))
                 {
                     str = arg0s;
-                    for (int x = 0; x < _notes_sharp.Length; x++)
+                    for (var x = 0; x < _notes_sharp.Length; x++)
                     {
-                        if (str.Equals(_notes_sharp[x])) { value = x; break; }
-                        if (str.Equals(_notes_flat[x])) { value = x; break; }
-                    }
+                        if (str.Equals(_notes_sharp[x]))
+                        {
+                            value = x;
+                            break;
+                        }
 
+                        if (!str.Equals(_notes_flat[x])) continue;
+
+                        value = x;
+                        break;
+                    }
                 }
                 else
                 {
@@ -1005,33 +1140,27 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                     if (intonation.Equals("flat")) str = _notes_flat[value];
                 }
 
-                if (str.EndsWith("b")) { accidental = -1; }
-                else if (str.EndsWith("#")) { accidental = 1; }
-
+                if (str.EndsWith("b", StringComparison.Ordinal))
+                    accidental = -1;
+                else if (str.EndsWith("#", StringComparison.Ordinal)) accidental = 1;
             }
             else
             {
-                pitch = arg0i; accidental = arg1i;
-                this.just = pitch % 12;
+                accidental = arg1i;
+                just = arg0i % 12;
                 this.accidental = accidental;
-                this.value = this.just + accidental;
-                if (intonation != null) { this.intonation = intonation; }
-                else
-                {
-                    if (accidental == -1) { this.intonation = "flat"; }
-                    else { this.intonation = "sharp"; }
-                }
-
+                this.value = just + accidental;
+                this.intonation = intonation ?? "sharp";
             }
         }
     }
 
-    public class RepeatGroup
+    public sealed class RepeatGroup
     {
-        public List<MeasureHeader> measureHeaders = new List<MeasureHeader>();
-        public List<MeasureHeader> openings = new List<MeasureHeader>();
-        public List<MeasureHeader> closings = new List<MeasureHeader>();
-        public bool isClosed = false;
+        public List<MeasureHeader> closings = new();
+        public bool isClosed;
+        public List<MeasureHeader> measureHeaders = new();
+        public List<MeasureHeader> openings = new();
 
         public void addMeasureHeader(MeasureHeader h)
         {
@@ -1052,78 +1181,81 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         }
     }
 
-    public class RSEEqualizer
+    public sealed class RSEEqualizer
     {
         public float gain;
-        public List<float> knobs = null;
+        public List<float> knobs;
+
         public RSEEqualizer(List<float> knobs = null, float gain = 0.0f)
         {
             this.gain = gain;
             this.knobs = knobs;
         }
     }
-    public class RSEMasterEffect
+
+    public sealed class RSEMasterEffect
     {
-        public int volume = 0;
-        public int reverb = 0;
-        public RSEEqualizer equalizer = null;
+        public RSEEqualizer equalizer;
+        public int reverb;
+        public int volume;
+
         public RSEMasterEffect(int volume = 0, int reverb = 0, RSEEqualizer equalizer = null)
         {
             this.volume = volume;
             this.reverb = reverb;
             this.equalizer = equalizer;
-            if (equalizer != null && equalizer.knobs == null)
-            {
+            if (equalizer is { knobs: null })
                 equalizer.knobs = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-            }
         }
-
     }
-    public class Tempo
+
+    public sealed class Tempo
     {
         public int value;
+
         public Tempo(int value = 120)
         {
             this.value = value;
         }
     }
 
-    public class TimeSignature
+    public sealed class TimeSignature
     {
-        public int numerator = 4;
-        public Duration denominator = new Duration();
         public int[] beams = { 0, 0, 0, 0 };
+        public Duration denominator = new();
+        public int numerator = 4;
     }
 
-    public class Track
+    public sealed class Track
     {
-        public GPFile song;
-        public int number = 0;
-        public int offset = 0; //Capo
-        public bool isSolo = false;
-        public bool isMute = false;
-        public bool isVisible = true;
-        public bool indicateTuning = true;
-        public string name = "";
-        public List<Measure> measures = new List<Measure>();
-        public List<GuitarString> strings = new List<GuitarString>();
-        public string tuningName = "";
-        public MidiChannel channel = new MidiChannel();
-        public myColor color = new myColor(255, 0, 0);
-        public TrackSettings settings = new TrackSettings();
-        public int port = 0;
-        public bool isPercussionTrack = false;
-        public bool isBanjoTrack = false;
-        public bool is12StringedGuitarTrack = false;
-        public bool useRSE = false;
+        public MidiChannel channel = new();
+        public myColor color = new(255, 0, 0);
         public int fretCount = 0;
+        public bool indicateTuning = true;
+        public bool is12StringedGuitarTrack = false;
+        public bool isBanjoTrack = false;
+        public bool isMute = false;
+        public bool isPercussionTrack = false;
+        public bool isSolo = false;
+        public bool isVisible = true;
+        public List<Measure> measures = new();
+        public string name = "";
+        public int number;
+        public int offset = 0; //Capo
+        public int port = 0;
         public TrackRSE rse = null;
+        public TrackSettings settings = new();
+        public GPFile song;
+        public List<GuitarString> strings = new();
+        public string tuningName = "";
+        public bool useRSE = false;
 
         public Track(GPFile song, int number, List<GuitarString> strings = null, List<Measure> measures = null)
         {
             this.song = song;
             this.number = number;
             if (strings != null) this.strings = strings;
+
             if (measures != null) this.measures = measures;
         }
 
@@ -1134,68 +1266,74 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         }
     }
 
-    public class RSEInstrument
+    public sealed class RSEInstrument
     {
-        public int instrument = -1;
-        public int unknown = 1;
-        public int soundBank = -1;
-        public int effectNumber = -1;
-        public string effectCategory = "";
         public string effect = "";
+        public string effectCategory = "";
+        public int effectNumber = -1;
+        public int instrument = -1;
+        public int soundBank = -1;
+        public int unknown = 1;
     }
 
     public enum Accentuation
     {
-        none = 0, verySoft = 1, soft = 2, medium = 3, strong = 4, veryStrong = 5
+        none = 0,
+        verySoft = 1,
+        soft = 2,
+        medium = 3,
+        strong = 4,
+        veryStrong = 5
     }
-    public class TrackRSE
+
+    public sealed class TrackRSE
     {
-        public RSEInstrument instrument = null;
+        public Accentuation autoAccentuation = Accentuation.none;
         public RSEEqualizer equalizer = null;
         public int humanize = 0;
-        public Accentuation autoAccentuation = Accentuation.none;
+        public RSEInstrument instrument = null;
 
         public TrackRSE()
         {
-            if (equalizer != null && equalizer.knobs == null)
-            {
+            if (equalizer is { knobs: null })
                 equalizer.knobs = new List<float> { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-            }
         }
     }
-    public class TrackSettings
+
+    public sealed class TrackSettings
     {
-        public bool tablature = true;
-        public bool notation = true;
-        public bool diagramsAreBelow = false;
-        public bool showRyhthm = false;
-        public bool forceHorizontal = false;
-        public bool forceChannels = false;
-        public bool diagramList = true;
-        public bool diagramsInScore = false;
-        public bool autoLetRing = false;
         public bool autoBrush = false;
+        public bool autoLetRing = false;
+        public bool diagramList = true;
+        public bool diagramsAreBelow = false;
+        public bool diagramsInScore = false;
         public bool extendRhythmic = false;
+        public bool forceChannels = false;
+        public bool forceHorizontal = false;
+        public bool notation = true;
+        public bool showRyhthm = false;
+        public bool tablature = true;
     }
 
-    public class TremoloPickingEffect
+    public sealed class TremoloPickingEffect
     {
-        public Duration duration = new Duration();
+        public Duration duration = new();
     }
 
-    public class TrillEffect
+    public sealed class TrillEffect
     {
+        public Duration duration = new();
         public int fret = 0;
-        public Duration duration = new Duration();
     }
 
-    public class Tuplet
+    public sealed class Tuplet
     {
         public int enters = 1;
         public int times = 1;
+
         public int convertTime(int time)
         {
-            return (int)(time * (float)times / (float)enters);
+            return (int)(time * (float)times / enters);
         }
     }
 
@@ -1214,17 +1352,18 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         public const int def = forte;
     }
 
-    public class Voice
+    public sealed class Voice
     {
-        public Measure measure;
-        public List<Beat> beats = new List<Beat>();
+        public List<Beat> beats = new();
         public VoiceDirection direction = VoiceDirection.none;
         public Duration duration;
+        public Measure measure;
 
         public Voice(Measure measure = null)
         {
             this.measure = measure;
         }
+
         public bool isEmpty()
         {
             return beats.Count == 0;
@@ -1239,28 +1378,37 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
     public enum BeatStatus
     {
-        empty = 0, normal = 1, rest = 2
+        empty = 0,
+        normal = 1,
+        rest = 2
     }
 
     public enum BeatStrokeDirection
     {
-        none = 0, up = 1, down = 2
+        none = 0,
+        up = 1,
+        down = 2
     }
 
     public enum BendType
     {
         //: No Preset.
         none = 0,
+
         // Bends
         // =====
         //: A simple bend.
         bend = 1,
+
         //: A bend and release afterwards.
         bendRelease = 2,
+
         //: A bend, then release and rebend.
         bendReleaseBend = 3,
+
         //: Prebend.
         prebend = 4,
+
         //: Prebend and then release.
         prebendRelease = 5,
 
@@ -1268,43 +1416,74 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
         // ==========
         //: Dip the bar down and then back up.
         dip = 6,
+
         //: Dive the bar.
         dive = 7,
+
         //: Release the bar up.
         releaseUp = 8,
+
         //: Dip the bar up and then back down.
         invertedDip = 9,
+
         //: Return the bar.
         return_ = 10,
+
         //: Release the bar down.
         releaseDown = 11
     }
 
     public enum ChordType
     {
-        major = 0, seventh = 1, majorSeventh = 2, sixth = 3, minor = 4, minorSeventh = 5, minorMajor = 6,
-        minorSixth = 7, suspendedSecond = 8, suspendedFourth = 9, seventhSuspendedSecond = 10,
-        seventhSuspendedFourth = 11, diminished = 12, augmented = 13, power = 14
+        major = 0,
+        seventh = 1,
+        majorSeventh = 2,
+        sixth = 3,
+        minor = 4,
+        minorSeventh = 5,
+        minorMajor = 6,
+        minorSixth = 7,
+        suspendedSecond = 8,
+        suspendedFourth = 9,
+        seventhSuspendedSecond = 10,
+        seventhSuspendedFourth = 11,
+        diminished = 12,
+        augmented = 13,
+        power = 14
     }
 
     public enum ChordAlteration
     {
-        perfect = 0, diminished = 1, augmented = 2
+        perfect = 0,
+        diminished = 1,
+        augmented = 2
     }
 
     public enum ChordExtension
     {
-        none = 0, ninth = 1, eleventh = 2, thirteenth = 3
+        none = 0,
+        ninth = 1,
+        eleventh = 2,
+        thirteenth = 3
     }
 
     public enum Fingering
     {
-        unknown = -2, open = -1, thump = 0, index = 1, middle = 2, annular = 3, little = 4
+        unknown = -2,
+        open = -1,
+        thump = 0,
+        index = 1,
+        middle = 2,
+        annular = 3,
+        little = 4
     }
 
     public enum GraceEffectTransition
     {
-        none = 0, slide = 1, bend = 2, hammer = 3
+        none = 0,
+        slide = 1,
+        bend = 2,
+        hammer = 3
     }
 
     public enum KeySignature
@@ -1348,28 +1527,47 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
     public enum LineBreak
     {
-        none = 0, break_ = 1, protect = 2
+        none = 0,
+        break_ = 1,
+        protect = 2
     }
 
     public enum MeasureClef
     {
-        treble = 0, bass = 1, tenor = 2, alto = 3, neutral = 4 //drums
+        treble = 0,
+        bass = 1,
+        tenor = 2,
+        alto = 3,
+        neutral = 4 //drums
     }
 
     public enum NoteType
     {
-        rest = 0, normal = 1, tie = 2, dead = 3
+        rest = 0,
+        normal = 1,
+        tie = 2,
+        dead = 3
     }
 
     public enum SlapEffect
     {
-        none = 0, tapping = 1, slapping = 2, popping = 3
+        none = 0,
+        tapping = 1,
+        slapping = 2,
+        popping = 3
     }
 
     public enum SlideType
     {
-        intoFromAbove = -2, intoFromBelow = -1, none = 0, shiftSlideTo = 1, legatoSlideTo = 2,
-        outDownwards = 3, outUpwards = 4, pickScrapeOutDownwards = 5, pickScrapeOutUpwards = 6
+        intoFromAbove = -2,
+        intoFromBelow = -1,
+        none = 0,
+        shiftSlideTo = 1,
+        legatoSlideTo = 2,
+        outDownwards = 3,
+        outUpwards = 4,
+        pickScrapeOutDownwards = 5,
+        pickScrapeOutUpwards = 6
     }
 
     public enum TripletFeel
@@ -1385,16 +1583,24 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 
     public enum TupletBracket
     {
-        none = 0, start = 1, end = 2
+        none = 0,
+        start = 1,
+        end = 2
     }
 
     public enum Octave
     {
-        none = 0, ottava = 1, quindicesima = 2, ottavaBassa = 3, quindicesimaBassa = 4
+        none = 0,
+        ottava = 1,
+        quindicesima = 2,
+        ottavaBassa = 3,
+        quindicesimaBassa = 4
     }
 
     public enum VoiceDirection
     {
-        none = 0, up = 1, down = 2
+        none = 0,
+        up = 1,
+        down = 2
     }
 }

@@ -7,7 +7,7 @@ using BardMusicPlayer.Quotidian;
 
 namespace BardMusicPlayer.Transmogrify
 {
-    public class BmpTransmogrifyException : BmpException
+    public sealed class BmpTransmogrifyException : BmpException
     {
         public BmpTransmogrifyException(string message) : base(message)
         {

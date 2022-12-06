@@ -91,7 +91,8 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <summary>
         /// Open and process the mididata as byte[], tracks with note placed first
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="data"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
         public static Task<BmpSong> ImportMidiFromByte(byte[] data, string name)
         {
@@ -107,7 +108,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                 using (TimedEventsManager timedEventsManager = chunk.ManageTimedEvents())
                 {
                     TimedEventsCollection events = timedEventsManager.Events;
-                    List<TimedEvent> prefixList = events.Where(e => e.Event is ChannelPrefixEvent).ToList();
+                    List<TimedEvent> prefixList = events.Where(static e => e.Event is ChannelPrefixEvent).ToList();
                     foreach (TimedEvent tevent in prefixList)
                         if ((tevent.Event as ChannelPrefixEvent).Channel > 0xF)
                             events.Remove(tevent);
@@ -138,7 +139,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                 using (TimedEventsManager timedEventsManager = chunk.ManageTimedEvents())
                 {
                     TimedEventsCollection events = timedEventsManager.Events;
-                    List<TimedEvent> prefixList = events.Where(e => e.Event is ChannelPrefixEvent).ToList();
+                    List<TimedEvent> prefixList = events.Where(static e => e.Event is ChannelPrefixEvent).ToList();
                     foreach (TimedEvent tevent in prefixList)
                         if ((tevent.Event as ChannelPrefixEvent).Channel > 0xF)
                             events.Remove(tevent);
@@ -158,7 +159,7 @@ namespace BardMusicPlayer.Transmogrify.Song
         private static BmpSong CovertMidiToSong(MidiFile midiFile, string path)
         {
             TempoMap tempoMap = midiFile.GetTempoMap();
-            TimeSpan midiFileDuration = midiFile.GetTimedEvents().LastOrDefault(e => e.Event is NoteOffEvent)?.TimeAs<MetricTimeSpan>(tempoMap) ?? new MetricTimeSpan();
+            TimeSpan midiFileDuration = midiFile.GetTimedEvents().LastOrDefault(static e => e.Event is NoteOffEvent)?.TimeAs<MetricTimeSpan>(tempoMap) ?? new MetricTimeSpan();
 
             var timer = new Stopwatch();
             timer.Start();
@@ -193,7 +194,7 @@ namespace BardMusicPlayer.Transmogrify.Song
             for (var i = 0; i < midiFile.GetTrackChunks().Count(); i++)
             {
                 //ignore tracks without notes
-                if (trackChunkArray[i].ManageNotes().Notes.Count() > 0)
+                if (trackChunkArray[i].ManageNotes().Notes.Any())
                 {
                     song.TrackContainers[index] = new TrackContainer { SourceTrackChunk = (TrackChunk)trackChunkArray[i].Clone() };
                     index++;
@@ -209,7 +210,7 @@ namespace BardMusicPlayer.Transmogrify.Song
             }
 
             //check the tracks for data
-            for (var i = 0; i < song.TrackContainers.Count(); i++)
+            for (var i = 0; i < song.TrackContainers.Count; i++)
             {
                 song.TrackContainers[i].ConfigContainers = song.TrackContainers[i].SourceTrackChunk.ReadConfigs(i, song);
             }
@@ -264,7 +265,7 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <returns></returns>
         public Task<MidiFile> GetProcessedMidiFile()
         {
-            var sourceMidiData = new MidiFile(TrackContainers.Values.SelectMany(track => track.ConfigContainers).SelectMany(track => track.Value.ProccesedTrackChunks));
+            var sourceMidiData = new MidiFile(TrackContainers.Values.SelectMany(static track => track.ConfigContainers).SelectMany(static track => track.Value.ProccesedTrackChunks));
             sourceMidiData.ReplaceTempoMap(Tools.GetMsTempoMap());
             var midiFile = new MidiFile();
             if (sourceMidiData.GetNotes().Count < 1) return Task.FromResult(midiFile);
@@ -272,26 +273,26 @@ namespace BardMusicPlayer.Transmogrify.Song
             foreach (var trackChunk in sourceMidiData.GetTrackChunks())
             {
                 var trackName = trackChunk.Events.OfType<SequenceTrackNameEvent>().First().Text;
-                if (trackName.StartsWith("tone:"))
+                if (trackName.StartsWith("tone:", StringComparison.Ordinal))
                 {
                     var newTrackChunk = new TrackChunk(new SequenceTrackNameEvent(trackName));
                     var newNotes = new List<Note>();
-                    foreach (var note in trackChunk.GetNotes())
+                    foreach (var note in trackChunk.GetNotes().Where(note => note.Time - delta >= 0))
                     {
-                        if (note.Time - delta < 0) continue; // TODO: log this error, though this shouldn't be possible.
                         note.Time -= delta;
                         newNotes.Add(note);
                     }
                     newTrackChunk.AddObjects(newNotes);
                     midiFile.Chunks.Add(newTrackChunk);
                 }
-                else if (trackName.StartsWith("lyric:"))
+                else if (trackName.StartsWith("lyric:", StringComparison.Ordinal))
                 {
                     var newTrackChunk = new TrackChunk(new SequenceTrackNameEvent(trackName));
                     var newLyrics = new List<TimedEvent>();
-                    foreach (var midiEvent in trackChunk.GetTimedEvents().Where(e => e.Event.EventType == MidiEventType.Lyric))
+                    foreach (var midiEvent in trackChunk.GetTimedEvents()
+                                .Where(static e => e.Event.EventType == MidiEventType.Lyric)
+                                .Where(midiEvent => midiEvent.Time - delta >= 0))
                     {
-                        if (midiEvent.Time - delta < 0) continue; // TODO: log that you cannot have lyrics come before the first note.
                         midiEvent.Time -= delta;
                         newLyrics.Add(midiEvent);
                     }
@@ -311,9 +312,7 @@ namespace BardMusicPlayer.Transmogrify.Song
         {
             try
             {
-                List<TrackChunk> c = new List<TrackChunk>();
-                foreach (var tc in TrackContainers.Values)
-                    c.Add(tc.SourceTrackChunk);
+                var c = TrackContainers.Values.Select(static tc => tc.SourceTrackChunk).ToList();
 
                 var midiFile = new MidiFile(c);
                 midiFile.ReplaceTempoMap(SourceTempoMap);
@@ -340,10 +339,10 @@ namespace BardMusicPlayer.Transmogrify.Song
                         using (TimedEventsManager timedEventsManager = allTracks.ManageTimedEvents())
                         {
                             TimedEventsCollection events = timedEventsManager.Events;
-                            List<TimedEvent> tlist = events.Where(e => e.Event is LyricEvent).ToList();
+                            List<TimedEvent> tlist = events.Where(static e => e.Event is LyricEvent).ToList();
                             foreach (TimedEvent tevent in tlist)
                                 events.Remove(tevent);
-                            tlist = events.Where(e => e.Event is ProgramChangeEvent).ToList();
+                            tlist = events.Where(static e => e.Event is ProgramChangeEvent).ToList();
                             foreach (TimedEvent tevent in tlist)
                                 events.Remove(tevent);
                         }
@@ -355,7 +354,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                 }
                 originalTrackChunks.Add(allTracks);
 
-                Parallel.ForEach(originalTrackChunks.Where(x => x.GetNotes().Any() || x.Events.OfType<LyricEvent>().Any() ), (originalChunk, loopState, index) =>
+                Parallel.ForEach(originalTrackChunks.Where(static x => x.GetNotes().Any() || x.Events.OfType<LyricEvent>().Any() ), (originalChunk, loopState, index) =>
                 {
                     var watch = Stopwatch.StartNew();
                     var tempoMap = midiFile.GetTempoMap().Clone();
@@ -406,12 +405,12 @@ namespace BardMusicPlayer.Transmogrify.Song
                         foreach (var noteEvent in allNoteEvents[i])
                         {
                             if (lastNoteTimeStamp >= 0 && allNoteEvents[i][lastNoteTimeStamp].Length + lastNoteTimeStamp >= noteEvent.Key)
-                                allNoteEvents[i][lastNoteTimeStamp].Length = allNoteEvents[i][lastNoteTimeStamp].Length - (allNoteEvents[i][lastNoteTimeStamp].Length + lastNoteTimeStamp + 1 - noteEvent.Key);
+                                allNoteEvents[i][lastNoteTimeStamp].Length -= allNoteEvents[i][lastNoteTimeStamp].Length + lastNoteTimeStamp + 1 - noteEvent.Key;
 
                             lastNoteTimeStamp = noteEvent.Key;
                         }
                     }
-                    newChunk.AddObjects(allNoteEvents.SelectMany(s => s.Value).Select(s => s.Value).ToArray());
+                    newChunk.AddObjects(allNoteEvents.SelectMany(static s => s.Value).Select(static s => s.Value).ToArray());
                     allNoteEvents = null;
                     watch.Stop();
                     Debug.WriteLine("step 2 [Fix Chords]: " + noteVelocity + ": " + watch.ElapsedMilliseconds);
@@ -457,22 +456,24 @@ namespace BardMusicPlayer.Transmogrify.Song
                         var channel = notesToFix[j].Channel;
                         var velocity = notesToFix[j].Velocity;
 
-                        if (j + 1 < notesToFix.Count())
+                        if (j + 1 < notesToFix.Length)
                         {
-                            // BACON MEOWCHESTRA
-                            // Bandaid fix: If sustained note is 100ms or greater, ensure 60ms between the end of that note and the beginning of the next note.
-                            // Otherwise, leave the behavior as it was before.
-                            if (notesToFix[j].Length >= 100 && notesToFix[j + 1].Time <= notesToFix[j].Time + notesToFix[j].Length + 60)
+                            switch (notesToFix[j].Length)
                             {
-                                dur = notesToFix[j + 1].Time - notesToFix[j].Time - 60;
-                                dur = dur < 60 ? 60 : dur;
-                            }
-                            else if (notesToFix[j].Length < 100 && notesToFix[j + 1].Time <= notesToFix[j].Time + notesToFix[j].Length + 25)
-                            {
-                                dur = notesToFix[j + 1].Time - notesToFix[j].Time - 25;
-                                dur = dur < 25 ? 25 : dur;
+                                // BACON MEOWCHESTRA
+                                // Bandaid fix: If sustained note is 100ms or greater, ensure 60ms between the end of that note and the beginning of the next note.
+                                // Otherwise, leave the behavior as it was before.
+                                case >= 100 when notesToFix[j + 1].Time <= notesToFix[j].Time + notesToFix[j].Length + 60:
+                                    dur = notesToFix[j + 1].Time - notesToFix[j].Time - 60;
+                                    dur = dur < 60 ? 60 : dur;
+                                    break;
+                                case < 100 when notesToFix[j + 1].Time <= notesToFix[j].Time + notesToFix[j].Length + 25:
+                                    dur = notesToFix[j + 1].Time - notesToFix[j].Time - 25;
+                                    dur = dur < 25 ? 25 : dur;
+                                    break;
                             }
                         }
+
                         fixedNotes.Add(new Note(noteNum, dur, time)
                         {
                             Channel = channel,
@@ -490,8 +491,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                     watch = Stopwatch.StartNew();
 
                     int octaveShift = 0;
-                    string trackName = originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text;
-                    if (trackName == null) trackName = "";
+                    var trackName = originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text ?? "";
                     string o_trackName = trackName;
 
                     Regex rex = new Regex(@"^([A-Za-z _]+)([-+]\d)?");
@@ -504,10 +504,12 @@ namespace BardMusicPlayer.Transmogrify.Song
                                 if (int.TryParse(match.Groups[2].Value, out int os))
                                     octaveShift = os;
 
-                            if (octaveShift > 0)
-                                trackName = trackName + "+" + octaveShift;
-                            else if (octaveShift < 0)
-                                trackName = trackName + octaveShift;
+                            trackName = octaveShift switch
+                            {
+                                > 0 => trackName + "+" + octaveShift,
+                                < 0 => trackName + octaveShift,
+                                _ => trackName
+                            };
                         }
 
                         //last try with the program number
@@ -531,8 +533,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                     {
                         foreach (var timedEvent in originalChunk.GetTimedEvents())
                         {
-                            var programChangeEvent = timedEvent.Event as ProgramChangeEvent;
-                            if (programChangeEvent == null)
+                            if (timedEvent.Event is not ProgramChangeEvent programChangeEvent)
                                 continue;
                             //Skip all except guitar | implement if we need this again
                             if ((programChangeEvent.ProgramNumber < 27) || (programChangeEvent.ProgramNumber > 31))
@@ -552,8 +553,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                     //Create lyrics from midi
                     foreach (var timedEvent in originalChunk.GetTimedEvents())
                     {
-                        var lyricsEvent = timedEvent.Event as LyricEvent;
-                        if (lyricsEvent == null)
+                        if (timedEvent.Event is not LyricEvent lyricsEvent)
                             continue;
 
                         using (var manager = new TimedEventsManager(newChunk.Events))
@@ -729,9 +729,7 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <returns></returns>
         public MemoryStream GetExportMidi()
         {
-            List<TrackChunk> c = new List<TrackChunk>();
-            foreach (var tc in TrackContainers.Values)
-                c.Add(tc.SourceTrackChunk);
+            List<TrackChunk> c = TrackContainers.Values.Select(static tc => tc.SourceTrackChunk).ToList();
 
             var midiFile = new MidiFile(c);
             midiFile.ReplaceTempoMap(SourceTempoMap);

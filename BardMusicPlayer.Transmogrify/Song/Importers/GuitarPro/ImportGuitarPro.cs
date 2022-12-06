@@ -35,7 +35,6 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                 case 5:
                     gpfile = new GP5File(loader);
                     gpfile.readSong();
-
                     break;
                 case 6:
                     gpfile = new GP6File(loader);

@@ -32,8 +32,6 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-using BardMusicPlayer.Siren.AlphaTab.IO;
-
 #region
 
 using BardMusicPlayer.Siren.AlphaTab.IO;

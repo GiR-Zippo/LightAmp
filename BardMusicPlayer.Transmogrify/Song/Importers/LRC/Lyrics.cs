@@ -1,17 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region
+
+using System;
+using System.Diagnostics;
 using System.Text;
+
+#endregion
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
 {
-
     /// <summary>
-    /// Factory class for <see cref="Lyrics{TLine}"/>.
+    ///     Factory class for <see cref="Lyrics{TLine}" />.
     /// </summary>
     public static class Lyrics
     {
         /// <summary>
-        /// Parse lrc file.
+        ///     Parse lrc file.
         /// </summary>
         /// <param name="content">Content of lrc file.</param>
         /// <returns>Result of parsing.</returns>
@@ -25,54 +28,71 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
         }
 
         /// <summary>
-        /// Parse lrc file.
+        ///     Parse lrc file.
         /// </summary>
         /// <param name="content">Content of lrc file.</param>
         /// <returns>Result of parsing.</returns>
-        public static IParseResult<Line> Parse(string content) => Parse<Line>(content);
+        public static IParseResult<Line> Parse(string content)
+        {
+            return Parse<Line>(content);
+        }
 
         /// <summary>
-        /// Parse lrc file.
+        ///     Parse lrc file.
         /// </summary>
         /// <param name="content">Content of lrc file.</param>
         /// <returns>Result of parsing.</returns>
-        public static IParseResult<LineWithSpeaker> ParseWithSpeaker(string content) => Parse<LineWithSpeaker>(content);
+        public static IParseResult<LineWithSpeaker> ParseWithSpeaker(string content)
+        {
+            return Parse<LineWithSpeaker>(content);
+        }
     }
 
     /// <summary>
-    /// Represents lrc file.
+    ///     Represents lrc file.
     /// </summary>
     /// <typeparam name="TLine">Type of lyrics line.</typeparam>
-    [System.Diagnostics.DebuggerDisplay(@"MetaDataCount = {MetaData.Count} LineCount = {Lines.Count}")]
-    public class Lyrics<TLine>
+    [DebuggerDisplay(@"MetaDataCount = {MetaData.Count} LineCount = {Lines.Count}")]
+    public sealed class Lyrics<TLine>
         where TLine : Line
     {
         /// <summary>
-        /// Create new instance of <see cref="Lyrics"/>.
+        ///     Create new instance of <see cref="Lyrics" />.
         /// </summary>
         public Lyrics()
         {
-            this.Lines = new LineCollection<TLine>();
-            this.MetaData = new MetaDataDictionary();
+            Lines = new LineCollection<TLine>();
+            MetaData = new MetaDataDictionary();
         }
 
         internal Lyrics(ParserBase<TLine> parser)
         {
-            this.Lines = parser.Lines;
-            this.MetaData = parser.MetaData;
+            Lines = parser.Lines;
+            MetaData = parser.MetaData;
         }
 
         /// <summary>
-        /// Apply <see cref="MetaDataDictionary.Offset"/> to <see cref="Lines"/>, then set <see cref="MetaDataDictionary.Offset"/> to 0.
+        ///     Content of lyrics.
         /// </summary>
-        /// <exception cref="InvalidOperationException"><see cref="MetaDataDictionary.Offset"/> out of range for some line.</exception>
+        public LineCollection<TLine> Lines { get; }
+
+        /// <summary>
+        ///     Metadata of lyrics.
+        /// </summary>
+        public MetaDataDictionary MetaData { get; }
+
+        /// <summary>
+        ///     Apply <see cref="MetaDataDictionary.Offset" /> to <see cref="Lines" />, then set
+        ///     <see cref="MetaDataDictionary.Offset" /> to 0.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"><see cref="MetaDataDictionary.Offset" /> out of range for some line.</exception>
         public void PreApplyOffset()
         {
             try
             {
-                var offset = this.MetaData.Offset;
-                this.Lines.ApplyOffset(offset);
-                this.MetaData.Offset = default;
+                var offset = MetaData.Offset;
+                Lines.ApplyOffset(offset);
+                MetaData.Offset = default;
             }
             catch (ArgumentOutOfRangeException ex)
             {
@@ -81,13 +101,13 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
         }
 
         /// <summary>
-        /// Serialize the lrc file.
+        ///     Serialize the lrc file.
         /// </summary>
         /// <param name="format">Format settings for serialization.</param>
         /// <returns>Lrc file data.</returns>
         public string ToString(LyricsFormat format)
         {
-            var sb = new StringBuilder(this.MetaData.Count * 10 + this.Lines.Count * 20);
+            var sb = new StringBuilder(MetaData.Count * 10 + Lines.Count * 20);
             if (format.Flag(LyricsFormat.NewLineAtBeginOfFile))
                 sb.AppendLine();
             MetaData.ToString(sb, format);
@@ -99,17 +119,10 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
             return sb.ToString();
         }
 
-        /// <inheritdoc/>
-        public override string ToString() => ToString(LyricsFormat.Default);
-
-        /// <summary>
-        /// Content of lyrics.
-        /// </summary>
-        public LineCollection<TLine> Lines { get; }
-
-        /// <summary>
-        /// Metadata of lyrics.
-        /// </summary>
-        public MetaDataDictionary MetaData { get; }
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return ToString(LyricsFormat.Default);
+        }
     }
 }
