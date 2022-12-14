@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
@@ -136,6 +137,22 @@ namespace BardMusicPlayer.Maestro
         {
             if (_orchestrator != null)
                 _orchestrator.SetSpeedshift(p, percentage);
+        }
+
+        /// <summary>
+        /// sets the speed for bard
+        /// </summary>
+        public void SetSpeedShiftAll(float percentage)
+        {
+            if (_orchestrator == null)
+                return;
+
+            var performers = _orchestrator.GetAllPerformers();
+            Parallel.ForEach(performers, perf =>
+            {
+                _orchestrator.SetSpeedshift(perf, percentage);
+            });
+            
         }
 
         /// <summary>

@@ -332,20 +332,20 @@ namespace BardMusicPlayer.Ui.Classic
             if (int.TryParse(speed_txtNum.Text.Replace(@"%", ""), out t))
             {
                 var speedShift = (Convert.ToDouble(t) / 100).Clamp(0.1f, 2.0f);
-                BmpMaestro.Instance.SetSpeedShiftOnHost((float)speedShift);
+                BmpMaestro.Instance.SetSpeedShiftAll((float)speedShift);
             }
         }
 
         private void speed_cmdUp_Click(object sender, RoutedEventArgs e)
         {
             var speedShift = (SpeedNumValue +0.01);
-            BmpMaestro.Instance.SetSpeedShiftOnHost((float)speedShift);
+            BmpMaestro.Instance.SetSpeedShiftAll((float)speedShift);
         }
 
         private void speed_cmdDown_Click(object sender, RoutedEventArgs e)
         {
             var speedShift = (SpeedNumValue - 0.01);
-            BmpMaestro.Instance.SetSpeedShiftOnHost((float)speedShift);
+            BmpMaestro.Instance.SetSpeedShiftAll((float)speedShift);
         }
         #endregion
 

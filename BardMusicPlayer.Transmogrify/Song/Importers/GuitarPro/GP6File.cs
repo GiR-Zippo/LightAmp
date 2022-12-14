@@ -160,10 +160,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                 _bar.header = song.measureHeaders[barCnt];
                 currentMeasure = barCnt;
                 currentTrack = cnt % song.trackCount;
-                if (currentTrack == 9)
-                {
-                    int a = 3;
-                }
+
                 cnt++;
                 Node nSimileMark = nBar.getSubnodeByName("SimileMark", true);
                 if (nSimileMark != null)
@@ -184,8 +181,6 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                 }
                 song.tracks[(cnt - 1) % song.trackCount].addMeasure(_bar);
             }
-
-
         }
 
         private static int flipDuration(Duration d)
