@@ -78,12 +78,14 @@ namespace BasicSharp
                 {
                     case "PRINT": return Token.Print;
                     case "MACRO": return Token.Macro;
+                    case "CPRINT": return Token.CPrint;
                     case "IF": return Token.If;
                     case "ENDIF": return Token.EndIf;
                     case "THEN": return Token.Then;
                     case "ELSE": return Token.Else;
                     case "FOR": return Token.For;
                     case "TO": return Token.To;
+                    case "STEP": return Token.Step;
                     case "NEXT": return Token.Next;
                     case "GOTO": return Token.Goto;
                     case "INPUT": return Token.Input;

@@ -18,6 +18,7 @@ namespace BasicSharp
         For,
         To,
         Next,
+        Step,
         Goto,
         Input,
         Let,
@@ -30,6 +31,7 @@ namespace BasicSharp
         UnSelect,
         Sleep,
         TapKey,
+        CPrint,
 
         NewLine,
         Colon,

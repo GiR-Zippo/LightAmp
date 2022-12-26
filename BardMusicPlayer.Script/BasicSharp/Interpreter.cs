@@ -1,4 +1,5 @@
 using BardMusicPlayer.Quotidian.Structs;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace BasicSharp
     public sealed class Interpreter
     {
         public delegate void PrintFunction(ChatMessageChannelType type, string text);
+        public delegate void CPrintFunction(string text);
         public delegate void TapKeyFunction(string modifier, string character);
         public delegate void SelectedBard(int num);
         public delegate void SelectedBardAsString(string name);
@@ -14,6 +16,7 @@ namespace BasicSharp
         public delegate string InputFunction();
 
         public PrintFunction printHandler;
+        public CPrintFunction cprintHandler;
         public TapKeyFunction tapKeyHandler;
         public SelectedBard  selectedBardHandler;
         public SelectedBardAsString selectedBardAsStringHandler;
@@ -28,6 +31,7 @@ namespace BasicSharp
         private Dictionary<string, Value> vars; // all variables are stored here
         private Dictionary<string, Marker> labels; // already seen labels
         private Dictionary<string, Marker> loops; // for loops
+        private Dictionary<string, Value> loopsteps; // for loops steps
 
         public delegate Value BasicFunction(Interpreter interpreter, List<Value> args);
         private Dictionary<string, BasicFunction> funcs; // all maped functions
@@ -46,6 +50,7 @@ namespace BasicSharp
             this.vars = new Dictionary<string, Value>();
             this.labels = new Dictionary<string, Marker>();
             this.loops = new Dictionary<string, Marker>();
+            this.loopsteps = new Dictionary<string, Value>();
             this.funcs = new Dictionary<string, BasicFunction>();
             this.ifcounter = 0;
             BuiltIns.InstallAll(this); // map all builtins functions
@@ -131,6 +136,7 @@ namespace BasicSharp
             {
                 case Token.Print: Print(); break;
                 case Token.Macro: Macro(); break;
+                case Token.CPrint: CPrint(); break;
                 case Token.Input: Input(); break;
                 case Token.Goto: Goto(); break;
                 case Token.If: If(); break;
@@ -181,6 +187,11 @@ namespace BasicSharp
         void Macro()
         {
             printHandler?.Invoke(ChatMessageChannelType.None, "/" + Expr().ToString());
+        }
+
+        void CPrint()
+        {
+            cprintHandler?.Invoke(Expr().ToString());
         }
 
         void Input()
@@ -352,6 +363,19 @@ namespace BasicSharp
             GetNextToken();
             v = Expr();
 
+            if (lastToken == Token.Step)
+            {
+                GetNextToken();
+                var step = Expr();
+                if (step.Type == ValueType.Real)
+                {
+                    if (loopsteps.ContainsKey(var))
+                        loopsteps[var] = step;
+                    else
+                        loopsteps.Add(var, step);
+                }
+            }
+
             if (vars[var].BinOp(v, Token.More).Real == 1)
             {
                 while (true)
@@ -360,6 +384,7 @@ namespace BasicSharp
                     if (lex.Identifier == var)
                     {
                         loops.Remove(var);
+                        loopsteps.Remove(var);
                         GetNextToken();
                         Match(Token.NewLine);
                         break;
@@ -373,7 +398,13 @@ namespace BasicSharp
             // jump to begining of the "for" loop
             Match(Token.Identifier);
             string var = lex.Identifier;
-            vars[var] = vars[var].BinOp(new Value(1), Token.Plus);
+
+            //check if the loop has a stepping
+            if (loopsteps.ContainsKey(var))
+                vars[var] = vars[var].BinOp(loopsteps[var], Token.Plus);
+            else
+                vars[var] = vars[var].BinOp(new Value(1), Token.Plus);
+
             lex.GoTo(new Marker(loops[var].Pointer - 1, loops[var].Line, loops[var].Column - 1));
             lastToken = Token.NewLine;
         }
