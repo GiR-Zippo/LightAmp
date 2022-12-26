@@ -63,7 +63,7 @@ namespace BardMusicPlayer.Grunt
         /// <param name="game"></param>
         /// <param name="instrumentToneWanted"></param>
         /// <returns></returns>
-        public static async Task<bool> EquipTone(this Game game, InstrumentTone instrumentToneWanted)
+        /*public static async Task<bool> EquipTone(this Game game, InstrumentTone instrumentToneWanted)
         {
             if (!BmpGrunt.Instance.Started) throw new BmpGruntException("Grunt not started.");
 
@@ -88,6 +88,6 @@ namespace BardMusicPlayer.Grunt
             }
 
             return game.InstrumentToneHeld.Equals(instrumentToneWanted);
-        }
+        }*/
     }
 }
