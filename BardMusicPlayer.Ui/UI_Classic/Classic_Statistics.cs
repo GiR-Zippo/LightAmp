@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using BardMusicPlayer.Ui.MidiEdit.Managers;
+using BardMusicPlayer.Ui.MidiEdit.Ui;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -63,6 +65,13 @@ namespace BardMusicPlayer.Ui.Classic
                     myStream.Close();
                 }
             }
+        }
+
+        private void MidiProcessing_Click(object sender, RoutedEventArgs e)
+        {
+            UiManager.Instance.mainWindow = new MidiEditWindow();
+            if (PlaybackFunctions.CurrentSong != null)
+                MidiManager.Instance.OpenFile(PlaybackFunctions.CurrentSong.GetExportMidi());
         }
     }
 }

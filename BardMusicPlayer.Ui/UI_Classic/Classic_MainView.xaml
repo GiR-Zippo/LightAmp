@@ -261,8 +261,16 @@
                             <Label Grid.Row="3" Grid.Column="0" Content="Track note count" />
                             <Label Grid.Row="3" Grid.Column="1" x:Name="Statistics_Track_Note_Count_Label" />
 
-                            <Label Grid.Row="7" Grid.Column="0" Content="Song functions:" />
-                            <Button Grid.Row="7" Grid.Column="1" Content="Export current song as Midi"  Click="ExportAsMidi"/>
+                            <Label Grid.Row="6" Grid.Column="0" Content="Song functions:" />
+                            <Grid Grid.Row="6" Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Button Grid.Row="0" Content="Export current song as Midi"  Click="ExportAsMidi"/>
+                                <Button Grid.Row="1" Content="Open Midi with Fus edit" Click="MidiProcessing_Click" />
+                            </Grid>
+                            
                         </Grid>
                     </TabItem>
                     <TabItem Header="Song Preview">

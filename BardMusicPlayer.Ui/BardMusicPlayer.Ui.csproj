@@ -333,15 +333,30 @@
     <Compile Include="Globals\InfoBox.xaml.cs">
       <DependentUpon>InfoBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Globals\MidiEdit\Managers\MidiFunctions\MidiSongFunctions.cs" />
+    <Compile Include="Globals\MidiEdit\Managers\MidiFunctions\MidiTrackFunctions.cs" />
+    <Compile Include="Globals\MidiEdit\Managers\MidiFunctions\MidiTrackFunction_Melanchall.cs" />
+    <Compile Include="Globals\MidiEdit\Managers\MidiManager.cs" />
+    <Compile Include="Globals\MidiEdit\Managers\UiManager.cs" />
+    <Compile Include="Globals\MidiEdit\Ui\Control.cs" />
+    <Compile Include="Globals\MidiEdit\Ui\MidiEditWindow.xaml.cs">
+      <DependentUpon>MidiEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Globals\MidiEdit\Ui\Model.cs" />
+    <Compile Include="Globals\MidiEdit\Ui\TrackLine\Midi\MidiLineControl.cs" />
+    <Compile Include="Globals\MidiEdit\Ui\TrackLine\Midi\MidiLineModel.cs" />
+    <Compile Include="Globals\MidiEdit\Ui\TrackLine\Midi\MidiLineView.xaml.cs">
+      <DependentUpon>MidiLineView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Globals\MidiEdit\Utils\Converters.cs" />
+    <Compile Include="Globals\MidiEdit\Utils\Extension.cs" />
+    <Compile Include="Globals\MidiEdit\Utils\HandleBinding.cs" />
     <Compile Include="Resources\FolderPicker.cs" />
     <Compile Include="UI_Classic\Classic_Settings.cs" />
     <Compile Include="UI_Classic\Classic_Siren.cs" />
     <Compile Include="UI_Classic\Classic_Statistics.cs" />
     <Compile Include="UI_Classic\MacroLaunchpad.xaml.cs">
       <DependentUpon>MacroLaunchpad.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_Classic\MidiProcessing.xaml.cs">
-      <DependentUpon>MidiProcessing.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI_Classic\NetworkPlayWindow.xaml.cs">
       <DependentUpon>NetworkPlayWindow.xaml</DependentUpon>
@@ -396,6 +411,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Globals\InfoBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Globals\MidiEdit\Ui\MidiEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Globals\MidiEdit\Ui\TrackLine\Midi\MidiLineView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -469,10 +492,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI_Classic\MacroLaunchpad.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI_Classic\MidiProcessing.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -589,6 +608,10 @@
       <Project>{afb55e52-c439-481e-99f4-0b56c42a6d4b}</Project>
       <Name>BardMusicPlayer.Transmogrify</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Sanford.Multimedia.Midi\Source\Sanford.Multimedia.Midi.csproj">
+      <Project>{4269C72A-8D3A-4737-8F89-72EAA33EA9E1}</Project>
+      <Name>Sanford.Multimedia.Midi</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Skin\avs.bmp" />
@@ -651,6 +674,7 @@
   <ItemGroup>
     <Resource Include="Resources\Images\group.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
