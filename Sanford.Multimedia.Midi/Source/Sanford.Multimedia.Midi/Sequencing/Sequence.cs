@@ -38,6 +38,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Sanford.Multimedia.Midi
 {
@@ -739,6 +740,24 @@ namespace Sanford.Multimedia.Midi
             }
         }
 
+        public void MergeTracks(int source, int destination)
+        {
+            #region Require
+
+            if (disposed)
+            {
+                throw new ObjectDisposedException("Sequence");
+            }
+
+            #endregion
+
+            var src = tracks[source];
+            var dest = tracks[destination];
+            dest.Merge(src);
+            properties.TrackCount = tracks.Count;
+            return;
+        }
+
         public bool Remove(Track item)
         {
             #region Require
@@ -758,6 +777,23 @@ namespace Sanford.Multimedia.Midi
             }
 
             return result;
+        }
+
+        public void RemoveAt(int Position)
+        {
+            #region Require
+
+            if (disposed)
+            {
+                throw new ObjectDisposedException("Sequence");
+            }
+
+            #endregion
+
+            tracks.RemoveAt(Position);
+            properties.TrackCount = tracks.Count;
+
+            return;
         }
 
         #endregion

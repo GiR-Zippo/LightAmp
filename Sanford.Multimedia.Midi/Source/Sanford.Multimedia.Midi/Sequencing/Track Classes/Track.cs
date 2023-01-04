@@ -341,6 +341,51 @@ namespace Sanford.Multimedia.Midi
         }
 
         /// <summary>
+        /// Removes the MidiEvent at the specified index.
+        /// </summary>
+        /// <param name="index">
+        /// The index into the Track at which to remove the MidiEvent.
+        /// </param>
+        public void Remove(MidiEvent current)
+        {
+
+            if (current.Previous != null)
+            {
+                current.Previous.Next = current.Next;
+            }
+            else
+            {
+                Debug.Assert(current == head);
+
+                head = head.Next;
+            }
+
+            if (current.Next != null)
+            {
+                current.Next.Previous = current.Previous;
+            }
+            else
+            {
+                Debug.Assert(current == tail);
+
+                tail = tail.Previous;
+
+                endOfTrackMidiEvent.SetAbsoluteTicks(Length);
+                endOfTrackMidiEvent.Previous = tail;
+            }
+
+            current.Next = current.Previous = null;
+
+            count--;
+
+            #region Invariant
+
+            AssertValid();
+
+            #endregion
+        }
+
+        /// <summary>
         /// Gets the MidiEvent at the specified index.
         /// </summary>
         /// <param name="index">
