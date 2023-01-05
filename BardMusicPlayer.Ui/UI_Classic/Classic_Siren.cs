@@ -36,6 +36,7 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void Siren_Load_Click(object sender, RoutedEventArgs e)
         {
+            Siren_VoiceCount.Content = 0;
             BmpSong CurrentSong = null;
             string song = PlaylistContainer.SelectedItem as String;
             if (song == null)
@@ -85,8 +86,9 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void Siren_Pause_Click(object sender, RoutedEventArgs e)
         {
-            if (BmpSiren.Instance.IsReadyForPlayback)
-                BmpSiren.Instance.Pause();
+            if (!BmpSiren.Instance.IsReadyForPlayback)
+                return;
+            BmpSiren.Instance.Pause();
         }
 
         private void Siren_Pause_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -115,8 +117,9 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void Siren_Stop_Click(object sender, RoutedEventArgs e)
         {
-            if (BmpSiren.Instance.IsReadyForPlayback)
-                BmpSiren.Instance.Stop();
+            if (!BmpSiren.Instance.IsReadyForPlayback)
+                return;
+            BmpSiren.Instance.Stop();
         }
 
         /// <summary>
@@ -156,11 +159,13 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         /// <param name="currentTime"></param>
         /// <param name="endTime"></param>
-        private void Siren_PlaybackTimeChanged(double currentTime, double endTime)
+        private void Siren_PlaybackTimeChanged(double currentTime, double endTime, int activeVoices)
         {
             //if we are finished, stop the playback
             if (currentTime >= endTime)
                 BmpSiren.Instance.Stop();
+
+            Siren_VoiceCount.Content = activeVoices.ToString();
 
             TimeSpan t;
             if (Siren_Position.Maximum != endTime)

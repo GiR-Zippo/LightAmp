@@ -288,13 +288,18 @@
                                 <ColumnDefinition Width="50"/>
                                 <ColumnDefinition Width="100"/>
                             </Grid.ColumnDefinitions>
-                            <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3">
+                            <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="6">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="25"/>
+                                    <ColumnDefinition Width="15"/>
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0" Content="Song title:"/>
                                 <Label Grid.Column="1" x:Name="Siren_SongName" Content="No song loaded"/>
+                                <Label Grid.Column="2"  Content="Voices: " HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                <Label Grid.Column="3"  x:Name="Siren_VoiceCount" Content="0" HorizontalAlignment="Left" VerticalAlignment="Center" />
                             </Grid>
 
                             <DataGrid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" ItemsSource="{Binding}"
