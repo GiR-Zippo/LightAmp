@@ -333,31 +333,6 @@
     <Compile Include="Globals\InfoBox.xaml.cs">
       <DependentUpon>InfoBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Globals\MidiEdit\Managers\MidiFunctions\MidiSongFunctions.cs" />
-    <Compile Include="Globals\MidiEdit\Managers\MidiFunctions\MidiTrackFunctions.cs" />
-    <Compile Include="Globals\MidiEdit\Managers\MidiManager.cs" />
-    <Compile Include="Globals\MidiEdit\Managers\UiManager.cs" />
-    <Compile Include="Globals\MidiEdit\Ui\Control.cs" />
-    <Compile Include="Globals\MidiEdit\Ui\MidiEditWindow.xaml.cs">
-      <DependentUpon>MidiEditWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Globals\MidiEdit\Ui\Model.cs" />
-    <Compile Include="Globals\MidiEdit\Ui\TrackLine\Midi\MidiLineControl.cs" />
-    <Compile Include="Globals\MidiEdit\Ui\TrackLine\Midi\MidiLineModel.cs" />
-    <Compile Include="Globals\MidiEdit\Ui\TrackLine\Midi\MidiLineView.xaml.cs">
-      <DependentUpon>MidiLineView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Globals\MidiEdit\Ui\TrackView\MidiTrackLineModel.cs" />
-    <Compile Include="Globals\MidiEdit\Ui\TrackView\MidiTrackLineView.xaml.cs">
-      <DependentUpon>MidiTrackLineView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Globals\MidiEdit\Ui\TrackView\MidiTrackLineControl.cs" />
-    <Compile Include="Globals\MidiEdit\Ui\TrackView\MidiTrackView.xaml.cs">
-      <DependentUpon>MidiTrackView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Globals\MidiEdit\Utils\Converters.cs" />
-    <Compile Include="Globals\MidiEdit\Utils\Extension.cs" />
-    <Compile Include="Globals\MidiEdit\Utils\HandleBinding.cs" />
     <Compile Include="Resources\FolderPicker.cs" />
     <Compile Include="UI_Classic\Classic_Settings.cs" />
     <Compile Include="UI_Classic\Classic_Siren.cs" />
@@ -420,22 +395,6 @@
     <Page Include="Globals\InfoBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Globals\MidiEdit\Ui\MidiEditWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Globals\MidiEdit\Ui\TrackLine\Midi\MidiLineView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Globals\MidiEdit\Ui\TrackView\MidiTrackLineView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Globals\MidiEdit\Ui\TrackView\MidiTrackView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -598,6 +557,10 @@
     <ProjectReference Include="..\BardMusicPlayer.Maestro\BardMusicPlayer.Maestro.csproj">
       <Project>{00bac18c-1670-4cfc-8826-ad02347ba776}</Project>
       <Name>BardMusicPlayer.Maestro</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BardMusicPlayer.MidiUtil\BardMusicPlayer.MidiUtil.csproj">
+      <Project>{692eba77-d80c-4e74-af9d-fb74fb8bad78}</Project>
+      <Name>BardMusicPlayer.MidiUtil</Name>
     </ProjectReference>
     <ProjectReference Include="..\BardMusicPlayer.Pigeonhole\BardMusicPlayer.Pigeonhole.csproj">
       <Project>{cd059bec-16c3-4bf4-aa8f-15ea9d473758}</Project>

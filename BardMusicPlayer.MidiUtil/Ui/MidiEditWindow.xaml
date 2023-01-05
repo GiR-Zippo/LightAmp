@@ -1,0 +1,150 @@
+﻿<Window x:Class="BardMusicPlayer.MidiUtil.Ui.MidiEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Editor" Height="450" Width="800" 
+        WindowStartupLocation="Manual" Left="900" Top="700"
+        Closing="Window_Closing">
+
+
+    <Grid Background="#FFA4A4A4">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+    
+        <!-- HEADER -->
+
+        <Menu HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ColumnSpan="2">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open" Name="OpenMenuItem" Click="OpenMenuItem_Click"/>
+                <Separator />
+                <MenuItem Header="_Save" Click="SaveMenuItem_Click" />
+            </MenuItem>
+            <MenuItem Header="_Track">
+                <!-- <MenuItem Header="_Add"  Name="AddTrackMenuItem" Click="AddTrackMenuItem_Click"/> -->
+                <MenuItem Header="_Delete" Name="DeleteTrackMenuItem" Click="DeleteTrackMenuItem_Click" />
+                <Separator/>
+                <MenuItem Header="_Functions ">
+                    <MenuItem Header="Transpose" x:Name="TransposeMenuItem" Click="TransposeMenuItem_Click"/>
+                    <MenuItem Header="_Drummapping" x:Name="DrummappingMenuItem" Click="DrummappingMenuItem_Click"/>
+                    <MenuItem Header="_Delete Controllers" Name="RemoveAllEventsTrackMenuItem" Click="RemoveAllEventsTrackMenuItem_Click" />
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Song">
+                <MenuItem Header="_Clean up" Click="CleanUpSong_Click" />
+                <MenuItem Header="Auto set channels"  Click="AutochannelSong_Click"/>
+            </MenuItem>
+            <MenuItem Header="Playback">
+                <MenuItem  x:Name="SirenEnabled" Header="Use Siren" Click="SirenEnabled_Click" IsCheckable="True" IsChecked="False"/>
+            </MenuItem>
+            <!--<MenuItem Header="_Effet">
+            </MenuItem>
+            <MenuItem Header="_Marqueurs">
+            </MenuItem>
+            <MenuItem Header="_Outils">
+            </MenuItem>
+            <MenuItem Header="_Son">
+            </MenuItem>
+            <MenuItem Header="_Effet">
+            </MenuItem>
+            <MenuItem Header="_Affichage">
+            </MenuItem>
+            <MenuItem Header="_Option">
+            </MenuItem>
+            <MenuItem Header="_Effet">
+            </MenuItem>-->
+        </Menu>
+
+        
+        <DockPanel Name="ToolBar_Sequencer" 
+                   Grid.Column="0" 
+                   Grid.Row="1" 
+                   HorizontalAlignment="Stretch">
+            <Button Name="startButton" Content="Play" Click="StartButton_Click" Width="30"/>
+            <Button Name="continueButton" Content="Pause" Click="ContinueButton_Click" Width="30"/>
+            <Button Name="stopButton" Content="Stop" Click="StopButton_Click" Width="30"/>
+
+            <TextBox Text="{Binding Tempo}" Width="50"/>
+            <CheckBox Name="Metronome"></CheckBox>
+        </DockPanel>
+
+        <DockPanel Name="ToolBar_Ui" 
+                   Grid.Column="1" 
+                   Grid.Row="1" 
+                   HorizontalAlignment="Right">
+            <Label FontSize="9">VoiceCount</Label>
+            <TextBox x:Name="VoiceCount" Text="0" Width="50"/>
+            <Label FontSize="9">PlotDivider</Label>
+            <TextBox Text="{Binding PlotDivider}" Width="50"/>
+            <Label FontSize="9">PlotVelocity</Label>
+            <TextBox Text="{Binding PlotVelocity}" Width="50" Height="20" VerticalAlignment="Top"/>
+            <Label FontSize="9">ZoomX</Label>
+            <TextBox Text="{Binding XZoom}" Width="50"/>
+            <Label FontSize="9">ZoomY</Label>
+            <TextBox Text="{Binding YZoom}" Width="50"/>
+            <Label FontSize="9">Offset X</Label>
+            <TextBox Text="{Binding XOffset}" Width="50"/>
+        </DockPanel>
+
+        <ProgressBar Name="ProgressionBar" 
+            HorizontalAlignment="Stretch" 
+            VerticalAlignment="Stretch" 
+            Grid.Row="2"/>
+        <ScrollBar Name="MasterScroller" 
+            Grid.ColumnSpan="2"
+            HorizontalAlignment="Stretch" 
+            VerticalAlignment="Stretch" 
+            Grid.Row="4" 
+            Orientation="Horizontal" />
+        
+        <!-- BODY -->
+
+        <ScrollViewer Name="AppScene" VerticalScrollBarVisibility="Auto"
+            HorizontalAlignment="Stretch" 
+            VerticalAlignment="Stretch" 
+            Grid.Row="3" 
+            Grid.ColumnSpan="2">
+            <Grid
+                Name="TracksPanel" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch" 
+                Grid.Row="3" 
+                Grid.ColumnSpan="2"
+                >
+            </Grid>
+        </ScrollViewer>
+        
+        <!-- Red Bar Time Tracking -->
+
+        <Canvas Name="ProgressViewer" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch" 
+                Grid.Row="3" 
+                Grid.Column="1"
+                Grid.ColumnSpan="1"
+                ClipToBounds="true">
+            <Rectangle 
+                    Name="TimeBar"  
+                    Width="1" 
+                    Height="1000" 
+                    Fill="Red" 
+                    Canvas.Left="15" >
+            </Rectangle>
+        </Canvas>
+
+       
+
+    </Grid>
+
+</Window>
