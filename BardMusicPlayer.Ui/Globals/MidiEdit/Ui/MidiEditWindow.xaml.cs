@@ -46,6 +46,9 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
 
         public void HandleWheel(object sender, MouseWheelEventArgs e)
         {
+            if (!this.IsActive)
+                return;
+
             int value = e.Delta / 120;
             if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
             {

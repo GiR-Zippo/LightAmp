@@ -81,13 +81,16 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
             {
                 var fev = events.Events.Where(e => e.Event.EventType == MidiEventType.SequenceTrackName).FirstOrDefault();
                 if (fev != null)
+                {
                     (fev.Event as SequenceTrackNameEvent).Text = TrackName;
+                    events.SaveChanges();
+                }
                 else
                 {
                     SequenceTrackNameEvent name = new SequenceTrackNameEvent(TrackName);
-                    track.Events.Insert(0,name);
+                    track.Events.Insert(0, name);
                 }
-                events.SaveChanges();
+                
             }
         }
 

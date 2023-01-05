@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Input;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
@@ -13,17 +14,17 @@ using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Ui.MidiEdit.Managers;
 
 
-namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
+namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackView
 {
-    public class MidiLineControl
+    public class MidiTrackLineControl
     {
 
         #region CTOR
 
-        public MidiLineView view { get; set; }
-        public MidiLineModel model { get; set; }
-        
-        public MidiLineControl (MidiLineModel model, MidiLineView view)
+        public MidiTrackLineView view { get; set; }
+        public MidiTrackLineModel model { get; set; }
+
+        public MidiTrackLineControl(MidiTrackLineModel model, MidiTrackLineView view)
         {
             this.model = model;
             this.view = view;
@@ -72,7 +73,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
         private void FillInstrumentBox()
         {
             Dictionary<int, string> instlist = new Dictionary<int, string>();
-            for (int i=0; i != 128; i++)
+            for (int i = 0; i != 128; i++)
                 instlist.Add(i, "None");
 
             foreach (Instrument instrument in Instrument.All)
@@ -93,14 +94,12 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
         }
 
         public event EventHandler<TrackChunk> TrackFocused;
-        public event EventHandler<TrackChunk> TrackMergeUp;
-        public event EventHandler<TrackChunk> TrackMergeDown;
 
         public static readonly DependencyProperty AttachedNoteProperty =
             DependencyProperty.RegisterAttached(
                 "AttachedNote",
                 typeof(Note),
-                typeof(MidiLineControl)
+                typeof(MidiTrackLineControl)
         );
 
         #endregion
@@ -114,39 +113,24 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
             TrackFocused.Invoke(sender, model.Track);
         }
 
-        internal void MergeUp(object sender, RoutedEventArgs e)
-        {
-            if (TrackFocused == null)
-                return;
-            TrackFocused.Invoke(sender, model.Track);
-            TrackMergeUp.Invoke(sender, model.Track);
-        }
-
-        internal void MergeDown(object sender, RoutedEventArgs e)
-        {
-            if (TrackFocused == null)
-                return;
-            TrackFocused.Invoke(sender, model.Track);
-            TrackMergeDown.Invoke(sender, model.Track);
-        }
-        
         internal void InsertNote(double start, double end, int noteIndex)
         {
-            if (MidiManager.Instance.IsPlaying) 
+            if (MidiManager.Instance.IsPlaying)
                 return;
 
             // Generate Midi Note
             int channel = 0;
             int velocity = UiManager.Instance.plotVelocity;
             var msgs = MidiManager.Instance.CreateNote(
-                channel, 
+                channel,
                 noteIndex,
                 model.Track,
                 start,
                 end,
                 velocity);
             // Draw it on MidiRoll
-            DrawNote(start,end,noteIndex, msgs);
+            DrawNote(start, end, noteIndex, msgs);
+            UiManager.Instance.mainWindow.Ctrl.UpdateTrackView(model.Track);
         }
 
         #endregion
@@ -158,7 +142,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
             view.TrackNotes.Children.Clear();
             int noteWithoutOctave;
             Brush currentColor = Brushes.White;
-            for (int i=0;i<128;i++)
+            for (int i = 0; i < 128; i++)
             {
                 // identify note
                 noteWithoutOctave = i % 12;
@@ -192,7 +176,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                 };
                 // place rectangle
                 Canvas.SetLeft(rec, 0);
-                Canvas.SetTop(rec, (127 - i)*model.CellHeigth);
+                Canvas.SetTop(rec, (127 - i) * model.CellHeigth);
                 // piano toucn on rectangle
                 int j = i;
                 rec.MouseLeftButtonDown += (s, e) => MidiManager.Instance.Playback(true, j);
@@ -234,8 +218,8 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
             foreach (Note note in model.Track.GetNotes())
             {
                 DrawNote(
-                    (double)note.GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds/1000 / model.DAWhosReso,
-                    (double)note.GetTimedNoteOffEvent().TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds/1000 / model.DAWhosReso,
+                    (double)note.GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds / 1000 / model.DAWhosReso,
+                    (double)note.GetTimedNoteOffEvent().TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds / 1000 / model.DAWhosReso,
                     note.NoteNumber,
                     note
                 );
@@ -295,7 +279,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
             Rectangle rec = new Rectangle();
             try
             {
-                rec.Width = (end-start)* model.CellWidth;
+                rec.Width = (end - start) * model.CellWidth;
             }
             catch
             {
@@ -305,11 +289,33 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
             rec.Fill = Brushes.Red;
             rec.Stroke = Brushes.DarkRed;
             rec.StrokeThickness = .5f;
-            Canvas.SetLeft(rec,start*model.CellWidth);
-            Canvas.SetTop(rec, ((127 - noteIndex)*model.CellHeigth));
+            Canvas.SetLeft(rec, start * model.CellWidth);
+            Canvas.SetTop(rec, ((127 - noteIndex) * model.CellHeigth));
+            rec.MouseLeftButtonDown += NoteLeftDown;
+            rec.MouseRightButtonDown += NoteRightDown;
             rec.SetValue(AttachedNoteProperty, note);
             view.TrackBody.Children.Add(rec);
         }
+
+        private void NoteLeftDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+            if (e.ClickCount > 1)
+            {
+                if (MidiManager.Instance.IsPlaying) return;
+                Rectangle rec = (Rectangle)sender;
+                Note noteOn = (Note)rec.GetValue(AttachedNoteProperty);
+                view.TrackBody.Children.Remove(rec);
+
+                MidiManager.Instance.DeleteNote(model.Track, noteOn);
+                UiManager.Instance.mainWindow.Ctrl.UpdateTrackView(model.Track);
+            }
+        }
+
+        private void NoteRightDown(object sender, MouseButtonEventArgs e)
+        {
+        }
+
         #endregion
     }
 }

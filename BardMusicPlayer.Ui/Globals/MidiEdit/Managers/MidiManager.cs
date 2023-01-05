@@ -201,6 +201,14 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
                 IsPlaying = true;
                 if (playback is null)
                     return;
+                if (outDevice != null)
+                {
+                    playback.Finished -= Playback_Finished;
+                    playback.Dispose();
+                    playback = currentSong.GetPlayback(outDevice);
+                    playback.InterruptNotesOnStop = true;
+                    playback.Finished += Playback_Finished;
+                }
                 playback.Start();
             }
             catch (Exception ex)

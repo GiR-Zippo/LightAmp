@@ -347,6 +347,14 @@
     <Compile Include="Globals\MidiEdit\Ui\TrackLine\Midi\MidiLineView.xaml.cs">
       <DependentUpon>MidiLineView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Globals\MidiEdit\Ui\TrackView\MidiTrackLineModel.cs" />
+    <Compile Include="Globals\MidiEdit\Ui\TrackView\MidiTrackLineView.xaml.cs">
+      <DependentUpon>MidiTrackLineView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Globals\MidiEdit\Ui\TrackView\MidiTrackLineControl.cs" />
+    <Compile Include="Globals\MidiEdit\Ui\TrackView\MidiTrackView.xaml.cs">
+      <DependentUpon>MidiTrackView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Globals\MidiEdit\Utils\Converters.cs" />
     <Compile Include="Globals\MidiEdit\Utils\Extension.cs" />
     <Compile Include="Globals\MidiEdit\Utils\HandleBinding.cs" />
@@ -420,6 +428,14 @@
     <Page Include="Globals\MidiEdit\Ui\TrackLine\Midi\MidiLineView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Globals\MidiEdit\Ui\TrackView\MidiTrackLineView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Globals\MidiEdit\Ui\TrackView\MidiTrackView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

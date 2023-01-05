@@ -193,7 +193,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
             return lineView;
         }
 
-        private void UpdateTrackView(TrackChunk track)
+        public void UpdateTrackView(TrackChunk track)
         {
             foreach (var item in UiManager.Instance.mainWindow.MidiLines)
             {
