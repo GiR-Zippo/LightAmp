@@ -142,7 +142,6 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                 velocity);
             // Draw it on MidiRoll
             DrawNote(start,end,noteIndex, msgs);
-            Init();
         }
 
         #endregion
@@ -298,8 +297,8 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                 rec.Width = 1;
             }
             rec.Height = model.CellHeigth;
-            rec.Fill = Brushes.Red; //DarkSeaGreen;
-            rec.Stroke = Brushes.DarkRed;// DarkGreen;
+            rec.Fill = Brushes.Red;
+            rec.Stroke = Brushes.DarkRed;
             rec.StrokeThickness = .5f;
             Canvas.SetLeft(rec,start*model.CellWidth);
             Canvas.SetTop(rec, ((127 - noteIndex)*model.CellHeigth));

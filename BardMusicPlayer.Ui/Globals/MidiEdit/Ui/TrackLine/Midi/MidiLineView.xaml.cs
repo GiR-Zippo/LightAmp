@@ -76,21 +76,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                 Model.mouseDragStartPoint = e.GetPosition((Canvas)sender);
                 last_pos = Model.mouseDragStartPoint.X / Model.CellWidth;
                 in_drag = true;
-                /*Model.mouseDragStartPoint = e.GetPosition((Canvas)sender);
-                double point = Model.mouseDragStartPoint.X / Model.CellWidth;
-                int noteIndex = 127 - (int)(Model.mouseDragStartPoint.Y / Model.CellHeigth);
-                Ctrl.InsertNote(PreviousFirstPosition(point), NextFirstPosition(point), noteIndex);*/
             }
-        }
-
-        private double NextFirstPosition(double point)
-        {
-            return Model.PlotReso * (1+((int)(point / Model.PlotReso)));
-        }
-
-        private double PreviousFirstPosition(double point)
-        {
-            return Model.PlotReso * ((int)(point / Model.PlotReso));
         }
 
         private void TrackBody_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -103,6 +89,16 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                 Ctrl.InsertNote(PreviousFirstPosition(last_pos), NextFirstPosition(point), noteIndex);
                 in_drag = false;
             }
+        }
+
+        private double NextFirstPosition(double point)
+        {
+            return Model.PlotReso * (1+((int)(point / Model.PlotReso)));
+        }
+
+        private double PreviousFirstPosition(double point)
+        {
+            return Model.PlotReso * ((int)(point / Model.PlotReso));
         }
 
         private void MouseWheel(object sender, MouseWheelEventArgs e)
