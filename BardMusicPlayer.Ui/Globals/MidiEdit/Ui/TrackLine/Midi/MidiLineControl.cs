@@ -97,17 +97,10 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
         public event EventHandler<TrackChunk> TrackMergeUp;
         public event EventHandler<TrackChunk> TrackMergeDown;
 
-        public static readonly DependencyProperty AttachedNoteOnProperty =
+        public static readonly DependencyProperty AttachedNoteProperty =
             DependencyProperty.RegisterAttached(
-                "AttachedNoteOn",
-                typeof(TimedEvent),
-                typeof(MidiLineControl)
-        );
-
-        public static readonly DependencyProperty AttachedNoteOffProperty =
-            DependencyProperty.RegisterAttached(
-                "AttachedNoteOff",
-                typeof(TimedEvent),
+                "AttachedNote",
+                typeof(Note),
                 typeof(MidiLineControl)
         );
 
@@ -134,8 +127,9 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
         
         internal void InsertNote(double start, double end, int noteIndex)
         {
-            return;
-            /*if (MidiManager.Instance.IsPlaying) return;
+            if (MidiManager.Instance.IsPlaying) 
+                return;
+
             // Generate Midi Note
             int channel = 0;
             int velocity = UiManager.Instance.plotVelocity;
@@ -147,7 +141,8 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                 end,
                 velocity);
             // Draw it on MidiRoll
-            DrawNote(start,end,noteIndex, msgs.Item1, msgs.Item2);*/
+            DrawNote(start,end,noteIndex, msgs);
+            Init();
         }
 
         #endregion
@@ -238,8 +233,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                     (double)note.GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds/1000 / model.DAWhosReso,
                     (double)note.GetTimedNoteOffEvent().TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds/1000 / model.DAWhosReso,
                     note.NoteNumber,
-                    note.GetTimedNoteOnEvent(),
-                    note.GetTimedNoteOffEvent()
+                    note
                 );
             }
         }
@@ -292,7 +286,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
             }*/
         }
 
-        private void DrawNote(double start, double end, int noteIndex, TimedEvent messageOn, TimedEvent messageOff)
+        private void DrawNote(double start, double end, int noteIndex, Note note)
         {
             Rectangle rec = new Rectangle();
             try
@@ -311,24 +305,23 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
             Canvas.SetTop(rec, ((127 - noteIndex)*model.CellHeigth));
             rec.MouseLeftButtonDown += NoteLeftDown;
             rec.MouseRightButtonDown += NoteRightDown;
-            rec.SetValue(AttachedNoteOnProperty, messageOn);
-            rec.SetValue(AttachedNoteOffProperty, messageOff);
+            rec.SetValue(AttachedNoteProperty, note);
             view.TrackBody.Children.Add(rec);
         }
 
         private void NoteLeftDown(object sender, MouseButtonEventArgs e)
         {
             e.Handled = true;
-            /*if (e.ClickCount>1)
+            if (e.ClickCount>1)
             {
                 if (MidiManager.Instance.IsPlaying) return;
                 Rectangle rec = (Rectangle)sender;
-                MidiEvent noteOn = (MidiEvent)rec.GetValue(AttachedNoteOnProperty);
-                MidiEvent noteOff = (MidiEvent)rec.GetValue(AttachedNoteOffProperty);
+                Note noteOn = (Note)rec.GetValue(AttachedNoteProperty);
                 view.TrackBody.Children.Remove(rec);
-                model.Track.Remove(noteOn);
-                model.Track.Remove(noteOff);
-            }*/
+
+                MidiManager.Instance.DeleteNote(model.Track, noteOn);
+                
+            }
         }
 
         private void NoteRightDown(object sender, MouseButtonEventArgs e)

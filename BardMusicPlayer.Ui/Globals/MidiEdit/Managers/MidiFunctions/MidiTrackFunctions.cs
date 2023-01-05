@@ -1,12 +1,15 @@
 ﻿using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
+using Melanchall.DryWetMidi.MusicTheory;
 using Newtonsoft.Json;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Note = Melanchall.DryWetMidi.Interaction.Note;
 
 namespace BardMusicPlayer.Ui.MidiEdit.Managers
 {
@@ -19,6 +22,39 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
 
     public partial class MidiManager
     {
+        internal Note CreateNote(int channel, int noteIndex, TrackChunk track, double start, double end, int velocity)
+        {
+            Note note = null;
+            using (var notesManager = track.ManageNotes())
+            {
+                note = new Note(
+                    (SevenBitNumber)noteIndex,
+                    LengthConverter.ConvertFrom(
+                        new MetricTimeSpan(hours: 0, minutes: 0, seconds: 0, milliseconds: (int)end-(int)start),
+                        0,
+                        currentSong.GetTempoMap()),
+                    LengthConverter.ConvertFrom(
+                        new MetricTimeSpan(hours: 0, minutes: 0, seconds: 0, milliseconds: (int)start),
+                        (long)(end-start),
+                        currentSong.GetTempoMap()));
+                notesManager.Notes.Add(note);
+            }
+            return note;
+        }
+
+        internal void DeleteNote(TrackChunk track, Note note)
+        {
+            using (var events = track.ManageNotes())
+            {
+                var nn = events.Notes.Where(ev => ev.Time == note.Time && ev.NoteNumber == note.NoteNumber && ev.Length == ev.Length).FirstOrDefault();
+                if (nn != null)
+                {
+                    events.Notes.Remove(nn);
+                    events.SaveChanges();
+                }
+            }
+        }
+
         #region Get/Set TrackName
 
         /// <summary>

@@ -266,23 +266,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
 
         #region PLOT GESTION
 
-        internal Tuple<Sanford.Multimedia.Midi.MidiEvent, Sanford.Multimedia.Midi.MidiEvent> CreateNote(int channel, int noteIndex, TrackChunk Track, double start, double end, int velocity)
-        {
-            /*cmBuilder.Command = ChannelCommand.NoteOn;
-            cmBuilder.Data1 = noteIndex;
-            cmBuilder.Data2 = velocity;
-            cmBuilder.MidiChannel = channel;
-            cmBuilder.Build();
-            MidiEvent me1 = Track.Insert((int)(start* DAWhosReso), cmBuilder.Result);
-            cmBuilder.Command = ChannelCommand.NoteOff;
-            cmBuilder.Data1 = noteIndex;
-            cmBuilder.Data2 = 0;
-            cmBuilder.MidiChannel = channel;
-            cmBuilder.Build();
-            MidiEvent me2 = Track.Insert((int)(end* DAWhosReso), cmBuilder.Result);
-            return new Tuple<MidiEvent, MidiEvent>(me1, me2);*/
-            return null;
-        }
+
 
         #endregion
 

@@ -67,15 +67,19 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
         #endregion
 
         #region MOUSE GESTION
-
+        private double last_pos;
+        private bool in_drag = false;
         private void TrackBody_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (e.ClickCount>1)
             {
                 Model.mouseDragStartPoint = e.GetPosition((Canvas)sender);
+                last_pos = Model.mouseDragStartPoint.X / Model.CellWidth;
+                in_drag = true;
+                /*Model.mouseDragStartPoint = e.GetPosition((Canvas)sender);
                 double point = Model.mouseDragStartPoint.X / Model.CellWidth;
                 int noteIndex = 127 - (int)(Model.mouseDragStartPoint.Y / Model.CellHeigth);
-                Ctrl.InsertNote(PreviousFirstPosition(point), NextFirstPosition(point), noteIndex);
+                Ctrl.InsertNote(PreviousFirstPosition(point), NextFirstPosition(point), noteIndex);*/
             }
         }
 
@@ -91,7 +95,14 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
 
         private void TrackBody_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-
+            if (in_drag)
+            {
+                Model.mouseDragStartPoint = e.GetPosition((Canvas)sender);
+                double point = Model.mouseDragStartPoint.X / Model.CellWidth;
+                int noteIndex = 127 - (int)(Model.mouseDragStartPoint.Y / Model.CellHeigth);
+                Ctrl.InsertNote(PreviousFirstPosition(last_pos), NextFirstPosition(point), noteIndex);
+                in_drag = false;
+            }
         }
 
         private void MouseWheel(object sender, MouseWheelEventArgs e)
