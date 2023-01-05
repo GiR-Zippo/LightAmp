@@ -170,10 +170,13 @@ namespace BardMusicPlayer.MidiUtil.Ui
                 return;
 
             //Normal playback or siren
-            if (MidiManager.Instance.playbackPos != null || !SirenEnabled.IsChecked)
+            if (!SirenEnabled.IsChecked)
             {
-                UiManager.Instance.mainWindow.TimeBar.SetValue(System.Windows.Controls.Canvas.LeftProperty,
-                    ((Model.relativeTimePosition * Model.XZoom) + Model.touchOffset) + ((MidiManager.Instance.playbackPos.TotalMicroseconds / 1000) * Model.XZoom)-Model.XOffset);
+                if (MidiManager.Instance.playbackPos != null)
+                {
+                    UiManager.Instance.mainWindow.TimeBar.SetValue(System.Windows.Controls.Canvas.LeftProperty,
+                        ((Model.relativeTimePosition * Model.XZoom) + Model.touchOffset) + ((MidiManager.Instance.playbackPos.TotalMicroseconds / 1000) * Model.XZoom) - Model.XOffset);
+                }
             }
             else
             {
