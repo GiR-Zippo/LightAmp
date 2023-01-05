@@ -43,6 +43,7 @@
             </MenuItem>
             <MenuItem Header="_Song">
                 <MenuItem Header="_Clean up" Click="CleanUpSong_Click" />
+                <MenuItem Header="Auto set channels"  Click="AutochannelSong_Click"/>
             </MenuItem>
             <!--<MenuItem Header="_Note">
             </MenuItem>
@@ -69,9 +70,10 @@
                    Grid.Column="0" 
                    Grid.Row="1" 
                    HorizontalAlignment="Stretch">
-            <Button Name="startButton" Content="Start" Click="StartButton_Click" Width="30"/>
-            <Button Name="stopButton" Content="Pause" Click="StopButton_Click" Width="30"/>
-            <Button Name="continueButton" Content="Play" Click="ContinueButton_Click" Width="30"/>
+            <Button Name="startButton" Content="Play" Click="StartButton_Click" Width="30"/>
+            <Button Name="continueButton" Content="Pause" Click="ContinueButton_Click" Width="30"/>
+            <Button Name="stopButton" Content="Stop" Click="StopButton_Click" Width="30"/>
+
             <TextBox Text="{Binding Tempo}" Width="50"/>
             <CheckBox Name="Metronome"></CheckBox>
         </DockPanel>

@@ -335,7 +335,6 @@
     </Compile>
     <Compile Include="Globals\MidiEdit\Managers\MidiFunctions\MidiSongFunctions.cs" />
     <Compile Include="Globals\MidiEdit\Managers\MidiFunctions\MidiTrackFunctions.cs" />
-    <Compile Include="Globals\MidiEdit\Managers\MidiFunctions\MidiTrackFunction_Melanchall.cs" />
     <Compile Include="Globals\MidiEdit\Managers\MidiManager.cs" />
     <Compile Include="Globals\MidiEdit\Managers\UiManager.cs" />
     <Compile Include="Globals\MidiEdit\Ui\Control.cs" />

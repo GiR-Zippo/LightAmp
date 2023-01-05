@@ -49,7 +49,6 @@ namespace BardMusicPlayer.Ui
 
             BmpSiren.Instance.Setup();
             //BmpJamboree.Instance.Start();
-
         }
 
         protected override void OnExit(ExitEventArgs e)

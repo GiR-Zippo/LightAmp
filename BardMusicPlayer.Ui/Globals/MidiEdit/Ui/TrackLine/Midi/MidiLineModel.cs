@@ -1,11 +1,10 @@
-﻿using Sanford.Multimedia.Midi;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows;
+using Melanchall.DryWetMidi.Core;
 using BardMusicPlayer.Ui.MidiEdit.Utils;
 using BardMusicPlayer.Ui.MidiEdit.Managers;
-using BardMusicPlayer.Ui.MidiEdit.Utils.TrackExtensions;
 
 namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
 {
@@ -14,13 +13,19 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
         #region CTOR
 
         public MidiLineControl Ctrl { get; set; }
-        public Track Track { get; }
+        public TrackChunk Track { get; }
+        private Color trackColor { get; set; }
 
-        public MidiLineModel(Track track)
+        public MidiLineModel(TrackChunk track)
         {
+            Random rnd = new Random();
+            trackColor = Color.FromRgb(
+                    (byte)rnd.Next(0, 255),
+                    (byte)rnd.Next(0, 255),
+                    (byte)rnd.Next(0, 255)
+                );
             this.Track = track;
-            Color color = track.Color();
-            tColor = new SolidColorBrush(color);
+            tColor = new SolidColorBrush(trackColor);
             LastNotesOn = new Dictionary<int, Tuple<int, MidiEvent>>();
         }
 

@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
+
 using UI.Resources;
+
 using BardMusicPlayer.Ui.MidiEdit.Managers;
 using BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine;
 
@@ -16,6 +19,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
 
         public Control Ctrl { get; set; }
         public Model Model { get; set; }
+        public List<MidiLineView> MidiLines = new List<MidiLineView>();
 
         public MidiEditWindow()
         {
@@ -81,7 +85,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
             Ctrl.Save(openFileDialog.FileName);
         }
 
-        //Track Menu
+        #region Track Menu
 
         private void AddTrackMenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -116,11 +120,20 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
                     Ctrl.TransposeTrack(n);
             }
         }
+        #endregion
 
+        #region SongMenu
         private void CleanUpSong_Click(object sender, RoutedEventArgs e)
         {
             Ctrl.CleanUpSong();
         }
+
+        private void AutochannelSong_Click(object sender, RoutedEventArgs e)
+        {
+            Ctrl.AutochannelSong();
+        }
+
+        #endregion
 
         #endregion
 
@@ -137,21 +150,23 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
             UpdateLayout();
         }
 
-        /// Continuously called when played
+        /// called when played
         public void TimeUpdate()
         {
-            // Guard
-            //if (Model.TracksPanel.Children.Count > 0) return;
-            Model.absoluteTimePosition = MidiManager.Instance.CurrentTime * Model.timeWidth / Model.midiResolution ;
-            Model.relativeTimePosition = HandleTrackSlide();
-            HandleTimeScroller();
-            HandleTimeBar();
-            UpdateLayout();
+            if (UiManager.Instance.mainWindow == null)
+                return;
+
+            if (Model.TracksPanel.Children.Count < 0) 
+                return;
+
+            UiManager.Instance.mainWindow.TimeBar.SetValue(Canvas.LeftProperty, 
+                ((Model.relativeTimePosition * Model.XZoom) + Model.touchOffset) + ((MidiManager.Instance.playbackPos.TotalMicroseconds / 1000) * Model.XZoom));
+
+            UiManager.Instance.mainWindow.Model.Tempo = MidiManager.Instance.Tempo;
         }
 
         #region Private
 
-        // TODO debug
         private double HandleTrackSlide()
         {
             Canvas canvas = (

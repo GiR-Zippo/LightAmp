@@ -1,11 +1,10 @@
-﻿using Sanford.Multimedia.Midi;
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Melanchall.DryWetMidi.Core;
 using BardMusicPlayer.Ui.MidiEdit.Managers;
-using BardMusicPlayer.Ui.MidiEdit.Utils.TrackExtensions;
 
 namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
 {
@@ -18,7 +17,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
         public MidiLineControl Ctrl { get; set; }
         public MidiLineModel Model { get; set; }
 
-        public MidiLineView(Track track)
+        public MidiLineView(TrackChunk track)
         {
             Model = new MidiLineModel(track);
             DataContext = Model;
@@ -113,19 +112,17 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                 (byte)rnd.Next(0, 255),
                 (byte)rnd.Next(0, 255)
             );
-            Model.Track.SetColor(color);
+            //SetColor(color);
             Model.TColor = new SolidColorBrush(color); 
         }
         
         private void InstrumentBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MidiManager.Instance.ChangeInstrument(Model.Track, ComboInstruments.SelectedIndex);
-
             if (this.ComboInstruments.IsDropDownOpen)
             {
                 this.ComboInstruments.IsDropDownOpen = false;
-                MidiManager.Instance.SetInstrument(Model.Track.Id(), ComboInstruments.SelectedIndex);
-                MidiManager.Instance.SetTrackName(Model.Track.Id(), Quotidian.Structs.Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
+                MidiManager.Instance.SetInstrument(Model.Track, ComboInstruments.SelectedIndex);
+                MidiManager.Instance.SetTrackName(Model.Track, Quotidian.Structs.Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
                 UiManager.Instance.mainWindow.Ctrl.InitTracks();
             }
         }

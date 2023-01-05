@@ -1,17 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Collections.Generic;
-using Sanford.Multimedia.Midi;
-using System.Linq;
-using System.Threading.Tasks;
 using System.IO;
-using System.Text;
-using System.Runtime.InteropServices.ComTypes;
-using Microsoft.Win32;
+using System.Windows.Controls;
+using System.Windows.Threading;
+
+using Melanchall.DryWetMidi.Core;
+using Melanchall.DryWetMidi.Common;
+using Melanchall.DryWetMidi.Interaction;
+using Melanchall.DryWetMidi.Multimedia;
 
 using BardMusicPlayer.Quotidian;
-using BardMusicPlayer.Ui.MidiEdit.Ui;
-using BardMusicPlayer.Ui.MidiEdit.Utils.TrackExtensions;
 using BardMusicPlayer.Transmogrify.Song;
 
 namespace BardMusicPlayer.Ui.MidiEdit.Managers
@@ -19,6 +18,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
 
     public partial class MidiManager : IDisposable
     {
+        #region Const/Dest
         private static MidiManager instance = null;
         private static readonly object padlock = new object();
         private bool isDisposing = false;
@@ -53,39 +53,35 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
 
             isDisposing = true;
 
-            sequencer.Stop();
-            sequencer.PlayingCompleted -= new EventHandler(HandlePlayingCompleted);
-            sequencer.ChannelMessagePlayed -= new EventHandler<ChannelMessageEventArgs>(HandleChannelMessagePlayed);
-            sequencer.SysExMessagePlayed -= new EventHandler<SysExMessageEventArgs>(HandleSysExMessagePlayed);
-            sequencer.Chased -= new EventHandler<ChasedEventArgs>(HandleChased);
-            sequencer.Stopped -= new EventHandler<StoppedEventArgs>(HandleStopped);
-            sequence.LoadProgressChanged -= HandleLoadProgressChanged;
+            DeInitSequencer();
+
+            if (playback != null)
+                playback.Stop();
             
             if (outDevice != null)
-            {
-                outDevice.Reset();
                 outDevice.Dispose();
-            }
-            sequencer.Dispose();
-            sequence.Dispose();
-            sequencer = null;
-            sequence = null;
+
+            if (playback != null)
+                playback.Dispose();
+
             GC.SuppressFinalize(this);
+            currentSong = null;
             instance = null;
         }
+        #endregion
 
         #region ATRB
-
         // IO
-        private OutputDevice outDevice;
-        //private InputDevice inDevice;
-        // Midi Msg Gen
-        private ChannelMessageBuilder cmBuilder = new ChannelMessageBuilder();
-        private SysCommonMessageBuilder scBuilder = new SysCommonMessageBuilder();
+        private Melanchall.DryWetMidi.Multimedia.OutputDevice outDevice;
+
         // Midi sequencing
-        private Sequencer sequencer;
-        private Sequence sequence;
+        private MidiFile currentSong { get; set; } = new MidiFile();
+        private Playback playback;
         
+        public MetricTimeSpan playbackPos { get; set; }
+        public IEnumerable<TrackChunk> GetTrackChunks() { return currentSong.GetTrackChunks(); }
+        public TempoMap GetTempoMap() { return currentSong.GetTempoMap(); }
+
         #endregion
 
         #region CTOR
@@ -99,7 +95,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
 
         private bool CheckMidiOutput()
         {
-            if (OutputDevice.DeviceCount == 0)
+            if (OutputDevice.GetAll().Count < 0)
             {
                 UiManager.Instance.ThrowError("No MIDI output devices available.");
                 return false;
@@ -111,7 +107,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
         {
             try
             {
-                outDevice = new OutputDevice(0);
+                outDevice = OutputDevice.GetByName("Microsoft GS Wavetable Synth");
             }
             catch (Exception ex)
             {
@@ -119,93 +115,82 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
             }
         }
         
+        /// <summary>
+        /// init the sequencer
+        /// </summary>
         private void InitSequencer()
         {
-            // create
-            sequencer = new Sequencer();
-            sequence = new Sequence();
-            // configure
-            sequencer.Position = 0;
-            sequencer.Sequence = sequence;
-            sequencer.PlayingCompleted += new EventHandler(HandlePlayingCompleted);
-            sequencer.ChannelMessagePlayed += new EventHandler<ChannelMessageEventArgs>(HandleChannelMessagePlayed);
-            sequencer.SysExMessagePlayed += new EventHandler<SysExMessageEventArgs>(HandleSysExMessagePlayed);
-            sequencer.Chased += new EventHandler<ChasedEventArgs>(HandleChased);
-            sequencer.Stopped += new EventHandler<StoppedEventArgs>(HandleStopped);
-            sequence.LoadProgressChanged += HandleLoadProgressChanged;
+            //Create
+            if (outDevice != null)
+            {
+                playback = currentSong.GetPlayback(outDevice);
+                playback.InterruptNotesOnStop = true;
+
+                PlaybackCurrentTimeWatcher.Instance.AddPlayback(playback, TimeSpanType.Midi);
+                PlaybackCurrentTimeWatcher.Instance.CurrentTimeChanged += OnCurrentTimeChanged;
+                PlaybackCurrentTimeWatcher.Instance.PollingInterval = TimeSpan.FromMilliseconds(50);
+                PlaybackCurrentTimeWatcher.Instance.Start();
+
+                playback.Finished += Playback_Finished;
+            }
         }
+
+        /// <summary>
+        /// deinit the sequencer
+        /// </summary>
+        private void DeInitSequencer()
+        {
+            Stop();
+            if ((outDevice != null) && (playback != null))
+            {
+                PlaybackCurrentTimeWatcher.Instance.RemovePlayback(playback);
+                PlaybackCurrentTimeWatcher.Instance.CurrentTimeChanged -= OnCurrentTimeChanged;
+                PlaybackCurrentTimeWatcher.Instance.PollingInterval = TimeSpan.FromMilliseconds(50);
+                PlaybackCurrentTimeWatcher.Instance.Stop();
+
+                playback.Finished -= Playback_Finished;
+            }
+        }
+
         #endregion
-        
+
         #region MIDI EVENTS
 
-        private void HandleChannelMessagePlayed(object sender, ChannelMessageEventArgs e)
+        private static void OnCurrentTimeChanged(object sender, PlaybackCurrentTimeChangedEventArgs e)
         {
-            if (UiManager.Instance.mainWindow.Model.Closing)
-            {
+            if (!MidiManager.Instance.playback.IsRunning)
                 return;
-            }
 
-            outDevice.Send(e.Message);
-            //UiManager.Instance.mainWindow.Ctrl.Update(null, null);
-        }
-
-        private void HandleChased(object sender, ChasedEventArgs e)
-        {
-            foreach (ChannelMessage message in e.Messages)
+            var ti = MidiManager.Instance.playback.GetCurrentTime(TimeSpanType.Metric);
+            if (ti is MetricTimeSpan mts)
             {
-                outDevice.Send(message);
-            }
-            //UiManager.Instance.mainWindow.Ctrl.Update(null, null);
-        }
-
-        private void HandleSysExMessagePlayed(object sender, SysExMessageEventArgs e)
-        {
-            //     outDevice.Send(e.Message); Sometimes causes an exception to be thrown because the output device is overloaded.
-        }
-
-        private void HandleStopped(object sender, StoppedEventArgs e)
-        {
-            foreach (ChannelMessage message in e.Messages)
-            {
-                outDevice.Send(message);
+                MidiManager.Instance.playbackPos = mts;
+                UiManager.Instance.mainWindow.Ctrl.Update(null, null);
             }
         }
 
-        private void HandlePlayingCompleted(object sender, EventArgs e)
+        private void Playback_Finished(object sender, EventArgs e)
         {
             Stop();
         }
 
         #endregion
 
-        #region  MTDS
-
         #region PLAY/PAUSE GESTION
 
         public bool IsPlaying { get; set; } = false;
-
-        public int CurrentTime
-        {
-            get
-            {
-                return sequencer.Position;
-            }
-            set
-            {
-                sequencer.Position = value;
-            }
-        }
 
         public int Tempo
         {
             get
             {
-                return sequencer.Tempo;
+                if (currentSong != null)
+                    return (int)currentSong.GetTempoMap().GetTempoAtTime((MidiTimeSpan)0).BeatsPerMinute;
+                return 0;
             }
             set
             {
                 if (value < 1) value = 1;
-                //sequencer.InternalClock.Tempo = value;
             }
         }
 
@@ -214,8 +199,9 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
             try
             {
                 IsPlaying = true;
-                sequencer.Start();
-                //Timer.Start();
+                if (playback is null)
+                    return;
+                playback.Start();
             }
             catch (Exception ex)
             {
@@ -228,8 +214,11 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
             try
             {
                 IsPlaying = false;
-                sequencer.Stop();
-                //Timer.Stop();
+                if (playback is null)
+                    return;
+
+                playback.Stop();
+                playback.MoveToStart();
             }
             catch (Exception ex)
             {
@@ -242,8 +231,10 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
             try
             {
                 IsPlaying = true;
-                //sequencer.Pause();
-                //Timer.Start();
+                if (playback is null)
+                    return;
+
+                playback.Stop();
             }
             catch (Exception ex)
             {
@@ -257,9 +248,12 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
             {
                 try
                 {
-                    outDevice.Send(
-                        new ChannelMessage(v ? ChannelCommand.NoteOn : ChannelCommand.NoteOff, 0, noteID, 127)
-                    );
+                    if (outDevice == null)
+                        return;
+                    if (v)
+                        outDevice.SendEvent(new NoteOnEvent((SevenBitNumber)noteID, (SevenBitNumber)127));
+                    else
+                        outDevice.SendEvent(new NoteOffEvent((SevenBitNumber)noteID, (SevenBitNumber)127));
                 }
                 catch (Exception e)
                 {
@@ -270,126 +264,9 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
 
         #endregion
 
-        #region TRACK GESTION
-
-        public IEnumerable<T> ToIEnumerable<T>(IEnumerator<T> enumerator)
-        {
-            while (enumerator.MoveNext())
-            {
-                yield return enumerator.Current;
-            }
-        }
-
-        public IEnumerable<Track> Tracks
-        {
-            get 
-            {
-                return ToIEnumerable(sequence.GetEnumerator());
-            }
-        }
-
-        internal void ChangeInstrument(Track track, int instrument)
-        {
-            // TODO
-            
-            cmBuilder.Command = ChannelCommand.ProgramChange;
-            if (outDevice != null)
-            {
-                cmBuilder.Data1 = instrument;
-                //cmBuilder.MidiChannel = track.GetMidiEvent(0).MidiMessage.MessageType.;
-                cmBuilder.Build();
-                outDevice.Send(cmBuilder.Result);
-            }
-        }
-
-        /// <summary>
-        /// Create a prog change event
-        /// </summary>
-        /// <param name="selectedTrack"></param>
-        /// <param name="instrument"></param>
-        /// <param name="atStart"></param>
-        internal void CreateProgChange(int selectedTrack, int instrument, bool atStart = false)
-        {
-            var t = ToIEnumerable(sequence.GetEnumerator());
-            Track track = t.ElementAt(selectedTrack);
-
-            var x = track.Iterator().Where(ev => ev.MidiMessage is ChannelMessage msg && msg.Command == ChannelCommand.NoteOn).First();
-            ChannelMessage cMsg = x.MidiMessage as ChannelMessage;
-
-            int ct = 0;
-            if (atStart)
-            {
-                foreach (MidiEvent ev in track.Iterator())
-                {
-                    if (ev.MidiMessage is ChannelMessage chanMsg)
-                    {
-                        if (chanMsg.Command == ChannelCommand.ProgramChange)
-                        {
-                            if (ev.AbsoluteTicks < 50)
-                            {
-                                track.Remove(ev);
-                                cMsg = chanMsg;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                foreach (MidiEvent ev in track.Iterator())
-                {
-                    if (ev.MidiMessage is ChannelMessage chanMsg)
-                    {
-                        if (chanMsg.Command == ChannelCommand.NoteOn)
-                        {
-                            if (chanMsg.Data2 > 0)
-                            {
-                                cMsg = chanMsg;
-                                ct = ev.DeltaTicks -10; //set some ticks before
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            cmBuilder.Command = ChannelCommand.ProgramChange;
-            cmBuilder.Data1 = instrument;
-            cmBuilder.Data2 = 64;
-            cmBuilder.MidiChannel = cMsg.MidiChannel;
-            cmBuilder.Build();
-            track.Insert(ct, cmBuilder.Result);
-
-            //Set the track name if we are at the first change
-            if (!atStart)
-                return;
-
-            foreach (MidiEvent ev in track.Iterator())
-            {
-                if (ev.MidiMessage is MetaMessage metaMsg)
-                {
-                    if (metaMsg.MetaType == MetaType.TrackName)
-                    {
-                        track.Remove(ev);
-                        MetaTextBuilder builder = new MetaTextBuilder(metaMsg);
-                        builder.Text = Quotidian.Structs.Instrument.ParseByProgramChange(instrument).Name;
-                        builder.Type = MetaType.TrackName;
-                        builder.Build();
-                        track.Insert(ev.AbsoluteTicks, builder.Result);
-                        UiManager.Instance.mainWindow.Ctrl.InitTracks();
-                        break;
-                    }
-                }
-            }
-
-        }
-
-        #endregion
-
         #region PLOT GESTION
 
-        internal Tuple<MidiEvent, MidiEvent> CreateNote(int channel, int noteIndex, Track Track, double start, double end, int velocity)
+        internal Tuple<Sanford.Multimedia.Midi.MidiEvent, Sanford.Multimedia.Midi.MidiEvent> CreateNote(int channel, int noteIndex, TrackChunk Track, double start, double end, int velocity)
         {
             /*cmBuilder.Command = ChannelCommand.NoteOn;
             cmBuilder.Data1 = noteIndex;
@@ -411,60 +288,74 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
 
         #region DATA
 
-        internal int GetLength() { return sequence.GetLength(); }
+        /// <summary>
+        /// Get the song length in milliseconds
+        /// </summary>
+        /// <returns></returns>
+        internal long GetLength()
+        {
+            var e = playback.GetDuration(TimeSpanType.Metric);
+            if (e is MetricTimeSpan mts)
+                return mts.TotalMicroseconds / 1000;
+            return 0;
+        }
 
+        /// <summary>
+        /// Save the midifile
+        /// </summary>
+        /// <param name="fileName"></param>
         internal void SaveFile(string fileName)
         {
             Stop();
             try
             {
-                sequence.SaveAsync(fileName);
+                FileStream myStream = new FileStream(fileName, FileMode.Create);
+                currentSong.Write(myStream, MidiFileFormat.MultiTrack, new WritingSettings { });
+                myStream.Close();
             }
             catch (Exception ex)
             {
                 UiManager.Instance.ThrowError(ex.Message);
             }
-            // on success
-            //UiManager.Instance.mainWindow.DisableUserInterractions();
         }
 
+        /// <summary>
+        /// open a midifile
+        /// </summary>
+        /// <param name="fileName"></param>
         internal void OpenFile(string fileName)
         {
-            Stop();
-            try
-            {
-                // LOAD MIDI FILE
-                BmpSong bmpSong = BmpSong.OpenFile(fileName).Result;
-                OpenFile(bmpSong.GetExportMidi());
-
-            }
-            catch (Exception ex)
-            {
-                UiManager.Instance.ThrowError(ex.Message);
-            }
+            DeInitSequencer();
+            BmpSong bmpSong = BmpSong.OpenFile(fileName).Result;
+            OpenFile(bmpSong.GetExportMidi());
         }
 
+        /// <summary>
+        /// open the midi from memorystream
+        /// </summary>
+        /// <param name="midiFile"></param>
         internal void OpenFile(MemoryStream midiFile)
         {
+            DeInitSequencer();
             UiManager.Instance.mainWindow.DisableUserInterractions();
-
             try
             {
-                // LOAD MIDI FILE
-                sequence.Load(midiFile);
+                currentSong = MidiFile.Read(midiFile);
                 midiFile.Close();
                 midiFile.Dispose();
+                
             }
             catch (Exception ex)
             {
                 UiManager.Instance.ThrowError(ex.Message);
             }
             UiManager.Instance.mainWindow.EnableUserInterractions();
+            InitSequencer();
 
             UiManager.Instance.mainWindow.ProgressionBar.Value = 0;
             UiManager.Instance.mainWindow.MasterScroller.Value = 0;
-            UiManager.Instance.mainWindow.MasterScroller.Maximum = sequence.GetLength() * UiManager.Instance.mainWindow.Model.XZoom;
-            UiManager.Instance.mainWindow.Model.Tempo = sequencer.Tempo; // TODO tempo doesnt seem to be loaded from midi file that easy
+            UiManager.Instance.mainWindow.MasterScroller.Maximum = ((playback.GetDuration(TimeSpanType.Metric) as MetricTimeSpan).TotalMicroseconds /1000) * UiManager.Instance.mainWindow.Model.XZoom;
+            UiManager.Instance.mainWindow.Model.Tempo = (int)currentSong.GetTempoMap().GetTempoAtTime((MidiTimeSpan)0).BeatsPerMinute;
             UiManager.Instance.mainWindow.Ctrl.InitTracks();
         }
 
@@ -473,21 +364,6 @@ namespace BardMusicPlayer.Ui.MidiEdit.Managers
             UiManager.Instance.mainWindow.ProgressionBar.Value = e.ProgressPercentage;
         }
 
-        /// <summary>
-        /// Converts the sanford midi to MemoryStream
-        /// </summary>
-        /// <returns></returns>
-        public MemoryStream GetMidiStreamFromSanford()
-        {
-            MemoryStream stream = new MemoryStream();
-            sequence.Save(stream);
-            stream.Rewind();
-            return stream;
-        }
-
         #endregion
-
-        #endregion
-
     }
 }

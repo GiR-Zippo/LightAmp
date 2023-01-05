@@ -1,5 +1,4 @@
-﻿using Sanford.Multimedia.Midi;
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -7,9 +6,13 @@ using System.Windows.Shapes;
 using System.Windows.Input;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+
+using Melanchall.DryWetMidi.Core;
+using Melanchall.DryWetMidi.Interaction;
+
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Ui.MidiEdit.Managers;
-using BardMusicPlayer.Ui.MidiEdit.Utils.TrackExtensions;
+
 
 namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
 {
@@ -19,7 +22,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
         #region CTOR
 
         public MidiLineView view { get; set; }
-        MidiLineModel model { get; set; }
+        public MidiLineModel model { get; set; }
         
         public MidiLineControl (MidiLineModel model, MidiLineView view)
         {
@@ -28,19 +31,19 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
             Init();
         }
 
-        private void Init()
+        public void Init()
         {
             // track header
             FillInstrumentBox();
 
-            view.ComboInstruments.SelectedIndex = MidiManager.Instance.GetInstrument(model.Track.Id());
-            view.ChannelId.Content = MidiManager.Instance.GetChannelNumber(model.Track.Id()) + 1;
+            view.ComboInstruments.SelectedIndex = MidiManager.Instance.GetInstrument(model.Track);
+            view.ChannelId.Content = MidiManager.Instance.GetChannelNumber(model.Track) + 1;
             //Check if the instrument is "None"
             if (view.ComboInstruments.Items.GetItemAt(view.ComboInstruments.SelectedIndex) is ComboBoxItem it)
             {
                 if (it.Content.ToString() == "None")
                 {
-                    var trackName = MidiManager.Instance.GetTrackName(model.Track.Id());
+                    var trackName = MidiManager.Instance.GetTrackName(model.Track);
                     Regex rex = new Regex(@"^([A-Za-z _]+)([-+]\d)?");
                     if (rex.Match(trackName) is Match match)
                     {
@@ -48,19 +51,19 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                         {
                             var num = Instrument.Parse(match.Groups[1].Value).MidiProgramChangeCode;
                             view.ComboInstruments.SelectedIndex = num;
-                            MidiManager.Instance.SetInstrument(model.Track.Id(), num);
+                            MidiManager.Instance.SetInstrument(model.Track, num);
                         }
                     }
                 }
             }
             if (!Instrument.ParseByProgramChange(view.ComboInstruments.SelectedIndex).Equals(Instrument.None))
-                MidiManager.Instance.SetTrackName(model.Track.Id(), Instrument.ParseByProgramChange(view.ComboInstruments.SelectedIndex).Name);
+                MidiManager.Instance.SetTrackName(model.Track, Instrument.ParseByProgramChange(view.ComboInstruments.SelectedIndex).Name);
 
             //Check if we got a drum track
             if (view.ChannelId.Content.ToString() == "10")
-                view.TrackName.Content = MidiManager.Instance.GetTrackName(model.Track.Id()) + " or Drums";
+                view.TrackName.Content = MidiManager.Instance.GetTrackName(model.Track) + " or Drums";
             else
-                view.TrackName.Content = MidiManager.Instance.GetTrackName(model.Track.Id());
+                view.TrackName.Content = MidiManager.Instance.GetTrackName(model.Track);
 
             // track body
             DrawPianoRoll();
@@ -90,21 +93,21 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
             view.ComboInstruments.SelectedIndex = 0;
         }
 
-        public event EventHandler<int> TrackFocused;
-        public event EventHandler<Track> TrackMergeUp;
-        public event EventHandler<Track> TrackMergeDown;
+        public event EventHandler<TrackChunk> TrackFocused;
+        public event EventHandler<TrackChunk> TrackMergeUp;
+        public event EventHandler<TrackChunk> TrackMergeDown;
 
         public static readonly DependencyProperty AttachedNoteOnProperty =
             DependencyProperty.RegisterAttached(
                 "AttachedNoteOn",
-                typeof(MidiEvent),
+                typeof(TimedEvent),
                 typeof(MidiLineControl)
         );
 
         public static readonly DependencyProperty AttachedNoteOffProperty =
             DependencyProperty.RegisterAttached(
                 "AttachedNoteOff",
-                typeof(MidiEvent),
+                typeof(TimedEvent),
                 typeof(MidiLineControl)
         );
 
@@ -114,25 +117,25 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
 
         internal void TrackGotFocus(object sender, RoutedEventArgs e)
         {
-            TrackFocused.Invoke(sender,model.Track.Id());
+            TrackFocused.Invoke(sender, model.Track);
         }
 
         internal void MergeUp(object sender, RoutedEventArgs e)
         {
-            TrackFocused.Invoke(sender, model.Track.Id());
+            TrackFocused.Invoke(sender, model.Track);
             TrackMergeUp.Invoke(sender, model.Track);
         }
 
         internal void MergeDown(object sender, RoutedEventArgs e)
         {
-            TrackFocused.Invoke(sender, model.Track.Id());
+            TrackFocused.Invoke(sender, model.Track);
             TrackMergeDown.Invoke(sender, model.Track);
         }
         
         internal void InsertNote(double start, double end, int noteIndex)
         {
             return;
-            if (MidiManager.Instance.IsPlaying) return;
+            /*if (MidiManager.Instance.IsPlaying) return;
             // Generate Midi Note
             int channel = 0;
             int velocity = UiManager.Instance.plotVelocity;
@@ -144,7 +147,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                 end,
                 velocity);
             // Draw it on MidiRoll
-            DrawNote(start,end,noteIndex, msgs.Item1, msgs.Item2);
+            DrawNote(start,end,noteIndex, msgs.Item1, msgs.Item2);*/
         }
 
         #endregion
@@ -210,7 +213,12 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
         public void DrawMidiEvents()
         {
             view.TrackBody.Children.Clear();
-            int i = 0;
+            DrawNotes();
+
+
+            //note.TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds;
+
+            /*int i = 0;
             foreach (var midiEvent in model.Track.Iterator())
             {
                 if (midiEvent.MidiMessage.MessageType == MessageType.Channel)
@@ -218,12 +226,27 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                     DrawChannelMsg(midiEvent);
                 }
                 i++;
+            }*/
+        }
+
+        private void DrawNotes()
+        {
+            TempoMap tempo = MidiManager.Instance.GetTempoMap();
+            foreach (Note note in model.Track.GetNotes())
+            {
+                DrawNote(
+                    (double)note.GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds/1000 / model.DAWhosReso,
+                    (double)note.GetTimedNoteOffEvent().TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds/1000 / model.DAWhosReso,
+                    note.NoteNumber,
+                    note.GetTimedNoteOnEvent(),
+                    note.GetTimedNoteOffEvent()
+                );
             }
         }
 
         private void DrawChannelMsg(MidiEvent midiEvent)
         {
-            int status = midiEvent.MidiMessage.Status;
+            /*int status = midiEvent.MidiMessage.Status;
             int position = midiEvent.AbsoluteTicks;
             // NOTE OFF
             if (status >= (int)ChannelCommand.NoteOff &&
@@ -266,10 +289,10 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                 status <= (int)ChannelCommand.ProgramChange + ChannelMessage.MidiChannelMaxValue)
             {
                 model.MidiInstrument = (int)midiEvent.MidiMessage.GetBytes()[1];
-            }
+            }*/
         }
 
-        private void DrawNote(double start, double end, int noteIndex, MidiEvent messageOn, MidiEvent messageOff)
+        private void DrawNote(double start, double end, int noteIndex, TimedEvent messageOn, TimedEvent messageOff)
         {
             Rectangle rec = new Rectangle();
             try
@@ -296,7 +319,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
         private void NoteLeftDown(object sender, MouseButtonEventArgs e)
         {
             e.Handled = true;
-            if (e.ClickCount>1)
+            /*if (e.ClickCount>1)
             {
                 if (MidiManager.Instance.IsPlaying) return;
                 Rectangle rec = (Rectangle)sender;
@@ -305,7 +328,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine
                 view.TrackBody.Children.Remove(rec);
                 model.Track.Remove(noteOn);
                 model.Track.Remove(noteOff);
-            }
+            }*/
         }
 
         private void NoteRightDown(object sender, MouseButtonEventArgs e)

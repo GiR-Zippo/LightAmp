@@ -1,128 +1,175 @@
-﻿using Sanford.Multimedia.Midi;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using Melanchall.DryWetMidi.Core;
+using Melanchall.DryWetMidi.Common;
+using Melanchall.DryWetMidi.Interaction;
+
+using BardMusicPlayer.Ui.MidiEdit.Utils;
 
 namespace BardMusicPlayer.Ui.MidiEdit.Managers
 {
     public partial class MidiManager
     {
-#region Primary Track Functions
         /// <summary>
         /// add a track
         /// </summary>
-        internal void AddTrack()
+        public void AddTrack()
         {
-            sequence.Add(new Track());
+            //sequence.Add(new Track());
         }
 
         /// <summary>
-        /// Merge tracks
+        /// Remove the <see cref="TrackChunk"/>
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="dest"></param>
-        internal void MergeTracks(int source, int dest)
+        /// <param name="track"></param>
+        public void RemoveTrack(TrackChunk track)
         {
+            currentSong.Chunks.Remove(track);
+        }
+
+        /// <summary>
+        /// Sets the channel according to the first note in <see cref="TrackChunk"/>
+        /// </summary>
+        public void AutoSetChannelsForAllTracks()
+        {
+            foreach (TrackChunk tc in currentSong.GetTrackChunks())
+            {
+                int channel = GetChannelNumber(tc);
+                SetChanNumber(tc, channel);
+            }
+        }
+
+        /// <summary>
+        /// Renumbers the channels for the song
+        /// </summary>
+        public void AutoRenumberChannels()
+        {
+            int idx = 0;
+            foreach (TrackChunk tc in currentSong.GetTrackChunks())
+            {
+                SetChanNumber(tc, idx);
+                if (idx == 15)
+                    idx = 0;
+                idx++;
+            }
+        }
+
+        /// <summary>
+        /// Merge Tracks via Melanchall
+        /// Removes the sourceTrack
+        /// </summary>
+        /// <param name="sourceTrack"></param>
+        /// <param name="destinationTrack"></param>
+        public void MergeTracks(TrackChunk sourceTrack, TrackChunk destinationTrack)
+        {
+            int idx = currentSong.GetTrackChunks().IndexOf(destinationTrack);
+            var newtrack = Melanchall.DryWetMidi.Core.TrackChunkUtilities.Merge(new List<TrackChunk> { sourceTrack, destinationTrack });
+            currentSong.Chunks.Remove(sourceTrack);
+            currentSong.Chunks.Remove(destinationTrack);
+            currentSong.Chunks.Insert(idx, newtrack);
+        }
+
+        /// <summary>
+        /// Merge tracks to the destination index
+        /// </summary>
+        /// <param name="sourceTrack"></param>
+        /// <param name="destinationTrack"></param>
+        /// <param name="destinationIndex"></param>
+        public void MergeTracks(TrackChunk sourceTrack, TrackChunk destinationTrack, int destinationIndex)
+        {
+            Dictionary<int, int> channelIntrument = new Dictionary<int, int>();
+
             //Set the channel numbers
-            Melanchall.DryWetMidi.Core.MidiFile midiFile = GetMelanchallMidiFile();
-            midiFile = SetChanNumber(midiFile, source);
-            midiFile = SetChanNumber(midiFile, dest);
-            melanchallToSequencer(midiFile);
+            int destChan = GetChannelNumber(destinationTrack);
+            SetChanNumber(destinationTrack, destChan);
 
-            //Do this with sanford, Melanchall is too slow
-            Track src_track = ToIEnumerable(sequence.GetEnumerator()).ElementAt(source);
-            Track dest_track = ToIEnumerable(sequence.GetEnumerator()).ElementAt(dest);
-
-            //Remove all progchanges
-            var flt = src_track.Iterator().AsParallel().Where(ev => ev.MidiMessage is ChannelMessage msg && msg.Command == ChannelCommand.ProgramChange);
-            foreach (MidiEvent ev in flt)
-                src_track.Remove(ev);
-
-            flt = dest_track.Iterator().AsParallel().Where(ev => ev.MidiMessage is ChannelMessage msg && msg.Command == ChannelCommand.ProgramChange);
-            foreach (MidiEvent ev in flt)
-                dest_track.Remove(ev);
-
-
-            sequence.MergeTracks(source, dest);
-
-            dest_track = ToIEnumerable(sequence.GetEnumerator()).ElementAt(dest);
-
-            int lastchannel = -1;
-            foreach (MidiEvent ev in dest_track.Iterator())
+            int srcChan = GetChannelNumber(sourceTrack);
+            if (destChan == srcChan)
             {
-                if (ev.MidiMessage is ChannelMessage chanMsg)
-                {
-                    if (chanMsg.Command == ChannelCommand.NoteOn)
-                    {
-                        if (chanMsg.MidiChannel != lastchannel)
-                        {
-                            cmBuilder.Command = ChannelCommand.ProgramChange;
-                            cmBuilder.Data1 = Quotidian.Structs.Instrument.Parse(GetTrackName(chanMsg.MidiChannel)).MidiProgramChangeCode;
-                            cmBuilder.Data2 = 64;
-                            cmBuilder.MidiChannel = chanMsg.MidiChannel;
-                            cmBuilder.Build();
-                            dest_track.Insert(ev.AbsoluteTicks, cmBuilder.Result);
-                            lastchannel = chanMsg.MidiChannel;
-                        }
-                    }
-                }
-            };
+                if (destChan == 0)
+                    srcChan = destChan + 1;
+                if (destChan == 15)
+                    srcChan = destChan - 1;
+            }
+            SetChanNumber(sourceTrack, srcChan);
 
-            SetChanNumber(dest);
-        }
+            //Get channel instrument
+            channelIntrument[GetChannelNumber(sourceTrack)] = GetInstrument(sourceTrack);
+            channelIntrument[GetChannelNumber(destinationTrack)] = GetInstrument(destinationTrack);
 
-        /// <summary>
-        /// Remove the track[id]
-        /// </summary>
-        /// <param name="selectedTrack"></param>
-        internal void RemoveTrack(int selectedTrack)
-        {
-            sequence.RemoveAt(selectedTrack);
-        }
-#endregion
-
-        /// <summary>
-        /// Set the Channel numbers for all tracks
-        /// </summary>
-        internal void AutoSetChanNumber()
-        {
-            Melanchall.DryWetMidi.Core.MidiFile midiFile = GetMelanchallMidiFile();
-            midiFile = AutoSetChannelsForAllTracks(midiFile);
-            melanchallToSequencer(midiFile);
-        }
-
-        /// <summary>
-        /// Removes tracks without notes
-        /// </summary>
-        internal void RemoveEmptyTracks()
-        {
-            List<Track> empty = new List<Track>();
-
-            foreach (Track track in ToIEnumerable(sequence.GetEnumerator()))
+            //Remove trackname from source
+            using (var manager = sourceTrack.ManageTimedEvents())
             {
-                bool hasNotes = false;
-                foreach (MidiEvent ev in track.Iterator())
-                {
-                    if (ev.MidiMessage is MetaMessage metaMsg)
-                    {
-                        if (metaMsg.MetaType == MetaType.TimeSignature)
-                        {
-                            hasNotes = true;
-                            break;
-                        }
-                    }
-                    if (ev.MidiMessage is ChannelMessage chanMsg)
-                        if (chanMsg.Command == ChannelCommand.NoteOn)
-                        {
-                            hasNotes = true;
-                            break;
-                        }
-                }
-                if (!hasNotes)
-                    empty.Add(track);
+                manager.Events.RemoveAll(e => e.Event.EventType == MidiEventType.SequenceTrackName);
             }
 
-            foreach (Track t in empty)
-                sequence.Remove(t);
+            //Merge
+            var newtrack = Melanchall.DryWetMidi.Core.TrackChunkUtilities.Merge(new List<TrackChunk> { sourceTrack, destinationTrack });
+
+            //Clear progs
+            ClearProgChanges(newtrack);
+
+            //set new prog events
+            using (var events = newtrack.ManageTimedEvents())
+            {
+                int lastchannel = -1;
+                foreach (var mevent in events.Events)
+                {
+                    if (mevent.Event.EventType == MidiEventType.NoteOn)
+                    {
+                        NoteOnEvent no = mevent.Event as NoteOnEvent;
+                        if (no.Channel != lastchannel)
+                        {
+                            var t = mevent.Time;
+                            ProgramChangeEvent pc = new ProgramChangeEvent((SevenBitNumber)channelIntrument[no.Channel]);
+                            pc.Channel = (FourBitNumber)destChan;
+                            events.Events.AddEvent(pc, t);
+                            lastchannel = no.Channel;
+                        }
+                    }
+                }
+            }
+
+            SetInstrument(newtrack, (SevenBitNumber)channelIntrument[destChan]);
+
+            //and finish it
+            currentSong.Chunks.Remove(sourceTrack);
+            currentSong.Chunks.Remove(destinationTrack);
+            if (destinationIndex > currentSong.GetTrackChunks().Count())
+                currentSong.Chunks.Add(newtrack);
+            else
+                currentSong.Chunks.Insert(destinationIndex, newtrack);
+            destChan = GetChannelNumber(newtrack);
+            SetChanNumber(newtrack, destChan);
+        }
+
+        /// <summary>
+        /// Removes tracks without <see cref="Note"/> and <see cref="TimeSignature"/>
+        /// </summary>
+        public void RemoveEmptyTracks()
+        {
+            List<TrackChunk> remove = new List<TrackChunk>();
+            foreach (TrackChunk track in currentSong.GetTrackChunks())
+            {
+                bool empty = true;
+                if (track.ManageNotes().Notes.Any())
+                    empty = false;
+
+                var ev = track.Events.Where(e => e.EventType == MidiEventType.TimeSignature).FirstOrDefault();
+                if (ev != null)
+                    empty = false;
+                
+                ev = track.Events.Where(e => e.EventType == MidiEventType.SetTempo).FirstOrDefault();
+                if (ev != null)
+                    empty = false;
+
+                if (empty)
+                    remove.Add(track);
+            }
+            foreach(var t in remove)
+                currentSong.Chunks.Remove(t);
         }
     }
 }

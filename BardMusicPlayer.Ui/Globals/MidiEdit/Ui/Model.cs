@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using Melanchall.DryWetMidi.Core;
 using BardMusicPlayer.Ui.MidiEdit.Managers;
 using BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine;
 using BardMusicPlayer.Ui.MidiEdit.Utils;
@@ -21,7 +22,7 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
 
         #region State
 
-        public int SelectedTrack { get; set; } = 0;
+        public TrackChunk SelectedTrackChunk { get; set; }
         public bool ManuallyScrolling { get; set; } = false;
         public bool Closing { get; set; } = false;
         public bool Playing { get; set; } = false;
@@ -69,8 +70,8 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
             get { return xZoom; }
             set
             {
-                if (value < .01f) 
-                    value = .01f;
+                if (value < 0.01f) 
+                    value = 0.01f;
                 xZoom = value;
                 RaisePropertyChanged("XZoom");
 

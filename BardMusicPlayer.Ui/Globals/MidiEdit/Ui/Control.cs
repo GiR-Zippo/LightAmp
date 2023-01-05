@@ -1,12 +1,14 @@
-﻿using Sanford.Multimedia.Midi;
-using System;
+﻿using System;
 using System.Windows.Media;
 using System.Windows.Controls;
 using System.Windows;
 using System.Linq;
+
+using Melanchall.DryWetMidi.Core;
+
 using BardMusicPlayer.Ui.MidiEdit.Managers;
 using BardMusicPlayer.Ui.MidiEdit.Ui.TrackLine;
-using BardMusicPlayer.Ui.MidiEdit.Utils.TrackExtensions;
+using BardMusicPlayer.Ui.MidiEdit.Utils;
 
 namespace BardMusicPlayer.Ui.MidiEdit.Ui
 {
@@ -22,7 +24,6 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
             this.model = model;
             this.view = view;
             model.TracksPanel = view.TracksPanel;
-            //MidiManager.Instance.Timer.Tick += Update;
         }
 
         public void InitView()
@@ -46,6 +47,102 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
         {
             MidiManager.Instance.SaveFile(fileName);
         }
+
+        public void AddTrack()
+        {
+            MidiManager.Instance.AddTrack();
+            InitTracks();
+        }
+
+        internal void RemoveTrack()
+        {
+            if ((!MidiManager.Instance.GetTrackChunks().Any()) || (model.SelectedTrackChunk == null))
+                return;
+
+            MidiManager.Instance.RemoveTrack(model.SelectedTrackChunk);
+            InitTracks();
+        }
+
+        internal void CleanUpSong()
+        {
+            if (!MidiManager.Instance.GetTrackChunks().Any())
+                return;
+
+            UiManager.Instance.mainWindow.DisableUserInterractions();
+            MidiManager.Instance.RemoveEmptyTracks();
+            MidiManager.Instance.AutoSetChannelsForAllTracks();
+            InitTracks();
+            UiManager.Instance.mainWindow.EnableUserInterractions();
+        }
+
+        internal void AutochannelSong()
+        {
+            if (!MidiManager.Instance.GetTrackChunks().Any())
+                return;
+
+            UiManager.Instance.mainWindow.DisableUserInterractions();
+            MidiManager.Instance.AutoRenumberChannels();
+            InitTracks();
+            UiManager.Instance.mainWindow.EnableUserInterractions();
+        }
+
+        internal void RemoveAllEventsFromTrack()
+        {
+            if ((!MidiManager.Instance.GetTrackChunks().Any()) || (model.SelectedTrackChunk == null))
+                return;
+            MidiManager.Instance.RemoveAllEventsFromTrack(model.SelectedTrackChunk);
+            MidiManager.Instance.SetInstrument(model.SelectedTrackChunk, Quotidian.Structs.Instrument.Parse(MidiManager.Instance.GetTrackName(model.SelectedTrackChunk)).MidiProgramChangeCode);
+            UpdateTrackView(model.SelectedTrackChunk);
+        }
+
+        internal void Drummapping()
+        {
+            if ((!MidiManager.Instance.GetTrackChunks().Any()) || (model.SelectedTrackChunk == null))
+                return;
+
+            MidiManager.Instance.Drummapping(model.SelectedTrackChunk);
+            InitTracks();
+        }
+
+        internal void TransposeTrack(int halftones)
+        {
+            if ((!MidiManager.Instance.GetTrackChunks().Any()) || (model.SelectedTrackChunk == null))
+                return;
+
+            MidiManager.Instance.Transpose(model.SelectedTrackChunk, halftones);
+            UpdateTrackView(model.SelectedTrackChunk);
+        }
+
+        private void TrackMergeUp(object sender, TrackChunk e)
+        {
+            if ((!MidiManager.Instance.GetTrackChunks().Any()) || (model.SelectedTrackChunk == null))
+                return;
+
+            TrackChunk source = model.SelectedTrackChunk;
+            var index = MidiManager.Instance.GetTrackChunks().IndexOf(source);
+            if ((index == -1) || (index - 1 < 0))
+                return;
+
+            TrackChunk dest = MidiManager.Instance.GetTrackChunks().ElementAt(index - 1);
+            MidiManager.Instance.MergeTracks(source, dest, index - 1);
+            InitTracks();
+        }
+
+        private void TrackMergeDown(object sender, TrackChunk e)
+        {
+            if ((!MidiManager.Instance.GetTrackChunks().Any()) || (model.SelectedTrackChunk == null))
+                return;
+
+            TrackChunk source = model.SelectedTrackChunk;
+            var index = MidiManager.Instance.GetTrackChunks().IndexOf(source);
+            if ((index == -1) || (index + 1 >= MidiManager.Instance.GetTrackChunks().Count()))
+                return;
+
+            TrackChunk dest = MidiManager.Instance.GetTrackChunks().ElementAt(index + 1);
+            MidiManager.Instance.MergeTracks(source, dest, index + 1);
+            InitTracks();
+        }
+
         #endregion
 
         #region Scroll
@@ -55,7 +152,6 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
             view.Dispatcher.BeginInvoke(new Action(() => view.TimeUpdate()));
         }
         
-
         internal void ManualScroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
         {
             view.UpdateHorizontalScrolling();
@@ -67,14 +163,15 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
 
         public void InitTracks()
         {
-            MidiManager.Instance.Tracks.First().ResetExtentions(); //Reset the extentions list
-
             view.TracksPanel.Children.Clear();
             view.TracksPanel.RowDefinitions.Clear();
+            UiManager.Instance.mainWindow.MidiLines.Clear();
+
             int i = 0;
-            foreach (Track track in MidiManager.Instance.Tracks) 
+            foreach (TrackChunk track in MidiManager.Instance.GetTrackChunks()) 
             {
-                MidiLineView lineView = InitTrackLine(i,track);
+                MidiLineView lineView = InitTrackLine(track);
+                UiManager.Instance.mainWindow.MidiLines.Add(lineView);
                 AddTrackGridRow(i,lineView);
                 AddSeparatorGridRow(i);
                 i++;
@@ -85,18 +182,24 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
                    Height = new GridLength(400, GridUnitType.Pixel)
                }
            );
-
         }
 
-        private MidiLineView InitTrackLine(int rowIndex, Track track)
+        private MidiLineView InitTrackLine(TrackChunk track)
         {
-            track.Id();
-            //track.Channel = rowIndex;
             MidiLineView lineView = new MidiLineView(track);
             lineView.Ctrl.TrackFocused += FocusTrack;
             lineView.Ctrl.TrackMergeUp += TrackMergeUp;
             lineView.Ctrl.TrackMergeDown += TrackMergeDown;
             return lineView;
+        }
+
+        private void UpdateTrackView(TrackChunk track)
+        {
+            foreach (var item in UiManager.Instance.mainWindow.MidiLines)
+            {
+                if (item.Ctrl.model.Track.Equals(track))
+                    item.Ctrl.Init();
+            }
         }
 
         private void AddSeparatorGridRow(int rowIndex)
@@ -139,95 +242,9 @@ namespace BardMusicPlayer.Ui.MidiEdit.Ui
             Grid.SetRow(trackLine, 2 * rowIndex);
         }
 
-        public void AddTrack()
+        private void FocusTrack(object sender, TrackChunk e)
         {
-            MidiManager.Instance.AddTrack();
-            InitTracks();
-        }
-
-        internal void RemoveTrack()
-        {
-            if (!MidiManager.Instance.Tracks.Any()) 
-                return;
-            MidiManager.Instance.RemoveTrack(model.SelectedTrack);
-            MidiManager.Instance.AutoSetChanNumber();
-            InitTracks();
-        }
-
-        internal void CleanUpSong()
-        {
-            if (!MidiManager.Instance.Tracks.Any())
-                return;
-
-            UiManager.Instance.mainWindow.DisableUserInterractions();
-            MidiManager.Instance.RemoveEmptyTracks();
-            UiManager.Instance.mainWindow.DisableUserInterractions();
-            MidiManager.Instance.AutoSetChanNumber();
-            UiManager.Instance.mainWindow.DisableUserInterractions();
-            InitTracks();
-            UiManager.Instance.mainWindow.EnableUserInterractions();
-        }
-
-        internal void RemoveAllEventsFromTrack()
-        {
-            if (!MidiManager.Instance.Tracks.Any())
-                return;
-            MidiManager.Instance.RemoveAllEventsFromTrack(model.SelectedTrack);
-            MidiManager.Instance.SetInstrument(model.SelectedTrack, Quotidian.Structs.Instrument.Parse(MidiManager.Instance.GetTrackName(model.SelectedTrack)).MidiProgramChangeCode);
-            InitTracks();
-        }
-
-        internal void Drummapping()
-        {
-            if (!MidiManager.Instance.Tracks.Any())
-                return;
-            MidiManager.Instance.Drummapping(model.SelectedTrack);
-        }
-
-        internal void TransposeTrack(int halftones)
-        {
-            if (!MidiManager.Instance.Tracks.Any())
-                return;
-            MidiManager.Instance.Transpose(model.SelectedTrack, halftones);
-        }
-
-        private void FocusTrack(object sender, int e)
-        {
-            model.SelectedTrack = e;
-        }
-
-        private void TrackMergeUp(object sender, Track e)
-        {
-            model.SelectedTrack = e.Id();
-            if (!MidiManager.Instance.Tracks.Any())
-                return;
-
-            if ((model.SelectedTrack > MidiManager.Instance.Tracks.Count()) ||
-                ((model.SelectedTrack - 1) > MidiManager.Instance.Tracks.Count()) ||
-                ((model.SelectedTrack - 1) < 0))
-                return;
-
-            MidiManager.Instance.MergeTracks(model.SelectedTrack, model.SelectedTrack-1);
-            MidiManager.Instance.RemoveTrack(model.SelectedTrack);
-            MidiManager.Instance.AutoSetChanNumber();
-            InitTracks();
-        }
-
-        private void TrackMergeDown(object sender, Track e)
-        {
-            model.SelectedTrack = e.Id();
-            if (!MidiManager.Instance.Tracks.Any())
-                return;
-
-            if ((model.SelectedTrack > MidiManager.Instance.Tracks.Count()) ||
-                ((model.SelectedTrack - 1) > MidiManager.Instance.Tracks.Count()) ||
-                ((model.SelectedTrack - 1) < 0))
-                return;
-
-            MidiManager.Instance.MergeTracks(model.SelectedTrack, model.SelectedTrack + 1);
-            MidiManager.Instance.RemoveTrack(model.SelectedTrack);
-            MidiManager.Instance.AutoSetChanNumber();
-            InitTracks();
+            model.SelectedTrackChunk = e;
         }
 
         #endregion
