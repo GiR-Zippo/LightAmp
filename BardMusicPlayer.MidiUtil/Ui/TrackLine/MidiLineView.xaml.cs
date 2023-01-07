@@ -4,7 +4,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Melanchall.DryWetMidi.Core;
-using BardMusicPlayer.MidiUtil.Utils;
 using BardMusicPlayer.MidiUtil.Managers;
 using BardMusicPlayer.MidiUtil.Ui.TrackView;
 

@@ -65,19 +65,28 @@
                 <Label Grid.Column="1" x:Name="ChannelId" Content="C1" Margin="0,0,0,24.5" Grid.Row="1" Grid.RowSpan="2"/>
             </Grid>
 
-			<GridSplitter></GridSplitter>
+            <GridSplitter/>
 
-			<!-- TrackBody -->
+            <!-- TrackBody -->
 			<ScrollViewer VerticalAlignment="Stretch" Name="BodyScroll" Grid.Column="1" Background="White" Margin="0" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
 				<DockPanel>
-                    <Canvas Name="TrackNotes" Width="15" Background="white"/>
+                    <Grid
+                        x:Name="theGrid"
+                        MouseDown="Grid_MouseDown"
+                        MouseUp="Grid_MouseUp"
+                        MouseMove="Grid_MouseMove"
+                        Background="Transparent"
+                        >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Canvas Name="TrackNotes" Width="15" Background="white"/>
                         <Canvas Name="TrackBody"  Height="640"
                             MouseLeftButtonDown="TrackBody_MouseLeftButtonDown" 
                             MouseLeftButtonUp="TrackBody_MouseLeftButtonUp"
 							ScrollViewer.CanContentScroll="True">
-
                             <Canvas.Background>
-
                                 <VisualBrush TileMode="Tile" Stretch="Fill" 
 								Viewport="{Binding CellWidth, Converter={StaticResource DoubleToRectConverter}}" ViewportUnits="Absolute" 
 								Viewbox="{Binding CellHeigth, Converter={StaticResource DoubleToRectConverter}}" ViewboxUnits="Absolute">
@@ -85,9 +94,18 @@
                                         <Rectangle Width="{Binding CellWidth}" Height="{Binding CellHeigth}" Fill="LightGray" Stroke="Gray" StrokeThickness=".2"/>
                                     </VisualBrush.Visual>
                                 </VisualBrush>
-
                             </Canvas.Background>
                         </Canvas>
+                        <Canvas>
+                            <!-- This canvas is overlaid over the previous canvas and is used to 
+                            place the rectangle that implements the drag selection box. -->
+                            <Rectangle
+                            x:Name="selectionBox"
+                            Visibility="Collapsed"
+                            Stroke="Black"
+                            StrokeThickness="1"/>
+                        </Canvas>
+                    </Grid>
                 </DockPanel>
 			</ScrollViewer>
             <ComboBox 

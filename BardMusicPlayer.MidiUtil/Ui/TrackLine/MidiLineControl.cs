@@ -5,13 +5,10 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
-
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.MidiUtil.Managers;
-
 
 namespace BardMusicPlayer.MidiUtil.Ui.TrackLine
 {
@@ -213,19 +210,6 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackLine
         {
             view.TrackBody.Children.Clear();
             DrawNotes();
-
-
-            //note.TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds;
-
-            /*int i = 0;
-            foreach (var midiEvent in model.Track.Iterator())
-            {
-                if (midiEvent.MidiMessage.MessageType == MessageType.Channel)
-                {
-                    DrawChannelMsg(midiEvent);
-                }
-                i++;
-            }*/
         }
 
         private void DrawNotes()
@@ -240,54 +224,6 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackLine
                     note
                 );
             }
-        }
-
-        private void DrawChannelMsg(MidiEvent midiEvent)
-        {
-            /*int status = midiEvent.MidiMessage.Status;
-            int position = midiEvent.AbsoluteTicks;
-            // NOTE OFF
-            if (status >= (int)ChannelCommand.NoteOff &&
-                status <= (int)ChannelCommand.NoteOff + ChannelMessage.MidiChannelMaxValue)
-            {
-                int noteIndex = (int)midiEvent.MidiMessage.GetBytes()[1];
-                if (model.LastNotesOn.TryGetValue(noteIndex, out Tuple<int, MidiEvent> onPosition))
-                {
-                    DrawNote(
-                        (double)onPosition.Item1 / model.DAWhosReso,
-                        (double)position / model.DAWhosReso,
-                        noteIndex,
-                        onPosition.Item2,
-                        midiEvent
-                    );
-                    model.LastNotesOn.Remove(noteIndex);
-                }
-            }
-            // NOTE ON
-            if (status >= (int)ChannelCommand.NoteOn &&
-                status <= (int)ChannelCommand.NoteOn + ChannelMessage.MidiChannelMaxValue)
-            {
-                int noteIndex = (int)midiEvent.MidiMessage.GetBytes()[1];
-                int velocity = (int)midiEvent.MidiMessage.GetBytes()[2];
-                if (velocity > 0)
-                {
-                    model.LastNotesOn[noteIndex] = new Tuple<int, MidiEvent>(position, midiEvent);
-                }
-                else
-                {
-                    if (model.LastNotesOn.TryGetValue(noteIndex, out Tuple<int, MidiEvent> onPosition))
-                    {
-                        DrawNote(onPosition.Item1, position, noteIndex, onPosition.Item2, midiEvent);
-                        model.LastNotesOn.Remove(noteIndex);
-                    }
-                }
-            }
-            // ProgramChange
-            if (status >= (int)ChannelCommand.ProgramChange &&
-                status <= (int)ChannelCommand.ProgramChange + ChannelMessage.MidiChannelMaxValue)
-            {
-                model.MidiInstrument = (int)midiEvent.MidiMessage.GetBytes()[1];
-            }*/
         }
 
         private void DrawNote(double start, double end, int noteIndex, Note note)

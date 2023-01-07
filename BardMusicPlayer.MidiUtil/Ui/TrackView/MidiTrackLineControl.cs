@@ -12,7 +12,7 @@ using Melanchall.DryWetMidi.Interaction;
 
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.MidiUtil.Managers;
-
+using System.Threading.Tasks;
 
 namespace BardMusicPlayer.MidiUtil.Ui.TrackView
 {
@@ -291,15 +291,62 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
             rec.StrokeThickness = .5f;
             Canvas.SetLeft(rec, start * model.CellWidth);
             Canvas.SetTop(rec, ((127 - noteIndex) * model.CellHeigth));
+            rec.IsMouseDirectlyOverChanged += Rec_IsMouseDirectlyOverChanged;
             rec.MouseLeftButtonDown += NoteLeftDown;
             rec.MouseRightButtonDown += NoteRightDown;
             rec.SetValue(AttachedNoteProperty, note);
             view.TrackBody.Children.Add(rec);
         }
 
+        public List<object> SelectedNotes = new List<object>();
+        public void ClearSelection()
+        {
+            foreach (var obj in SelectedNotes)
+            {
+                Rectangle rec = (Rectangle)obj;
+                rec.Fill = Brushes.Red;
+            };
+            SelectedNotes.Clear();
+        }
+
+        public void DeleteSelected()
+        {
+            foreach (var obj in SelectedNotes)
+            {
+                Rectangle rec = (Rectangle)obj;
+                Note noteOn = (Note)rec.GetValue(AttachedNoteProperty);
+                view.TrackBody.Children.Remove(rec);
+
+                MidiManager.Instance.DeleteNote(model.Track, noteOn);
+                UiManager.Instance.mainWindow.Ctrl.UpdateTrackView(model.Track);
+            };
+            SelectedNotes.Clear();
+        }
+
+        private void Rec_IsMouseDirectlyOverChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                Rectangle rec = (Rectangle)sender;
+                rec.Fill = Brushes.Gray;
+                SelectedNotes.Add(sender); 
+            }
+        }
+
         private void NoteLeftDown(object sender, MouseButtonEventArgs e)
         {
             e.Handled = true;
+            if (e.ClickCount == 1)
+            {
+                foreach (var obj in SelectedNotes)
+                {
+                    Rectangle rec = (Rectangle)obj;
+                    rec.Fill = Brushes.Red;
+                };
+                SelectedNotes.Clear();
+                Console.WriteLine();
+            }
+
             if (e.ClickCount > 1)
             {
                 if (MidiManager.Instance.IsPlaying) return;

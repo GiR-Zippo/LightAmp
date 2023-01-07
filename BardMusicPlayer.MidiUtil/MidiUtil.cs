@@ -31,8 +31,7 @@ namespace BardMusicPlayer.MidiUtil
         }
 
         bool Started { get; set; } = false;
-        Task task;
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
+
         /// <summary>
         /// Start Grunt.
         /// </summary>

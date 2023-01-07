@@ -107,6 +107,5 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackLine
         }
 
         #endregion
-
     }
 }

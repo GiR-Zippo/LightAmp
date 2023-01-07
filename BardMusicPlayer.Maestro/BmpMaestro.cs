@@ -337,7 +337,7 @@ namespace BardMusicPlayer.Maestro
             var perf = _orchestrator.GetAllPerformers();
             if (BardName.ToLower().Equals("all"))
             {
-                System.Threading.Tasks.Parallel.ForEach(perf, p =>
+                Parallel.ForEach(perf, p =>
                 {
                     if (unselected_bards == null || unselected_bards.Count() <= 0)
                         p.SendText(type, text);
