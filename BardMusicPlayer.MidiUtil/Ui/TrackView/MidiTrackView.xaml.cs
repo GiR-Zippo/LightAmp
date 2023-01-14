@@ -1,19 +1,12 @@
-﻿using Melanchall.DryWetMidi.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using BardMusicPlayer.MidiUtil.Managers;
+using BardMusicPlayer.Quotidian.Structs;
+using System.Text.RegularExpressions;
+using Melanchall.DryWetMidi.Core;
 
 namespace BardMusicPlayer.MidiUtil.Ui.TrackView
 {
@@ -22,13 +15,155 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
     /// </summary>
     public partial class MidiTrackView : Window
     {
-        public MidiTrackView()
+        public enum EditState
         {
+            NoteEdit = 0,
+            Select = 1,
+            None
+        };
+        public EditState editState { get; set; } = EditState.NoteEdit;
+        ContextMenu theMenu = null;
+
+        private MidiTrackLineView TrackLineView { get; set; } = null;
+        private MidiTrackEventView TrackEventView { get; set; } = null;
+        public MidiTrackView(TrackChunk lineView)
+        {
+            TrackLineView = new MidiTrackLineView(lineView);
+            TrackEventView = new MidiTrackEventView(lineView);
+
             InitializeComponent();
+            CreateContextMenu();
+
             YZoom = 3.00f;
             this.PreviewMouseWheel += MidiTrackView_MouseWheel;
+            this.PreviewMouseDown += MidiTrackView_PreviewMouseDown;
             MasterScroller.Scroll += new System.Windows.Controls.Primitives.ScrollEventHandler(UpdateHorizontalScrolling);
+
+            var trackLine = new Frame()
+            {
+                Content = TrackLineView
+            };
+            TracksPanel.Children.Add(trackLine);
+            TrackLineView = TrackLineView;
+
+            var eventsLine = new Frame()
+            {
+                Content = TrackEventView
+            };
+            EventPanel.Children.Add(eventsLine);
+
+            //Init the Header
+            Init();
         }
+
+        #region ContextMenu
+        private void MidiTrackView_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Right)
+            {
+                foreach (var item in theMenu.Items)
+                {
+                    var i = item as MenuItem;
+                    if ((string)i.Header == "Edit")
+                        i.IsChecked = editState == EditState.NoteEdit ? true : false;
+                    if ((string)i.Header == "Select")
+                        i.IsChecked = editState == EditState.Select ? true : false;
+                }
+                theMenu.IsOpen = true;
+            }
+        }
+
+        private void CreateContextMenu()
+        {
+            theMenu = new ContextMenu();
+            MenuItem mia = new MenuItem();
+            mia.Header = "Edit";
+            mia.IsChecked = editState == EditState.NoteEdit ? true : false;
+            mia.Click += Edit_Click;
+            theMenu.Items.Add(mia);
+
+            MenuItem mib = new MenuItem();
+            mib.Header = "Select";
+            mib.IsChecked = editState == EditState.Select ? true : false;
+            mib.Click += Select_Click;
+            theMenu.Items.Add(mib);
+        }
+
+        private void Edit_Click(object sender, RoutedEventArgs e)
+        {
+            TrackLineView.selectionBox.Visibility = Visibility.Hidden;
+            TrackLineView.selectionBox.IsEnabled = false;
+            TrackLineView.editState = EditState.NoteEdit;
+            editState = EditState.NoteEdit;
+        }
+
+        private void Select_Click(object sender, RoutedEventArgs e)
+        {
+            TrackLineView.selectionBox.Visibility = Visibility.Visible;
+            TrackLineView.selectionBox.IsEnabled = true;
+            TrackLineView.editState = EditState.Select;
+            editState = EditState.Select;
+        }
+        #endregion
+
+        public void Init()
+        {
+            // track header
+            FillInstrumentBox();
+
+            ComboInstruments.SelectedIndex = MidiManager.Instance.GetInstrument(TrackLineView.Model.Track);
+            ChannelId.Content = MidiManager.Instance.GetChannelNumber(TrackLineView.Model.Track) + 1;
+            //Check if the instrument is "None"
+            if (ComboInstruments.Items.GetItemAt(ComboInstruments.SelectedIndex) is ComboBoxItem it)
+            {
+                if (it.Content.ToString() == "None")
+                {
+                    var trackName = MidiManager.Instance.GetTrackName(TrackLineView.Model.Track);
+                    Regex rex = new Regex(@"^([A-Za-z _]+)([-+]\d)?");
+                    if (rex.Match(trackName) is Match match)
+                    {
+                        if (!string.IsNullOrEmpty(match.Groups[1].Value))
+                        {
+                            var num = Instrument.Parse(match.Groups[1].Value).MidiProgramChangeCode;
+                            ComboInstruments.SelectedIndex = num;
+                            MidiManager.Instance.SetInstrument(TrackLineView.Model.Track, num);
+                        }
+                    }
+                }
+            }
+            if (!Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Equals(Instrument.None))
+                MidiManager.Instance.SetTrackName(TrackLineView.Model.Track, Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
+
+            //Check if we got a drum track
+            if (ChannelId.Content.ToString() == "10")
+                TrackName.Content = MidiManager.Instance.GetTrackName(TrackLineView.Model.Track) + " or Drums";
+            else
+                TrackName.Content = MidiManager.Instance.GetTrackName(TrackLineView.Model.Track);
+        }
+
+        private void FillInstrumentBox()
+        {
+            Dictionary<int, string> instlist = new Dictionary<int, string>();
+            for (int i = 0; i != 128; i++)
+                instlist.Add(i, "None");
+
+            foreach (Instrument instrument in Instrument.All)
+            {
+                instlist[instrument.MidiProgramChangeCode] = instrument.Name;
+            }
+
+            foreach (var instrument in instlist)
+            {
+                ComboInstruments.Items.Add(
+                    new ComboBoxItem()
+                    {
+                        Content = instrument.Value
+                    }
+                );
+            }
+            ComboInstruments.SelectedIndex = 0;
+        }
+
 
         private void MidiTrackView_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -62,16 +197,18 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
             UpdateLayout();
         }
 
-        public void Init(MidiTrackLineView lineView)
+        private void InstrumentBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var trackLine = new Frame()
+            if (this.ComboInstruments.IsDropDownOpen)
             {
-                Content = lineView
-            };
-            TracksPanel.Children.Add(trackLine);
+                this.ComboInstruments.IsDropDownOpen = false;
+                MidiManager.Instance.SetInstrument(TrackLineView.Model.Track, ComboInstruments.SelectedIndex);
+                MidiManager.Instance.SetTrackName(TrackLineView.Model.Track, Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
+                UiManager.Instance.mainWindow.Ctrl.InitTracks();
+                TrackLineView.Ctrl.Init();
+                Init();
+            }
         }
-
-
 
         #region ZOOM
 
@@ -99,7 +236,7 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
                         continue;
                     ((MidiTrackLineView)track.Content).Model.XOffset = xOffset;
                 }
-                //UiManager.Instance.mainWindow.MasterScroller.Value = xOffset;
+                MasterScroller.Value = xOffset;
             }
         }
 

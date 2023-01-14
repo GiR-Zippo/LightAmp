@@ -4,15 +4,11 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Input;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
-
-using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.MidiUtil.Managers;
-using System.Threading.Tasks;
 
 namespace BardMusicPlayer.MidiUtil.Ui.TrackView
 {
@@ -33,64 +29,9 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
 
         public void Init()
         {
-            // track header
-            FillInstrumentBox();
-
-            view.ComboInstruments.SelectedIndex = MidiManager.Instance.GetInstrument(model.Track);
-            view.ChannelId.Content = MidiManager.Instance.GetChannelNumber(model.Track) + 1;
-            //Check if the instrument is "None"
-            if (view.ComboInstruments.Items.GetItemAt(view.ComboInstruments.SelectedIndex) is ComboBoxItem it)
-            {
-                if (it.Content.ToString() == "None")
-                {
-                    var trackName = MidiManager.Instance.GetTrackName(model.Track);
-                    Regex rex = new Regex(@"^([A-Za-z _]+)([-+]\d)?");
-                    if (rex.Match(trackName) is Match match)
-                    {
-                        if (!string.IsNullOrEmpty(match.Groups[1].Value))
-                        {
-                            var num = Instrument.Parse(match.Groups[1].Value).MidiProgramChangeCode;
-                            view.ComboInstruments.SelectedIndex = num;
-                            MidiManager.Instance.SetInstrument(model.Track, num);
-                        }
-                    }
-                }
-            }
-            if (!Instrument.ParseByProgramChange(view.ComboInstruments.SelectedIndex).Equals(Instrument.None))
-                MidiManager.Instance.SetTrackName(model.Track, Instrument.ParseByProgramChange(view.ComboInstruments.SelectedIndex).Name);
-
-            //Check if we got a drum track
-            if (view.ChannelId.Content.ToString() == "10")
-                view.TrackName.Content = MidiManager.Instance.GetTrackName(model.Track) + " or Drums";
-            else
-                view.TrackName.Content = MidiManager.Instance.GetTrackName(model.Track);
-
             // track body
             DrawPianoRoll();
             DrawMidiEvents();
-        }
-
-        private void FillInstrumentBox()
-        {
-            Dictionary<int, string> instlist = new Dictionary<int, string>();
-            for (int i = 0; i != 128; i++)
-                instlist.Add(i, "None");
-
-            foreach (Instrument instrument in Instrument.All)
-            {
-                instlist[instrument.MidiProgramChangeCode] = instrument.Name;
-            }
-
-            foreach (var instrument in instlist)
-            {
-                view.ComboInstruments.Items.Add(
-                    new ComboBoxItem()
-                    {
-                        Content = instrument.Value
-                    }
-                );
-            }
-            view.ComboInstruments.SelectedIndex = 0;
         }
 
         public event EventHandler<TrackChunk> TrackFocused;
@@ -197,19 +138,6 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
         {
             view.TrackBody.Children.Clear();
             DrawNotes();
-
-
-            //note.TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds;
-
-            /*int i = 0;
-            foreach (var midiEvent in model.Track.Iterator())
-            {
-                if (midiEvent.MidiMessage.MessageType == MessageType.Channel)
-                {
-                    DrawChannelMsg(midiEvent);
-                }
-                i++;
-            }*/
         }
 
         private void DrawNotes()
@@ -224,54 +152,6 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
                     note
                 );
             }
-        }
-
-        private void DrawChannelMsg(MidiEvent midiEvent)
-        {
-            /*int status = midiEvent.MidiMessage.Status;
-            int position = midiEvent.AbsoluteTicks;
-            // NOTE OFF
-            if (status >= (int)ChannelCommand.NoteOff &&
-                status <= (int)ChannelCommand.NoteOff + ChannelMessage.MidiChannelMaxValue)
-            {
-                int noteIndex = (int)midiEvent.MidiMessage.GetBytes()[1];
-                if (model.LastNotesOn.TryGetValue(noteIndex, out Tuple<int, MidiEvent> onPosition))
-                {
-                    DrawNote(
-                        (double)onPosition.Item1 / model.DAWhosReso,
-                        (double)position / model.DAWhosReso,
-                        noteIndex,
-                        onPosition.Item2,
-                        midiEvent
-                    );
-                    model.LastNotesOn.Remove(noteIndex);
-                }
-            }
-            // NOTE ON
-            if (status >= (int)ChannelCommand.NoteOn &&
-                status <= (int)ChannelCommand.NoteOn + ChannelMessage.MidiChannelMaxValue)
-            {
-                int noteIndex = (int)midiEvent.MidiMessage.GetBytes()[1];
-                int velocity = (int)midiEvent.MidiMessage.GetBytes()[2];
-                if (velocity > 0)
-                {
-                    model.LastNotesOn[noteIndex] = new Tuple<int, MidiEvent>(position, midiEvent);
-                }
-                else
-                {
-                    if (model.LastNotesOn.TryGetValue(noteIndex, out Tuple<int, MidiEvent> onPosition))
-                    {
-                        DrawNote(onPosition.Item1, position, noteIndex, onPosition.Item2, midiEvent);
-                        model.LastNotesOn.Remove(noteIndex);
-                    }
-                }
-            }
-            // ProgramChange
-            if (status >= (int)ChannelCommand.ProgramChange &&
-                status <= (int)ChannelCommand.ProgramChange + ChannelMessage.MidiChannelMaxValue)
-            {
-                model.MidiInstrument = (int)midiEvent.MidiMessage.GetBytes()[1];
-            }*/
         }
 
         private void DrawNote(double start, double end, int noteIndex, Note note)

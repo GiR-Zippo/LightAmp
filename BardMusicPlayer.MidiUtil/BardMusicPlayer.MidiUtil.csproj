@@ -117,9 +117,14 @@
     <Compile Include="Ui\TrackLine\MidiLineView.xaml.cs">
       <DependentUpon>MidiLineView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Ui\TrackView\MidiTrackLineControl.cs" />
-    <Compile Include="Ui\TrackView\MidiTrackLineModel.cs" />
-    <Compile Include="Ui\TrackView\MidiTrackLineView.xaml.cs">
+    <Compile Include="Ui\TrackView\EventView\MidiTrackEventControl.cs" />
+    <Compile Include="Ui\TrackView\EventView\MidiTrackEventModel.cs" />
+    <Compile Include="Ui\TrackView\EventView\MidiTrackEventView.xaml.cs">
+      <DependentUpon>MidiTrackEventView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Ui\TrackView\LineView\MidiTrackLineControl.cs" />
+    <Compile Include="Ui\TrackView\LineView\MidiTrackLineModel.cs" />
+    <Compile Include="Ui\TrackView\LineView\MidiTrackLineView.xaml.cs">
       <DependentUpon>MidiTrackLineView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Ui\TrackView\MidiTrackView.xaml.cs">
@@ -151,7 +156,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Ui\TrackView\MidiTrackLineView.xaml">
+    <Page Include="Ui\TrackView\EventView\MidiTrackEventView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Ui\TrackView\LineView\MidiTrackLineView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -174,6 +183,7 @@
       <Name>BardMusicPlayer.Transmogrify</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Melanchall.DryWetMidi.6.0.1\build\Melanchall.DryWetMidi.targets" Condition="Exists('..\packages\Melanchall.DryWetMidi.6.0.1\build\Melanchall.DryWetMidi.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

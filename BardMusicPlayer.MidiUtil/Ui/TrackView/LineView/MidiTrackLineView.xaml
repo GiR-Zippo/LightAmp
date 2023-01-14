@@ -5,7 +5,7 @@
 	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 	  xmlns:cv="clr-namespace:BardMusicPlayer.MidiUtil.Utils.Converters" 
       mc:Ignorable="d" 
-	  d:DesignHeight="100" d:DesignWidth="600"
+	  d:DesignHeight="640" d:DesignWidth="600"
 	  Title="Midi_View">
 	<Page.Resources>
         <cv:DoubleToRectConverter x:Key="DoubleToRectConverter"/>
@@ -28,14 +28,13 @@
             </Grid.ContextMenu>
 
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="200"></ColumnDefinition>
-				<ColumnDefinition Width="*"></ColumnDefinition>
-			</Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
 			</Grid.RowDefinitions>
 
 
-			<!-- TrackHead -->
+			<!-- TrackHead
             <Grid Name="TrackHeader"  Width="200" HorizontalAlignment="Left" Grid.Column="0"
             GotFocus="Grid_GotFocus"
             LostFocus="Grid_LostFocus"
@@ -65,7 +64,7 @@
                 <Label Grid.Column="1" x:Name="ChannelId" Content="C1" Margin="0,0,0,24.5" Grid.Row="1" Grid.RowSpan="2"/>
             </Grid>
 
-            <GridSplitter/>
+            <GridSplitter/> -->
 
             <!-- TrackBody -->
 			<ScrollViewer VerticalAlignment="Stretch" Name="BodyScroll" Grid.Column="1" Background="White" Margin="0" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
@@ -78,11 +77,12 @@
                         Background="Transparent"
                         >
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Canvas Name="TrackNotes" Width="15" Background="white"/>
-                        <Canvas Name="TrackBody"  Height="640"
+                        <Canvas Name="TrackNotes" Width="15" Background="white" Grid.Column="0"/>
+                        <Canvas Name="TrackBody"  Height="640" Grid.Column="2"
                             MouseLeftButtonDown="TrackBody_MouseLeftButtonDown" 
                             MouseLeftButtonUp="TrackBody_MouseLeftButtonUp"
 							ScrollViewer.CanContentScroll="True">
@@ -108,7 +108,7 @@
                     </Grid>
                 </DockPanel>
 			</ScrollViewer>
-            <ComboBox 
+            <!--<ComboBox 
                 Name="ComboInstruments" 
                 HorizontalAlignment="Left" 
                 Margin="18,67,0,0" 
@@ -117,7 +117,7 @@
                 SelectionChanged="InstrumentBox_SelectionChanged">
 
             
-            </ComboBox>
+            </ComboBox>-->
 
 
         </Grid>

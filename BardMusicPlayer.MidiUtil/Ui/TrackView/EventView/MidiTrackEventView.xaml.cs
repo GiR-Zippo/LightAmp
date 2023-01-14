@@ -8,27 +8,28 @@ using BardMusicPlayer.MidiUtil.Managers;
 using System.Windows.Shapes;
 using System.Linq;
 using System.Windows.Controls.Primitives;
+using static BardMusicPlayer.MidiUtil.Ui.TrackView.MidiTrackView;
 
 namespace BardMusicPlayer.MidiUtil.Ui.TrackView
 {
 
-    public partial class MidiTrackLineView : Page
+    public partial class MidiTrackEventView : Page
     {
 
         #region CTOR
-
+        public EditState editState { get; set; } = EditState.NoteEdit;
         bool selectionMouseDown = false;
         Point selectionMouseDownPos;
 
-        public MidiTrackLineControl Ctrl { get; set; }
-        public MidiTrackLineModel Model { get; set; }
+        public MidiTrackEventControl Ctrl { get; set; }
+        public MidiTrackEventModel Model { get; set; }
 
-        public MidiTrackLineView(TrackChunk track)
+        public MidiTrackEventView(TrackChunk track)
         {
-            Model = new MidiTrackLineModel(track);
+            Model = new MidiTrackEventModel(track);
             DataContext = Model;
             InitializeComponent();
-            Ctrl = new MidiTrackLineControl(Model,this);
+            Ctrl = new MidiTrackEventControl(Model,this);
             Model.Ctrl = Ctrl;
             Loaded += MyWindow_Loaded;
         }
@@ -49,6 +50,9 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
 
         private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (editState != EditState.Select)
+                return;
+
             // Capture and track the mouse.
             selectionMouseDown = true;
             selectionMouseDownPos = e.GetPosition(theGrid);
@@ -66,6 +70,8 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
 
         private void Grid_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (editState != EditState.Select)
+                return;
             // Release the mouse capture and stop tracking it.
             selectionMouseDown = false;
             theGrid.ReleaseMouseCapture();
@@ -131,14 +137,12 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
         private void Grid_GotFocus(object sender, RoutedEventArgs e)
         {
             Border.BorderThickness = Model.SelectedBorderThickness;
-            TrackHeader.Background = new SolidColorBrush(Colors.LightGray);
             Ctrl.TrackGotFocus(sender, e); 
         }
 
         private void Grid_LostFocus(object sender, RoutedEventArgs e)
         {
             Border.BorderThickness = Model.UnselectedBorderThickness;
-            TrackHeader.Background = new SolidColorBrush(Colors.Gray);
         }
         #endregion
 
@@ -175,35 +179,6 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
         private double PreviousFirstPosition(double point)
         {
             return Model.PlotReso * ((int)(point / Model.PlotReso));
-        }
-
-        #endregion
-
-        #region HEADER
-
-        // TODO color picker
-        private void TrackColor_Click(object sender, RoutedEventArgs e)
-        {
-            Random rnd = new Random();
-            Color color = Color.FromRgb(
-                (byte)rnd.Next(0, 255),
-                (byte)rnd.Next(0, 255),
-                (byte)rnd.Next(0, 255)
-            );
-            //SetColor(color);
-            Model.TColor = new SolidColorBrush(color); 
-        }
-        
-        private void InstrumentBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (this.ComboInstruments.IsDropDownOpen)
-            {
-                this.ComboInstruments.IsDropDownOpen = false;
-                MidiManager.Instance.SetInstrument(Model.Track, ComboInstruments.SelectedIndex);
-                MidiManager.Instance.SetTrackName(Model.Track, Quotidian.Structs.Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
-                UiManager.Instance.mainWindow.Ctrl.InitTracks();
-                Ctrl.Init();
-            }
         }
 
         #endregion

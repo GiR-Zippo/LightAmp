@@ -5,28 +5,72 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="MidiTrackView" Height="450" Width="800">
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- TrackHead -->
+        <Grid Name="TrackHeader"  Width="200" HorizontalAlignment="Left" Grid.Column="0" Grid.RowSpan="2"
+			Background="Gray"
+                  Focusable="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="18"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Label Grid.Column="1" Grid.Row="1" Name="TrackName" Content="T1"/>
+            <Label Grid.Column="1" Grid.Row="2" x:Name="ChannelId" Content="C1" Margin="0,0,0,24.5"/>
+            <ComboBox Name="ComboInstruments" Grid.Column="1" Grid.Row="3"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                SelectionChanged="InstrumentBox_SelectionChanged">
+            </ComboBox>
+        </Grid>
+
         <ScrollViewer Name="AppScene" VerticalScrollBarVisibility="Auto"
             HorizontalAlignment="Stretch" 
             VerticalAlignment="Stretch" 
-            Grid.Row="0" >
-            <Grid
-                Name="TracksPanel" 
+            Grid.Row="0" Grid.Column="1">
+            <Grid Name="TracksPanel" 
                 HorizontalAlignment="Stretch" 
                 VerticalAlignment="Stretch" 
-                Grid.Row="3" 
-                Grid.ColumnSpan="2"
-                >
-            </Grid>
+                Grid.Row="0" 
+                Grid.Column="1" />
         </ScrollViewer>
+
+        <ScrollViewer Name="AppScene2" VerticalScrollBarVisibility="Auto"
+            HorizontalAlignment="Stretch" 
+            VerticalAlignment="Stretch" 
+            Grid.Row="1" Grid.Column="1">
+            <Grid Name="EventPanel" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch" 
+                Grid.Row="1" 
+                Grid.Column="1" />
+
+        </ScrollViewer>
+
+        <!-- Hrz scoller -->
         <ScrollBar Name="MasterScroller" 
             HorizontalAlignment="Stretch" 
             VerticalAlignment="Stretch" 
-            Grid.Row="1" 
+            Grid.Row="2" 
+            Grid.ColumnSpan="2"
             Orientation="Horizontal" />
+
     </Grid>
 </Window>

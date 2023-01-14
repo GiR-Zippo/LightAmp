@@ -72,8 +72,7 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackLine
         {
             if (e.ClickCount>1)
             {
-                MidiTrackView tv = new MidiTrackView();
-                tv.Init(new MidiTrackLineView(Model.Track));
+                MidiTrackView tv = new MidiTrackView(Model.Track);
                 tv.Visibility = Visibility.Visible;
             }
         }
