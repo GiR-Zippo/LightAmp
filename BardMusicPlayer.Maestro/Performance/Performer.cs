@@ -667,6 +667,9 @@ namespace BardMusicPlayer.Maestro.Performance
             if (SingerTrackNr <= 0) //0 mean no singer
                 return;
 
+            if (!UsesDalamud)
+                return;
+
             Sanford.Multimedia.Midi.MetaTextBuilder builder = new Sanford.Multimedia.Midi.MetaTextBuilder(e.Message);
             string text = builder.Text;
             var t = mainSequencer.MaxTrack;
