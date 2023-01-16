@@ -102,7 +102,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
             //Remove trackname from source
             using (var manager = sourceTrack.ManageTimedEvents())
             {
-                manager.Events.RemoveAll(e => e.Event.EventType == MidiEventType.SequenceTrackName);
+                manager.Objects.RemoveAll(e => e.Event.EventType == MidiEventType.SequenceTrackName);
             }
 
             //Merge
@@ -115,7 +115,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
             using (var events = newtrack.ManageTimedEvents())
             {
                 int lastchannel = -1;
-                foreach (var mevent in events.Events)
+                foreach (var mevent in events.Objects)
                 {
                     if (mevent.Event.EventType == MidiEventType.NoteOn)
                     {
@@ -125,7 +125,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
                             var t = mevent.Time;
                             ProgramChangeEvent pc = new ProgramChangeEvent((SevenBitNumber)channelIntrument[no.Channel]);
                             pc.Channel = (FourBitNumber)destChan;
-                            events.Events.AddEvent(pc, t);
+                            events.Objects.Add(new TimedEvent(pc, t));
                             lastchannel = no.Channel;
                         }
                     }
@@ -154,7 +154,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
             foreach (TrackChunk track in currentSong.GetTrackChunks())
             {
                 bool empty = true;
-                if (track.ManageNotes().Notes.Any())
+                if (track.ManageNotes().Objects.Any())
                     empty = false;
 
                 var ev = track.Events.Where(e => e.EventType == MidiEventType.TimeSignature).FirstOrDefault();

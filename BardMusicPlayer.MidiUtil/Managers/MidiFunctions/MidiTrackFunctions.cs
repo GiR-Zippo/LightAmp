@@ -37,7 +37,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
                         new MetricTimeSpan(hours: 0, minutes: 0, seconds: 0, milliseconds: (int)start),
                         (long)(end-start),
                         currentSong.GetTempoMap()));
-                notesManager.Notes.Add(note);
+                notesManager.Objects.Add(note);
             }
             return note;
         }
@@ -46,10 +46,10 @@ namespace BardMusicPlayer.MidiUtil.Managers
         {
             using (var events = track.ManageNotes())
             {
-                var nn = events.Notes.Where(ev => ev.Time == note.Time && ev.NoteNumber == note.NoteNumber && ev.Length == ev.Length).FirstOrDefault();
+                var nn = events.Objects.Where(ev => ev.Time == note.Time && ev.NoteNumber == note.NoteNumber && ev.Length == ev.Length).FirstOrDefault();
                 if (nn != null)
                 {
-                    events.Notes.Remove(nn);
+                    events.Objects.Remove(nn);
                     events.SaveChanges();
                 }
             }
@@ -79,7 +79,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
         {
             using (var events = track.ManageTimedEvents())
             {
-                var fev = events.Events.Where(e => e.Event.EventType == MidiEventType.SequenceTrackName).FirstOrDefault();
+                var fev = events.Objects.Where(e => e.Event.EventType == MidiEventType.SequenceTrackName).FirstOrDefault();
                 if (fev != null)
                 {
                     (fev.Event as SequenceTrackNameEvent).Text = TrackName;
@@ -124,7 +124,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
 
             using (var events = track.ManageTimedEvents())
             {
-                var ev = events.Events.Where(e => e.Event.EventType == MidiEventType.ProgramChange).FirstOrDefault();
+                var ev = events.Objects.Where(e => e.Event.EventType == MidiEventType.ProgramChange).FirstOrDefault();
                 if (ev != null)
                 {
                     var prog = ev.Event as ProgramChangeEvent;
@@ -134,7 +134,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
                 {
                     var pe = new ProgramChangeEvent((SevenBitNumber)instrument);
                     pe.Channel = (FourBitNumber)channel;
-                    events.Events.Add(new TimedEvent(pe, 0));
+                    events.Objects.Add(new TimedEvent(pe, 0));
                 }
                 events.SaveChanges();
             }
@@ -170,7 +170,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
 
             using (var notesManager = track.ManageNotes())
             {
-                Parallel.ForEach(notesManager.Notes, note =>
+                Parallel.ForEach(notesManager.Objects, note =>
                 {
                     note.Channel = (FourBitNumber)channelNumber;
                 });
@@ -179,7 +179,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
 
             using (var manager = track.ManageTimedEvents())
             {
-                Parallel.ForEach(manager.Events, midiEvent =>
+                Parallel.ForEach(manager.Objects, midiEvent =>
                 {
                     if (midiEvent.Event is ProgramChangeEvent pe)
                         pe.Channel = (FourBitNumber)channelNumber;
@@ -205,7 +205,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
         {
             using (var manager = track.ManageTimedEvents())
             {
-                manager.Events.RemoveAll(e => e.Event.EventType == MidiEventType.UnknownMeta);
+                manager.Objects.RemoveAll(e => e.Event.EventType == MidiEventType.UnknownMeta);
                 manager.SaveChanges();
             }
         }
@@ -219,8 +219,8 @@ namespace BardMusicPlayer.MidiUtil.Managers
         {
             using (var manager = track.ManageTimedEvents())
             {
-                manager.Events.RemoveAll(e => e.Event.EventType == MidiEventType.ProgramChange);
-                manager.Events.RemoveAll(e => e.Event.EventType == MidiEventType.ProgramName);
+                manager.Objects.RemoveAll(e => e.Event.EventType == MidiEventType.ProgramChange);
+                manager.Objects.RemoveAll(e => e.Event.EventType == MidiEventType.ProgramName);
                 manager.SaveChanges();
             }
         }
@@ -279,7 +279,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
                     drumTracks[drum.Instrument] = new TrackChunk(new SequenceTrackNameEvent(drum.Instrument));
                     using (var notesManager = drumTracks[drum.Instrument].ManageNotes())
                     {
-                        NotesCollection notes = notesManager.Notes;
+                        TimedObjectsCollection<Note> notes = notesManager.Objects;
                         note.NoteNumber = (SevenBitNumber)drum.GameNote;
                         notes.Add(note);
                     }
@@ -288,7 +288,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
                 {
                     using (var notesManager = drumTracks[drum.Instrument].ManageNotes())
                     {
-                        NotesCollection notes = notesManager.Notes;
+                        TimedObjectsCollection<Note> notes = notesManager.Objects;
                         note.NoteNumber = (SevenBitNumber)drum.GameNote;
                         notes.Add(note);
                     }
@@ -318,7 +318,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
         {
             using (var notesManager = track.ManageNotes())
             {
-                NotesCollection notes = notesManager.Notes;
+                TimedObjectsCollection<Note> notes = notesManager.Objects;
                 Parallel.ForEach(notes, note =>
                 {
                     note.NoteNumber = (SevenBitNumber)(note.NoteNumber + halftones);
@@ -326,7 +326,6 @@ namespace BardMusicPlayer.MidiUtil.Managers
                 notesManager.SaveChanges();
             }
         }
-
         #endregion
     }
 }

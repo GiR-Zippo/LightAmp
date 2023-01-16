@@ -51,7 +51,7 @@ namespace BardMusicPlayer.Transmogrify.Processor
                         .InstrumentToneMenuKey;
                     using var manager = trackChunks.Merge().ManageNotes();
                     var note = new Note((SevenBitNumber)number);
-                    var timedEvents = manager.Notes;
+                    var timedEvents = manager.Objects;
                     note.Time = timedEvent.Time;
                     timedEvents.Add(note);
                 }
