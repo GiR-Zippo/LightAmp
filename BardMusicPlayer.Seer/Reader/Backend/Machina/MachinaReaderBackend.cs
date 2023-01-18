@@ -90,8 +90,6 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                                     new BmpSeerMachinaException("Unknown packet size: " + message.Length)));
                                 break;
                         }
-
-                        break;
                     }
                     catch (Exception ex)
                     {

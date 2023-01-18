@@ -10,12 +10,14 @@ using System.Linq;
 using System.Net.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
+using System.Windows;
+using BardMusicPlayer.DalamudBridge.Helper.Dalamud;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BasicSharp;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BardMusicPlayer.Script
 {
@@ -140,8 +142,9 @@ namespace BardMusicPlayer.Script
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Error");
+                    MessageBox.Show(e.Message + "\r\n"+basic.GetLine(), "Exec Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+
                 OnRunningStateChanged?.Invoke(this, false);
 
                 unselected_bards = null;
