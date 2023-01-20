@@ -10,6 +10,9 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         Instrument,
         AcceptReply,
         SetGfx,
-        StartEnsemble
+        StartEnsemble,
+        NoteOn,
+        NoteOff,
+        ProgramChange
     }
 }

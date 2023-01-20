@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using BardMusicPlayer.Seer;
+using System.Collections.Concurrent;
+using System.Security.Policy;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,12 +33,19 @@ namespace BardMusicPlayer.DalamudBridge
                             case Helper.Dalamud.MessageType.AcceptReply:
                                 await GameExtensions.AcceptEnsemble(d_event.game, d_event.BoolData);
                                 break;
+                            case Helper.Dalamud.MessageType.NoteOn:
+                            case Helper.Dalamud.MessageType.NoteOff:
+                                _ = GameExtensions.SendNote(d_event.game, d_event.IntData, d_event.BoolData);
+                                break;
+                            case Helper.Dalamud.MessageType.ProgramChange:
+                                _ = GameExtensions.SendProgchange(d_event.game, d_event.IntData);
+                                break;
                         };
                     }
                     catch
                     { }
                 }
-                await Task.Delay(25, token).ContinueWith(static tsk => { }, token);
+                await Task.Delay(1, token).ContinueWith(static tsk => { }, token);
             }
         }
 

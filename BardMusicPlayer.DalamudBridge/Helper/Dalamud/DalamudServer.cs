@@ -142,6 +142,11 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             return true;
         }
 
+        /// <summary>
+        /// Send ensemble start
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <returns></returns>
         internal bool SendStartEnsemble(int pid)
         {
             if (!IsConnected(pid))
@@ -151,6 +156,45 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             {
                 msgType = MessageType.StartEnsemble,
                 message = ""
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// Send the note and if it's pressed or released
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <param name="note"></param>
+        /// <param name="pressed"></param>
+        /// <returns></returns>
+        internal bool SendNote(int pid, int note, bool pressed)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = pressed ? MessageType.NoteOn : MessageType.NoteOff,
+                message = note.ToString()
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// Send the progchange
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <param name="ProgNumber"></param>
+        /// <returns></returns>
+        internal bool SendProgchange(int pid, int ProgNumber)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.ProgramChange,
+                message = ProgNumber.ToString()
             });
             return true;
         }
