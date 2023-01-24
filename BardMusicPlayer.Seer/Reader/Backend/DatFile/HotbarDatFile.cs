@@ -134,7 +134,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
         {
             var slots = GetSlotsFromType(SlotType.Instrument);
             //read only the bard
-            foreach (var slot in slots.Where(slot => slot.Action == instrument && slot.Job == 0x17))
+            foreach (var slot in slots.Where(slot => slot.Action == instrument && slot.Job == 0x17 || slot.Action == instrument && slot.Job == 0))
                 return slot.ToString();
 
             return string.Empty;
