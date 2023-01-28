@@ -30,7 +30,8 @@
                 <SolidColorBrush Color="White"/>
             </Grid.Background>
             
-            <Button Grid.Column="1" Content="Open" ToolTip="Open Instruments" Click="OpenInstrumentButton_Click"/>
+            <Button Grid.Column="1" x:Name="OpenInstrument_Button"  Content="Open" ToolTip="Open Instruments" Click="OpenInstrumentButton_Click"/>
+            <Button Grid.Column="1" x:Name="CloseInstrument_Button" Content="Close" ToolTip="Close Instruments" Click="CloseInstrumentButton_Click" Visibility="Hidden"/>
             <Button Grid.Column="2" Content="ReadyCheck" ToolTip="Do the ready check" Click="RdyCheck_Click"/>
             <Button Grid.Column="3" Content="Close" ToolTip="Close Instruments" Click="CloseInstrumentButton_Click"/>
             <CheckBox Grid.Column="6" Content="StartDelay" x:Name="StartDelay_CheckBox" VerticalAlignment="Center" HorizontalAlignment="Center" Unchecked="StartDelay_Checked" Checked="StartDelay_Checked"/>

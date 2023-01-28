@@ -90,6 +90,29 @@ namespace BardMusicPlayer.Ui.Controls
         private void OnInstrumentHeldChanged(InstrumentHeldChanged e)
         {
             UpdateList();
+            if (e.InstrumentHeld.Index == 0)
+            {
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (CloseInstrument_Button.Visibility != Visibility.Visible)
+                        return;
+                    OpenInstrument_Button.Visibility = Visibility.Visible;
+                    CloseInstrument_Button.Visibility = Visibility.Hidden;
+                }
+                ));
+            }
+            else
+            {
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (OpenInstrument_Button.Visibility != Visibility.Visible)
+                        return;
+                    OpenInstrument_Button.Visibility = Visibility.Hidden;
+                    CloseInstrument_Button.Visibility = Visibility.Visible;
+                }
+                ));
+            }
+                
         }
 
         private void UpdateList()
