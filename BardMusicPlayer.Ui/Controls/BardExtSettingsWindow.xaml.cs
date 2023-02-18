@@ -113,7 +113,7 @@ namespace BardMusicPlayer.Ui.Controls
                         chanType = ChatMessageChannelType.Yell;
                         break;
                     case 2:
-                        chanType = ChatMessageChannelType.Group;
+                        chanType = ChatMessageChannelType.Party;
                         break;
                     case 3:
                         chanType = ChatMessageChannelType.FC;
