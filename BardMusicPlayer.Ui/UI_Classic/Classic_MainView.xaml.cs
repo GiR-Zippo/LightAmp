@@ -356,7 +356,7 @@ namespace BardMusicPlayer.Ui.Classic
             _infoBox.Show();
         }
 
-        private void Info_Button_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Script_Button_Click(object sender, RoutedEventArgs e)
         {
             /*if (_networkWindow == null)
                 _networkWindow = new NetworkPlayWindow();

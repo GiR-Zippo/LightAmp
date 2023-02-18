@@ -100,11 +100,6 @@ namespace BardMusicPlayer.Ui.Classic
             Play_Button.Content = @"▶";
         }
 
-        private void Loop_Button_Click(object sender, RoutedEventArgs e)
-        {
-            _directLoaded = !_directLoaded;
-        }
-
         private void Playbar_Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
         }
@@ -119,7 +114,5 @@ namespace BardMusicPlayer.Ui.Classic
             BmpMaestro.Instance.SetPlaybackStart((int)((Slider)sender).Value);
             this._Playbar_dragStarted = false;
         }
-
     }
-
 }
