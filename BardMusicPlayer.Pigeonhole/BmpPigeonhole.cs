@@ -95,7 +95,7 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// brings the game to front
         /// </summary>
-        public virtual bool BringGametoFront { get; set; } = true;
+        public virtual int MidiConverter_Type { get; set; } = 0;
 
         /// <summary>
         /// brings the bmp to front

@@ -89,10 +89,7 @@ namespace BardMusicPlayer.Maestro
         /// </summary>
         public IEnumerable<Performer> GetAllPerformers()
         {
-            List<Performer> games = new List<Performer>();
-            foreach (KeyValuePair<int, Performer> performer in _performers)
-                games.Add(performer.Value);
-            return games;
+            return _performers.Select(performer => performer.Value);
         }
 
         /// <summary>

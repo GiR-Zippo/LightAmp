@@ -305,10 +305,105 @@ namespace BardMusicPlayer.Transmogrify.Song
         }
 
         /// <summary>
-        /// Creates a midi from the song for the sequencer
+        /// Get the preprocessed midi file for the sequencer
         /// </summary>
         /// <returns>MemoryStream</returns>
-        public MemoryStream GetSequencerMidi()
+        public MemoryStream GetProccesedSequencerMidi()
+        {
+            var sourceMidi = TrackContainers.Values.SelectMany(static track => track.ConfigContainers).SelectMany(static track => track.Value.ProccesedTrackChunks);
+            var midiFile = new MidiFile();
+
+            //Create all tracks track
+            TrackChunk allTracks = Melanchall.DryWetMidi.Core.TrackChunkUtilities.Merge(sourceMidi);
+            midiFile.Chunks.Add(allTracks);
+
+            //Add the other tracks
+            foreach (TrackChunk track in sourceMidi)
+                midiFile.Chunks.Add(track);
+
+            //set the channel numbers
+            int index = 1;
+            foreach (TrackChunk track in midiFile.GetTrackChunks())
+            {
+                using (var manager = track.ManageTimedEvents())
+                {
+                    InstrumentTone instrument = InstrumentTone.Parse(track.Events.OfType<SequenceTrackNameEvent>().First().Text.Split(':')[1]);
+                    int Program = 0;
+                    foreach (TimedEvent midiEvent in manager.Objects)
+                    {
+                        if (midiEvent.Event is NoteEvent ne)
+                        {
+                            //check if we have a guitar and create the change codes
+                            if (instrument.Equals(InstrumentTone.ElectricGuitar) && (index != 1))
+                            {
+                                int tp = instrument.GetInstrumentFromChannel(ne.Channel).MidiProgramChangeCode;
+                                if (tp != Program)
+                                {
+                                    ProgramChangeEvent npc = new ProgramChangeEvent();
+                                    npc.ProgramNumber = (SevenBitNumber)tp;
+                                    npc.Channel = (FourBitNumber)index;
+                                    npc.DeltaTime = ne.DeltaTime;
+                                    manager.Objects.Add(new TimedEvent(npc, midiEvent.Time));
+                                    Program = tp;
+                                }
+                            }
+                            ne.Channel = (FourBitNumber)index;
+                            ne.Velocity = (SevenBitNumber)index;
+                        }
+                        if (midiEvent.Event is ProgramChangeEvent pe)
+                            pe.Channel = (FourBitNumber)index;
+
+                        //not needed?
+                        if (midiEvent.Event is ControlChangeEvent ce)
+                            ce.Channel = (FourBitNumber)index;
+                        if (midiEvent.Event is PitchBendEvent pbe)
+                            pbe.Channel = (FourBitNumber)index;
+                    }
+                    manager.SaveChanges();
+                }
+                index++;
+                if (index == 16)
+                    break;
+            }
+
+            midiFile.ReplaceTempoMap(Tools.GetMsTempoMap());
+
+            //cut to first note
+            long delta = (midiFile.GetTrackChunks().GetNotes().First().GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(midiFile.GetTempoMap()).TotalMicroseconds / 1000);
+            Parallel.ForEach(midiFile.GetTrackChunks(), chunk =>
+            {
+                int offset = Instrument.Parse(chunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).SampleOffset; //get the offset
+                using (var manager = chunk.ManageTimedEvents())
+                {
+                    Parallel.ForEach(manager.Objects, midiEvent =>
+                    {
+                        if ((midiEvent.Event.EventType == MidiEventType.NoteOn) ||
+                            (midiEvent.Event.EventType == MidiEventType.NoteOff) ||
+                            (midiEvent.Event.EventType == MidiEventType.ProgramChange) ||
+                            (midiEvent.Event.EventType == MidiEventType.Lyric))
+                        {
+                            if (midiEvent.Time - delta < 0)
+                                manager.Objects.Remove(midiEvent);
+                            else
+                                midiEvent.Time -= delta;
+                        }
+                    });
+                }
+            });
+
+            var stream = new MemoryStream();
+            midiFile.Write(stream, MidiFileFormat.MultiTrack, new WritingSettings { });
+            stream.Flush();
+            stream.Position = 0;
+
+            return stream;
+        }
+
+        /// <summary>
+        /// Get the midi file for the sequencer via old drywet preproc
+        /// </summary>
+        /// <returns>MemoryStream</returns>
+        public MemoryStream GetDryWetSequencerMidi()
         {
             try
             {

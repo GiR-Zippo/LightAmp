@@ -162,7 +162,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <GroupBox Grid.Row="0" Grid.Column="0" Margin="10,0,0,0" Header="Game">
+                            <GroupBox Grid.Row="0" Grid.Column="0" Margin="10,0,0,0" Header="Misc">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -170,6 +170,11 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <CheckBox Margin="10,0,0,0"  Grid.Row="0" Content="Bring LA to front" x:Name="AMPInFrontBox" Checked="AMPInFrontBox_Checked" Unchecked="AMPInFrontBox_Checked" ToolTip="{StaticResource GAME_AMPFRONT}"/>
+                                    <Label Margin="10,0,0,0"    Grid.Row="1" Content="Midi converter" HorizontalAlignment="Left"/>
+                                    <ComboBox Margin="92,0,0,0" Grid.Row="1" x:Name="MidiConverter_selection" SelectionChanged="MidiConverter_selection_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120">
+                                        <ComboBoxItem>BMP like (slow)</ComboBoxItem>
+                                        <ComboBoxItem>MogAmp like (fast)</ComboBoxItem>
+                                    </ComboBox>
                                 </Grid>
                             </GroupBox>
                             <GroupBox Grid.Row="0" Grid.Column="1" Header="Playback">
