@@ -30,6 +30,7 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
     {
         private readonly PipeServer<Message> _pipe;
         private readonly ConcurrentDictionary<int, string> _clients;
+        private readonly Version minVersion = new Version("0.0.1.8");
 
         /// <summary>
         /// 
@@ -37,7 +38,7 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         internal DalamudServer()
         {
             _clients = new ConcurrentDictionary<int, string>();
-            _pipe = new PipeServer<Message>("LightAmp-DalamudBridge", formatter: new NewtonsoftJsonFormatter());
+            _pipe = new PipeServer<Message>("Hypnotoad", new NewtonsoftJsonFormatter());
             _pipe.ClientConnected += OnConnected;
             _pipe.ClientDisconnected += OnDisconnected;
             _pipe.MessageReceived += OnMessage;
@@ -210,7 +211,6 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             if (inMsg == null)
                 return;
 
-
             switch (inMsg.msgType)
             {
                 case MessageType.Handshake:
@@ -220,6 +220,28 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
                     Debug.WriteLine($"Dalamud client Id {e.Connection.PipeName} {t} connected");
                     break;
                 }
+                case MessageType.Version:
+                    try
+                    {
+                        var t = inMsg.message;
+                        var pid = Convert.ToInt32(t.Split(':')[0]);
+                        var version = new Version(t.Split(':')[1]);
+                        if (version < minVersion)
+                        {
+                            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(
+                                new Message
+                                {
+                                    msgType = MessageType.Version,
+                                    message = minVersion.ToString()
+                                });
+                        }
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+
+                    break;
                 case MessageType.SetGfx:
                    try
                     {
