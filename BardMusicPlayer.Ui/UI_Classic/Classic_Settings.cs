@@ -53,8 +53,7 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void MidiConverter_selection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var d = MidiConverter_selection.SelectedIndex;
-            BmpPigeonhole.Instance.MidiConverter_Type = d;
+            BmpPigeonhole.Instance.MidiConverter_Type = MidiConverter_selection.SelectedIndex;
         }
 
         #region Playback
