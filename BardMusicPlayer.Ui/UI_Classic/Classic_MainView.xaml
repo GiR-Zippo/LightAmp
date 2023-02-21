@@ -170,8 +170,8 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <CheckBox Margin="10,0,0,0"  Grid.Row="0" Content="Bring LA to front" x:Name="AMPInFrontBox" Checked="AMPInFrontBox_Checked" Unchecked="AMPInFrontBox_Checked" ToolTip="{StaticResource GAME_AMPFRONT}"/>
-                                    <Label Margin="10,0,0,0"    Grid.Row="1" Content="Midi converter" HorizontalAlignment="Left"/>
-                                    <ComboBox Margin="92,0,0,0" Grid.Row="1" x:Name="MidiConverter_selection" SelectionChanged="MidiConverter_selection_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120">
+                                    <Label Margin="8,0,0,0"    Grid.Row="1" Content="Midi converter" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <ComboBox Margin="92,0,0,0" Grid.Row="1" x:Name="MidiConverter_selection" SelectionChanged="MidiConverter_selection_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120">
                                         <ComboBoxItem>BMP like (slow)</ComboBoxItem>
                                         <ComboBoxItem>MogAmp like (fast)</ComboBoxItem>
                                     </ComboBox>
