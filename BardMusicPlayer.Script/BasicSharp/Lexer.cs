@@ -89,6 +89,7 @@ namespace BasicSharp
                     case "NEXT": return Token.Next;
                     case "GOTO": return Token.Goto;
                     case "INPUT": return Token.Input;
+                    case "PLAYTIME": return Token.Playtime;
                     case "LET": return Token.Let;
                     case "GOSUB": return Token.Gosub;
                     case "RETURN": return Token.Return;

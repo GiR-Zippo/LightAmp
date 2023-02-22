@@ -21,6 +21,7 @@ namespace BasicSharp
         Step,
         Goto,
         Input,
+        Playtime,
         Let,
         Gosub,
         Return,

@@ -13,6 +13,8 @@ namespace BasicSharp
         public delegate void SelectedBard(int num);
         public delegate void SelectedBardAsString(string name);
         public delegate void UnSelectBard(string name);
+        public delegate string GetPlaybackPositionFunction();
+
         public delegate string InputFunction();
 
         public PrintFunction printHandler;
@@ -21,6 +23,7 @@ namespace BasicSharp
         public SelectedBard  selectedBardHandler;
         public SelectedBardAsString selectedBardAsStringHandler;
         public UnSelectBard unselectBardHandler;
+        public GetPlaybackPositionFunction playbackPositionHandler;
 
         public InputFunction inputHandler;
 
@@ -138,6 +141,7 @@ namespace BasicSharp
                 case Token.Macro: Macro(); break;
                 case Token.CPrint: CPrint(); break;
                 case Token.Input: Input(); break;
+                case Token.Playtime: GetPlaytime(); break;
                 case Token.Goto: Goto(); break;
                 case Token.If: If(); break;
                 case Token.Else: Else(); break;
@@ -203,6 +207,28 @@ namespace BasicSharp
                 if (!vars.ContainsKey(lex.Identifier)) vars.Add(lex.Identifier, new Value());
 
                 string input = inputHandler?.Invoke();
+                double d;
+                // try to parse as double, if failed read value as string
+                if (double.TryParse(input, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out d))
+                    vars[lex.Identifier] = new Value(d);
+                else
+                    vars[lex.Identifier] = new Value(input);
+
+                GetNextToken();
+                if (lastToken != Token.Comma) break;
+                GetNextToken();
+            }
+        }
+
+        void GetPlaytime()
+        {
+            while (true)
+            {
+                Match(Token.Identifier);
+
+                if (!vars.ContainsKey(lex.Identifier)) vars.Add(lex.Identifier, new Value());
+
+                string input = playbackPositionHandler?.Invoke();
                 double d;
                 // try to parse as double, if failed read value as string
                 if (double.TryParse(input, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out d))

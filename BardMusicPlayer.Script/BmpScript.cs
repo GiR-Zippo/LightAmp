@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright(c) 2022 GiR-Zippo
+ * Copyright(c) 2023 GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
@@ -7,17 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using BardMusicPlayer.DalamudBridge.Helper.Dalamud;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BasicSharp;
-using static System.Net.Mime.MediaTypeNames;
+using static BasicSharp.Interpreter;
 
 namespace BardMusicPlayer.Script
 {
@@ -43,7 +41,9 @@ namespace BardMusicPlayer.Script
         private string selectedBardName { get; set; } = "";
         private List<string> unselected_bards { get; set; } = null;
 
-#region Routine Handlers
+        string playtime = "";
+
+        #region Routine Handlers
 
         public void SetSelectedBard(int num)
         {
@@ -103,6 +103,19 @@ namespace BardMusicPlayer.Script
             BmpMaestro.Instance.TapKey(selectedBardName, modifier, character, unselected_bards);
         }
 
+        public string PlaybackPosition()
+        {
+            return playtime;
+        }
+
+        private void Instance_PlaybackTimeChanged(object sender, Maestro.Events.CurrentPlayPositionEvent e)
+        {
+            string Seconds = e.timeSpan.Seconds.ToString();
+            string Minutes = e.timeSpan.Minutes.ToString();
+            playtime = ((Minutes.Length == 1) ? "0" + Minutes : Minutes) + ":" + 
+                    ((Seconds.Length == 1) ? "0" + Seconds : Seconds);
+        }
+        
         #endregion
 
         #region accessors
@@ -136,6 +149,7 @@ namespace BardMusicPlayer.Script
                 basic.selectedBardHandler += SetSelectedBard;
                 basic.selectedBardAsStringHandler += SetSelectedBardName;
                 basic.unselectBardHandler += UnSelectBardName;
+                basic.playbackPositionHandler += PlaybackPosition;
                 try
                 {
                     basic.Exec();
@@ -154,6 +168,7 @@ namespace BardMusicPlayer.Script
                 basic.selectedBardHandler -= SetSelectedBard;
                 basic.selectedBardAsStringHandler -= SetSelectedBardName;
                 basic.unselectBardHandler -= UnSelectBardName;
+                basic.playbackPositionHandler -= PlaybackPosition;
                 basic = null;
             });
         }
@@ -167,6 +182,7 @@ namespace BardMusicPlayer.Script
             if (!BmpPigeonhole.Initialized) throw new BmpScriptException("Script requires Pigeonhole to be initialized.");
             if (!BmpSeer.Instance.Started) throw new BmpScriptException("Script requires Seer to be running.");
             Started = true;
+            BmpMaestro.Instance.OnPlaybackTimeChanged += Instance_PlaybackTimeChanged;
         }
 
         /// <summary>
@@ -176,6 +192,7 @@ namespace BardMusicPlayer.Script
         {
             if (!Started) return;
             Started = false;
+            BmpMaestro.Instance.OnPlaybackTimeChanged -= Instance_PlaybackTimeChanged;
         }
 
         ~BmpScript() => Dispose();
