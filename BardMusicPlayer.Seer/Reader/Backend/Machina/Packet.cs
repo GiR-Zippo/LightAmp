@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using BardMusicPlayer.Seer.Reader.Backend.Machina;
 
 #endregion
 
@@ -15,11 +16,11 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
     internal sealed partial class Packet : IDisposable
     {
         private readonly Dictionary<ulong, uint> _contentId2ActorId = new();
-        private readonly MachinaReaderBackend _machinaReader;
+        private readonly ReaderHandler _machinaReader;
 
-        internal Packet(MachinaReaderBackend machinaReader)
+        internal Packet(ReaderHandler readerHandler)
         {
-            _machinaReader = machinaReader;
+            _machinaReader = readerHandler;
         }
 
         public void Dispose()

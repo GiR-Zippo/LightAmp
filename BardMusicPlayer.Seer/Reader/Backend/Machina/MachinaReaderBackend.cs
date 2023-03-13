@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using BardMusicPlayer.Seer.Events;
 using BardMusicPlayer.Seer.Utilities;
-
 #endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Machina
@@ -38,7 +37,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
         {
             _messageQueue = new ConcurrentQueue<byte[]>();
             _messageQueueOpen = true;
-            _packet = new Packet(this);
+            _packet = new Packet(ReaderHandler);
 
             MachinaManager.Instance.MessageReceived += OnMessageReceived;
             MachinaManager.Instance.AddGame(ReaderHandler.Game.Pid);
@@ -54,8 +53,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         timeStamp *= 1000;
 
                         //string hexString = BitConverter.ToString(message);
-                        //System.Diagnostics.Debug.WriteLine(hexString + " " + message.Length.ToString());
-                        if (!(ActorIdTools.RangeOkay(myActorId) && ActorIdTools.RangeOkay(otherActorId))) continue;
+                        //System.Diagnostics.Debug.WriteLine("MMMM" + hexString + " " + message.Length.ToString());
+                        if (!(ActorIdTools.RangeOkay(myActorId) && ActorIdTools.RangeOkay(otherActorId))) 
+                            continue;
 
                         if (myActorId == otherActorId)
                             ReaderHandler.Game.PublishEvent(new ActorIdChanged(EventSource.Machina, myActorId));
@@ -67,8 +67,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                                 _packet.Size48(timeStamp, otherActorId, myActorId, message); //Handles Ensemble Stop
                                 break;
                             case 56:
-                                _packet.Size56(timeStamp, otherActorId, myActorId,
-                                    message); //Handles Ensemble Request, Ensemble Reject, and Instrument Equip/De-Equip.
+                                _packet.Size56(timeStamp, otherActorId, myActorId, message); //Handles Ensemble Request, Ensemble Reject, and Instrument Equip/De-Equip.
                                 break;
                             case 88:
                                 _packet.Size88(timeStamp, otherActorId, myActorId, message); //Handles EnsembleStart

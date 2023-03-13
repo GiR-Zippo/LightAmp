@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
@@ -15,7 +16,7 @@ using H.Formatters;
 using H.Pipes;
 using H.Pipes.AccessControl;
 using H.Pipes.Args;
-using Newtonsoft.Json;
+using BardMusicPlayer.Seer.Utilities;
 
 namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
 {
@@ -250,6 +251,26 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
                         var lowsettings = Convert.ToBoolean(t.Split(':')[1]);
                         if (BmpSeer.Instance.Games.ContainsKey(pid))
                             BmpSeer.Instance.Games[pid].GfxSettingsLow = lowsettings;
+                    }
+                    catch { }
+                    break;
+                case MessageType.StartEnsemble:
+                    try
+                    {
+                        var t = inMsg.message.Split(':');
+                        if (BmpSeer.Instance.Games.ContainsKey(Convert.ToInt32(t[0])))
+                            DalamudManager.Instance.EnsembleStartEventHandler(Convert.ToInt32(t[0]), Convert.ToInt32(t[0]));
+
+                    }
+                    catch { }
+                    break;
+                case MessageType.NetworkPacket:
+                    try
+                    {
+                        var t = inMsg.message.Split(':');
+                        /*if (BmpSeer.Instance.Games.ContainsKey(Convert.ToInt32(t[0])))
+                            DalamudManager.Instance.MessageReceivedEventHandler(Convert.ToInt32(t[0]), Convert.FromBase64String(t[1]));*/
+
                     }
                     catch { }
                     break;

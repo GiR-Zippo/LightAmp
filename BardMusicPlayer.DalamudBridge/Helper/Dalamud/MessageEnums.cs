@@ -18,6 +18,8 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         StartEnsemble = 30,
         AcceptReply = 31,
 
-        Chat = 40
+        Chat = 40,
+
+        NetworkPacket = 50
     }
 }

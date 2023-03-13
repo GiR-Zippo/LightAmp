@@ -32,11 +32,11 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                 if (!ActorIdTools.RangeOkay(partyLeader) || BitConverter.ToUInt32(message, 44) != 0)
                     return;
 
-                _machinaReader.ReaderHandler.Game.PublishEvent(new EnsembleStopped(EventSource.Machina));
+                _machinaReader.Game.PublishEvent(new EnsembleStopped(EventSource.Machina));
             }
             catch (Exception ex)
             {
-                _machinaReader.ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,
+                _machinaReader.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,
                     new BmpSeerMachinaException("Exception in Packet.Size88 (ensemble action): " + ex.Message)));
             }
         }

@@ -40,7 +40,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
             }
             catch (Exception ex)
             {
-                _machinaReader.ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,
+                _machinaReader.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,
                     new BmpSeerMachinaException("Exception in Packet.Size3576 (party): " + ex.Message)));
             }
         }
