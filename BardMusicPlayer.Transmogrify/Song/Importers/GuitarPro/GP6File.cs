@@ -160,7 +160,6 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                 _bar.header = song.measureHeaders[barCnt];
                 currentMeasure = barCnt;
                 currentTrack = cnt % song.trackCount;
-
                 cnt++;
                 Node nSimileMark = nBar.getSubnodeByName("SimileMark", true);
                 if (nSimileMark != null)
@@ -458,7 +457,8 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                 if (searchBrushParams)
                 {
                     int duration = int.Parse(nXProperty.getSubnodeByProperty("id", "687935489").subnodes[0].content, CultureInfo.InvariantCulture);
-                    float startsOnTime = float.Parse(nXProperty.getSubnodeByProperty("id", "687935490").subnodes[0].content, CultureInfo.InvariantCulture);
+                    var startTimeSubnode = nXProperty.getSubnodeByProperty("id", "687935490");
+                    float startsOnTime = startTimeSubnode != null ? float.Parse(startTimeSubnode.subnodes[0].content, CultureInfo.InvariantCulture) : 0;
                     beat.effect.stroke.setByGP6Standard(duration);
                     beat.effect.stroke.startTime = startsOnTime;
                 }
@@ -1597,6 +1597,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
             if (subpointer == 8) { subpointer = 0; pointer++; }
             if (pointer >= data.Length) this.finished = true;
         }
+
 
 
     }

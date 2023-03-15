@@ -32,16 +32,16 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                 var playerName = Encoding.UTF8.GetString(message, 588, 32).Trim((char)0);
 
                 if (World.Ids.ContainsKey(homeWorldId))
-                    _machinaReader.ReaderHandler.Game.PublishEvent(new HomeWorldChanged(EventSource.Machina,
+                    _machinaReader.Game.PublishEvent(new HomeWorldChanged(EventSource.Machina,
                         World.Ids[homeWorldId]));
 
                 if (string.IsNullOrEmpty(playerName))
-                    _machinaReader.ReaderHandler.Game.PublishEvent(new PlayerNameChanged(EventSource.Machina,
+                    _machinaReader.Game.PublishEvent(new PlayerNameChanged(EventSource.Machina,
                         playerName));
             }
             catch (Exception ex)
             {
-                _machinaReader.ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,
+                _machinaReader.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,
                     new BmpSeerMachinaException("Exception in Packet.Size656 (player spawn): " + ex.Message)));
             }
         }

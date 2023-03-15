@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer;
@@ -15,7 +16,7 @@ using H.Formatters;
 using H.Pipes;
 using H.Pipes.AccessControl;
 using H.Pipes.Args;
-using Newtonsoft.Json;
+using BardMusicPlayer.Seer.Utilities;
 
 namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
 {
@@ -250,6 +251,38 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
                         var lowsettings = Convert.ToBoolean(t.Split(':')[1]);
                         if (BmpSeer.Instance.Games.ContainsKey(pid))
                             BmpSeer.Instance.Games[pid].GfxSettingsLow = lowsettings;
+                    }
+                    catch { }
+                    break;
+                case MessageType.NameAndHomeWorld:
+                    try
+                    {
+                        var t = inMsg.message;
+                        var pid = Convert.ToInt32(t.Split(':')[0]);
+                        var Name = t.Split(':')[1];
+                        var HomeWorld = Convert.ToInt32(t.Split(':')[2]);
+                        if (BmpSeer.Instance.Games.ContainsKey(pid))
+                            DalamudManager.Instance.NameAndHomeworldModeEventHandler(pid, Name, HomeWorld);
+                    }
+                    catch { }
+                    break;
+                case MessageType.StartEnsemble:
+                    try
+                    {
+                        var t = inMsg.message.Split(':');
+                        if (BmpSeer.Instance.Games.ContainsKey(Convert.ToInt32(t[0])))
+                            DalamudManager.Instance.EnsembleStartEventHandler(Convert.ToInt32(t[0]), Convert.ToInt32(t[1]));
+
+                    }
+                    catch { }
+                    break;
+                case MessageType.PerformanceModeState:
+                    try
+                    {
+                        var t = inMsg.message.Split(':');
+                        Debug.WriteLine(inMsg.message);
+                        if (BmpSeer.Instance.Games.ContainsKey(Convert.ToInt32(t[0])))
+                            DalamudManager.Instance.PerformanceModeEventHandler(Convert.ToInt32(t[0]), Convert.ToInt32(t[1]));
                     }
                     catch { }
                     break;

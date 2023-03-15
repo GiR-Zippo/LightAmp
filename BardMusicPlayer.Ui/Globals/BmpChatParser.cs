@@ -131,7 +131,6 @@ namespace BardMusicPlayer.Ui {
 
 		public static void AppendText(this System.Windows.Controls.RichTextBox box, Seer.Events.ChatLog ev)
 		{
-            System.Windows.Media.BrushConverter bc = new System.Windows.Media.BrushConverter();
             System.Windows.Documents.TextRange tr = new System.Windows.Documents.TextRange(box.Document.ContentEnd, box.Document.ContentEnd);
 			var t = BmpChatParser.FormatChat(ev);
 			tr.Text = t.Key;
