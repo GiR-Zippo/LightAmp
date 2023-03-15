@@ -254,23 +254,35 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
                     }
                     catch { }
                     break;
+                case MessageType.NameAndHomeWorld:
+                    try
+                    {
+                        var t = inMsg.message;
+                        var pid = Convert.ToInt32(t.Split(':')[0]);
+                        var Name = t.Split(':')[1];
+                        var HomeWorld = Convert.ToInt32(t.Split(':')[2]);
+                        if (BmpSeer.Instance.Games.ContainsKey(pid))
+                            DalamudManager.Instance.NameAndHomeworldModeEventHandler(pid, Name, HomeWorld);
+                    }
+                    catch { }
+                    break;
                 case MessageType.StartEnsemble:
                     try
                     {
                         var t = inMsg.message.Split(':');
                         if (BmpSeer.Instance.Games.ContainsKey(Convert.ToInt32(t[0])))
-                            DalamudManager.Instance.EnsembleStartEventHandler(Convert.ToInt32(t[0]), Convert.ToInt32(t[0]));
+                            DalamudManager.Instance.EnsembleStartEventHandler(Convert.ToInt32(t[0]), Convert.ToInt32(t[1]));
 
                     }
                     catch { }
                     break;
-                case MessageType.NetworkPacket:
+                case MessageType.PerformanceModeState:
                     try
                     {
                         var t = inMsg.message.Split(':');
-                        /*if (BmpSeer.Instance.Games.ContainsKey(Convert.ToInt32(t[0])))
-                            DalamudManager.Instance.MessageReceivedEventHandler(Convert.ToInt32(t[0]), Convert.FromBase64String(t[1]));*/
-
+                        Debug.WriteLine(inMsg.message);
+                        if (BmpSeer.Instance.Games.ContainsKey(Convert.ToInt32(t[0])))
+                            DalamudManager.Instance.PerformanceModeEventHandler(Convert.ToInt32(t[0]), Convert.ToInt32(t[1]));
                     }
                     catch { }
                     break;

@@ -13,6 +13,7 @@ namespace BardMusicPlayer.Seer.Events
         DalamudManager = 3,
         DatFile = 10,
         Machina = 11,
-        Sharlayan = 12
+        Sharlayan = 12,
+        Dalamud = 13
     }
 }

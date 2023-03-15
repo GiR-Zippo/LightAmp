@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using BardMusicPlayer.Seer.Reader.Backend.Machina;
 
 #endregion
 

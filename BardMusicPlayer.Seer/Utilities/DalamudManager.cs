@@ -49,6 +49,13 @@ namespace BardMusicPlayer.Seer.Utilities
 
         #region Accessors
 
+        internal event NameAndHomeworldModeHandler NameAndHomeworld;
+        internal delegate void NameAndHomeworldModeHandler(int processId, string Name, int WorldId);
+        public void NameAndHomeworldModeEventHandler(int processId, string Name, int WorldId)
+        {
+            NameAndHomeworld?.Invoke(processId, Name, WorldId);
+        }
+
         internal event EnsembleStartHandler EnsembleStart;
         internal delegate void EnsembleStartHandler(int processId, int code);
         public void EnsembleStartEventHandler(int processId, int code)
@@ -56,6 +63,12 @@ namespace BardMusicPlayer.Seer.Utilities
             EnsembleStart?.Invoke(processId, code);
         }
 
+        internal event PerformanceModeHandler PerformanceMode;
+        internal delegate void PerformanceModeHandler(int processId, int CurrentGroupTone);
+        public void PerformanceModeEventHandler(int processId, int CurrentGroupTone)
+        {
+            PerformanceMode?.Invoke(processId, CurrentGroupTone);
+        }
         #endregion
 
         ~DalamudManager()
