@@ -1,11 +1,10 @@
 ﻿/*
- * Copyright(c) 2022 GiR-Zippo
+ * Copyright(c) 2023 GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BardMusicPlayer.Maestro.Performance;

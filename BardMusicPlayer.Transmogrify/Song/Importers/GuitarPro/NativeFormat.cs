@@ -1,5 +1,6 @@
 ﻿#region
 
+using Melanchall.DryWetMidi.Interaction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,8 +89,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro.Native
             if (tempos.Count == 0) tempos.Add(new Tempo());
             while (tempoIndex < tempos.Count || masterBarIndex < barMaster.Count)
                 //Compare next entry of both possible sources
-                if (tempoIndex == tempos.Count ||
-                    tempos[tempoIndex].position >= barMaster[masterBarIndex].index) //next measure comes first
+                if (tempoIndex >= tempos.Count || (masterBarIndex < barMaster.Count && tempos[tempoIndex].position >= barMaster[masterBarIndex].index)) //next measure comes first
                 {
                     if (!barMaster[masterBarIndex].keyBoth.Equals(oldKeySignature))
                     {
@@ -1187,8 +1187,9 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro.Native
                 if (n.str == -2) break; //Last round
 
                 //if (n.str-1 < 0) Debug.WriteLine("String was -1");
-                //if (n.str-1 >= tuning.Length && tuning.Length != 0) Debug.Log("String was higher than string amount (" + n.str + ")");
-                if (tuning.Length > 0)
+                if (n.str-1 >= tuning.Length)
+                    note = capo + n.fret;
+                else if (tuning.Length > 0)
                     note = tuning[n.str - 1] + capo + n.fret;
                 else
                     note = capo + n.fret;

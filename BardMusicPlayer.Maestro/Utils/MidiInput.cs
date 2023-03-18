@@ -1,14 +1,10 @@
 ﻿/*
- * Copyright(c) 2022 GiR-Zippo
+ * Copyright(c) 2023 GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 using Sanford.Multimedia.Midi;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Maestro.Utils
 {

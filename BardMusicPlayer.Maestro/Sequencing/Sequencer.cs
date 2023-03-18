@@ -1,11 +1,10 @@
 /*
- * Copyright(c) 2022 Parulina, trotlinebeercan, GiR-Zippo
+ * Copyright(c) 2023 Parulina, trotlinebeercan, GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using Timer = System.Timers.Timer;
@@ -14,10 +13,8 @@ using Sanford.Multimedia.Midi;
 using System.Text.RegularExpressions;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Pigeonhole;
-using BardMusicPlayer.Maestro.Utils;
 using BardMusicPlayer.Maestro.Sequencing.Internal;
 using BardMusicPlayer.Transmogrify.Song;
-using Melanchall.DryWetMidi.Interaction;
 
 namespace BardMusicPlayer.Maestro.Sequencing
 {

@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright(c) 2021 MoogleTroupe
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2023 MoogleTroupe, GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 using System;
@@ -27,7 +27,7 @@ namespace BardMusicPlayer.DalamudBridge
         public static DalamudBridge Instance => LazyInstance.Value;
 
         /// <summary>
-        /// Start Grunt.
+        /// Start DalamudBridge.
         /// </summary>
         public void Start()
         {
@@ -40,7 +40,7 @@ namespace BardMusicPlayer.DalamudBridge
         }
 
         /// <summary>
-        /// Stop Grunt.
+        /// Stop DalamudBridge.
         /// </summary>
         public void Stop()
         {

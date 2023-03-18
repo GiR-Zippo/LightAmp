@@ -1,5 +1,5 @@
 /*
- * Copyright(c) 2022 Parulina, sabihoshi, trotlinebeercan, troy-f, GiR-Zippo
+ * Copyright(c) 2023 Parulina, sabihoshi, trotlinebeercan, troy-f, GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
@@ -7,12 +7,9 @@ using BardMusicPlayer.Quotidian.Enums;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Timer = System.Timers.Timer;
 
 namespace BardMusicPlayer.Maestro.FFXIV
 {
@@ -493,27 +490,6 @@ namespace BardMusicPlayer.Maestro.FFXIV
                 SendSyncKey(keybind, true, false, true);
             }
             lastPerformanceKeys.Clear();
-        }
-
-        public RECT GetClientRect()
-        {
-            if (mainWindowHandle != null)
-            {
-                if (GetClientRect(new HandleRef(this, mainWindowHandle), out RECT rect))
-                {
-                    return rect;
-                }
-            }
-            return new RECT();
-        }
-
-        public bool GetScreenFromClientPoint(ref POINT point)
-        {
-            if (mainWindowHandle != null)
-            {
-                return ClientToScreen(new HandleRef(this, mainWindowHandle), ref point);
-            }
-            return false;
         }
 
         public IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)

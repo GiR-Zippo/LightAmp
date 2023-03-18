@@ -81,57 +81,7 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
 
         #region DRAW GRID
 
-        public void DrawPianoRoll()
-        {
-            view.TrackNotes.Children.Clear();
-            int noteWithoutOctave;
-            Brush currentColor = Brushes.White;
-            for (int i = 0; i < 128; i++)
-            {
-                // identify note
-                noteWithoutOctave = i % 12;
-                // choose note color
-                switch (noteWithoutOctave)
-                {
-                    case 0: currentColor = Brushes.White; break;
-                    case 1: currentColor = Brushes.Black; break;
-                    case 2: currentColor = Brushes.White; break;
-                    case 3: currentColor = Brushes.Black; break;
-                    case 4: currentColor = Brushes.White; break;
-                    case 5: currentColor = Brushes.White; break;
-                    case 6: currentColor = Brushes.Black; break;
-                    case 7: currentColor = Brushes.White; break;
-                    case 8: currentColor = Brushes.Black; break;
-                    case 9: currentColor = Brushes.White; break;
-                    case 10: currentColor = Brushes.Black; break;
-                    case 11: currentColor = Brushes.White; break;
-                }
-                if (i == 48) currentColor = Brushes.Red;
-                if (i == 60) currentColor = Brushes.Yellow;
-                if (i == 69) currentColor = Brushes.Cyan;
-                // make rectangle
-                Rectangle rec = new Rectangle
-                {
-                    Width = 15,
-                    Height = model.CellHeigth,
-                    Fill = currentColor,
-                    Stroke = Brushes.Gray,
-                    StrokeThickness = .5f
-                };
-                // place rectangle
-                Canvas.SetLeft(rec, 0);
-                Canvas.SetTop(rec, (127 - i) * model.CellHeigth);
-                // piano toucn on rectangle
-                int j = i;
-                rec.MouseLeftButtonDown += (s, e) => MidiManager.Instance.Playback(true, j);
-                rec.MouseLeftButtonUp += (s, e) => MidiManager.Instance.Playback(false, j);
-                rec.MouseLeave += (s, e) => MidiManager.Instance.Playback(false, j);
-                // add it to the control
-                view.TrackNotes.Children.Add(rec);
-                view.TrackNotes.Height = 127 * model.CellHeigth;
-                view.TrackBody.Height = 127 * model.CellHeigth;
-            }
-        }
+        
 
         #endregion
 
@@ -146,14 +96,25 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
         private void DrawNotes()
         {
             TempoMap tempo = MidiManager.Instance.GetTempoMap();
-            foreach (Note note in model.Track.GetNotes())
+
+
+            foreach (TimedEvent ev in model.Track.GetTimedEvents())
             {
-                DrawNote(
-                    (double)note.GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds / 1000 / model.DAWhosReso,
+                if (ev.Event.EventType == MidiEventType.ProgramChange)
+                {
+                    var prog = ev.Event as ProgramChangeEvent;
+                    DrawNote(
+                    (double)(ev.TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds +2) / 1000 / model.DAWhosReso,
+                    (double)(ev.TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds + 3) / 1000 / model.DAWhosReso,
+                    prog.ProgramNumber,
+                    null);
+                }
+                /*DrawNote(
+                    (double)prog..TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds / 1000 / model.DAWhosReso,
                     (double)note.GetTimedNoteOffEvent().TimeAs<MetricTimeSpan>(tempo).TotalMicroseconds / 1000 / model.DAWhosReso,
                     note.NoteNumber,
                     note
-                );
+                );*/
             }
         }
 

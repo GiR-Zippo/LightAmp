@@ -1,4 +1,9 @@
-﻿using System.Collections.Generic;
+﻿/*
+ * Copyright(c) 2023 GiR-Zippo, Meowchestra
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
