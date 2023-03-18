@@ -52,6 +52,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Dalamud
 
         private void OnNameAndHomeworld(int processId, string Name, int WorldId)
         {
+            if (ReaderHandler.Game.Pid != processId)
+                return;
+            
             if (World.Ids.ContainsKey(WorldId))
                 ReaderHandler.Game.PublishEvent(new HomeWorldChanged(EventSource.Machina, World.Ids[WorldId]));
 
