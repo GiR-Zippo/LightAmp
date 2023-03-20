@@ -1,7 +1,5 @@
-
 using System.Windows;
 using BardMusicPlayer.Coffer;
-using BardMusicPlayer.DalamudBridge;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BardMusicPlayer.Maestro;

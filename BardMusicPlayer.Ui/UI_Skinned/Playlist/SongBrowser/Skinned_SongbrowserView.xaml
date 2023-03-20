@@ -1,4 +1,4 @@
-﻿<Window x:Class="BardMusicPlayer.Ui.Skinned.Skinned_PlaylistView"
+﻿<Window x:Class="BardMusicPlayer.Ui.Skinned.Skinned_SongbrowserView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -82,6 +82,7 @@
                 <ColumnDefinition Width="*"/>
                 <!-- <ColumnDefinition Width="30"/> -->
             </Grid.ColumnDefinitions>
+
             <Rectangle Grid.Column="0" x:Name="PLAYLIST_LEFT_TILE"  VerticalAlignment="Stretch" HorizontalAlignment="Left"  Width="18" Margin="0,0,0,0">
                 <Rectangle.Fill>
                     <ImageBrush/>
@@ -93,13 +94,26 @@
                 </Rectangle.Fill>
             </Rectangle>
 
-            <ListView Grid.Column="1" x:Name="PlaylistContainer" Width="380" Height="320" VerticalAlignment="Top" HorizontalAlignment="Left" BorderThickness="0" ItemsSource="{Binding Path=Title}"
-                    PreviewMouseDoubleClick="PlaylistContainer_PreviewMouseDoubleClick"
-                    ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                    SelectionChanged="PlaylistContainer_SelectionChanged"
-                         ScrollViewer.VerticalScrollBarVisibility="Visible"
-                         ScrollViewer.CanContentScroll="True">
-            </ListView>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="18"/>
+                </Grid.RowDefinitions>
+                <ListView  x:Name="PlaylistContainer" Width="380" Height="320" VerticalAlignment="Top" HorizontalAlignment="Left" BorderThickness="0" 
+                        PreviewMouseDoubleClick="PlaylistContainer_PreviewMouseDoubleClick"
+                        ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                        SelectionChanged="PlaylistContainer_SelectionChanged"
+                             ScrollViewer.VerticalScrollBarVisibility="Visible"
+                             ScrollViewer.CanContentScroll="True">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Value}"/>
+                        </DataTemplate>
+
+                    </ListView.ItemTemplate>
+                </ListView>
+                <TextBox Grid.Row="2" x:Name="Search_Box" Height="18" Width="360" HorizontalAlignment="Left" Margin="2,0,0,0" PreviewTextInput="Search_Box_PreviewTextInput"/>
+            </Grid>
         </Grid>
 
         <!-- Bottom -->
@@ -142,12 +156,11 @@
                 Fill="Transparent" MouseDown="MenuButton_PreviewMouseLeftButtonDown">
                     <Rectangle.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Add file(s)" Click="AddFiles_Click" />
-                            <MenuItem Header="Add folder" Click="AddFolder_Click"/>
+                            <MenuItem Header="Add to playlist" Click="AddItemToPlaylist_Click" />
                         </ContextMenu>
                     </Rectangle.ContextMenu>
                 </Rectangle>
-                <Rectangle Grid.Column="3" x:Name="DelMenuButton" Height="20" Margin="0,-6,0,0" ContextMenuService.IsEnabled="False"
+                <!--<Rectangle Grid.Column="3" x:Name="DelMenuButton" Height="20" Margin="0,-6,0,0" ContextMenuService.IsEnabled="False"
                 ContextMenuService.Placement="Top"
                 ContextMenuService.ShowOnDisabled="True"
                 Fill="Transparent" MouseDown="MenuButton_PreviewMouseLeftButtonDown">
@@ -167,20 +180,19 @@
                             <MenuItem Header="Search" Click="Search_Click"/>
                         </ContextMenu>
                     </Rectangle.ContextMenu>
-                </Rectangle>
+                </Rectangle>-->
                 <Rectangle Grid.Column="7" x:Name="MiscMenuButton" Height="20" Margin="0,-6,0,0" ContextMenuService.IsEnabled="False"
                 ContextMenuService.Placement="Top"
                 ContextMenuService.ShowOnDisabled="True"
                 Fill="Transparent" MouseDown="MenuButton_PreviewMouseLeftButtonDown">
                     <Rectangle.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Export to MIDI"   Click="Export_Midi_Click"/>
-                            <MenuItem Header="Show Songbrowser" Click="ShowSongbrowser_Click"/>
+                            <MenuItem Header="Show Playlist" Click="ShowPlaylists_MenuClick"/>
                         </ContextMenu>
                     </Rectangle.ContextMenu>
                 </Rectangle>
             </Grid>
-            <Grid Grid.Column="2">
+            <!--<Grid Grid.Column="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
@@ -200,8 +212,8 @@
                             <MenuItem Header="Open Playlistbrowser"          Click="MenuItem_OpenPlaylistBrowser"/>
                         </ContextMenu>
                     </Rectangle.ContextMenu>
-                </Rectangle>
-            </Grid>
+                </Rectangle> 
+            </Grid>-->
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height= "34"/>

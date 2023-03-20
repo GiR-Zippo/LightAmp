@@ -352,14 +352,13 @@
     <Compile Include="UI_Skinned\NetworkPlayWindow\NetworkPlayWindow.xaml.cs">
       <DependentUpon>NetworkPlayWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI_Skinned\Playlist\MediaBrowser.xaml.cs">
+    <Compile Include="UI_Skinned\Playlist\Mediabrowser\MediaBrowser.xaml.cs">
       <DependentUpon>MediaBrowser.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI_Skinned\Playlist\Skinned_PlaylistView_Siren.cs" />
     <Compile Include="UI_Skinned\Playlist\Skinned_PlaylistView.xaml.cs" />
-    <Compile Include="UI_Skinned\SongBrowserWindow\SongbrowserWindow.xaml.cs">
-      <DependentUpon>SongbrowserWindow.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="UI_Skinned\Playlist\SongBrowser\Skinned_SongbrowserView.xaml.cs" />
+    <Compile Include="UI_Skinned\Playlist\SongBrowser\Skinned_SongbrowserView_Siren.cs" />
     <Page Include="Controls\BardExtSettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -493,9 +492,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI_Skinned\Playlist\MediaBrowser.xaml">
+    <Page Include="UI_Skinned\Playlist\Mediabrowser\MediaBrowser.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI_Skinned\Playlist\SongBrowser\Skinned_SongbrowserView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI_Skinned\Settings\SettingsView.xaml">
       <SubType>Designer</SubType>
@@ -504,10 +507,6 @@
     <Page Include="UI_Skinned\Playlist\Skinned_PlaylistView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UI_Skinned\SongBrowserWindow\SongbrowserWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

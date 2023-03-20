@@ -17,6 +17,7 @@ using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Jamboree;
+using BardMusicPlayer.Ui.Classic;
 
 namespace BardMusicPlayer.Ui.Skinned
 {
@@ -29,12 +30,13 @@ namespace BardMusicPlayer.Ui.Skinned
         private bool _Playbar_dragStarted = false;
         private bool _Trackbar_dragStarted { get; set; } = false;
         private bool _Octavebar_dragStarted { get; set; } = false;
+        private bool _showingPlaylist { get; set; } = true;
 
         private TimeSpan _maxTime;
         private bool _showLapTime { get; set; } = true;
 
         public Skinned_PlaylistView _PlaylistView;
-        public SongbrowserWindow _SongbrowserView;
+        public Skinned_SongbrowserView _SBV;
         public BardsWindow _BardListView;
         public NetworkPlayWindow _Networkplaywindow;
         public Skinned_MainView_Ex _MainView_Ex;
@@ -49,13 +51,6 @@ namespace BardMusicPlayer.Ui.Skinned
             _MainView_Ex = new Skinned_MainView_Ex();
             if (BmpPigeonhole.Instance.SkinnedUi_UseExtendedView)
                 _MainView_Ex.Visibility = Visibility.Visible;
-
-            //init the songbrowser
-            _SongbrowserView = new SongbrowserWindow();
-            _SongbrowserView.Show();
-            this._SongbrowserView.Visibility = Visibility.Hidden;
-            this._SongbrowserView.OnLoadSongFromBrowser += OnLoadSongFromSongbrowser;
-
 
             //open the bards window
             _BardListView = new BardsWindow();
@@ -72,6 +67,16 @@ namespace BardMusicPlayer.Ui.Skinned
             _PlaylistView.Top = ((MainWindow)Application.Current.MainWindow).Top + ((MainWindow)Application.Current.MainWindow).ActualHeight;
             _PlaylistView.Left = ((MainWindow)Application.Current.MainWindow).Left;
             _PlaylistView.OnLoadSongFromPlaylist += OnLoadSongFromPlaylist;
+            _PlaylistView.OnToggleView += OnToggleView;
+
+            //open the songbrowser
+            _SBV = new Skinned_SongbrowserView();
+            _SBV.Show();
+            _SBV.Top = ((MainWindow)Application.Current.MainWindow).Top + ((MainWindow)Application.Current.MainWindow).ActualHeight;
+            _SBV.Left = ((MainWindow)Application.Current.MainWindow).Left;
+            _SBV.OnLoadSongFromBrowser  += OnLoadSongFromSongbrowser;
+            _SBV.OnToggleView           += OnToggleView;
+            _SBV.Visibility = Visibility.Hidden;
 
             //bind events from maestro
             BmpMaestro.Instance.OnSongLoaded += Instance_OnSongLoaded;
@@ -106,6 +111,27 @@ namespace BardMusicPlayer.Ui.Skinned
         }
 
         #region EventCallbacks
+
+        /// <summary>
+        /// triggered by the songbrowser if a file should be loaded
+        /// </summary>
+        private void OnToggleView(object sender, int target)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (target == 0)
+                {
+                    _PlaylistView.Visibility = Visibility.Visible;
+                    _SBV.Visibility = Visibility.Hidden;
+                }
+                else if (target == 1)
+                {
+                    _PlaylistView.Visibility = Visibility.Hidden;
+                    _SBV.Visibility = Visibility.Visible;
+                }
+
+            }));
+        }
 
         /// <summary>
         /// triggered by the songbrowser if a file should be loaded
@@ -193,7 +219,7 @@ namespace BardMusicPlayer.Ui.Skinned
         }
 
         /// <summary>
-        /// triggered if we know the max time from meastro
+        /// triggered if we know the max time from maestro
         /// </summary>
         private void PlaybackMaxTime(Maestro.Events.MaxPlayTimeEvent e)
         {
@@ -303,6 +329,10 @@ namespace BardMusicPlayer.Ui.Skinned
                     _PlaylistView.Width = mainWindow.Width;
                     _PlaylistView.Left = _PlaylistView.Left + oLeft;
                     _PlaylistView.Top = _PlaylistView.Top + oTop;
+
+                    _SBV.Width = mainWindow.Width;
+                    _SBV.Left = _SBV.Left + oLeft;
+                    _SBV.Top = _SBV.Top + oTop;
                     mainWindow = null;
                 }
                 else
@@ -310,6 +340,8 @@ namespace BardMusicPlayer.Ui.Skinned
                     Window mainWindow = Application.Current.MainWindow;
                     _PlaylistView.Left = _PlaylistView.Left + oLeft;
                     _PlaylistView.Top = _PlaylistView.Top + oTop;
+                    _SBV.Left = _SBV.Left + oLeft;
+                    _SBV.Top = _SBV.Top + oTop;
                 }
             }
         }
@@ -350,9 +382,10 @@ namespace BardMusicPlayer.Ui.Skinned
             this.Minutes_First.Dispatcher.BeginInvoke(new Action(() => Minutes_First.Fill = SkinContainer.NUMBERS[(SkinContainer.NUMBER_TYPES)((Minutes.Length == 1) ? 0 : Convert.ToInt32(Minutes.Substring(0, 1)))]));
         }
 
-        private void ShowSongBrowserWindow_Click(object sender, RoutedEventArgs e)
+        private void ShowMacroWindow_Click(object sender, RoutedEventArgs e)
         {
-            this._SongbrowserView.Visibility = Visibility.Visible;
+            MacroLaunchpad macroLaunchpad = new MacroLaunchpad();
+            macroLaunchpad.Visibility = Visibility.Visible;
         }
 
         private void ShowBardsWindow_Click(object sender, RoutedEventArgs e)
@@ -398,6 +431,10 @@ namespace BardMusicPlayer.Ui.Skinned
 
                 _PlaylistView.Top = (mainWindow.Top + mainWindow.Height) + 172;
                 _PlaylistView.Left = mainWindow.Left;
+
+                _SBV.Top = (mainWindow.Top + mainWindow.Height) + 172;
+                _SBV.Left = mainWindow.Left;
+
                 mainWindow = null;
             }
             else
@@ -405,6 +442,9 @@ namespace BardMusicPlayer.Ui.Skinned
                 Window mainWindow = Application.Current.MainWindow;
                 _PlaylistView.Top = (mainWindow.Top + mainWindow.Height);
                 _PlaylistView.Left = mainWindow.Left;
+
+                _SBV.Top = (mainWindow.Top + mainWindow.Height);
+                _SBV.Left = mainWindow.Left;
             }
         }
 
@@ -423,6 +463,10 @@ namespace BardMusicPlayer.Ui.Skinned
                 _PlaylistView.Width = mainWindow.Width;
                 _PlaylistView.Top = (mainWindow.Top + mainWindow.Height) + 172;
                 _PlaylistView.Left = mainWindow.Left;
+
+                _SBV.Width = mainWindow.Width;
+                _SBV.Top = (mainWindow.Top + mainWindow.Height) + 172;
+                _SBV.Left = mainWindow.Left;
                 mainWindow = null;
             }
             else
@@ -431,6 +475,10 @@ namespace BardMusicPlayer.Ui.Skinned
                 _PlaylistView.Width = mainWindow.Width;
                 _PlaylistView.Top = (mainWindow.Top + mainWindow.Height);
                 _PlaylistView.Left = mainWindow.Left;
+
+                _SBV.Width = mainWindow.Width;
+                _SBV.Top = (mainWindow.Top + mainWindow.Height);
+                _SBV.Left = mainWindow.Left;
             }
         }
 

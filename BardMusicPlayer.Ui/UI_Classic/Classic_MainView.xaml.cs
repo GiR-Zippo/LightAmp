@@ -8,6 +8,7 @@ using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Siren;
 using BardMusicPlayer.Quotidian;
+using BardMusicPlayer.Transmogrify.Song;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -43,7 +44,8 @@ namespace BardMusicPlayer.Ui.Classic
             BmpSiren.Instance.SynthTimePositionChanged  += Instance_SynthTimePositionChanged;
 
             SongBrowser.OnLoadSongFromBrowser           += Instance_SongBrowserLoadedSong;
-
+            SongBrowser.OnAddSongFromBrowser            += Instance_SongBrowserAddSongToPlaylist;
+            SongBrowser.OnLoadSongFromBrowserToPreview += Instance_SongBrowserLoadSongToPreview;
             BmpSeer.Instance.MidibardPlaylistEvent      += Instance_MidibardPlaylistEvent;
 
             Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
@@ -104,6 +106,51 @@ namespace BardMusicPlayer.Ui.Classic
         private void Instance_ChatLog(Seer.Events.ChatLog seerEvent)
         {
             this.Dispatcher.BeginInvoke(new Action(() => this.AppendChatLog(seerEvent)));
+        }
+
+        /// <summary>
+        /// triggered by the songbrowser if a file should be loaded
+        /// </summary>
+        private void Instance_SongBrowserLoadedSong(object sender, string filename)
+        {
+            if (PlaybackFunctions.LoadSong(filename))
+            {
+                SongName.Text = PlaybackFunctions.GetSongName();
+                InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
+                _directLoaded = true;
+            }
+        }
+
+        /// <summary>
+        /// triggered by the songbrowser if a file should be added to the playlist
+        /// </summary>
+        private void Instance_SongBrowserAddSongToPlaylist(object sender, string filename)
+        {
+            if (_currentPlaylist == null)
+                return;
+
+            if (!PlaylistFunctions.AddFilesToPlaylist(_currentPlaylist, filename))
+                return;
+
+            PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+            Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
+        }
+
+        private void Instance_SongBrowserLoadSongToPreview(object sender, string filename)
+        {
+            if (BmpSiren.Instance.IsReadyForPlayback)
+                BmpSiren.Instance.Stop();
+            
+            var currentSong = BmpSong.OpenFile(filename).Result;
+            _ = BmpSiren.Instance.Load(currentSong);
+            this.Siren_SongName.Content = BmpSiren.Instance.CurrentSongTitle;
+
+            //Fill the lyrics editor
+            lyricsData.Clear();
+            foreach (var line in currentSong.LyricsContainer)
+                lyricsData.Add(new LyricsContainer(line.Key, line.Value));
+            Siren_Lyrics.DataContext = lyricsData;
+            Siren_Lyrics.Items.Refresh();
         }
 
         private void Instance_MidibardPlaylistEvent(Seer.Events.MidibardPlaylistEvent seerEvent)
@@ -364,19 +411,6 @@ namespace BardMusicPlayer.Ui.Classic
 
             MacroLaunchpad macroLaunchpad = new MacroLaunchpad();
             macroLaunchpad.Visibility = Visibility.Visible;
-        }
-
-        /// <summary>
-        /// triggered by the songbrowser if a file should be loaded
-        /// </summary>
-        private void Instance_SongBrowserLoadedSong(object sender, string filename)
-        {
-            if (PlaybackFunctions.LoadSong(filename))
-            {
-                SongName.Text = PlaybackFunctions.GetSongName();
-                InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
-                _directLoaded = true;
-            }
         }
     }
 }

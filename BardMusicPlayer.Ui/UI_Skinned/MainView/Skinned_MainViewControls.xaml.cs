@@ -5,9 +5,8 @@ using BardMusicPlayer.Ui.Functions;
 using System.Threading;
 using BardMusicPlayer.Maestro;
 using System.Windows.Controls.Primitives;
-using System.Windows.Media.Animation;
-using System;
 using BardMusicPlayer.Pigeonhole;
+using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Ui.Skinned
 {
@@ -35,7 +34,22 @@ namespace BardMusicPlayer.Ui.Skinned
             PlaybackFunctions.PlaySong(0);
         }
         private void Play_Button_Down(object sender, MouseButtonEventArgs e)
-        { this.Play_Button.Background = SkinContainer.CBUTTONS[SkinContainer.CBUTTON_TYPES.MAIN_PLAY_BUTTON_ACTIVE];}
+        {
+            //Equip and start
+            if (e.ChangedButton == MouseButton.Right)
+            {
+                if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
+                    return;
+
+                Task task = Task.Run(() =>
+                {
+                    BmpMaestro.Instance.EquipInstruments();
+                    Task.Delay(2000).Wait();
+                    BmpMaestro.Instance.StartEnsCheck();
+                });
+            }
+            this.Play_Button.Background = SkinContainer.CBUTTONS[SkinContainer.CBUTTON_TYPES.MAIN_PLAY_BUTTON_ACTIVE];
+        }
         private void Play_Button_Up(object sender, MouseButtonEventArgs e)
         { this.Play_Button.Background = SkinContainer.CBUTTONS[SkinContainer.CBUTTON_TYPES.MAIN_PLAY_BUTTON];}
 
@@ -61,7 +75,17 @@ namespace BardMusicPlayer.Ui.Skinned
             PlaybackFunctions.StopSong();
         }
         private void Stop_Button_Down(object sender, MouseButtonEventArgs e)
-        { this.Stop_Button.Background = SkinContainer.CBUTTONS[SkinContainer.CBUTTON_TYPES.MAIN_STOP_BUTTON_ACTIVE]; }
+        {
+            //Equip and start
+            if (e.ChangedButton == MouseButton.Right)
+            {
+                if (PlaybackFunctions.PlaybackState != PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_STOPPED)
+                    PlaybackFunctions.StopSong();
+
+                BmpMaestro.Instance.UnEquipInstruments();
+            }
+            this.Stop_Button.Background = SkinContainer.CBUTTONS[SkinContainer.CBUTTON_TYPES.MAIN_STOP_BUTTON_ACTIVE]; 
+        }
         private void Stop_Button_Up(object sender, MouseButtonEventArgs e)
         { this.Stop_Button.Background = SkinContainer.CBUTTONS[SkinContainer.CBUTTON_TYPES.MAIN_STOP_BUTTON]; }
 

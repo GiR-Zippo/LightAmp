@@ -21,6 +21,7 @@ namespace BardMusicPlayer.Ui.Skinned
     public partial class Skinned_PlaylistView : Window
     {
         public EventHandler<BmpSong> OnLoadSongFromPlaylist;
+        public EventHandler<int> OnToggleView;
 
         private IPlaylist _currentPlaylist = null;   //The currently used playlist
         public bool NormalPlay { get; set; } = true; //True if normal or false if shuffle
@@ -73,6 +74,14 @@ namespace BardMusicPlayer.Ui.Skinned
         }
         #endregion
 
+        //Toggle between Playlist and SB window
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Tab)
+            {
+                OnToggleView?.Invoke(this, 1);
+            }
+        }
 
         /// <summary>
         /// Refreshes the PlaylistContainer, clears the items and rereads them
@@ -156,6 +165,7 @@ namespace BardMusicPlayer.Ui.Skinned
         }
 
         #region PlaylistContainer actions
+
         /// <summary>
         /// MouseDoubleClick action: load the clicked song into the sequencer
         /// </summary>
@@ -385,6 +395,16 @@ namespace BardMusicPlayer.Ui.Skinned
                 break;
             }
         }
+
+        /// <summary>
+        /// Toggle to the SB view
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ShowSongbrowser_Click(object sender, RoutedEventArgs e)
+        {
+            OnToggleView?.Invoke(this, 1);
+        }
         #endregion
 
         #region List_Button_Menu
@@ -454,7 +474,7 @@ namespace BardMusicPlayer.Ui.Skinned
         }
 
         /// <summary>
-        /// triggeres the reabase function from Coffer
+        /// triggeres the rebase function from Coffer
         /// </summary>
         private void MenuItem_CleanUpCatalog(object sender, RoutedEventArgs e)
         {

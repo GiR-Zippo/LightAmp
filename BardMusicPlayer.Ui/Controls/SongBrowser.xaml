@@ -34,11 +34,30 @@
             <Label Grid.Column="0" Content="Search here ->" HorizontalAlignment="Right"/>
             <TextBox Grid.Column="1" Text="" x:Name="SongSearch" VerticalAlignment="Center" PreviewTextInput="SongSearch_PreviewTextInput"></TextBox>
         </Grid>
-        <ListView Grid.Row="2" x:Name="SongbrowserContainer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" ItemsSource="{Binding Path=Title}"
+        <ListView Grid.Row="2" x:Name="SongbrowserContainer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" 
                     PreviewMouseDoubleClick="SongbrowserContainer_PreviewMouseDoubleClick"
                     ScrollViewer.HorizontalScrollBarVisibility="Visible"
                          ScrollViewer.VerticalScrollBarVisibility="Visible"
                          ScrollViewer.CanContentScroll="True">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <EventSetter Event="PreviewMouseRightButtonDown"
+                         Handler="OnListViewItemPreviewMouseRightButtonDown" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Add To Playlist" Click="AddToPlaylist_Click"></MenuItem>
+                    <MenuItem Header="Song Preview" Click="LoadSongToPreview"></MenuItem>
+                    <!--<MenuItem Header="Show Information"></MenuItem>-->
+                </ContextMenu>
+            </ListView.ContextMenu>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Value}"/>
+                </DataTemplate>
+
+            </ListView.ItemTemplate>
         </ListView>
     </Grid>
 </UserControl>

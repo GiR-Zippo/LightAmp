@@ -62,10 +62,12 @@ namespace BardMusicPlayer.Ui.Skinned
             this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
             this.AutoEquipBox.IsChecked = BmpPigeonhole.Instance.AutoEquipBards;
             this.KeepTrackSettingsBox.IsChecked = BmpPigeonhole.Instance.EnsembleKeepTrackSetting;
+            this.IgnoreProgchangeBox.IsChecked = BmpPigeonhole.Instance.IgnoreProgChange;
             this.StartBardIndividuallyBox.IsChecked = BmpPigeonhole.Instance.EnsembleStartIndividual;
 
             //Syncsettings Tab
             Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
+            this.AutoequipDalamud.IsChecked = BmpPigeonhole.Instance.UsePluginForInstrumentOpen;
             this.MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
 
             //Misc Tab
@@ -239,6 +241,11 @@ namespace BardMusicPlayer.Ui.Skinned
             BmpPigeonhole.Instance.EnsembleKeepTrackSetting = KeepTrackSettingsBox.IsChecked ?? false;
         }
 
+        private void IgnoreProgchangeBox_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.IgnoreProgChange = IgnoreProgchangeBox.IsChecked ?? false;
+        }
+
         private void StartBardIndividually_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.EnsembleStartIndividual = StartBardIndividuallyBox.IsChecked ?? false;
@@ -262,6 +269,11 @@ namespace BardMusicPlayer.Ui.Skinned
         {
             var g = SirenVolume.Value;
             BmpSiren.Instance.SetVolume((float)g);
+        }
+
+        private void AutoequipDalamud_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.UsePluginForInstrumentOpen = AutoequipDalamud.IsChecked ?? false;
         }
 
         private void AMPInFrontBox_Checked(object sender, RoutedEventArgs e)

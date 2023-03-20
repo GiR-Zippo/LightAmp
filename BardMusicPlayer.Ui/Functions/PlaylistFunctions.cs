@@ -4,7 +4,6 @@ using BardMusicPlayer.Ui.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Ui.Functions
 {
@@ -13,6 +12,26 @@ namespace BardMusicPlayer.Ui.Functions
     /// </summary>
     public static class PlaylistFunctions
     {
+        /// <summary>
+        /// Add file(s) to the playlist
+        /// </summary>
+        /// <param name="currentPlaylist"></param>
+        /// <param name="filename"></param>
+        /// <returns>true if success</returns>
+        public static bool AddFilesToPlaylist(IPlaylist currentPlaylist, string filename)
+        {
+           
+            var song = BmpSong.OpenFile(filename).Result;
+            {
+                if (currentPlaylist.SingleOrDefault(x => x.Title.Equals(song.Title)) == null)
+                    currentPlaylist.Add(song);
+
+                BmpCoffer.Instance.SaveSong(song);
+            }
+            BmpCoffer.Instance.SavePlaylist(currentPlaylist);
+            return true;
+        }
+
         /// <summary>
         /// Add file(s) to the playlist
         /// </summary>

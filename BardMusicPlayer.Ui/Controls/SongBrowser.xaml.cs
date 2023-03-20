@@ -1,25 +1,71 @@
 ﻿using BardMusicPlayer.Pigeonhole;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using UI.Resources;
 
 namespace BardMusicPlayer.Ui.Controls
 {
     /// <summary>
-    /// The songbrowser but much faster than the BMP 1.x had
+    /// The songbrowser
     /// </summary>
     public sealed partial class SongBrowser : UserControl
     {
         public EventHandler<string> OnLoadSongFromBrowser;
+        public EventHandler<string> OnLoadSongFromBrowserToPreview;
+        public EventHandler<string> OnAddSongFromBrowser;
 
         public SongBrowser()
         {
             InitializeComponent();
             SongPath.Text = BmpPigeonhole.Instance.SongDirectory;
+            RefreshContainer();
+        }
+
+        private void RefreshContainer()
+        {
+            if (!Directory.Exists(SongPath.Text))
+                return;
+
+            string[] files = Directory.EnumerateFiles(SongPath.Text, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
+
+            Dictionary<string, string> list = new Dictionary<string, string>();
+            string last_dir = "";
+
+            foreach (string file in files)
+            {
+                if (SongSearch.Text != "")
+                {
+                    if (file.ToLower().Contains(SongSearch.Text.ToLower()))
+                    {
+                        if (Path.GetDirectoryName(file) != last_dir)
+                        {
+                            last_dir = Path.GetDirectoryName(file);
+                            list.Add("+" + last_dir + "+", " ");
+                            list.Add("-" + last_dir, "-" + last_dir);
+                            list.Add("+" + last_dir + "-", "------------------------------------------------------------------");
+                        }
+                        list.Add(file, Path.GetFileNameWithoutExtension(file));
+                    }
+                }
+                else
+                {
+                    if (Path.GetDirectoryName(file) != last_dir)
+                    {
+                        last_dir = Path.GetDirectoryName(file);
+                        list.Add("+" + last_dir + "+", " ");
+                        list.Add("-" + last_dir, "-" + last_dir);
+                        list.Add("+" + last_dir + "-", "------------------------------------------------------------------");
+                    }
+                    list.Add(file, Path.GetFileNameWithoutExtension(file));
+                }
+            }
+            SongbrowserContainer.ItemsSource = list;
         }
 
         /// <summary>
@@ -29,8 +75,8 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void SongbrowserContainer_PreviewMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            string filename = SongbrowserContainer.SelectedItem as String;
-            if (!File.Exists(filename) || filename == null)
+            string filename = GetFilenameFromSelection();
+            if (filename == "")
                 return;
 
             OnLoadSongFromBrowser?.Invoke(this, filename);
@@ -43,14 +89,7 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void SongSearch_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            if (!Directory.Exists(SongPath.Text))
-                return;
-
-            string[] files = Directory.EnumerateFiles(SongPath.Text, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
-            List<string> list = new List<string>(files);
-            if (SongSearch.Text != "")
-                list = list.FindAll(delegate (string s) { return s.ToLower().Contains(SongSearch.Text.ToLower()); });
-            SongbrowserContainer.ItemsSource = list;
+            RefreshContainer();
         }
 
         /// <summary>
@@ -60,14 +99,7 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void SongPath_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            if (!Directory.Exists(SongPath.Text))
-                return;
-
-            BmpPigeonhole.Instance.SongDirectory = SongPath.Text + (SongPath.Text.EndsWith("\\") ? "" : "\\"); ;
-
-            string[] files = Directory.EnumerateFiles(SongPath.Text, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
-            List<string> list = new List<string>(files);
-            SongbrowserContainer.ItemsSource = list;
+            RefreshContainer();
         }
 
         /// <summary>
@@ -94,6 +126,43 @@ namespace BardMusicPlayer.Ui.Controls
                 SongPath.Text = path;
                 BmpPigeonhole.Instance.SongDirectory = path;
                 SongSearch_PreviewTextInput(null, null);
+            }
+        }
+
+        private void OnListViewItemPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void AddToPlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            string filename = GetFilenameFromSelection();
+            if (filename == "")
+                return;
+            OnAddSongFromBrowser?.Invoke(this, filename);
+        }
+
+        private void LoadSongToPreview(object sender, RoutedEventArgs e)
+        {
+            string filename = GetFilenameFromSelection();
+            if (filename == "")
+                return;
+            OnLoadSongFromBrowserToPreview?.Invoke(this, filename);
+        }
+
+        private string GetFilenameFromSelection()
+        {
+            try
+            {
+                var filename = SongbrowserContainer.SelectedItems.OfType<KeyValuePair<string, string>>();
+                if (!File.Exists(filename.First().Key) || filename.First().Key == null)
+                    return "";
+
+                return filename.First().Key;
+            }
+            catch
+            {
+                return "";
             }
         }
     }
