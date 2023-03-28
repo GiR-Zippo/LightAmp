@@ -21,7 +21,7 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
         /// </summary>
         /// <param name="notes"></param>
         /// <returns></returns>
-        internal static Task<List<Note>> FixChords(this List<Note> notes)
+        internal static Task<List<Note>> FixChords(this List<Note> notes, int spacing = 50)
         {
             notes = notes.OrderBy(static x => x.Time).Reverse().ToList();
 
@@ -37,9 +37,9 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
                     if (lastOn < lowestParent) lowestParent = lastOn;
                 }
 
-                if (lowestParent > time + 50) continue;
+                if (lowestParent > time + spacing) continue;
 
-                time = lowestParent - 50;
+                time = lowestParent - spacing;
 
                 if (time < 0) continue;
 
@@ -54,9 +54,9 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
         /// </summary>
         /// <param name="notes"></param>
         /// <returns></returns>
-        internal static async Task<List<Note>> FixChords(this Task<List<Note>> notes)
+        internal static async Task<List<Note>> FixChords(this Task<List<Note>> notes, int spacing = 50)
         {
-            return await FixChords(await notes);
+            return await FixChords(await notes, spacing);
         }
 
         /// <summary>
@@ -182,12 +182,22 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
                 var velocity = notes[j].Velocity;
 
                 if (j + 1 < notes.Count)
-                    if (notes[j + 1].Time <= notes[j].Time + notes[j].Length + 25)
+                {
+                    switch (notes[j].Length)
                     {
-                        dur = notes[j + 1].Time - notes[j].Time - 25;
-                        dur = dur < 25 ? 25 : dur;
+                        // BACON MEOWCHESTRA
+                        // Bandaid fix: If sustained note is 100ms or greater, ensure 60ms between the end of that note and the beginning of the next note.
+                        // Otherwise, leave the behavior as it was before.
+                        case >= 100 when notes[j + 1].Time <= notes[j].Time + notes[j].Length + 60:
+                            dur = notes[j + 1].Time - notes[j].Time - 60;
+                            dur = dur < 60 ? 60 : dur;
+                            break;
+                        case < 100 when notes[j + 1].Time <= notes[j].Time + notes[j].Length + 25:
+                            dur = notes[j + 1].Time - notes[j].Time - 25;
+                            dur = dur < 25 ? 25 : dur;
+                            break;
                     }
-
+                }
                 thisNotes.Add(new Note(noteNum, dur, time)
                 {
                     Channel = channel,

@@ -5,8 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BardMusicPlayer.Ui.Classic"
         mc:Ignorable="d"
-        ResizeMode="NoResize"
-        Title="MacroLaunchpad" Height="450" Width="350">
+        ResizeMode="CanResize"
+        Title="MacroLaunchpad" 
+        Height="450" 
+        MinWidth="350"
+        Width="350"
+        MaxWidth="350">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
