@@ -170,11 +170,11 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <CheckBox Margin="10,0,0,0"  Grid.Row="0" Content="Bring LA to front" x:Name="AMPInFrontBox" Checked="AMPInFrontBox_Checked" Unchecked="AMPInFrontBox_Checked" ToolTip="{StaticResource GAME_AMPFRONT}"/>
-                                    <Label Margin="8,0,0,0"    Grid.Row="1" Content="Midi converter" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <!--<Label Margin="8,0,0,0"    Grid.Row="1" Content="Midi converter" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                     <ComboBox Margin="92,0,0,0" Grid.Row="1" x:Name="MidiConverter_selection" SelectionChanged="MidiConverter_selection_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120">
                                         <ComboBoxItem>BMP like (slow)</ComboBoxItem>
                                         <ComboBoxItem>MogAmp like (fast)</ComboBoxItem>
-                                    </ComboBox>
+                                    </ComboBox>-->
                                 </Grid>
                             </GroupBox>
                             <GroupBox Grid.Row="0" Grid.Column="1" Header="Playback">
@@ -212,7 +212,7 @@
                                         <ComboBoxItem>Chat</ComboBoxItem>
                                         <ComboBoxItem>Metronome</ComboBoxItem>
                                     </ComboBox>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="1" x:Name="MidiBardComp"      Content="Enable MidiBard sync"             Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"          ToolTip="{StaticResource MISC_MIDIBARD}"/>
+                                    <CheckBox Margin="10,0,0,0"  Grid.Row="1" x:Name="MidiBardComp"      Content="Enable MidiBard Compat."          Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"          ToolTip="{StaticResource MISC_MIDIBARD}"/>
                                     <CheckBox Margin="10,0,0,0"  Grid.Row="3" x:Name="AutoequipDalamud"  Content="Liath Equip Mode"                 Unchecked="AutoequipDalamud_Checked"  Checked="AutoequipDalamud_Checked"  ToolTip="{StaticResource MISC_AUTOEQPLGN}"/>
                                     <CheckBox Margin="10,0,0,0"  Grid.Row="4" x:Name="SkinUiBox"         Content="Use skinned Ui"                   Unchecked="SkinUiBox_Checked"         Checked="SkinUiBox_Checked"         ToolTip="{StaticResource MISC_SKINNEDUI}"/>
                                 </Grid>

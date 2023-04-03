@@ -17,7 +17,7 @@ namespace BardMusicPlayer.Ui.Classic
 
             this.AMPInFrontBox.IsChecked = BmpPigeonhole.Instance.BringBMPtoFront;
 
-            this.MidiConverter_selection.SelectedIndex = BmpPigeonhole.Instance.MidiConverter_Type;
+            //this.MidiConverter_selection.SelectedIndex = BmpPigeonhole.Instance.MidiConverter_Type;
 
             //Playback
             this.HoldNotesBox.IsChecked = BmpPigeonhole.Instance.HoldNotes;
@@ -51,10 +51,10 @@ namespace BardMusicPlayer.Ui.Classic
             BmpPigeonhole.Instance.BringBMPtoFront = AMPInFrontBox.IsChecked ?? false;
         }
 
-        private void MidiConverter_selection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /*private void MidiConverter_selection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             BmpPigeonhole.Instance.MidiConverter_Type = MidiConverter_selection.SelectedIndex;
-        }
+        }*/
 
         #region Playback
         private void Hold_Notes_Checked(object sender, RoutedEventArgs e)

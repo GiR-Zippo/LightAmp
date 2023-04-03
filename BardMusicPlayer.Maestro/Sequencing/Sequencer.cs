@@ -465,10 +465,7 @@ namespace BardMusicPlayer.Maestro.Sequencing
 
             loadedFileType = FILETYPES.BmpSong;
             loadedBmpSong = bmpSong;
-            if (BmpPigeonhole.Instance.MidiConverter_Type == 0)
-                Sequence = new Sequence(bmpSong.GetDryWetSequencerMidi());
-            else
-                Sequence = new Sequence(bmpSong.GetProccesedSequencerMidi());
+            Sequence = new Sequence(bmpSong.GetDryWetSequencerMidi());
             load(Sequence, trackNum);
         }
 
