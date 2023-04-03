@@ -95,7 +95,7 @@ namespace BardMusicPlayer.Ui.Controls
                     chanType = ChatMessageChannelType.Yell;
                     break;
             }
-            string songName = $"{Songtitle_Chat_Prefix.Text} {_performer.SongName} {Songtitle_Chat_Prefix.Text}";
+            string songName = $"{Songtitle_Chat_Prefix.Text} {_performer.SongName.Replace('_', ' ')} {Songtitle_Chat_Prefix.Text}";
             GameExtensions.SendText(_performer.game, chanType, songName);
         }
 
