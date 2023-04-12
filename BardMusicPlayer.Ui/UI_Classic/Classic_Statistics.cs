@@ -1,6 +1,7 @@
 ﻿using BardMusicPlayer.MidiUtil.Managers;
 using BardMusicPlayer.MidiUtil.Ui;
 using BardMusicPlayer.Transmogrify.Song;
+using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
 using Microsoft.Win32;
 using System.Collections.Generic;
@@ -68,6 +69,24 @@ namespace BardMusicPlayer.Ui.Classic
             }
         }
 
+        private void QuickMidiProcessing_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = Globals.Globals.FileFilters,
+                Multiselect = true
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            if (!openFileDialog.CheckFileExists)
+                return;
+
+            MidiBardConverterWindow conv = new MidiBardConverterWindow(openFileDialog.FileName);
+            conv.Visibility = Visibility.Visible;
+        }
+
         private void MidiProcessing_Click(object sender, RoutedEventArgs e)
         {
             MidiUtil.MidiUtil.Instance.Start();
@@ -75,5 +94,6 @@ namespace BardMusicPlayer.Ui.Classic
             if (PlaybackFunctions.CurrentSong != null)
                 MidiManager.Instance.OpenFile(PlaybackFunctions.CurrentSong.GetExportMidi());
         }
+        
     }
 }

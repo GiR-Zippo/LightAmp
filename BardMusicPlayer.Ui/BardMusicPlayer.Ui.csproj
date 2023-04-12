@@ -265,6 +265,9 @@
     <Compile Include="Controls\MacroEditWindow.xaml.cs">
       <DependentUpon>MacroEditWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\MidiBardConverterWindow.xaml.cs">
+      <DependentUpon>MidiBardConverterWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\NetworkWindow.xaml.cs">
       <DependentUpon>NetworkWindow.xaml</DependentUpon>
     </Compile>
@@ -325,6 +328,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\MacroEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\MidiBardConverterWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

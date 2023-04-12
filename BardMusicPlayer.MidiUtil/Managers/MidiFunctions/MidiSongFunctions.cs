@@ -7,6 +7,7 @@ using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Interaction;
 
 using BardMusicPlayer.MidiUtil.Utils;
+using BardMusicPlayer.Transmogrify.Song.Manipulation;
 
 namespace BardMusicPlayer.MidiUtil.Managers
 {
@@ -36,8 +37,8 @@ namespace BardMusicPlayer.MidiUtil.Managers
         {
             foreach (TrackChunk tc in currentSong.GetTrackChunks())
             {
-                int channel = GetChannelNumber(tc);
-                SetChanNumber(tc, channel);
+                int channel = TrackManipulations.GetChannelNumber(tc);
+                TrackManipulations.SetChanNumber(tc, channel);
             }
         }
 
@@ -49,7 +50,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
             int idx = 0;
             foreach (TrackChunk tc in currentSong.GetTrackChunks())
             {
-                SetChanNumber(tc, idx);
+                TrackManipulations.SetChanNumber(tc, idx);
                 if (idx == 15)
                     idx = 0;
                 idx++;
@@ -82,10 +83,10 @@ namespace BardMusicPlayer.MidiUtil.Managers
             Dictionary<int, int> channelIntrument = new Dictionary<int, int>();
 
             //Set the channel numbers
-            int destChan = GetChannelNumber(destinationTrack);
-            SetChanNumber(destinationTrack, destChan);
+            int destChan = TrackManipulations.GetChannelNumber(destinationTrack);
+            TrackManipulations.SetChanNumber(destinationTrack, destChan);
 
-            int srcChan = GetChannelNumber(sourceTrack);
+            int srcChan = TrackManipulations.GetChannelNumber(sourceTrack);
             if (destChan == srcChan)
             {
                 if (destChan == 0)
@@ -93,11 +94,11 @@ namespace BardMusicPlayer.MidiUtil.Managers
                 if (destChan == 15)
                     srcChan = destChan - 1;
             }
-            SetChanNumber(sourceTrack, srcChan);
+            TrackManipulations.SetChanNumber(sourceTrack, srcChan);
 
             //Get channel instrument
-            channelIntrument[GetChannelNumber(sourceTrack)] = GetInstrument(sourceTrack);
-            channelIntrument[GetChannelNumber(destinationTrack)] = GetInstrument(destinationTrack);
+            channelIntrument[TrackManipulations.GetChannelNumber(sourceTrack)] = TrackManipulations.GetInstrument(sourceTrack);
+            channelIntrument[TrackManipulations.GetChannelNumber(destinationTrack)] = TrackManipulations.GetInstrument(destinationTrack);
 
             //Remove trackname from source
             using (var manager = sourceTrack.ManageTimedEvents())
@@ -109,7 +110,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
             var newtrack = Melanchall.DryWetMidi.Core.TrackChunkUtilities.Merge(new List<TrackChunk> { sourceTrack, destinationTrack });
 
             //Clear progs
-            ClearProgChanges(newtrack);
+            TrackManipulations.ClearProgChanges(newtrack);
 
             //set new prog events
             using (var events = newtrack.ManageTimedEvents())
@@ -132,7 +133,7 @@ namespace BardMusicPlayer.MidiUtil.Managers
                 }
             }
 
-            SetInstrument(newtrack, (SevenBitNumber)channelIntrument[destChan]);
+            TrackManipulations.SetInstrument(newtrack, (SevenBitNumber)channelIntrument[destChan]);
 
             //and finish it
             currentSong.Chunks.Remove(sourceTrack);
@@ -141,8 +142,8 @@ namespace BardMusicPlayer.MidiUtil.Managers
                 currentSong.Chunks.Add(newtrack);
             else
                 currentSong.Chunks.Insert(destinationIndex, newtrack);
-            destChan = GetChannelNumber(newtrack);
-            SetChanNumber(newtrack, destChan);
+            destChan = TrackManipulations.GetChannelNumber(newtrack);
+            TrackManipulations.SetChanNumber(newtrack, destChan);
         }
 
         /// <summary>

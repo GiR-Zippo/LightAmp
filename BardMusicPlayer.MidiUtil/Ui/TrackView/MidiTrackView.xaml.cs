@@ -7,6 +7,7 @@ using BardMusicPlayer.MidiUtil.Managers;
 using BardMusicPlayer.Quotidian.Structs;
 using System.Text.RegularExpressions;
 using Melanchall.DryWetMidi.Core;
+using BardMusicPlayer.Transmogrify.Song.Manipulation;
 
 namespace BardMusicPlayer.MidiUtil.Ui.TrackView
 {
@@ -111,14 +112,14 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
             // track header
             FillInstrumentBox();
 
-            ComboInstruments.SelectedIndex = MidiManager.Instance.GetInstrument(TrackLineView.Model.Track);
-            ChannelId.Content = MidiManager.Instance.GetChannelNumber(TrackLineView.Model.Track) + 1;
+            ComboInstruments.SelectedIndex = TrackManipulations.GetInstrument(TrackLineView.Model.Track);
+            ChannelId.Content = TrackManipulations.GetChannelNumber(TrackLineView.Model.Track) + 1;
             //Check if the instrument is "None"
             if (ComboInstruments.Items.GetItemAt(ComboInstruments.SelectedIndex) is ComboBoxItem it)
             {
                 if (it.Content.ToString() == "None")
                 {
-                    var trackName = MidiManager.Instance.GetTrackName(TrackLineView.Model.Track);
+                    var trackName = TrackManipulations.GetTrackName(TrackLineView.Model.Track);
                     Regex rex = new Regex(@"^([A-Za-z _]+)([-+]\d)?");
                     if (rex.Match(trackName) is Match match)
                     {
@@ -126,19 +127,19 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
                         {
                             var num = Instrument.Parse(match.Groups[1].Value).MidiProgramChangeCode;
                             ComboInstruments.SelectedIndex = num;
-                            MidiManager.Instance.SetInstrument(TrackLineView.Model.Track, num);
+                            TrackManipulations.SetInstrument(TrackLineView.Model.Track, num);
                         }
                     }
                 }
             }
             if (!Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Equals(Instrument.None))
-                MidiManager.Instance.SetTrackName(TrackLineView.Model.Track, Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
+                TrackManipulations.SetTrackName(TrackLineView.Model.Track, Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
 
             //Check if we got a drum track
             if (ChannelId.Content.ToString() == "10")
-                TrackName.Content = MidiManager.Instance.GetTrackName(TrackLineView.Model.Track) + " or Drums";
+                TrackName.Content = TrackManipulations.GetTrackName(TrackLineView.Model.Track) + " or Drums";
             else
-                TrackName.Content = MidiManager.Instance.GetTrackName(TrackLineView.Model.Track);
+                TrackName.Content = TrackManipulations.GetTrackName(TrackLineView.Model.Track);
         }
 
         private void FillInstrumentBox()
@@ -202,8 +203,8 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackView
             if (this.ComboInstruments.IsDropDownOpen)
             {
                 this.ComboInstruments.IsDropDownOpen = false;
-                MidiManager.Instance.SetInstrument(TrackLineView.Model.Track, ComboInstruments.SelectedIndex);
-                MidiManager.Instance.SetTrackName(TrackLineView.Model.Track, Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
+                TrackManipulations.SetInstrument(TrackLineView.Model.Track, ComboInstruments.SelectedIndex);
+                TrackManipulations.SetTrackName(TrackLineView.Model.Track, Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
                 UiManager.Instance.mainWindow.Ctrl.InitTracks();
                 TrackLineView.Ctrl.Init();
                 Init();

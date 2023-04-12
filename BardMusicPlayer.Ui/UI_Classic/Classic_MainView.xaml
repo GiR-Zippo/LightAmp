@@ -269,9 +269,11 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Button Grid.Row="0" Content="Export current song as Midi"  Click="ExportAsMidi"/>
-                                <Button Grid.Row="1" Content="Open Midi with Fus edit" Click="MidiProcessing_Click" />
+                                <Button Grid.Row="1" Content="Quick-Edit" Click="QuickMidiProcessing_Click" />
+                                <Button Grid.Row="2" Content="Open Midi with Fus edit" Click="MidiProcessing_Click" />
                             </Grid>
                             
                         </Grid>

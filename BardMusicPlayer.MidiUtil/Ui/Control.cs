@@ -9,6 +9,7 @@ using Melanchall.DryWetMidi.Core;
 using BardMusicPlayer.MidiUtil.Managers;
 using BardMusicPlayer.MidiUtil.Ui.TrackLine;
 using BardMusicPlayer.MidiUtil.Utils;
+using BardMusicPlayer.Transmogrify.Song.Manipulation;
 
 namespace BardMusicPlayer.MidiUtil.Ui
 {
@@ -91,7 +92,7 @@ namespace BardMusicPlayer.MidiUtil.Ui
             if ((!MidiManager.Instance.GetTrackChunks().Any()) || (model.SelectedTrackChunk == null))
                 return;
             MidiManager.Instance.RemoveAllEventsFromTrack(model.SelectedTrackChunk);
-            MidiManager.Instance.SetInstrument(model.SelectedTrackChunk, Quotidian.Structs.Instrument.Parse(MidiManager.Instance.GetTrackName(model.SelectedTrackChunk)).MidiProgramChangeCode);
+            TrackManipulations.SetInstrument(model.SelectedTrackChunk, Quotidian.Structs.Instrument.Parse(TrackManipulations.GetTrackName(model.SelectedTrackChunk)).MidiProgramChangeCode);
             UpdateTrackView(model.SelectedTrackChunk);
         }
 

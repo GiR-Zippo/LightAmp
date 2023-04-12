@@ -6,6 +6,7 @@ using System.Windows.Media;
 using Melanchall.DryWetMidi.Core;
 using BardMusicPlayer.MidiUtil.Managers;
 using BardMusicPlayer.MidiUtil.Ui.TrackView;
+using BardMusicPlayer.Transmogrify.Song.Manipulation;
 
 namespace BardMusicPlayer.MidiUtil.Ui.TrackLine
 {
@@ -108,8 +109,8 @@ namespace BardMusicPlayer.MidiUtil.Ui.TrackLine
             if (this.ComboInstruments.IsDropDownOpen)
             {
                 this.ComboInstruments.IsDropDownOpen = false;
-                MidiManager.Instance.SetInstrument(Model.Track, ComboInstruments.SelectedIndex);
-                MidiManager.Instance.SetTrackName(Model.Track, Quotidian.Structs.Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
+                TrackManipulations.SetInstrument(Model.Track, ComboInstruments.SelectedIndex);
+                TrackManipulations.SetTrackName(Model.Track, Quotidian.Structs.Instrument.ParseByProgramChange(ComboInstruments.SelectedIndex).Name);
                 UiManager.Instance.mainWindow.Ctrl.InitTracks();
             }
         }

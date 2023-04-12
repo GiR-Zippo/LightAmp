@@ -68,7 +68,13 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
             return Task.FromResult(notesDictionary);
         }
 
-
+        /// <summary>
+        /// Add the program change events
+        /// </summary>
+        /// <param name="originalChunk"></param>
+        /// <param name="tempoMap"></param>
+        /// <param name="firstNote"></param>
+        /// <returns></returns>
         internal static Task<TrackChunk> AddProgramChangeEvents(TrackChunk originalChunk, TempoMap tempoMap, long firstNote)
         {
             TrackChunk newChunk = new TrackChunk();
@@ -95,6 +101,13 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
             return Task.FromResult(newChunk);
         }
 
+        /// <summary>
+        /// Add the lyric events
+        /// </summary>
+        /// <param name="originalChunk"></param>
+        /// <param name="tempoMap"></param>
+        /// <param name="firstNote"></param>
+        /// <returns></returns>
         internal static Task<TrackChunk> AddLyricsEvents(TrackChunk originalChunk, TempoMap tempoMap, long firstNote)
         {
             TrackChunk newChunk = new TrackChunk();
