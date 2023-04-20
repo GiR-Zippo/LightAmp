@@ -1,9 +1,10 @@
-﻿#region
+﻿/*
+ * Copyright(c) 2018 OpportunityLiu
+ * Licensed under Apache License, Version 2.0. See https://raw.githubusercontent.com/OpportunityLiu/LrcParser/master/LICENSE for full license information.
+ */
 
 using System;
 using static BardMusicPlayer.Transmogrify.Song.Importers.LrcParser.DateTimeExtension;
-
-#endregion
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
 {

@@ -1,12 +1,13 @@
-﻿#region
+﻿/*
+ * Copyright(c) 2018 OpportunityLiu
+ * Licensed under Apache License, Version 2.0. See https://raw.githubusercontent.com/OpportunityLiu/LrcParser/master/LICENSE for full license information.
+ */
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-
-#endregion
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.LrcParser
 {
