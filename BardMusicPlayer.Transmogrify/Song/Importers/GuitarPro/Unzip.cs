@@ -1,8 +1,7 @@
-﻿// Unzip class for .NET 3.5 Client Profile or Mono 2.10
-// Written by Alexey Yakovlev <yallie@yandex.ru>
-// https://github.com/yallie/unzip
-
-#region
+﻿/*
+ * Copyright(c) 2012-2013 Alexey Yakovlev
+ * Licensed under the MIT license. See https://raw.githubusercontent.com/yallie/unzip/master/LICENSE.txt for full license information.
+ */
 
 using System;
 using System.Collections.Generic;
@@ -11,8 +10,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
-
-#endregion
 
 /// <summary>
 ///     Unzip helper class.

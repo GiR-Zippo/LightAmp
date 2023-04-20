@@ -16,10 +16,10 @@ namespace BardMusicPlayer.Transmogrify.Song.Manipulation
         #region Get/Set Channel
 
         /// <summary>
-        /// Get channel number by first note on
+        /// Get channel number by first note on from a <see cref="TrackChunk"/>
         /// </summary>
         /// <param name="track"></param>
-        /// <returns></returns>
+        /// <returns>Channelnumber as <see cref="int"/></returns>
         public static int GetChannelNumber(TrackChunk track)
         {
             var ev = track.Events.OfType<NoteOnEvent>().FirstOrDefault();
@@ -29,11 +29,11 @@ namespace BardMusicPlayer.Transmogrify.Song.Manipulation
         }
 
         /// <summary>
-        /// Sets the channel number for a track
+        /// Sets the channel number for a <see cref="TrackChunk"/>
         /// </summary>
         /// <param name="track"></param>
-        /// <param name="trackNumber"></param>
-        /// <returns>MidiFile</returns>
+        /// <param name="channelNumber"></param>
+        /// <returns></returns>
         public static void SetChanNumber(TrackChunk track, int channelNumber)
         {
             if (channelNumber < 0)
@@ -114,7 +114,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Manipulation
         /// Get the name of the <see cref="TrackChunk"/>
         /// </summary>
         /// <param name="track">TrackChunk</param>
-        /// <returns></returns>
+        /// <returns>The track-name as <see cref="string"/></returns>
         public static string GetTrackName(TrackChunk track)
         {
             var trackName = track.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text;

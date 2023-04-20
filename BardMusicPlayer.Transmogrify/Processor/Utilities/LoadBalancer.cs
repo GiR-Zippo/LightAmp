@@ -4,16 +4,12 @@
  * Copyright Alex Veltsistas 2014  
  */
 
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using BardMusicPlayer.Quotidian;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Interaction;
-
-#endregion
 
 namespace BardMusicPlayer.Transmogrify.Processor.Utilities
 {

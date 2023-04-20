@@ -1,12 +1,7 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-
-#endregion
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
 {

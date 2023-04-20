@@ -23,7 +23,7 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
         /// <param name="tempoMap"></param>
         /// <param name="firstNoteus"></param>
         /// <param name="noteVelocity"></param>
-        /// <returns> </returns>
+        /// <returns></returns>
         internal static Task<Dictionary<int, Dictionary<long, Note>>> GetNoteDictionary(TrackChunk originalChunk, TempoMap tempoMap, long firstNoteus, int noteVelocity)
         {
             Dictionary<int, Dictionary<long, Note>> notesDictionary = new Dictionary<int, Dictionary<long, Note>>();
@@ -69,12 +69,12 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
         }
 
         /// <summary>
-        /// Add the program change events
+        /// Add the program change events to <see cref="TrackChunk"/>
         /// </summary>
         /// <param name="originalChunk"></param>
         /// <param name="tempoMap"></param>
         /// <param name="firstNote"></param>
-        /// <returns></returns>
+        /// <returns><see cref="Task{TResult}"/> is <see cref="TrackChunk"/></returns>
         internal static Task<TrackChunk> AddProgramChangeEvents(TrackChunk originalChunk, TempoMap tempoMap, long firstNote)
         {
             TrackChunk newChunk = new TrackChunk();
@@ -102,12 +102,12 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
         }
 
         /// <summary>
-        /// Add the lyric events
+        /// Add the lyric events to <see cref="TrackChunk"/>
         /// </summary>
         /// <param name="originalChunk"></param>
         /// <param name="tempoMap"></param>
         /// <param name="firstNote"></param>
-        /// <returns></returns>
+        /// <returns><see cref="Task{TResult}"/> is <see cref="TrackChunk"/></returns>
         internal static Task<TrackChunk> AddLyricsEvents(TrackChunk originalChunk, TempoMap tempoMap, long firstNote)
         {
             TrackChunk newChunk = new TrackChunk();
@@ -134,7 +134,7 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
         /// </summary>
         /// <param name="originalChunk"></param>
         /// <param name="delta"></param>
-        /// <returns></returns>
+        /// <returns><see cref="Task{TResult}"/> is <see cref="TrackChunk"/></returns>
         internal static Task<TrackChunk> RealignTrackEvents(TrackChunk originalChunk, long delta)
         {
             int offset = Instrument.Parse(originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).SampleOffset; //get the offset
