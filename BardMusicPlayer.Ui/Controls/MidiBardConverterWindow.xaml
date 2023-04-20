@@ -22,9 +22,16 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="130"/>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Content="Export as Midi" Click="Export_Click"/>
             <Button Grid.Column="1" Content="To Sequencer" Click="Sequencer_Click" Visibility="Hidden"/>
+            <ComboBox Grid.Column="2" Grid.Row="0" x:Name="GuitarModeSelector" SelectionChanged ="GuitarModeSelector_Selected" >
+                <ComboBoxItem Content="None"/>
+                <ComboBoxItem Content="Standard"/>
+                <ComboBoxItem Content="Simple"/>
+                <ComboBoxItem Content="Override By Track"/>
+            </ComboBox>
         </Grid>
 
         <ListView x:Name="TrackList" Grid.Row="1" AllowDrop="True">
@@ -68,11 +75,11 @@
                                 SelectedIndex="{Binding trackInstrument}" >
                         </ComboBox>
 
-                        <Label Grid.Column="3" Grid.Row="0" Content="Bard-Number" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
-                        <TextBox Grid.Column="3" Grid.Row="1" Text="{Binding TrackNumber}" />
+                        <Label Grid.Column="3" Grid.Row="0" Content="Bard-Number" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        <TextBox Grid.Column="3" Grid.Row="1" Text="{Binding TrackNumber}" PreviewMouseDown="BardNumBox_PreviewMouseDown"/>
 
                         <Label Grid.Column="5" Grid.Row="0" Content="Transpose" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
-                        <control:OctaveNumericUpDown Grid.Column="5" Grid.Row="1" x:Name="OctaveControl" PreviewMouseUp="OctaveControl_PreviewMouseUp" Value="{Binding Transpose}"/>
+                        <control:OctaveNumericUpDown Grid.Column="5" Grid.Row="1" x:Name="OctaveControl" PreviewMouseUp="OctaveControl_PreviewMouseUp" Value="{Binding Transpose}"  PreviewMouseDown="BardNumBox_PreviewMouseDown"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

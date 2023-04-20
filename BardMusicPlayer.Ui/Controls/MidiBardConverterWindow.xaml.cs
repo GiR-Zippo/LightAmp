@@ -3,33 +3,19 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
-using BardMusicPlayer.Maestro.Performance;
-using BardMusicPlayer.Maestro;
-using BardMusicPlayer.MidiUtil.Managers;
 using BardMusicPlayer.Quotidian.Structs;
-using BardMusicPlayer.Quotidian.UtcMilliTime;
-using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Transmogrify.Song.Importers;
 using BardMusicPlayer.Transmogrify.Song.Manipulation;
-using BardMusicPlayer.Transmogrify.Song.Utilities;
-using BardMusicPlayer.Ui.Functions;
-using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 using Microsoft.Win32;
 using Newtonsoft.Json;
-using Sanford.Multimedia.Timers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
-
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -64,7 +50,7 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void ReadMidi(string filename)
         {
-            if (File.Exists(System.IO.Path.ChangeExtension(filename, "json")))
+            if (File.Exists(Path.ChangeExtension(filename, "json")))
                 ReadWithConfig(filename);
             else
                 ReadWithoutConfig(filename);
@@ -77,12 +63,13 @@ namespace BardMusicPlayer.Ui.Controls
         private void ReadWithConfig(string filename)
         {
             MemoryStream memoryStream = new MemoryStream();
-            FileStream fileStream = File.Open(System.IO.Path.ChangeExtension(filename, "json"), FileMode.Open);
+            FileStream fileStream = File.Open(Path.ChangeExtension(filename, "json"), FileMode.Open);
             fileStream.CopyTo(memoryStream);
             fileStream.Close();
 
             var data = memoryStream.ToArray();
             MidiBardImporter.MidiFileConfig pdatalist = JsonConvert.DeserializeObject<MidiBardImporter.MidiFileConfig>(new UTF8Encoding(true).GetString(data));
+            GuitarModeSelector.SelectedIndex = pdatalist.ToneMode;
 
             //Read the midi
             _midifile = MidiFile.Read(filename);
@@ -128,6 +115,7 @@ namespace BardMusicPlayer.Ui.Controls
         {
             //Read the midi
             _midifile = MidiFile.Read(filename);
+            GuitarModeSelector.SelectedIndex = 3;
 
             int idx = 0;
             foreach (TrackChunk chunk in _midifile.GetTrackChunks())
@@ -170,7 +158,6 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void Export_Click(object sender, RoutedEventArgs e)
         {
-            BmpSong song = PlaybackFunctions.CurrentSong;
             Stream myStream;
             SaveFileDialog saveFileDialog = new SaveFileDialog();
 
@@ -185,7 +172,7 @@ namespace BardMusicPlayer.Ui.Controls
                 {
                     MidiBardImporter.Convert(_midifile, _tracks).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
                     {
-                        TextEncoding = System.Text.Encoding.UTF8
+                        TextEncoding = Encoding.UTF8
                     });
                     myStream.Close();
                 }
@@ -198,7 +185,7 @@ namespace BardMusicPlayer.Ui.Controls
             //Maestro.BmpMaestro.Instance.SetSong(song.Result);
         }
 
-        /* Octave UP/Down */
+        #region Octave Up/Down
         private void OctaveControl_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             OctaveNumericUpDown ctl = sender as OctaveNumericUpDown;
@@ -209,25 +196,28 @@ namespace BardMusicPlayer.Ui.Controls
         {
             MidiBardImporter.MidiTrack track = (sender as OctaveNumericUpDown).DataContext as MidiBardImporter.MidiTrack;
             track.Transpose = s;
-
-            Debug.WriteLine("");
-            //BmpMaestro.Instance.SetOctaveshift(performer, s);
-
             OctaveNumericUpDown ctl = sender as OctaveNumericUpDown;
             ctl.OnValueChanged -= OnOctaveValueChanged;
         }
+        #endregion
 
+        #region Drag&Drop
         /// <summary>
         /// Hier geht mitm Drag&Drop los
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        bool bnb = false;
         private void TrackListItem_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
-                if (sender is System.Windows.Controls.ListViewItem celltext)
+                if (sender is System.Windows.Controls.ListViewItem celltext && !bnb)
+                {
                     DragDrop.DoDragDrop(TrackList, celltext, DragDropEffects.Move);
+                    e.Handled = true;
+                }
+                bnb = false;
             }
         }
 
@@ -273,6 +263,31 @@ namespace BardMusicPlayer.Ui.Controls
             TrackList.ItemsSource = _tracks;
             TrackList.Items.Refresh();
             newTracks.Clear();
+        }
+
+        /// <summary>
+        /// Helper for D&D
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BardNumBox_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            bnb = true;
+        }
+        #endregion
+
+        /// <summary>
+        /// Set the GuitarMode
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GuitarModeSelector_Selected(object sender, RoutedEventArgs e)
+        {
+            Parallel.ForEach(_tracks, track =>
+            {
+                track.ToneMode = GuitarModeSelector.SelectedIndex;
+            });
+            TrackList.Items.Refresh();
         }
     }
 }

@@ -20,13 +20,13 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
     {
         public class MidiFileConfig
         {
-            public List<DbTrack> Tracks = new List<DbTrack>();
+            public List<TrackConfig> Tracks = new List<TrackConfig>();
             public int ToneMode = 0;
             public bool AdaptNotes = true;
             public float Speed = 1;
         }
 
-        public class DbTrack
+        public class TrackConfig
         {
             public int Index = 0;
             public bool Enabled = true;
@@ -46,7 +46,11 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             public TrackChunk trackChunk { get; set; }
         }
 
-
+        /// <summary>
+        /// Config lesen
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
         public static MidiFile OpenMidiFile(string filename)
         {
             List<MidiTrack> tracks = new List<MidiTrack>();
@@ -91,7 +95,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                 tracks.Add(midiTrack);
                 idx++;
             }
-
+            pdatalist = null;
             return Convert(midifile, tracks);
         }
 
@@ -189,8 +193,13 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                                 {
                                     ProgramChangeEvent pc = new ProgramChangeEvent((SevenBitNumber)instr);
                                     pc.Channel = x.Channel;
-                                    var newTime = ev.TimeAs<MetricTimeSpan>(midiFile.GetTempoMap()).Subtract(new MetricTimeSpan(0, 0, 0, 50), TimeSpanMode.TimeTime);
-                                    events.Objects.Add(new TimedEvent(pc, TimeConverter.ConvertFrom(newTime, midiFile.GetTempoMap())));
+                                    if (ev.TimeAs<MetricTimeSpan>(midiFile.GetTempoMap()).TotalMilliseconds > 30)
+                                    {
+                                        var newTime = ev.TimeAs<MetricTimeSpan>(midiFile.GetTempoMap()).Subtract(new MetricTimeSpan(0, 0, 0, 30), TimeSpanMode.TimeTime);
+                                        events.Objects.Add(new TimedEvent(pc, TimeConverter.ConvertFrom(newTime, midiFile.GetTempoMap())));
+                                    }
+                                    else
+                                        events.Objects.Add(new TimedEvent(pc, ev.Time));
                                 }
                             }
                             events.Objects.Add(ev);
