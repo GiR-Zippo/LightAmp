@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright(c) 2023 GiR-Zippo
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 using System;
@@ -15,7 +15,6 @@ using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BasicSharp;
-using static BasicSharp.Interpreter;
 
 namespace BardMusicPlayer.Script
 {

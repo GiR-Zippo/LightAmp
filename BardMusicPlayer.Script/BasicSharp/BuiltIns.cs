@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*
+ * Copyright(c) 2022 Mateusz Muszyñski
+ * Licensed under the MIT License (MIT). See https://raw.githubusercontent.com/Timu5/BasicSharp/master/LICENSE for full license information.
+ */
+
+using System;
 using System.Collections.Generic;
 
 namespace BasicSharp
