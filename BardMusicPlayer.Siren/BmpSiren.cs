@@ -163,6 +163,21 @@ namespace BardMusicPlayer.Siren
         ///     Starts the playback if possible
         /// </summary>
         /// <returns>This BmpSiren</returns>
+        public BmpSiren Record(string filename)
+        {
+            if (!IsReadyForPlayback) throw new BmpException("Siren not loaded with a song.");
+
+            if (filename.Length <= 0)
+                return this;
+
+            _player.Record(filename);
+            return this;
+        }
+
+        /// <summary>
+        ///     Starts the playback if possible
+        /// </summary>
+        /// <returns>This BmpSiren</returns>
         public BmpSiren Play()
         {
             if (!IsReadyForPlayback) throw new BmpException("Siren not loaded with a song.");

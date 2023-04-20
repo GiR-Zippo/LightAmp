@@ -6,12 +6,15 @@
 #region
 
 using System;
+using System.IO;
+using System.Threading.Tasks;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Midi;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.SoundFont;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Synthesis;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Util;
 using BardMusicPlayer.Siren.AlphaTab.IO;
 using BardMusicPlayer.Siren.AlphaTab.Util;
+using NAudio.Wave;
 
 #endregion
 
@@ -31,6 +34,7 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
         private int _tickPosition;
         private double _timePosition;
 
+        private FileStream _wavWriter = null;
         /// <summary>
         ///     Initializes a new instance of the <see cref="AlphaSynth" /> class.
         /// </summary>
@@ -61,6 +65,13 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
                     TickPosition = _sequencer.PlaybackRange?.StartTick ?? 0;
                 }
 
+                //Close the wave writer
+                if (_wavWriter != null)
+                {
+                    _wavWriter.Close();
+                    _wavWriter = null;
+                }
+
                 Logger.Debug("AlphaSynth", "Finished playback");
                 OnFinished();
                 if (_sequencer.IsLooping) Play();
@@ -72,6 +83,11 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
                 var samples = _synthesizer.Synthesize();
                 // send it to output
                 Output.AddSamples(samples);
+
+                //Write to wave too, if needed
+                if (_wavWriter != null)
+                    _wavWriter.AppendWaveData(samples);
+
                 // tell sequencer to check whether its work is done
                 _sequencer.CheckForStop();
             };
@@ -183,12 +199,33 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
         }
 
         /// <inheritdoc />
-        public bool Play()
+        public bool Record(string filename)
         {
-            if (State == PlayerState.Playing || !IsReadyForPlayback) return false;
+            if (State == PlayerState.Playing || !IsReadyForPlayback)
+                return false;
+
+            //if the output should be written in a wave file
+            if (_wavWriter != null)
+                _wavWriter.Close();
+
+            if (filename.Length > 0)
+                _wavWriter = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite);
 
             Output.Activate();
+            Logger.Debug("AlphaSynth", "Starting playback and record");
+            State = PlayerState.Playing;
+            OnStateChanged(new PlayerStateChangedEventArgs(State, false));
+            Output.Play();
+            return true;
+        }
 
+        /// <inheritdoc />
+        public bool Play()
+        {
+            if (State == PlayerState.Playing || !IsReadyForPlayback) 
+                return false;
+
+            Output.Activate();
             Logger.Debug("AlphaSynth", "Starting playback");
             State = PlayerState.Playing;
             OnStateChanged(new PlayerStateChangedEventArgs(State, false));
@@ -221,6 +258,13 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
         public void Stop()
         {
             if (!IsReadyForPlayback) return;
+
+            //Close the wave writer
+            if (_wavWriter != null)
+            {
+                _wavWriter.Close();
+                _wavWriter = null;
+            }
 
             Logger.Debug("AlphaSynth", "Stopping playback");
             State = PlayerState.Paused;

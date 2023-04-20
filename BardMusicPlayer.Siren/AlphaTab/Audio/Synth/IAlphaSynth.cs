@@ -77,6 +77,15 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
         void Destroy();
 
         /// <summary>
+        ///     Starts recording and playback if possible
+        /// </summary>
+        /// <returns>
+        ///     true if the playback was started, otherwise false. Reasons for not starting can be that the player is not
+        ///     ready or already playing.
+        /// </returns>
+        bool Record(string filename);
+
+        /// <summary>
         ///     Starts the playback if possible
         /// </summary>
         /// <returns>

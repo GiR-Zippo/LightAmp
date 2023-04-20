@@ -23,7 +23,7 @@ namespace BardMusicPlayer.Ui
 
         public void SwitchClassicStyle()
         {
-            this.Title = "LightAmp Ver:" + Assembly.GetExecutingAssembly().GetName().Version + " - Loid";
+            this.Title = "LightAmp Ver:" + Assembly.GetExecutingAssembly().GetName().Version + " - Yor";
             this.DataContext = new Classic_MainView();
             this.AllowsTransparency = false;
             this.WindowStyle = WindowStyle.SingleBorderWindow;

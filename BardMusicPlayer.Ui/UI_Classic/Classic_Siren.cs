@@ -123,6 +123,29 @@ namespace BardMusicPlayer.Ui.Classic
         }
 
         /// <summary>
+        /// playback record button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Siren_Record_Click(object sender, RoutedEventArgs e)
+        {
+            if (!BmpSiren.Instance.IsReadyForPlayback)
+                return;
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            saveFileDialog.Filter = "WAVE file (*.wav)|*.wav";
+            saveFileDialog.FilterIndex = 2;
+            saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.OverwritePrompt = true;
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                BmpSiren.Instance.Record(saveFileDialog.FileName);
+            }
+        }
+
+        /// <summary>
         /// opens a fileslector box and loads the selected song 
         /// </summary>
         /// <returns>BmpSong</returns>

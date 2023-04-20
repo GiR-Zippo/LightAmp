@@ -80,6 +80,14 @@ namespace BardMusicPlayer.Siren.AlphaTab
             set => DispatchOnWorkerThread(() => { Player.IsLooping = value; });
         }
 
+        public bool Record(string filename)
+        {
+            if (State == PlayerState.Playing || !IsReadyForPlayback) return false;
+
+            DispatchOnWorkerThread(() => { Player.Record(filename); });
+            return true;
+        }
+
         public bool Play()
         {
             if (State == PlayerState.Playing || !IsReadyForPlayback) return false;
