@@ -69,7 +69,7 @@
                         <TextBlock Grid.Column="0" Grid.RowSpan="1" Text="{Binding Index}" VerticalAlignment="Center"/>
 
                         <Label Grid.Column="1" Grid.Row="0" Content="Instrument" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
-                        <ComboBox Grid.Column="1" Grid.Row="1" x:Name="Instrument_Selector" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                        <ComboBox Grid.Column="1" Grid.Row="1" x:Name="Instrument_Selector" HorizontalAlignment="Stretch" VerticalAlignment="Top" PreviewMouseDown="BardNumBox_PreviewMouseDown"
                                 SelectedValuePath="Key" DisplayMemberPath="Value"
                                 ItemsSource="{Binding Source={StaticResource Instruments}}"
                                 SelectedIndex="{Binding trackInstrument}" >
