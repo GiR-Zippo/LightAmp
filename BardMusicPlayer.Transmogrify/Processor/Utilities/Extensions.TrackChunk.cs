@@ -26,6 +26,7 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
         /// <returns></returns>
         internal static Task<Dictionary<int, Dictionary<long, Note>>> GetNoteDictionary(TrackChunk originalChunk, TempoMap tempoMap, long firstNoteus, int noteVelocity)
         {
+            tempoMap = tempoMap.Clone();
             Dictionary<int, Dictionary<long, Note>> notesDictionary = new Dictionary<int, Dictionary<long, Note>>();
             for (int i = 0; i < 128; i++)
                 notesDictionary.Add(i, new Dictionary<long, Note>());

@@ -6,6 +6,7 @@
 #region
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BardMusicPlayer.Quotidian.Structs;
@@ -14,6 +15,7 @@ using BardMusicPlayer.Siren.AlphaTab.Model;
 using BardMusicPlayer.Transmogrify.Song;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
+using static BardMusicPlayer.Siren.BmpSiren;
 using MidiFile = BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Midi.MidiFile;
 
 #endregion
@@ -22,8 +24,7 @@ namespace BardMusicPlayer.Siren
 {
     internal static class Utils
     {
-        internal static async Task<(MidiFile, Dictionary<int, Dictionary<long, string>>)> GetSynthMidi(
-            this BmpSong song)
+        internal static async Task<(MidiFile, Dictionary<int, Dictionary<long, string>>)> GetSynthMidi(this BmpSong song)
         {
             var file = new MidiFile { Division = 600 };
             var events = new AlphaSynthMidiFileHandler(file);
@@ -33,7 +34,6 @@ namespace BardMusicPlayer.Siren
             var veryLast = 0L;
 
             var midiFile = await song.GetProcessedMidiFile();
-
             var trackChunks = midiFile.GetTrackChunks().ToList();
 
             var lyrics = new Dictionary<int, Dictionary<long, string>>();
@@ -41,48 +41,61 @@ namespace BardMusicPlayer.Siren
 
             foreach (var trackChunk in trackChunks)
             {
-                var options = trackChunk.Events.OfType<SequenceTrackNameEvent>().First().Text.Split(':');
-                switch (options[0])
+                using (var manager = trackChunk.ManageTimedEvents())
                 {
-                    case "lyric":
+                    Instrument instr = Instrument.Parse(trackChunk.Events.OfType<SequenceTrackNameEvent>().First().Text);
+                    if (instr.Index == Instrument.None)
+                        continue;
+
+                    Dictionary<float, KeyValuePair<NoteEvent, Instrument>> instrumentMap = new Dictionary<float, KeyValuePair<NoteEvent, Instrument>>();
+
+                    foreach (TimedEvent _event in manager.Objects)
                     {
-                        if (!lyrics.ContainsKey(lyricNum))
-                            lyrics.Add(lyricNum, new Dictionary<long, string>(int.Parse(options[1])));
+                        var noteEvent = _event.Event as NoteEvent;
+                        var lyricsEvent = _event.Event as LyricEvent;
+                        var programChangeEvent = _event.Event as ProgramChangeEvent;
 
-                        foreach (var lyric in trackChunk.GetTimedEvents()
-                                     .Where(static x => x.Event.EventType == MidiEventType.Lyric))
-                            lyrics[lyricNum].Add(lyric.Time, ((LyricEvent)lyric.Event).Text);
+                        if (noteEvent != null && _event.Event.EventType == MidiEventType.NoteOn)
+                            instrumentMap.Add(_event.Time, new KeyValuePair<NoteEvent, Instrument>(noteEvent, instr));
 
-                        lyricNum++;
+                        if (programChangeEvent != null)
+                            instr = Instrument.ParseByProgramChange(programChangeEvent.ProgramNumber);
 
-                        break;
+                        if (lyricsEvent != null)
+                        {
+                            lyrics[lyricNum].Add(_event.Time, lyricsEvent.Text);
+                            lyricNum++;
+                        }
                     }
 
-                    case "tone":
+                    foreach (var note in trackChunk.GetNotes())
                     {
-                        var tone = InstrumentTone.Parse(options[1]);
-                        foreach (var note in trackChunk.GetNotes())
+                        var instrument = instr;
+                        KeyValuePair<NoteEvent, Instrument> test;
+                        if (instrumentMap.TryGetValue(note.Time, out test))
                         {
-                            var instrument = tone.GetInstrumentFromChannel(note.Channel);
-                            var noteNum = note.NoteNumber;
-                            var dur = (int)MinimumLength(instrument, noteNum - 48, note.Length);
-                            var time = (int)note.Time;
-                            events.AddProgramChange(trackCounter, time, trackCounter,
-                                (byte)instrument.MidiProgramChangeCode);
-                            events.AddNote(trackCounter, time, dur, noteNum, DynamicValue.FFF, trackCounter);
-                            if (trackCounter == byte.MaxValue)
-                                trackCounter = byte.MinValue;
-                            else
-                                trackCounter++;
-
-                            if (time + dur > veryLast) veryLast = time + dur;
+                            if (note.NoteNumber == test.Key.NoteNumber)
+                            {
+                                instrument = test.Value;
+                            }
                         }
 
-                        break;
+                        var noteNum = note.NoteNumber;
+                        var dur = (int)MinimumLength(instrument, noteNum - 48, note.Length);
+                        var time = (int)note.Time;
+                        events.AddProgramChange(trackCounter, time, trackCounter,
+                            (byte)instrument.MidiProgramChangeCode);
+                        events.AddNote(trackCounter, time, dur, noteNum, DynamicValue.FFF, trackCounter);
+                        if (trackCounter == byte.MaxValue)
+                            trackCounter = byte.MinValue;
+                        else
+                            trackCounter++;
+
+                        if (time + dur > veryLast) veryLast = time + dur;
                     }
+                    instrumentMap.Clear();
                 }
             }
-
             events.FinishTrack(byte.MaxValue, (byte)veryLast);
             return (file, lyrics);
         }
@@ -179,14 +192,19 @@ namespace BardMusicPlayer.Siren
                 case 21: // Viola
                 case 22: // Cello
                 case 23: // DoubleBass
+                    return duration > 4500 ? 4500 : duration < 300 ? 300 : duration;
                 case 24: // ElectricGuitarOverdriven
+                    return duration > 4500 ? 4500 : duration < 300 ? 300 : duration;
                 case 25: // ElectricGuitarClean
                 case 27: // ElectricGuitarPowerChords
                     return duration > 4500 ? 4500 : duration < 300 ? 300 : duration;
-
                 case 26: // ElectricGuitarMuted
-                    return 400;
-
+                    return note switch
+                    {
+                        <= 18 => 186,
+                        <= 21 => 158,
+                        _ => 174
+                    };
                 case 28: // ElectricGuitarSpecial
                     return 1500;
 
@@ -195,3 +213,68 @@ namespace BardMusicPlayer.Siren
         }
     }
 }
+
+/*internal static async Task<(MidiFile, Dictionary<int, Dictionary<long, string>>)> GetSynthMidi_Old(
+    this BmpSong song)
+{
+    var file = new MidiFile { Division = 600 };
+    var events = new AlphaSynthMidiFileHandler(file);
+    events.AddTempo(0, 100);
+
+    var trackCounter = byte.MinValue;
+    var veryLast = 0L;
+
+    var midiFile = await song.GetProcessedMidiFile();
+
+    var trackChunks = midiFile.GetTrackChunks().ToList();
+
+    var lyrics = new Dictionary<int, Dictionary<long, string>>();
+    var lyricNum = 0;
+
+    foreach (var trackChunk in trackChunks)
+    {
+        var options = trackChunk.Events.OfType<SequenceTrackNameEvent>().First().Text.Split(':');
+        switch (options[0])
+        {
+            case "lyric":
+            {
+                if (!lyrics.ContainsKey(lyricNum))
+                    lyrics.Add(lyricNum, new Dictionary<long, string>(int.Parse(options[1])));
+
+                foreach (var lyric in trackChunk.GetTimedEvents()
+                             .Where(static x => x.Event.EventType == MidiEventType.Lyric))
+                    lyrics[lyricNum].Add(lyric.Time, ((LyricEvent)lyric.Event).Text);
+
+                lyricNum++;
+
+                break;
+            }
+
+            case "tone":
+            {
+                var tone = InstrumentTone.Parse(options[1]);
+                foreach (var note in trackChunk.GetNotes())
+                {
+                    var instrument = tone.GetInstrumentFromChannel(note.Channel);
+                    var noteNum = note.NoteNumber;
+                    var dur = (int)MinimumLength(instrument, noteNum - 48, note.Length);
+                    var time = (int)note.Time;
+                    events.AddProgramChange(trackCounter, time, trackCounter,
+                        (byte)instrument.MidiProgramChangeCode);
+                    events.AddNote(trackCounter, time, dur, noteNum, DynamicValue.FFF, trackCounter);
+                    if (trackCounter == byte.MaxValue)
+                        trackCounter = byte.MinValue;
+                    else
+                        trackCounter++;
+
+                    if (time + dur > veryLast) veryLast = time + dur;
+                }
+
+                break;
+            }
+        }
+    }
+
+    events.FinishTrack(byte.MaxValue, (byte)veryLast);
+    return (file, lyrics);
+}*/

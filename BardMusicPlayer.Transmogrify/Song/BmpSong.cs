@@ -15,6 +15,7 @@ using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Transmogrify.Processor.Utilities;
 using BardMusicPlayer.Transmogrify.Song.Config;
+using BardMusicPlayer.Transmogrify.Song.Config.Interfaces;
 using BardMusicPlayer.Transmogrify.Song.Importers;
 using BardMusicPlayer.Transmogrify.Song.Importers.LrcParser;
 using BardMusicPlayer.Transmogrify.Song.Utilities;
@@ -131,7 +132,7 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <returns></returns>
         private static BmpSong OpenMidiFile(string path)
         {
-            if (!File.Exists(path)) 
+            if (!File.Exists(path))
                 throw new BmpTransmogrifyException("File " + path + " does not exist!");
 
             using var fileStream = File.OpenRead(path);
@@ -232,7 +233,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                                               " Instrument:" + classicConfig.Instrument + " OctaveRange:" +
                                               classicConfig.OctaveRange + " PlayerCount:" + classicConfig.PlayerCount +
                                               " IncludeTracks:" + string.Join(",", classicConfig.IncludedTracks));
-                            song.TrackContainers[i].ConfigContainers[j].ProccesedTrackChunks =
+                            song.TrackContainers[i].ConfigContainers[j].ProccesedTrackChunks = 
                                 await song.TrackContainers[i].ConfigContainers[j].RefreshTrackChunks(song);
                             break;
                         case LyricProcessorConfig lyricConfig:
@@ -268,7 +269,7 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// 
         /// </summary>
         /// <returns></returns>
-        public Task<MidiFile> GetProcessedMidiFile()
+        /*public Task<MidiFile> GetProcessedMidiFile()
         {
             var sourceMidiData = new MidiFile(TrackContainers.Values.SelectMany(static track => track.ConfigContainers).SelectMany(static track => track.Value.ProccesedTrackChunks));
             sourceMidiData.ReplaceTempoMap(Tools.GetMsTempoMap());
@@ -307,6 +308,16 @@ namespace BardMusicPlayer.Transmogrify.Song
             }
             midiFile.ReplaceTempoMap(Tools.GetMsTempoMap());
             return Task.FromResult(midiFile);
+        }*/
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Task<MidiFile> GetProcessedMidiFile()
+        {
+            var sourceMidiData = MidiFile.Read(GetDryWetSequencerMidi());
+            return Task.FromResult(sourceMidiData);
         }
 
         /// <summary>
