@@ -15,7 +15,6 @@ using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Transmogrify.Processor.Utilities;
 using BardMusicPlayer.Transmogrify.Song.Config;
-using BardMusicPlayer.Transmogrify.Song.Config.Interfaces;
 using BardMusicPlayer.Transmogrify.Song.Importers;
 using BardMusicPlayer.Transmogrify.Song.Importers.LrcParser;
 using BardMusicPlayer.Transmogrify.Song.Utilities;
@@ -28,6 +27,7 @@ namespace BardMusicPlayer.Transmogrify.Song
 {
     public sealed class BmpSong
     {
+        #region LiteDB accs
         /// <summary>
         /// 
         /// </summary>
@@ -69,7 +69,12 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// </summary>
         public TimeSpan Duration { get; set; } = new();
 
+        #endregion
 
+        [BsonIgnore]
+        public MidiFile cachedSequencerMidi { get; set; } = null;
+
+        #region Import functions
         /// <summary>
         /// opens a file and selects the processing by file ext.
         /// </summary>
@@ -91,6 +96,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                 else
                     song = OpenMidiFile(path);
             }
+            song.PrepareCachedSequencerMidi();
             return Task.FromResult(song);
         }
 
@@ -124,7 +130,6 @@ namespace BardMusicPlayer.Transmogrify.Song
             return Task.FromResult(CovertMidiToSong(midiFile, name));
         }
 
-        #region Import functions
         /// <summary>
         /// Open and process the midifile, tracks with note placed first
         /// </summary>
@@ -233,7 +238,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                                               " Instrument:" + classicConfig.Instrument + " OctaveRange:" +
                                               classicConfig.OctaveRange + " PlayerCount:" + classicConfig.PlayerCount +
                                               " IncludeTracks:" + string.Join(",", classicConfig.IncludedTracks));
-                            song.TrackContainers[i].ConfigContainers[j].ProccesedTrackChunks = 
+                            song.TrackContainers[i].ConfigContainers[j].ProccesedTrackChunks =
                                 await song.TrackContainers[i].ConfigContainers[j].RefreshTrackChunks(song);
                             break;
                         case LyricProcessorConfig lyricConfig:
@@ -266,10 +271,172 @@ namespace BardMusicPlayer.Transmogrify.Song
         }
 
         /// <summary>
+        /// Prepare the Midi for the sequencer and siren
+        /// </summary>
+        public void PrepareCachedSequencerMidi()
+        {
+            try
+            {
+                var c = TrackContainers.Values.Select(static tc => tc.SourceTrackChunk).ToList();
+
+                var midiFile = new MidiFile(c);
+                midiFile.ReplaceTempoMap(SourceTempoMap);
+
+                Console.WriteLine("Scrubbing ");
+                var loaderWatch = Stopwatch.StartNew();
+
+                var newTrackChunks = new ConcurrentDictionary<int, TrackChunk>();
+                long firstNoteus = midiFile.GetTrackChunks().GetNotes().First().GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(midiFile.GetTempoMap()).TotalMicroseconds;
+                long firstNote = firstNoteus / 1000;
+
+                TrackChunk allTracks = new TrackChunk(new SequenceTrackNameEvent("None"));
+                allTracks.AddObjects(midiFile.GetNotes());
+                midiFile.Chunks.Add(allTracks);
+
+                Parallel.ForEach(midiFile.GetTrackChunks().Where(static x => x.GetNotes().Any() || x.Events.OfType<LyricEvent>().Any()), (originalChunk, loopState, index) =>
+                {
+                    var tempoMap = midiFile.GetTempoMap().Clone();
+                    int noteVelocity = int.Parse(index.ToString()) + 1;
+
+                    //Generate NoteDict
+                    Dictionary<int, Dictionary<long, Note>> allNoteEvents = Extensions.GetNoteDictionary(originalChunk, tempoMap, firstNoteus, noteVelocity).Result;
+
+                    //das triggern nur sehr wenige Midis, lassen oder löschen?
+                    //eigentlich nur Verschwendung
+                    /*for (int i = 0; i < 128; i++)
+                    {
+                        long lastNoteTimeStamp = -1;
+                        foreach (var noteEvent in allNoteEvents[i])
+                        {
+                            if (lastNoteTimeStamp >= 0 && allNoteEvents[i][lastNoteTimeStamp].Length + lastNoteTimeStamp >= noteEvent.Key)
+                                allNoteEvents[i][lastNoteTimeStamp].Length -= allNoteEvents[i][lastNoteTimeStamp].Length + lastNoteTimeStamp + 1 - noteEvent.Key;
+
+                            lastNoteTimeStamp = noteEvent.Key;
+                        }
+                    }*/
+
+                    //Fix Chords
+                    List<Note> fixedNotes = Extensions.FixChords(allNoteEvents.SelectMany(static s => s.Value).Select(static s => s.Value).ToList(), 30).Result;
+                    allNoteEvents = null;
+                    //Fix EndSpacing
+                    fixedNotes = Extensions.FixEndSpacing(fixedNotes).Result;
+
+                    #region Tracknaming and octave shifting
+
+                    int octaveShift = 0;
+                    var trackName = originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text ?? "";
+                    string o_trackName = trackName;
+
+                    Regex rex = new Regex(@"^([A-Za-z _]+)([-+]\d)?");
+                    if (rex.Match(trackName) is Match match)
+                    {
+                        if (!string.IsNullOrEmpty(match.Groups[1].Value))
+                        {
+                            trackName = Instrument.Parse(match.Groups[1].Value).Name;
+                            if (!string.IsNullOrEmpty(match.Groups[2].Value))
+                                if (int.TryParse(match.Groups[2].Value, out int os))
+                                    octaveShift = os;
+
+                            trackName = octaveShift switch
+                            {
+                                > 0 => trackName + "+" + octaveShift,
+                                < 0 => trackName + octaveShift,
+                                _ => trackName
+                            };
+                        }
+
+                        //last try with the program number
+                        if ((string.IsNullOrEmpty(match.Groups[1].Value)) || trackName.Equals("Unknown") || trackName.Equals("None"))
+                        {
+                            ProgramChangeEvent prog = originalChunk.Events.OfType<ProgramChangeEvent>().FirstOrDefault();
+                            if (prog != null)
+                                trackName = Instrument.ParseByProgramChange(prog.ProgramNumber).Name;
+                        }
+
+                    }
+                    //If we have a lyrics tracks
+                    if (o_trackName.StartsWith("Lyrics:"))
+                        trackName = o_trackName;
+
+                    TrackChunk newChunk = new TrackChunk(new SequenceTrackNameEvent(trackName));
+                    #endregion Tracknaming and octave shifting
+
+                    //Create Progchange Event if no IgnoreProgChange is set
+                    if (!BmpPigeonhole.Instance.IgnoreProgChange || o_trackName.Contains("Program:ElectricGuitar"))
+                        newChunk.AddObjects(Extensions.AddProgramChangeEvents(originalChunk, tempoMap, firstNote).Result.GetTimedEvents());
+
+                    //Add the lyrics
+                    newChunk.AddObjects(Extensions.AddLyricsEvents(originalChunk, tempoMap, firstNote).Result.GetTimedEvents());
+
+                    //Create Aftertouch Event - maybe for some special things
+                    /*foreach (var timedEvent in originalChunk.GetTimedEvents())
+                    {
+                        var programChangeEvent = timedEvent.Event as ChannelAftertouchEvent;
+                        if (programChangeEvent == null)
+                            continue;
+
+                        var channel = programChangeEvent.Channel;
+                        using (var manager = new TimedEventsManager(newChunk.Events))
+                        {
+                            TimedEventsCollection timedEvents = manager.Events;
+                            timedEvents.Add(new TimedEvent(new ChannelAftertouchEvent(programChangeEvent.AftertouchValue), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote));
+                        }
+                    }*/
+                    newChunk.AddObjects(fixedNotes);
+                    newTrackChunks.TryAdd(noteVelocity, newChunk);
+                });
+
+                var newMidiFile = new MidiFile();
+                newTrackChunks.TryRemove(newTrackChunks.Count, out TrackChunk trackZero);
+                newMidiFile.Chunks.Add(trackZero);
+                newMidiFile.TimeDivision = new TicksPerQuarterNoteTimeDivision(375);
+                using (TempoMapManager tempoManager = newMidiFile.ManageTempoMap())
+                    tempoManager.SetTempo(0, Tempo.FromBeatsPerMinute(160));
+
+                newMidiFile.Chunks.AddRange(newTrackChunks.Values);
+
+                //realign the events
+                long delta = (newMidiFile.GetTrackChunks().GetNotes().First().GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(newMidiFile.GetTempoMap()).TotalMicroseconds / 1000);
+                Parallel.ForEach(newMidiFile.GetTrackChunks(), chunk =>
+                {
+                    chunk = Extensions.RealignTrackEvents(chunk, delta).Result;
+                });
+
+                //Append the lyrics from the lrc
+                var lrcTrack = new TrackChunk(new SequenceTrackNameEvent("Lyrics: "));
+                using (var manager = new TimedObjectsManager(lrcTrack.Events, ObjectType.TimedEvent | ObjectType.Note))
+                {
+                    TimedObjectsCollection<ITimedObject> timedEvents = manager.Objects;
+                    foreach (var line in LyricsContainer)
+                    {
+                        var timedEvent = new TimedEvent(new LyricEvent(line.Value)) as ITimedObject;
+                        timedEvent.SetTime(new MetricTimeSpan(line.Key.Hour, line.Key.Minute, line.Key.Second, line.Key.Millisecond), newMidiFile.GetTempoMap());
+                        timedEvents.Add(timedEvent);
+                    }
+                }
+                newMidiFile.Chunks.Add(lrcTrack);
+
+                using (var manager = new TimedObjectsManager<TimedEvent>(newMidiFile.GetTrackChunks().First().Events))
+                    manager.Objects.Add(new TimedEvent(new MarkerEvent(), (newMidiFile.GetDuration<MetricTimeSpan>().TotalMicroseconds / 1000)));
+
+                cachedSequencerMidi = newMidiFile;
+
+                loaderWatch.Stop();
+                Console.WriteLine("Scrubbing MS: " + loaderWatch.ElapsedMilliseconds);
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        /*public Task<MidiFile> GetProcessedMidiFile()
+        public Task<MidiFile> GetProcessedMidiFile()
         {
             var sourceMidiData = new MidiFile(TrackContainers.Values.SelectMany(static track => track.ConfigContainers).SelectMany(static track => track.Value.ProccesedTrackChunks));
             sourceMidiData.ReplaceTempoMap(Tools.GetMsTempoMap());
@@ -308,16 +475,17 @@ namespace BardMusicPlayer.Transmogrify.Song
             }
             midiFile.ReplaceTempoMap(Tools.GetMsTempoMap());
             return Task.FromResult(midiFile);
-        }*/
+        }
 
         /// <summary>
-        /// 
+        /// Get the processed midi file
         /// </summary>
         /// <returns></returns>
-        public Task<MidiFile> GetProcessedMidiFile()
+        public Task<MidiFile> GetProcessedSequencerMidiFile()
         {
-            var sourceMidiData = MidiFile.Read(GetDryWetSequencerMidi());
-            return Task.FromResult(sourceMidiData);
+            if (cachedSequencerMidi == null)
+                PrepareCachedSequencerMidi();
+            return Task.FromResult(cachedSequencerMidi);
         }
 
         /// <summary>
@@ -421,6 +589,20 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <returns>MemoryStream</returns>
         public MemoryStream GetDryWetSequencerMidi()
         {
+            var outStream = new MemoryStream();
+            if (cachedSequencerMidi == null)
+                PrepareCachedSequencerMidi();
+
+            cachedSequencerMidi.Write(outStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+            {
+                TextEncoding = System.Text.Encoding.UTF8
+            });
+
+            outStream.Flush();
+            outStream.Position = 0;
+            return outStream;
+
+
             try
             {
                 var c = TrackContainers.Values.Select(static tc => tc.SourceTrackChunk).ToList();
@@ -572,6 +754,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                 {
                     TextEncoding = System.Text.Encoding.UTF8
                 });
+                cachedSequencerMidi = newMidiFile;
 
                 stream.Flush();
                 stream.Position = 0;

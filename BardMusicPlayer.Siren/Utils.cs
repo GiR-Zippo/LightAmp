@@ -6,7 +6,6 @@
 #region
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BardMusicPlayer.Quotidian.Structs;
@@ -15,7 +14,6 @@ using BardMusicPlayer.Siren.AlphaTab.Model;
 using BardMusicPlayer.Transmogrify.Song;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
-using static BardMusicPlayer.Siren.BmpSiren;
 using MidiFile = BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Midi.MidiFile;
 
 #endregion
@@ -24,6 +22,11 @@ namespace BardMusicPlayer.Siren
 {
     internal static class Utils
     {
+        /// <summary>
+        /// Convert the Midi for siren
+        /// </summary>
+        /// <param name="song"></param>
+        /// <returns></returns>
         internal static async Task<(MidiFile, Dictionary<int, Dictionary<long, string>>)> GetSynthMidi(this BmpSong song)
         {
             var file = new MidiFile { Division = 600 };
@@ -33,7 +36,7 @@ namespace BardMusicPlayer.Siren
             var trackCounter = byte.MinValue;
             var veryLast = 0L;
 
-            var midiFile = await song.GetProcessedMidiFile();
+            var midiFile = await song.GetProcessedSequencerMidiFile();
             var trackChunks = midiFile.GetTrackChunks().ToList();
 
             var lyrics = new Dictionary<int, Dictionary<long, string>>();
@@ -213,68 +216,3 @@ namespace BardMusicPlayer.Siren
         }
     }
 }
-
-/*internal static async Task<(MidiFile, Dictionary<int, Dictionary<long, string>>)> GetSynthMidi_Old(
-    this BmpSong song)
-{
-    var file = new MidiFile { Division = 600 };
-    var events = new AlphaSynthMidiFileHandler(file);
-    events.AddTempo(0, 100);
-
-    var trackCounter = byte.MinValue;
-    var veryLast = 0L;
-
-    var midiFile = await song.GetProcessedMidiFile();
-
-    var trackChunks = midiFile.GetTrackChunks().ToList();
-
-    var lyrics = new Dictionary<int, Dictionary<long, string>>();
-    var lyricNum = 0;
-
-    foreach (var trackChunk in trackChunks)
-    {
-        var options = trackChunk.Events.OfType<SequenceTrackNameEvent>().First().Text.Split(':');
-        switch (options[0])
-        {
-            case "lyric":
-            {
-                if (!lyrics.ContainsKey(lyricNum))
-                    lyrics.Add(lyricNum, new Dictionary<long, string>(int.Parse(options[1])));
-
-                foreach (var lyric in trackChunk.GetTimedEvents()
-                             .Where(static x => x.Event.EventType == MidiEventType.Lyric))
-                    lyrics[lyricNum].Add(lyric.Time, ((LyricEvent)lyric.Event).Text);
-
-                lyricNum++;
-
-                break;
-            }
-
-            case "tone":
-            {
-                var tone = InstrumentTone.Parse(options[1]);
-                foreach (var note in trackChunk.GetNotes())
-                {
-                    var instrument = tone.GetInstrumentFromChannel(note.Channel);
-                    var noteNum = note.NoteNumber;
-                    var dur = (int)MinimumLength(instrument, noteNum - 48, note.Length);
-                    var time = (int)note.Time;
-                    events.AddProgramChange(trackCounter, time, trackCounter,
-                        (byte)instrument.MidiProgramChangeCode);
-                    events.AddNote(trackCounter, time, dur, noteNum, DynamicValue.FFF, trackCounter);
-                    if (trackCounter == byte.MaxValue)
-                        trackCounter = byte.MinValue;
-                    else
-                        trackCounter++;
-
-                    if (time + dur > veryLast) veryLast = time + dur;
-                }
-
-                break;
-            }
-        }
-    }
-
-    events.FinishTrack(byte.MaxValue, (byte)veryLast);
-    return (file, lyrics);
-}*/
