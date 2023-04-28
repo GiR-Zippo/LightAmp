@@ -36,7 +36,7 @@ namespace BardMusicPlayer.Siren
             var trackCounter = byte.MinValue;
             var veryLast = 0L;
 
-            var midiFile = await song.GetProcessedSequencerMidiFile();
+            var midiFile = await song.GetProcessedMidiFile();
             var trackChunks = midiFile.GetTrackChunks().ToList();
 
             var lyrics = new Dictionary<int, Dictionary<long, string>>();

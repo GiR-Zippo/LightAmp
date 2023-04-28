@@ -14,7 +14,7 @@ namespace BardMusicPlayer.Ui.Controls
 {
     public struct NoteRectInfo
     {
-        public NoteRectInfo(string n, bool blk, int freq )
+        public NoteRectInfo(string n, bool blk, int freq)
         {
             name = n;
             black_key = blk;
@@ -30,6 +30,7 @@ namespace BardMusicPlayer.Ui.Controls
     /// </summary>
     public sealed partial class KeyboardHeatMap : UserControl
     {
+        int current_Track { get; set; } = -1;
         //note frequencies
         private int mOctave = 4;    // default octave (octaves can be from 1 to 7)
 
@@ -99,54 +100,29 @@ namespace BardMusicPlayer.Ui.Controls
 
         private Dictionary<int, double> getNoteCountForKey(BmpSong song, int tracknumber, int octaveshift)
         {
-            var midiFile = song.GetProcessedMidiFile().Result;
-            var trackChunks = midiFile.GetTrackChunks().ToList();
+            var trackChunks = song.GetProcessedMidiFile().Result.GetTrackChunks().ToList();
             var notedict = new Dictionary<int, int>();
             int notecount = 0;
 
             //If your host has an invalid track, set it to 0
-            if ((tracknumber - 1) <= trackChunks.Count)
+            if (tracknumber < 0 || tracknumber >= trackChunks.Count)
                 tracknumber = 0;
 
-            if (tracknumber != 0)
+            foreach (var note in trackChunks[tracknumber].GetNotes())
             {
-                foreach (var note in trackChunks[tracknumber - 1].GetNotes())
+                int noteNum = note.NoteNumber;
+                noteNum -= 48 - (12 * octaveshift);
+                int count = 1;
+                if (notedict.ContainsKey(noteNum))
                 {
-                    int noteNum = note.NoteNumber;
-                    noteNum -= 48 - (12*octaveshift);
-                    int count = 1;
-                    if (notedict.ContainsKey(noteNum))
-                    {
-                        notedict.TryGetValue(noteNum, out count);
-                        count++;
-                        notedict.Remove(noteNum);
-                    }
-                    if (noteNum >= 0)
-                        notedict.Add(noteNum, count);
+                    notedict.TryGetValue(noteNum, out count);
+                    count++;
+                    notedict.Remove(noteNum);
                 }
-                notecount = trackChunks[tracknumber - 1].GetNotes().Count;
+                if (noteNum >= 0)
+                    notedict.Add(noteNum, count);
             }
-            else
-            {
-                for (int iter = 0; iter != trackChunks.Count; iter++)
-                {
-                    foreach (var note in trackChunks[iter].GetNotes())
-                    {
-                        int noteNum = note.NoteNumber;
-                        noteNum -= 48 - (12 * octaveshift); ;
-                        int count = 1;
-                        if (notedict.ContainsKey(noteNum))
-                        {
-                            notedict.TryGetValue(noteNum, out count);
-                            count++;
-                            notedict.Remove(noteNum);
-                        }
-                        if (noteNum >= 0)
-                            notedict.Add(noteNum, count);
-                    }
-                    notecount += trackChunks[iter].GetNotes().Count;
-                }
-            }
+            notecount = trackChunks[tracknumber].GetNotes().Count;
 
             var result = new Dictionary<int, double>();
             foreach (var note in notedict)
@@ -164,23 +140,21 @@ namespace BardMusicPlayer.Ui.Controls
         {
             ResetFill();
 
-            Dictionary<int, double> noteCountDict = null;
-            if (song != null)
+            if (song == null)
+                return;
+
+            if ((tracknumber - 1) >= song.TrackContainers.Count())
+                return;
+
+            Dictionary<int, double> noteCountDict = getNoteCountForKey(song, tracknumber, octaveshift);
+
+            foreach (var n in noteCountDict)
             {
-                if ((tracknumber-1) >= song.TrackContainers.Count())
-                    return;
-
-                noteCountDict = getNoteCountForKey(song, tracknumber, octaveshift);
-
-                foreach (var n in noteCountDict)
-                {
-                    if (n.Key >= noteInfo.Count)
-                        continue;
-                    object wantedNode = this.FindName(noteInfo[n.Key].name);
-                    Rectangle r = wantedNode as Rectangle;
-                    r.Fill = NoteFill(noteInfo[n.Key].black_key, n.Value);
-
-                }
+                if (n.Key >= noteInfo.Count)
+                    continue;
+                object wantedNode = this.FindName(noteInfo[n.Key].name);
+                Rectangle r = wantedNode as Rectangle;
+                r.Fill = NoteFill(noteInfo[n.Key].black_key, n.Value);
             }
         }
 
@@ -204,7 +178,7 @@ namespace BardMusicPlayer.Ui.Controls
                 count = 0.02;
             LinearGradientBrush brush = new LinearGradientBrush();
             brush.StartPoint = blk ? new Point(1, 0) : new Point(1, 1);
-            brush.EndPoint =   blk ? new Point(1, 1) :new Point(1, 0);
+            brush.EndPoint = blk ? new Point(1, 1) : new Point(1, 0);
 
             if (!blk)
             {
