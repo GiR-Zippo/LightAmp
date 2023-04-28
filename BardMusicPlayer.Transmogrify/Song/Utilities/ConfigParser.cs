@@ -157,15 +157,32 @@ namespace BardMusicPlayer.Transmogrify.Song.Utilities
                 // bmp 1.x style group name
                 else
                 {
-                    var classicConfig = (ClassicProcessorConfig)(configContainer.ProcessorConfig =
-                        new ClassicProcessorConfig { Track = trackNumber });
+                    var classicConfig = (ClassicProcessorConfig)(configContainer.ProcessorConfig = new ClassicProcessorConfig { Track = trackNumber });
                     var instrumentAndOctaveRange = modifier.Match(fields[0]);
-                    if (!instrumentAndOctaveRange.Success) continue; // Invalid Instrument name.
-
+                    //Check if the regex matches
+                    if (!instrumentAndOctaveRange.Success)
+                    {
+                        //Try to get the first progchange
+                        ProgramChangeEvent prog = trackChunk.Events.OfType<ProgramChangeEvent>().FirstOrDefault();
+                        if (prog != null)
+                            classicConfig.Instrument = Instrument.ParseByProgramChange(prog.ProgramNumber);
+                        else
+                            continue; // Invalid Instrument name.
+                    }
+                        
                     if (instrumentAndOctaveRange.Groups[1].Success)
                         classicConfig.Instrument = Instrument.Parse(instrumentAndOctaveRange.Groups[1].Value);
 
-                    if (classicConfig.Instrument.Equals(Instrument.None)) continue; // Invalid Instrument name.
+                    //Check instrument name string
+                    if (classicConfig.Instrument.Equals(Instrument.None))
+                    {
+                        //Try to get the first progchange
+                        ProgramChangeEvent prog = trackChunk.Events.OfType<ProgramChangeEvent>().FirstOrDefault();
+                        if (prog != null)
+                            classicConfig.Instrument = Instrument.ParseByProgramChange(prog.ProgramNumber);
+                        else
+                            continue; // Invalid Instrument name.
+                    }
 
                     if (instrumentAndOctaveRange.Groups[2].Success)
                         classicConfig.OctaveRange = OctaveRange.Parse(instrumentAndOctaveRange.Groups[2].Value);

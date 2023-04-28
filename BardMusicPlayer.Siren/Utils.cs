@@ -42,14 +42,12 @@ namespace BardMusicPlayer.Siren
             var lyrics = new Dictionary<int, Dictionary<long, string>>();
             var lyricNum = 0;
 
-            foreach (var trackChunk in trackChunks)
+            //Skip first track, is eh nur "All Tracks"
+            foreach (var trackChunk in trackChunks.GetRange(1, trackChunks.Count-1))
             {
                 using (var manager = trackChunk.ManageTimedEvents())
                 {
                     Instrument instr = Instrument.Parse(trackChunk.Events.OfType<SequenceTrackNameEvent>().First().Text);
-                    if (instr.Index == Instrument.None)
-                        continue;
-
                     Dictionary<float, KeyValuePair<NoteEvent, Instrument>> instrumentMap = new Dictionary<float, KeyValuePair<NoteEvent, Instrument>>();
 
                     foreach (TimedEvent _event in manager.Objects)
@@ -99,6 +97,7 @@ namespace BardMusicPlayer.Siren
                     instrumentMap.Clear();
                 }
             }
+            trackChunks.Clear();
             events.FinishTrack(byte.MaxValue, (byte)veryLast);
             return (file, lyrics);
         }
