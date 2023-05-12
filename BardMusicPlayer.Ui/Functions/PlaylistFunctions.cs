@@ -1,8 +1,9 @@
 ﻿using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Transmogrify.Song;
-using BardMusicPlayer.Ui.Functions;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace BardMusicPlayer.Ui.Functions
@@ -13,7 +14,7 @@ namespace BardMusicPlayer.Ui.Functions
     public static class PlaylistFunctions
     {
         /// <summary>
-        /// Add file(s) to the playlist
+        /// Add file to the playlist
         /// </summary>
         /// <param name="currentPlaylist"></param>
         /// <param name="filename"></param>
@@ -152,10 +153,44 @@ namespace BardMusicPlayer.Ui.Functions
             return data;
         }
 
+        /// <summary>
+        /// Get the total time of all items in the playlist
+        /// </summary>
+        /// <param name="playlist"></param>
+        /// <returns><see cref="TimeSpan"/></returns>
         public static TimeSpan GetTotalTime(IPlaylist playlist)
         {
             TimeSpan totalTime = new TimeSpan(0);
             return playlist.Aggregate(totalTime, (current, p) => current + p.Duration);
+        }
+
+        /// <summary>
+        /// Export a song to Midi
+        /// </summary>
+        /// <param name="song"></param>
+        public static bool ExportSong(BmpSong song)
+        {
+            if (song == null)
+                return false;
+
+            Stream myStream;
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            saveFileDialog.Filter = "MIDI file (*.mid)|*.mid";
+            saveFileDialog.FilterIndex = 2;
+            saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.OverwritePrompt = true;
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                if ((myStream = saveFileDialog.OpenFile()) != null)
+                {
+                    song.GetExportMidi().WriteTo(myStream);
+                    myStream.Close();
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

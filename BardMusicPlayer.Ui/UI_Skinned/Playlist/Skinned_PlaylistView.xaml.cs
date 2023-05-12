@@ -374,25 +374,7 @@ namespace BardMusicPlayer.Ui.Skinned
                 BmpSong song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, s);
                 if (song == null)
                     continue;
-
-                Stream myStream;
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-                saveFileDialog.Filter = "MIDI file (*.mid)|*.mid";
-                saveFileDialog.FilterIndex = 2;
-                saveFileDialog.RestoreDirectory = true;
-                saveFileDialog.OverwritePrompt = true;
-
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    if ((myStream = saveFileDialog.OpenFile()) != null)
-                    {
-                        song.GetExportMidi().WriteTo(myStream);
-                        myStream.Close();
-                    }
-                }
-
-                break;
+                PlaylistFunctions.ExportSong(song);
             }
         }
 
