@@ -308,7 +308,6 @@ namespace BardMusicPlayer.Ui.Controls
 
             var data = memoryStream.ToArray();
             List<PerformerSettingData> pdatalist = JsonConvert.DeserializeObject<List<PerformerSettingData>>(new UTF8Encoding(true).GetString(data));
-            bool has_host_option = pdatalist.Where(p => p.IsHost).Count() != 0;
             foreach (var pconfig in pdatalist)
             {
                 var p = BardsList.Items.OfType<Performer>().ToList().Where(perf => perf.game.ConfigId.Equals(pconfig.CID));
@@ -320,17 +319,16 @@ namespace BardMusicPlayer.Ui.Controls
                 }
 
                 p.First().TrackNumber = pconfig.Track;
-                if (has_host_option)
-                    p.First().HostProcess = pconfig.IsHost;
                 if (pconfig.AffinityMask != 0)
                     p.First().game.SetAffinity(pconfig.AffinityMask);
             }
 
+            List<Performer> tempPerf = new List<Performer>(BardsList.Items.OfType<Performer>().ToList());
+            
             //Reorder if there is no -1 OrderNum
             if (pdatalist.Where(p => p.OrderNum == -1).Count() == 0)
             {
                 pdatalist.Sort((x, y) => x.OrderNum.CompareTo(y.OrderNum));
-                List<Performer> tempPerf = new List<Performer>( BardsList.Items.OfType<Performer>().ToList());
                 BardsList.Items.Clear();
                 foreach (var pconfig in pdatalist)
                 {
@@ -338,12 +336,20 @@ namespace BardMusicPlayer.Ui.Controls
                     if (p.Count() != 0)
                         BardsList.Items.Add(p.First());
                 }
-                tempPerf.Clear();
             }
+            
+            //Set the host performer
+            /*var host_perf = pdatalist.Where(p => p.IsHost);
+            if (host_perf.Count() != 0)
+            {
+                BmpMaestro.Instance.SetHostBard(tempPerf.Find(p => p.game.ConfigId == host_perf.First().CID));
+                BmpMaestro.Instance.SetTracknumber(tempPerf.Find(p => p.game.ConfigId == host_perf.First().CID), host_perf.First().Track);
+            }*/
+            tempPerf.Clear();
             pdatalist.Clear();
 
             //Set Thymms box, cuz if u use this function, you know what you are doing
-            if (BmpPigeonhole.Instance.EnsembleKeepTrackSetting) 
+            if (BmpPigeonhole.Instance.EnsembleKeepTrackSetting)
                 return;
 
             BmpPigeonhole.Instance.EnsembleKeepTrackSetting = true;
