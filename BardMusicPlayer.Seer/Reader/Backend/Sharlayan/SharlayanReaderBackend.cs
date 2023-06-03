@@ -57,6 +57,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                     }
 
                     GetPlayerInfo(token);
+                    //GetHomeWorld(token);
                     GetWorld(token);
                     GetConfigId(token);
                     GetInstrument(token);
@@ -323,6 +324,18 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             if (!_reader.CanGetWorld()) return;
 
             var world = _reader.GetWorld();
+            if (!_lastScan.FirstScan && _lastScan.World.Equals(world)) return;
+
+            _lastScan.World = world;
+            ReaderHandler.Game.PublishEvent(new HomeWorldChanged(EventSource.Sharlayan, world));
+        }
+
+        private void GetHomeWorld(CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            var world = _reader.GetHomeWorld();
             if (!_lastScan.FirstScan && _lastScan.World.Equals(world)) return;
 
             _lastScan.World = world;

@@ -154,6 +154,8 @@ namespace BardMusicPlayer.Seer
                         if (!PlayerName.Equals(playerName.PlayerName))
                         {
                             PlayerName = playerName.PlayerName;
+                            if (Pigeonhole.BmpPigeonhole.Instance.EnableMultibox)
+                                SetClientWindowName(PlayerName+"@"+HomeWorld);
                             BmpSeer.Instance.PublishEvent(playerName);
                         }
 
@@ -163,6 +165,8 @@ namespace BardMusicPlayer.Seer
                         if (!HomeWorld.Equals(homeWorld.HomeWorld))
                         {
                             HomeWorld = homeWorld.HomeWorld;
+                            if (Pigeonhole.BmpPigeonhole.Instance.EnableMultibox)
+                                SetClientWindowName(PlayerName + "@" + HomeWorld);
                             BmpSeer.Instance.PublishEvent(homeWorld);
                         }
 

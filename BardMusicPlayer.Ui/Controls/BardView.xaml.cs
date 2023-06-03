@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
 using BardMusicPlayer.DalamudBridge;
+using BardMusicPlayer.Transmogrify.Song.Importers;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -53,43 +54,42 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void OnPerfomerChanged(object sender, bool e)
         {
-            this.Bards = new ObservableCollection<Performer>(BmpMaestro.Instance.GetAllPerformers());
-            this.Dispatcher.BeginInvoke(new Action(() => this.BardsList.ItemsSource = Bards));
+            UpdateList();
         }
 
         private void OnTrackNumberChanged(object sender, TrackNumberChangedEvent e)
         {
-            UpdateList();
+            UpdateView();
         }
 
         private void OnOctaveShiftChanged(object sender, OctaveShiftChangedEvent e)
         {
-            UpdateList();
+            UpdateView();
         }
 
         private void OnSongLoaded(object sender, SongLoadedEvent e)
         {
-            UpdateList();
+            UpdateView();
         }
 
         private void OnPerformerUpdate(object sender, PerformerUpdate e)
         {
-            UpdateList();
+            UpdateView();
         }
 
         private void OnPlayerNameChanged(PlayerNameChanged e)
         {
-            UpdateList();
+            UpdateView();
         }
 
         private void OnHomeWorldChanged(HomeWorldChanged e)
         {
-            UpdateList();
+            UpdateView();
         }
 
         private void OnInstrumentHeldChanged(InstrumentHeldChanged e)
         {
-            UpdateList();
+            UpdateView();
             if (e.InstrumentHeld.Index == 0)
             {
                 this.Dispatcher.BeginInvoke(new Action(() =>
@@ -115,10 +115,23 @@ namespace BardMusicPlayer.Ui.Controls
                 
         }
 
+        private void UpdateView()
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                this.BardsList.Items.Refresh();
+
+            }));
+        }
+
         private void UpdateList()
         {
             this.Bards = new ObservableCollection<Performer>(BmpMaestro.Instance.GetAllPerformers());
-            this.Dispatcher.BeginInvoke(new Action(() => this.BardsList.ItemsSource = Bards));
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                this.BardsList.ItemsSource = Bards;
+                
+            }));
         }
 
         private void RdyCheck_Click(object sender, RoutedEventArgs e)
@@ -137,16 +150,80 @@ namespace BardMusicPlayer.Ui.Controls
             BmpMaestro.Instance.UnEquipInstruments();
         }
 
-        private void BardsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        #region Drag&Drop
+        /// <summary>
+        /// Hier geht mitm Drag&Drop los
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        bool bnb = false;
+        private void BardsListItem_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            Console.WriteLine(this.BardsList.SelectedItem);
+            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                if (sender is ListViewItem celltext && !bnb)
+                {
+                    DragDrop.DoDragDrop(BardsList, celltext, DragDropEffects.Move);
+                    e.Handled = true;
+                }
+                bnb = false;
+            }
         }
 
-        private void BardsList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        /// <summary>
+        /// Called when there is a drop
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BardsListItem_Drop(object sender, DragEventArgs e)
         {
-            SelectedBard = BardsList.SelectedItem as Performer;
+            ListViewItem draggedObject = e.Data.GetData(typeof(ListViewItem)) as ListViewItem;
+            ListViewItem targetObject = ((ListViewItem)(sender));
 
+            var drag = draggedObject.Content as MidiBardImporter.MidiTrack;
+            var drop = targetObject.Content as MidiBardImporter.MidiTrack;
+
+            /*if (drag == drop)
+                return;
+
+            Dictionary<int, MidiBardImporter.MidiTrack> newTracks = new Dictionary<int, MidiBardImporter.MidiTrack>();
+            int newIdx = 0;
+            foreach (var oT in _tracks)
+            {
+                if (oT.Index == drag.Index)
+                    continue;
+
+                if (oT.Index == drop.Index)
+                {
+                    drag.Index = newIdx;
+                    newTracks.Add(newIdx, drag);
+                    newIdx++;
+                }
+
+                oT.Index = newIdx;
+                newTracks.Add(newIdx, oT);
+                newIdx++;
+            }
+
+            _tracks.Clear();
+            foreach (var oT in newTracks)
+                _tracks.Add(oT.Value);
+
+            BardsList.ItemsSource = _tracks;
+            BardsList.Items.Refresh();
+            newTracks.Clear();*/
         }
+
+        /// <summary>
+        /// Helper for D&D
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BardNumBox_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            bnb = true;
+        }
+        #endregion
 
         /* Track UP/Down */
         private void TrackNumericUpDown_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -246,9 +323,13 @@ namespace BardMusicPlayer.Ui.Controls
 
             foreach (var pconfig in pdatalist)
             {
-                var p = Bards.Where(perf => perf.game.PlayerName.Equals(pconfig.Name));
+                var p = Bards.Where(perf => perf.game.ConfigId.Equals(pconfig.CID));
                 if (p.Count() == 0)
-                    continue;
+                {
+                    p = Bards.Where(perf => perf.game.PlayerName.Equals(pconfig.Name));
+                    if (p.Count() == 0)
+                        continue;
+                }
 
                 p.First().TrackNumber = pconfig.Track;
                 if (pconfig.AffinityMask != 0)
@@ -282,6 +363,7 @@ namespace BardMusicPlayer.Ui.Controls
             foreach (var performer in Bards)
             {
                 PerformerSettingData pdata = new PerformerSettingData();
+                pdata.CID = performer.game.ConfigId;
                 pdata.Name = performer.game.PlayerName;
                 pdata.Track = performer.TrackNumber;
                 pdata.AffinityMask = (long)performer.game.GetAffinity();
@@ -305,6 +387,66 @@ namespace BardMusicPlayer.Ui.Controls
         }
 
         /// <summary>
+        /// Window pos load button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ArrangeWindow_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "WindowLayout | *.txt",
+                Multiselect = true
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            ArrangeWindows(openFileDialog.FileName);
+        }
+
+        /// <summary>
+        /// Arrange the window position and size
+        /// </summary>
+        private void ArrangeWindows(string filename)
+        {
+            if (Bards.Count == 0)
+                return;
+            int x = 0;
+            int y = 0;
+            int size_x = 0;
+            int size_y = 0;
+            StreamReader reader = new StreamReader(filename);
+            string input = reader.ReadLine();
+            if (input.Split(':')[0].Contains("Size"))
+            {
+                size_x = Convert.ToInt32(input.Split(':')[1].Split('x')[0]);
+                size_y = Convert.ToInt32(input.Split(':')[1].Split('x')[1]);
+            }
+
+            String line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                x = 0;
+                for (int i = 0; i < line.Length;)
+                {
+                    String value = line[i].ToString() + line[i + 1].ToString();
+                    i = i + 2;
+                    if (value != "--")
+                    {
+                        var bard = Bards.Where(p => p.TrackNumber == Convert.ToInt32(value)).FirstOrDefault();
+                        if (bard == null)
+                            continue;
+                        bard.game.SetWindowPosAndSize(x, y, size_x, size_y, true);
+                    }
+                    x = x + size_x;
+                }
+                y = y + size_y;
+            }
+            reader.Close();
+        }
+
+        /// <summary>
         /// Button context menu routine
         /// </summary>
         private void MenuButton_PreviewMouseLeftButtonDown(object sender, RoutedEventArgs e)
@@ -322,6 +464,8 @@ namespace BardMusicPlayer.Ui.Controls
     /// </summary>
     public sealed class PerformerSettingData
     {
+        public string CID { get; set; } = "None";
+        public int OrderNum { get; set; } = -1;
         public string Name { get; set; } = "";
         public int Track { get; set; } = 0;
         public long AffinityMask { get; set; } = 0;

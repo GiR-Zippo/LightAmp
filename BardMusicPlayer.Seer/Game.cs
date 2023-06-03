@@ -45,10 +45,16 @@ namespace BardMusicPlayer.Seer
         {
             _uuid = Guid.NewGuid().ToString();
             Process = process;
+
+            if (Pigeonhole.BmpPigeonhole.Instance.EnableMultibox)
+                KillMutant();
         }
 
         public void Dispose()
         {
+            if (BmpSeer.Instance.Games.Count == 0)
+                RestoreGFXSettings();
+
             if (_eventQueueHighPriority is { } && _eventDedupeHistory != null)
                 BmpSeer.Instance.PublishEvent(new GameStopped(Pid));
 

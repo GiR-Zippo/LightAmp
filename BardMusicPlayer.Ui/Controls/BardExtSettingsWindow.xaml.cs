@@ -231,14 +231,16 @@ namespace BardMusicPlayer.Ui.Controls
             {
                 if (_performer.game.GfxSettingsLow)
                     return;
-                GameExtensions.GfxSetLow(_performer.game, true);
+                if (!GameExtensions.GfxSetLow(_performer.game, true).Result)
+                    _performer.game.SetGfxLow();
                 _performer.game.GfxSettingsLow = true;
             }
             else
             {
                 if (!_performer.game.GfxSettingsLow)
                     return;
-                GameExtensions.GfxSetLow(_performer.game, false);
+                if(!GameExtensions.GfxSetLow(_performer.game, false).Result)
+                    _performer.game.RestoreGFXSettings();
                 _performer.game.GfxSettingsLow = false;
             }
         }

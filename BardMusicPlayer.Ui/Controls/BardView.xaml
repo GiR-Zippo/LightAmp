@@ -44,12 +44,20 @@
                         <MenuItem Header="Save Performer Settings"       Click="Save_Performer_Settings" />
                         <MenuItem Header=""/>
                         <CheckBox Content="Set all Gfx to low" x:Name="GfxLow_CheckBox" Unchecked="GfxLow_CheckBox_Checked" Checked="GfxLow_CheckBox_Checked"/>
+                        <MenuItem Header=""/>
+                        <MenuItem Header="Arrange XIV Windows"           Click="ArrangeWindow_Click"/>
 
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
         </Grid>
-        <ListView x:Name="BardsList" Grid.Row="1" SelectedItem="{Binding SelectedBard}" SelectionChanged="BardsList_SelectionChanged" MouseDoubleClick="BardsList_MouseDoubleClick">
+        <ListView x:Name="BardsList" Grid.Row="1" SelectedItem="{Binding SelectedBard}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <EventSetter Event="MouseMove" Handler="BardsListItem_MouseMove"/>
+                    <EventSetter Event="Drop" Handler="BardsListItem_Drop"/>
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate DataType="maestro:Performer">
                     <Grid>

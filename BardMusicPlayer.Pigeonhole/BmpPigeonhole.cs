@@ -103,6 +103,11 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual bool BringBMPtoFront { get; set; } = true;
 
         /// <summary>
+        /// Enables the multibox feature
+        /// </summary>
+        public virtual bool EnableMultibox { get; set; } = false;
+
+        /// <summary>
         /// unkown but used
         /// </summary>
         public virtual bool SigIgnore { get; set; } = false;

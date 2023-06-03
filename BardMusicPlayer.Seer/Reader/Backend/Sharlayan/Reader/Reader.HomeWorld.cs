@@ -13,20 +13,21 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
 {
     internal sealed partial class Reader
     {
-        public bool CanGetWorld()
+        public bool CanGetHomeWorld()
         {
             return Scanner.Locations.ContainsKey(Signatures.WorldKey);
         }
 
-        public string GetWorld()
+        public string GetHomeWorld()
         {
-            if (!CanGetWorld() || !MemoryHandler.IsAttached) return string.Empty;
+            if (!CanGetHomeWorld() || !MemoryHandler.IsAttached) return string.Empty;
 
             var worldMap = (IntPtr)Scanner.Locations[Signatures.WorldKey];
             try
             {
-                var world = MemoryHandler.GetString(worldMap, MemoryHandler.Structures.World.Offset, MemoryHandler.Structures.World.SourceSize);
-                return world;
+                var source = MemoryHandler.GetByteArray(worldMap, MemoryHandler.Structures.World.SourceSize);
+                var homeworld = ""; // MemoryHandler.GetStringFromBytes(source, MemoryHandler.Structures.World.HomeWorld);
+                return homeworld;
             }
             catch (Exception ex)
             {

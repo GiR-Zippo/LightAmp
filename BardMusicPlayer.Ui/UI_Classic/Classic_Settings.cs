@@ -1,6 +1,8 @@
 ﻿using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
+using BardMusicPlayer.Seer;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -13,36 +15,35 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void LoadConfig(bool reload = false)
         {
-            this.AutoPlay_CheckBox.IsChecked = BmpPigeonhole.Instance.PlaylistAutoPlay;
+            AutoPlay_CheckBox.IsChecked = BmpPigeonhole.Instance.PlaylistAutoPlay;
 
-            this.AMPInFrontBox.IsChecked = BmpPigeonhole.Instance.BringBMPtoFront;
-
-            //this.MidiConverter_selection.SelectedIndex = BmpPigeonhole.Instance.MidiConverter_Type;
+            AMPInFrontBox.IsChecked = BmpPigeonhole.Instance.BringBMPtoFront;
+            MultiBox_Box.IsChecked = BmpPigeonhole.Instance.EnableMultibox;
 
             //Playback
-            this.HoldNotesBox.IsChecked = BmpPigeonhole.Instance.HoldNotes;
-            this.ForcePlaybackBox.IsChecked = BmpPigeonhole.Instance.ForcePlayback;
+            HoldNotesBox.IsChecked = BmpPigeonhole.Instance.HoldNotes;
+            ForcePlaybackBox.IsChecked = BmpPigeonhole.Instance.ForcePlayback;
 
             //Don't call this on reload
             if (!reload)
             {
                 MIDI_Input_DeviceBox.Items.Clear();
                 MIDI_Input_DeviceBox.ItemsSource = Maestro.Utils.MidiInput.ReloadMidiInputDevices();
-                this.MIDI_Input_DeviceBox.SelectedIndex = BmpPigeonhole.Instance.MidiInputDev + 1;
+                MIDI_Input_DeviceBox.SelectedIndex = BmpPigeonhole.Instance.MidiInputDev + 1;
             }
             LiveMidiDelay.IsChecked = BmpPigeonhole.Instance.LiveMidiPlayDelay;
 
             //Misc
-            this.Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
-            this.MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
-            this.AutoequipDalamud.IsChecked = BmpPigeonhole.Instance.UsePluginForInstrumentOpen;
-            this.SkinUiBox.IsChecked = !BmpPigeonhole.Instance.ClassicUi;
+            Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
+            MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
+            AutoequipDalamud.IsChecked = BmpPigeonhole.Instance.UsePluginForInstrumentOpen;
+            SkinUiBox.IsChecked = !BmpPigeonhole.Instance.ClassicUi;
 
             //Local orchestra
-            this.LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
-            this.AutoEquipBox.IsChecked = BmpPigeonhole.Instance.AutoEquipBards;
-            this.KeepTrackSettingsBox.IsChecked = BmpPigeonhole.Instance.EnsembleKeepTrackSetting;
-            this.IgnoreProgchangeBox.IsChecked = BmpPigeonhole.Instance.IgnoreProgChange;
+            LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
+            AutoEquipBox.IsChecked = BmpPigeonhole.Instance.AutoEquipBards;
+            KeepTrackSettingsBox.IsChecked = BmpPigeonhole.Instance.EnsembleKeepTrackSetting;
+            IgnoreProgchangeBox.IsChecked = BmpPigeonhole.Instance.IgnoreProgChange;
             StartBardIndividuallyBox.IsChecked = BmpPigeonhole.Instance.EnsembleStartIndividual;
         }
 
@@ -51,10 +52,18 @@ namespace BardMusicPlayer.Ui.Classic
             BmpPigeonhole.Instance.BringBMPtoFront = AMPInFrontBox.IsChecked ?? false;
         }
 
-        /*private void MidiConverter_selection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void MultiBox_Checked(object sender, RoutedEventArgs e)
         {
-            BmpPigeonhole.Instance.MidiConverter_Type = MidiConverter_selection.SelectedIndex;
-        }*/
+            if (!BmpPigeonhole.Instance.EnableMultibox)
+            {
+                Task.Run(() =>
+                {
+                    foreach (var game in BmpSeer.Instance.Games.Values)
+                        game.KillMutant();
+                });
+            }
+            BmpPigeonhole.Instance.EnableMultibox = MultiBox_Box.IsChecked ?? false;
+        }
 
         #region Playback
         private void Hold_Notes_Checked(object sender, RoutedEventArgs e)

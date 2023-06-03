@@ -17,8 +17,9 @@
     <sys:String x:Key="PLAYLIST_AUTO"    xml:space="preserve">auto plays the next song in the playlist</sys:String>
     <sys:String x:Key="PLAYLIST_SKIP"    xml:space="preserve">skips the current playing song</sys:String>
 
-    <!-- Settings: Game -->
+    <!-- Settings: Misc -->
     <sys:String x:Key="GAME_AMPFRONT"    xml:space="preserve">Brings the amp in front after a new song was loaded from the playlist</sys:String>
+    <sys:String x:Key="GAME_MULTIBOX"    xml:space="preserve">Start more than two game instances</sys:String>
 
     <!-- Settings: Misc-->
     <sys:String x:Key="MISC_AUTOSTART"   xml:space="preserve">Select the autostart trigger [Metronome is preferred]</sys:String>
