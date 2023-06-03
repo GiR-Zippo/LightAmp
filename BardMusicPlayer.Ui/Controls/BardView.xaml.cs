@@ -7,14 +7,13 @@ using BardMusicPlayer.Seer.Events;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
 using BardMusicPlayer.DalamudBridge;
-using BardMusicPlayer.Transmogrify.Song.Importers;
+using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -29,7 +28,6 @@ namespace BardMusicPlayer.Ui.Controls
             StartDelay_CheckBox.IsChecked = BmpPigeonhole.Instance.EnsemblePlayDelay;
 
             this.DataContext = this;
-            Bards = new ObservableCollection<Performer>();
 
             BmpMaestro.Instance.OnPerformerChanged      += OnPerfomerChanged;
             BmpMaestro.Instance.OnTrackNumberChanged    += OnTrackNumberChanged;
@@ -48,44 +46,15 @@ namespace BardMusicPlayer.Ui.Controls
             Autoequip_CheckBox.IsChecked = BmpPigeonhole.Instance.AutoEquipBards;
         }
 
-        public ObservableCollection<Performer> Bards { get; private set; }
-
         public Performer SelectedBard { get; set; }
 
-        private void OnPerfomerChanged(object sender, bool e)
-        {
-            UpdateList();
-        }
-
-        private void OnTrackNumberChanged(object sender, TrackNumberChangedEvent e)
-        {
-            UpdateView();
-        }
-
-        private void OnOctaveShiftChanged(object sender, OctaveShiftChangedEvent e)
-        {
-            UpdateView();
-        }
-
-        private void OnSongLoaded(object sender, SongLoadedEvent e)
-        {
-            UpdateView();
-        }
-
-        private void OnPerformerUpdate(object sender, PerformerUpdate e)
-        {
-            UpdateView();
-        }
-
-        private void OnPlayerNameChanged(PlayerNameChanged e)
-        {
-            UpdateView();
-        }
-
-        private void OnHomeWorldChanged(HomeWorldChanged e)
-        {
-            UpdateView();
-        }
+        private void OnPerfomerChanged(object sender, bool e) { UpdateList(); }
+        private void OnTrackNumberChanged(object sender, TrackNumberChangedEvent e) { UpdateView(); }
+        private void OnOctaveShiftChanged(object sender, OctaveShiftChangedEvent e) { UpdateView(); }
+        private void OnSongLoaded(object sender, SongLoadedEvent e) { UpdateView(); }
+        private void OnPerformerUpdate(object sender, PerformerUpdate e) { UpdateView(); }
+        private void OnPlayerNameChanged(PlayerNameChanged e) { UpdateView(); }
+        private void OnHomeWorldChanged(HomeWorldChanged e) { UpdateView(); }
 
         private void OnInstrumentHeldChanged(InstrumentHeldChanged e)
         {
@@ -115,22 +84,34 @@ namespace BardMusicPlayer.Ui.Controls
                 
         }
 
+        /// <summary>
+        /// Update the contents of the item only
+        /// </summary>
         private void UpdateView()
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 this.BardsList.Items.Refresh();
-
             }));
         }
 
+        /// <summary>
+        /// Add/Remove an element from the list
+        /// </summary>
         private void UpdateList()
         {
-            this.Bards = new ObservableCollection<Performer>(BmpMaestro.Instance.GetAllPerformers());
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                this.BardsList.ItemsSource = Bards;
-                
+                List<Performer> tempPerf = BardsList.Items.OfType<Performer>().ToList();
+                var comparator = BmpMaestro.Instance.GetAllPerformers().Except(tempPerf).ToList();
+                foreach (var p in comparator)
+                    BardsList.Items.Add(p);
+
+                comparator = tempPerf.Except(BmpMaestro.Instance.GetAllPerformers()).ToList();
+                foreach (var p in comparator)
+                    BardsList.Items.Remove(p);
+
+                this.BardsList.Items.Refresh();
             }));
         }
 
@@ -154,19 +135,26 @@ namespace BardMusicPlayer.Ui.Controls
         /// <summary>
         /// Hier geht mitm Drag&Drop los
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        bool bnb = false;
+        private Point startPoint = new Point();
+
+        private void BardsListItem_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            startPoint = e.GetPosition(null);
+        }
+
         private void BardsListItem_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            Point mousePos = e.GetPosition(null);
+            Vector diff = startPoint - mousePos;
+            if (e.LeftButton == MouseButtonState.Pressed &&
+                    (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                           Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance))
             {
-                if (sender is ListViewItem celltext && !bnb)
+                if (sender is ListViewItem celltext)
                 {
                     DragDrop.DoDragDrop(BardsList, celltext, DragDropEffects.Move);
                     e.Handled = true;
                 }
-                bnb = false;
             }
         }
 
@@ -180,48 +168,48 @@ namespace BardMusicPlayer.Ui.Controls
             ListViewItem draggedObject = e.Data.GetData(typeof(ListViewItem)) as ListViewItem;
             ListViewItem targetObject = ((ListViewItem)(sender));
 
-            var drag = draggedObject.Content as MidiBardImporter.MidiTrack;
-            var drop = targetObject.Content as MidiBardImporter.MidiTrack;
+            var drag = draggedObject.Content as Performer;
+            var drop = targetObject.Content as Performer;
+            int dragIdx = BardsList.Items.IndexOf(drag);
+            int dropIdx = BardsList.Items.IndexOf(drop);
 
-            /*if (drag == drop)
+            if (drag == drop)
                 return;
 
-            Dictionary<int, MidiBardImporter.MidiTrack> newTracks = new Dictionary<int, MidiBardImporter.MidiTrack>();
-            int newIdx = 0;
-            foreach (var oT in _tracks)
+            SortedDictionary<int, Performer> newBardsList = new SortedDictionary<int, Performer>();
+            int index = 0;
+            foreach (var p in BardsList.Items)
             {
-                if (oT.Index == drag.Index)
+                if ((Performer)p == drag)
                     continue;
 
-                if (oT.Index == drop.Index)
+                if ((Performer)p == drop)
                 {
-                    drag.Index = newIdx;
-                    newTracks.Add(newIdx, drag);
-                    newIdx++;
+                    if (dropIdx < dragIdx)
+                    {
+                        newBardsList.Add(index, drag); index++;
+                        newBardsList.Add(index, drop); index++;
+                    }
+                    else if (dropIdx > dragIdx)
+                    {
+                        newBardsList.Add(index, drop); index++;
+                        newBardsList.Add(index, drag); index++;
+                    }
                 }
-
-                oT.Index = newIdx;
-                newTracks.Add(newIdx, oT);
-                newIdx++;
+                else
+                {
+                    newBardsList.Add(index, p as Performer);
+                    index++;
+                }
             }
 
-            _tracks.Clear();
-            foreach (var oT in newTracks)
-                _tracks.Add(oT.Value);
+            BardsList.ItemsSource = null;
+            BardsList.Items.Clear();
 
-            BardsList.ItemsSource = _tracks;
-            BardsList.Items.Refresh();
-            newTracks.Clear();*/
-        }
+            foreach (var p in newBardsList)
+                BardsList.Items.Add(p.Value);
 
-        /// <summary>
-        /// Helper for D&D
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BardNumBox_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            bnb = true;
+            newBardsList.Clear();
         }
         #endregion
 
@@ -320,21 +308,39 @@ namespace BardMusicPlayer.Ui.Controls
 
             var data = memoryStream.ToArray();
             List<PerformerSettingData> pdatalist = JsonConvert.DeserializeObject<List<PerformerSettingData>>(new UTF8Encoding(true).GetString(data));
-
+            bool has_host_option = pdatalist.Where(p => p.IsHost).Count() != 0;
             foreach (var pconfig in pdatalist)
             {
-                var p = Bards.Where(perf => perf.game.ConfigId.Equals(pconfig.CID));
+                var p = BardsList.Items.OfType<Performer>().ToList().Where(perf => perf.game.ConfigId.Equals(pconfig.CID));
                 if (p.Count() == 0)
                 {
-                    p = Bards.Where(perf => perf.game.PlayerName.Equals(pconfig.Name));
+                    p = BardsList.Items.OfType<Performer>().ToList().Where(perf => perf.game.PlayerName.Equals(pconfig.Name));
                     if (p.Count() == 0)
                         continue;
                 }
 
                 p.First().TrackNumber = pconfig.Track;
+                if (has_host_option)
+                    p.First().HostProcess = pconfig.IsHost;
                 if (pconfig.AffinityMask != 0)
                     p.First().game.SetAffinity(pconfig.AffinityMask);
             }
+
+            //Reorder if there is no -1 OrderNum
+            if (pdatalist.Where(p => p.OrderNum == -1).Count() == 0)
+            {
+                pdatalist.Sort((x, y) => x.OrderNum.CompareTo(y.OrderNum));
+                List<Performer> tempPerf = new List<Performer>( BardsList.Items.OfType<Performer>().ToList());
+                BardsList.Items.Clear();
+                foreach (var pconfig in pdatalist)
+                {
+                    var p = tempPerf.Where(perf => perf.game.ConfigId.Equals(pconfig.CID));
+                    if (p.Count() != 0)
+                        BardsList.Items.Add(p.First());
+                }
+                tempPerf.Clear();
+            }
+            pdatalist.Clear();
 
             //Set Thymms box, cuz if u use this function, you know what you are doing
             if (BmpPigeonhole.Instance.EnsembleKeepTrackSetting) 
@@ -360,13 +366,15 @@ namespace BardMusicPlayer.Ui.Controls
                 return;
 
             List<PerformerSettingData> pdatalist = new List<PerformerSettingData>();
-            foreach (var performer in Bards)
+            foreach (var performer in BardsList.Items.OfType<Performer>().ToList())
             {
                 PerformerSettingData pdata = new PerformerSettingData();
+                pdata.OrderNum = BardsList.Items.IndexOf(performer);
                 pdata.CID = performer.game.ConfigId;
                 pdata.Name = performer.game.PlayerName;
                 pdata.Track = performer.TrackNumber;
                 pdata.AffinityMask = (long)performer.game.GetAffinity();
+                pdata.IsHost = performer.HostProcess;
                 pdatalist.Add(pdata);
             }
             var t = JsonConvert.SerializeObject(pdatalist);
@@ -375,11 +383,12 @@ namespace BardMusicPlayer.Ui.Controls
             FileStream fileStream = File.Create(openFileDialog.FileName);
             fileStream.Write(content, 0, content.Length);
             fileStream.Close();
+            pdatalist.Clear();
         }
 
         private void GfxLow_CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            foreach (var p in Bards.Where(p => p.game.GfxSettingsLow != GfxLow_CheckBox.IsChecked))
+            foreach (var p in BardsList.Items.OfType<Performer>().ToList().Where(p => p.game.GfxSettingsLow != GfxLow_CheckBox.IsChecked))
             {
                 p.game.GfxSettingsLow = GfxLow_CheckBox.IsChecked ?? false;
                 p.game.GfxSetLow(GfxLow_CheckBox.IsChecked ?? false);
@@ -410,7 +419,7 @@ namespace BardMusicPlayer.Ui.Controls
         /// </summary>
         private void ArrangeWindows(string filename)
         {
-            if (Bards.Count == 0)
+            if (BardsList.Items.OfType<Performer>().ToList().Count == 0)
                 return;
             int x = 0;
             int y = 0;
@@ -434,7 +443,7 @@ namespace BardMusicPlayer.Ui.Controls
                     i = i + 2;
                     if (value != "--")
                     {
-                        var bard = Bards.Where(p => p.TrackNumber == Convert.ToInt32(value)).FirstOrDefault();
+                        var bard = BardsList.Items.OfType<Performer>().ToList().Where(p => p.TrackNumber == Convert.ToInt32(value)).FirstOrDefault();
                         if (bard == null)
                             continue;
                         bard.game.SetWindowPosAndSize(x, y, size_x, size_y, true);
@@ -469,5 +478,6 @@ namespace BardMusicPlayer.Ui.Controls
         public string Name { get; set; } = "";
         public int Track { get; set; } = 0;
         public long AffinityMask { get; set; } = 0;
+        public bool IsHost { get; set; } = false;
     }
 }

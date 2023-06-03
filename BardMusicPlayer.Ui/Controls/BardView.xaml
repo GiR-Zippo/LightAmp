@@ -51,9 +51,10 @@
                 </Button.ContextMenu>
             </Button>
         </Grid>
-        <ListView x:Name="BardsList" Grid.Row="1" SelectedItem="{Binding SelectedBard}">
+        <ListView x:Name="BardsList" Grid.Row="1" SelectedItem="{Binding SelectedBard}" AllowDrop="True">
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="BardsListItem_PreviewMouseLeftButtonDown"/>
                     <EventSetter Event="MouseMove" Handler="BardsListItem_MouseMove"/>
                     <EventSetter Event="Drop" Handler="BardsListItem_Drop"/>
                 </Style>
