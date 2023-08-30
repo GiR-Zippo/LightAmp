@@ -19,7 +19,6 @@ using BardMusicPlayer.Transmogrify.Song.Importers;
 using BardMusicPlayer.Transmogrify.Song.Importers.LrcParser;
 using BardMusicPlayer.Transmogrify.Song.Utilities;
 using LiteDB;
-using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 
@@ -484,6 +483,19 @@ namespace BardMusicPlayer.Transmogrify.Song
             stream.Position = 0;
 
             return stream;
+        }
+
+        public MidiFile GetMelanchallMidiFile()
+        {
+            List<TrackChunk> c = TrackContainers.Values.Select(static tc => tc.SourceTrackChunk).ToList();
+
+            var midiFile = new MidiFile(c);
+            midiFile.ReplaceTempoMap(SourceTempoMap);
+
+            using (var manager = new TimedObjectsManager<TimedEvent>(midiFile.GetTrackChunks().First().Events))
+                manager.Objects.Add(new TimedEvent(new MarkerEvent(), (midiFile.GetDuration<MetricTimeSpan>().TotalMicroseconds / 1000)));
+
+            return midiFile;
         }
     }
 }

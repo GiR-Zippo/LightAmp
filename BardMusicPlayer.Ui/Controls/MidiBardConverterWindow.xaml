@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:BardMusicPlayer.Ui.Controls"
         xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls" 
         mc:Ignorable="d"
+        Closing="Window_Closing"  
         Title="Meow-Bard Converter" Height="450" Width="800">
 
     <Window.Resources>
@@ -24,8 +25,18 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="130"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Export as Midi" Click="Export_Click"/>
-            <Button Grid.Column="1" Content="To Sequencer" Click="Sequencer_Click" Visibility="Hidden"/>
+            <Grid Grid.Column="0" Grid.ColumnSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="To Sequencer" Click="Sequencer_Click"/>
+                <Button Grid.Column="2" Content="To Siren" Click="Siren_Click"/>
+                <Button Grid.Column="4" Content="Export as Midi" Click="Export_Click"/>
+            </Grid>
             <ComboBox Grid.Column="2" Grid.Row="0" x:Name="GuitarModeSelector" SelectionChanged ="GuitarModeSelector_Selected" >
                 <ComboBoxItem Content="None"/>
                 <ComboBoxItem Content="Standard"/>

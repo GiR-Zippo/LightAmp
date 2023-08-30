@@ -14,6 +14,8 @@ using System.Windows.Controls;
 using System.Linq;
 using BardMusicPlayer.DalamudBridge;
 using System.Windows.Input;
+using BardMusicPlayer.Ui.Functions;
+using System.ComponentModel;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -22,6 +24,8 @@ namespace BardMusicPlayer.Ui.Controls
     /// </summary>
     public sealed partial class BardView : UserControl
     {
+        MidiBardConverterWindow _QuickEdit { get; set; } = null;
+
         public BardView()
         {
             InitializeComponent();
@@ -51,7 +55,15 @@ namespace BardMusicPlayer.Ui.Controls
         private void OnPerfomerChanged(object sender, bool e) { UpdateList(); }
         private void OnTrackNumberChanged(object sender, TrackNumberChangedEvent e) { UpdateView(); }
         private void OnOctaveShiftChanged(object sender, OctaveShiftChangedEvent e) { UpdateView(); }
-        private void OnSongLoaded(object sender, SongLoadedEvent e) { UpdateView(); }
+        private void OnSongLoaded(object sender, SongLoadedEvent e)
+        { 
+            UpdateView();
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (_QuickEdit != null)
+                    _QuickEdit.MidiFromSong(PlaybackFunctions.CurrentSong);
+            }));
+        }
         private void OnPerformerUpdate(object sender, PerformerUpdate e) { UpdateView(); }
         private void OnPlayerNameChanged(PlayerNameChanged e) { UpdateView(); }
         private void OnHomeWorldChanged(HomeWorldChanged e) { UpdateView(); }
@@ -390,6 +402,23 @@ namespace BardMusicPlayer.Ui.Controls
             fileStream.Write(content, 0, content.Length);
             fileStream.Close();
             pdatalist.Clear();
+        }
+
+        private void OpenQuickEdit_Button(object sender, RoutedEventArgs e)
+        {
+            if (_QuickEdit == null)
+            {
+                _QuickEdit = new MidiBardConverterWindow();
+                _QuickEdit.Closing += new CancelEventHandler(QuickEditWindow_Closing);
+
+            }
+            _QuickEdit.Visibility = Visibility.Visible;
+            _QuickEdit.MidiFromSong(PlaybackFunctions.CurrentSong);
+        }
+
+        void QuickEditWindow_Closing(object sender, CancelEventArgs e)
+        {
+            _QuickEdit = null;
         }
 
         private void GfxLow_CheckBox_Checked(object sender, RoutedEventArgs e)

@@ -30,7 +30,6 @@ namespace BardMusicPlayer.Maestro.Performance
         private long _lastNoteTimestamp = 0;
         private bool _livePlayDelay { get; set; } = false;
         public int SingerTrackNr { get; set; } = 0;
-        public Instrument ChosenInstrument { get; set; } = Instrument.Piano;
         public int OctaveShift { get; set; } = 0;
         public int TrackNumber { get { return _trackNumber; }
             set {
@@ -155,8 +154,6 @@ namespace BardMusicPlayer.Maestro.Performance
 #region public
         public Performer(Game arg)
         {
-            this.ChosenInstrument = this.ChosenInstrument;
-
             if (arg != null)
             {
                 _hook.Hook(arg.Process, false);
@@ -326,7 +323,6 @@ namespace BardMusicPlayer.Maestro.Performance
                         }
                     }
                 }
-                ChosenInstrument = bmpSeq.GetTrackPreferredInstrument(track);
             }
         }
 

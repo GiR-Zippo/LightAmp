@@ -43,6 +43,8 @@
                         <MenuItem Header="Load Performer Settings"       Click="Load_Performer_Settings" />
                         <MenuItem Header="Save Performer Settings"       Click="Save_Performer_Settings" />
                         <MenuItem Header=""/>
+                        <MenuItem Header="Open Quick Edit"               Click="OpenQuickEdit_Button"/>
+                        <MenuItem Header=""/>
                         <CheckBox Content="Set all Gfx to low" x:Name="GfxLow_CheckBox" Unchecked="GfxLow_CheckBox_Checked" Checked="GfxLow_CheckBox_Checked"/>
                         <MenuItem Header=""/>
                         <MenuItem Header="Arrange XIV Windows"           Click="ArrangeWindow_Click"/>
@@ -70,7 +72,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4" />      <!-- 0 Spacer-->
                             <ColumnDefinition Width="130" />    <!-- 1 -->
-                            <ColumnDefinition Width="Auto" />      <!-- 2 Spacer-->
+                            <ColumnDefinition Width="Auto" />   <!-- 2 Spacer-->
                             <ColumnDefinition Width="140" />    <!-- 3 -->
                             <ColumnDefinition Width="10" />     <!-- 4 dalamud-->
                             <ColumnDefinition Width="10" />     <!-- 5 spacer-->
@@ -84,13 +86,6 @@
                         <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding PlayerName}"                                   MouseDown="Bard_MouseDown"/>
                         <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding HomeWorld, Mode=OneTime, StringFormat=m\\:ss}" MouseDown="Bard_MouseDown" />
 
-<!--
-                        <ComboBox Grid.Column="3" Grid.Row="0" x:Name="Autostart_source" SelectionChanged="Autostart_source_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                            <ComboBoxItem>Disabled</ComboBoxItem>
-                            <ComboBoxItem>Chat</ComboBoxItem>
-                            <ComboBoxItem>Metronome</ComboBoxItem>
-                        </ComboBox>
--->
                         <TextBlock Grid.Column="3" Grid.Row="1" Text="{Binding TrackInstrument,  StringFormat=m\\:ss}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
