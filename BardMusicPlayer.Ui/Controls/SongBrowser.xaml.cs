@@ -1,7 +1,6 @@
 ﻿using BardMusicPlayer.Pigeonhole;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -19,6 +18,9 @@ namespace BardMusicPlayer.Ui.Controls
         public EventHandler<string> OnLoadSongFromBrowser;
         public EventHandler<string> OnLoadSongFromBrowserToPreview;
         public EventHandler<string> OnAddSongFromBrowser;
+
+        /// Temporary sender object
+        private object _Sender { get; set; } = null;
 
         public SongBrowser()
         {
@@ -129,27 +131,68 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
+        /// <summary>
+        /// Handle the right click on an item from ListView
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnListViewItemPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+            _Sender = sender; //set the sender to the item we hovered over
             e.Handled = true;
         }
 
+        /// <summary>
+        /// Handle add to playlist context menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddToPlaylist_Click(object sender, RoutedEventArgs e)
         {
-            string filename = GetFilenameFromSelection();
+            string filename = GetFilenameFromSender(_Sender);
             if (filename == "")
                 return;
             OnAddSongFromBrowser?.Invoke(this, filename);
         }
 
+        /// <summary>
+        /// Handle the load to preview context menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LoadSongToPreview(object sender, RoutedEventArgs e)
         {
-            string filename = GetFilenameFromSelection();
+            string filename = GetFilenameFromSender(_Sender);
             if (filename == "")
                 return;
             OnLoadSongFromBrowserToPreview?.Invoke(this, filename);
         }
 
+        /// <summary>
+        /// Get the filename from the sender
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <returns></returns>
+        private string GetFilenameFromSender(object sender)
+        {
+            var filename = "";
+            if (sender is ListViewItem)
+            {
+                KeyValuePair<string, string> f = (KeyValuePair<string, string>)(sender as ListViewItem).Content;
+                filename = f.Key;
+            }
+            _Sender = null; //set the sender to null
+
+            if (filename == "")
+                filename = GetFilenameFromSelection();
+
+            return filename;
+        }
+
+        /// <summary>
+        /// Get the selected filename
+        /// </summary>
+        /// <returns></returns>
         private string GetFilenameFromSelection()
         {
             try
