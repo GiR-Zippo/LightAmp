@@ -15,36 +15,44 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="10"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="130"/>
+        </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="130"/>
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0" Grid.ColumnSpan="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="5"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="To Sequencer" Click="Sequencer_Click"/>
-                <Button Grid.Column="2" Content="To Siren" Click="Siren_Click"/>
-                <Button Grid.Column="4" Content="Export as Midi" Click="Export_Click"/>
-            </Grid>
-            <ComboBox Grid.Column="2" Grid.Row="0" x:Name="GuitarModeSelector" SelectionChanged ="GuitarModeSelector_Selected" >
-                <ComboBoxItem Content="None"/>
-                <ComboBoxItem Content="Standard"/>
-                <ComboBoxItem Content="Simple"/>
-                <ComboBoxItem Content="Override By Track"/>
-            </ComboBox>
-        </Grid>
+        <StackPanel Grid.Row="1" Grid.Column="1">
+            <Menu>
+                <Menu.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </Menu.ItemsPanel>
 
+                <MenuItem Header="Midi Export" IsEnabled="False" />
+                <MenuItem Header=""/>
+                <MenuItem Header="To Sequencer" Click="Sequencer_Click"/>
+                <MenuItem Header="To Siren" Click="Siren_Click"/>
+                <MenuItem Header="To MIDI-File" Click="Export_Click"/>
+                <MenuItem Header=""/>
+            </Menu>
+            <Menu>
+                <MenuItem Header="Options" IsEnabled="False"/>
+                <MenuItem Header=""/>
+                <CheckBox x:Name="AlignToFirstNote_CheckBox" Content="Align to first note" Checked="AlignToFirstNote_CheckBox_Checked" Unchecked="AlignToFirstNote_CheckBox_Checked"/>
+                <Label Content="Guitar-Mode" Width="120" IsEnabled="False"/>
+                <ComboBox x:Name="GuitarModeSelector" SelectionChanged ="GuitarModeSelector_Selected" Width="120" >
+                    <ComboBoxItem Content="None"/>
+                    <ComboBoxItem Content="Standard"/>
+                    <ComboBoxItem Content="Simple"/>
+                    <ComboBoxItem Content="Override By Track"/>
+                </ComboBox>
+            </Menu>
+        </StackPanel>
+
+        <!-- Trackdisplay -->
         <ListView x:Name="TrackList" Grid.Row="1" AllowDrop="True">
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">

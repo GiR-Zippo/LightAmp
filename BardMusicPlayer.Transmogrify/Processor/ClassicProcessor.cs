@@ -28,8 +28,9 @@ namespace BardMusicPlayer.Transmogrify.Processor
 
         public override async Task<List<TrackChunk>> Process()
         {
-            var trackChunks = new List<TrackChunk> { Song.TrackContainers[ProcessorConfig.Track].SourceTrackChunk }
-                .Concat(ProcessorConfig.IncludedTracks.Select(track => Song.TrackContainers[track].SourceTrackChunk))
+            //Never use the sourcetracks, always use a copy
+            var trackChunks = new List<TrackChunk> { (TrackChunk)Song.TrackContainers[ProcessorConfig.Track].SourceTrackChunk.Clone() }
+                .Concat(ProcessorConfig.IncludedTracks.Select(track => (TrackChunk)Song.TrackContainers[track].SourceTrackChunk.Clone()))
                 .ToList();
 
             //convert progchanges to lower notes, if it's a guitar

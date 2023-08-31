@@ -44,15 +44,14 @@ namespace BardMusicPlayer.Ui.Controls
     public partial class MidiBardConverterWindow : Window
     {
         List<MidiBardImporter.MidiTrack> _tracks = null;
-        MidiFile _midifile { 
-            get; 
-            set; 
-        } = null;
-        
+        MidiFile _midifile { get; set; } = null;
+        bool _AlignMidiToFirstNote { get; set; } = false;
+
         public MidiBardConverterWindow()
         {
             _tracks = new List<MidiBardImporter.MidiTrack>();
             InitializeComponent();
+            AlignToFirstNote_CheckBox.IsChecked = _AlignMidiToFirstNote;
         }
 
         public MidiBardConverterWindow(string filename)
@@ -196,10 +195,16 @@ namespace BardMusicPlayer.Ui.Controls
                 return;
 
             MemoryStream myStream = new MemoryStream();
-            MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+            if (_AlignMidiToFirstNote)
             {
-                TextEncoding = Encoding.UTF8
-            });
+                RealignMidiFile(MidiBardImporter.Convert(_midifile, CloneTracks())).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                { TextEncoding = Encoding.UTF8 });
+            }
+            else
+            {
+                MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                { TextEncoding = Encoding.UTF8 });
+            }
             myStream.Rewind();
             var song = BmpSong.ImportMidiFromByte(myStream.ToArray(), "Import");
             Maestro.BmpMaestro.Instance.SetSong(song.Result);
@@ -221,11 +226,18 @@ namespace BardMusicPlayer.Ui.Controls
                 return;
 
             MemoryStream myStream = new MemoryStream();
-            MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+            if (_AlignMidiToFirstNote)
             {
-                TextEncoding = Encoding.UTF8
-            });
+                RealignMidiFile(MidiBardImporter.Convert(_midifile, CloneTracks())).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                { TextEncoding = Encoding.UTF8 });
+            }
+            else
+            {
+                MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                { TextEncoding = Encoding.UTF8 });
+            }
             myStream.Rewind();
+
             var song = BmpSong.ImportMidiFromByte(myStream.ToArray(), "Import");
             _ = BmpSiren.Instance.Load(song.Result);
             myStream.Close();
@@ -256,11 +268,18 @@ namespace BardMusicPlayer.Ui.Controls
             {
                 if ((myStream = saveFileDialog.OpenFile()) != null)
                 {
-                    MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                    if (_AlignMidiToFirstNote)
                     {
-                        TextEncoding = Encoding.UTF8
-                    });
+                        RealignMidiFile(MidiBardImporter.Convert(_midifile, CloneTracks())).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                        { TextEncoding = Encoding.UTF8 });
+                    }
+                    else
+                    {
+                        MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                        { TextEncoding = Encoding.UTF8 });
+                    }
                     myStream.Close();
+                    myStream.Dispose();
                 }
             }
         }
@@ -402,6 +421,50 @@ namespace BardMusicPlayer.Ui.Controls
                 track.ToneMode = GuitarModeSelector.SelectedIndex;
             });
             TrackList.Items.Refresh();
+        }
+
+        private void AlignToFirstNote_CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            _AlignMidiToFirstNote = (bool)AlignToFirstNote_CheckBox.IsChecked;
+        }
+
+
+        /// <summary>
+        /// Realign the the notes and Events in a <see cref="MidiFile"/> to the beginning
+        /// </summary>
+        /// <param name="midi"></param>
+        /// <returns><see cref="MidiFile"/></returns>
+        private MidiFile RealignMidiFile(MidiFile midi)
+        {
+            //realign the events
+            var x = midi.GetTrackChunks().GetNotes().First().GetTimedNoteOnEvent().Time;
+            Parallel.ForEach(midi.GetTrackChunks(), chunk =>
+            {
+                chunk = RealignTrackEvents(chunk, x).Result;
+            });
+            return midi;
+        }
+
+        /// <summary>
+        /// Realigns the track events in <see cref="TrackChunk"/>
+        /// </summary>
+        /// <param name="originalChunk"></param>
+        /// <param name="delta"></param>
+        /// <returns><see cref="Task{TResult}"/> is <see cref="TrackChunk"/></returns>
+        internal static Task<TrackChunk> RealignTrackEvents(TrackChunk originalChunk, long delta)
+        {
+            using (var manager = originalChunk.ManageTimedEvents())
+            {
+                foreach (TimedEvent _event in manager.Objects)
+                {
+                    long newStart = _event.Time - delta;
+                    if (newStart <= -1)
+                        _event.Time = 0;
+                    else
+                        _event.Time = newStart;
+                }
+            }
+            return Task.FromResult(originalChunk);
         }
     }
 }
