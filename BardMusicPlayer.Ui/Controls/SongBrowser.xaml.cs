@@ -1,4 +1,9 @@
-﻿using BardMusicPlayer.Pigeonhole;
+﻿/*
+ * Copyright(c) 2023 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.Pigeonhole;
 using System;
 using System.Collections.Generic;
 using System.IO;

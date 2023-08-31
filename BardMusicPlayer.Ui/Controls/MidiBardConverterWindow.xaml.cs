@@ -46,6 +46,7 @@ namespace BardMusicPlayer.Ui.Controls
         List<MidiBardImporter.MidiTrack> _tracks = null;
         MidiFile _midifile { get; set; } = null;
         bool _AlignMidiToFirstNote { get; set; } = false;
+        object _Sender { get; set; } = null;
 
         public MidiBardConverterWindow()
         {
@@ -186,122 +187,6 @@ namespace BardMusicPlayer.Ui.Controls
             TrackList.Items.Refresh();
         }
 
-        #region Buttons
-        private void Sequencer_Click(object sender, RoutedEventArgs e)
-        {
-            if (_midifile == null)
-                return;
-            if (_tracks.Count() <= 0)
-                return;
-
-            MemoryStream myStream = new MemoryStream();
-            if (_AlignMidiToFirstNote)
-            {
-                RealignMidiFile(MidiBardImporter.Convert(_midifile, CloneTracks())).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
-                { TextEncoding = Encoding.UTF8 });
-            }
-            else
-            {
-                MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
-                { TextEncoding = Encoding.UTF8 });
-            }
-            myStream.Rewind();
-            var song = BmpSong.ImportMidiFromByte(myStream.ToArray(), "Import");
-            Maestro.BmpMaestro.Instance.SetSong(song.Result);
-            PlaybackFunctions.LoadSongFromPlaylist(song.Result);
-            myStream.Close();
-            myStream.Dispose();
-        }
-
-        /// <summary>
-        /// Send song to Siren
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Siren_Click(object sender, RoutedEventArgs e)
-        {
-            if (_midifile == null)
-                return;
-            if (_tracks.Count() <= 0)
-                return;
-
-            MemoryStream myStream = new MemoryStream();
-            if (_AlignMidiToFirstNote)
-            {
-                RealignMidiFile(MidiBardImporter.Convert(_midifile, CloneTracks())).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
-                { TextEncoding = Encoding.UTF8 });
-            }
-            else
-            {
-                MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
-                { TextEncoding = Encoding.UTF8 });
-            }
-            myStream.Rewind();
-
-            var song = BmpSong.ImportMidiFromByte(myStream.ToArray(), "Import");
-            _ = BmpSiren.Instance.Load(song.Result);
-            myStream.Close();
-            myStream.Dispose();
-        }
-
-        /// <summary>
-        /// MidiExport
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Export_Click(object sender, RoutedEventArgs e)
-        {
-            if (_midifile == null)
-                return;
-            if (_tracks.Count() <= 0)
-                return;
-
-            Stream myStream;
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-            saveFileDialog.Filter = "MIDI file (*.mid)|*.mid";
-            saveFileDialog.FilterIndex = 2;
-            saveFileDialog.RestoreDirectory = true;
-            saveFileDialog.OverwritePrompt = true;
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                if ((myStream = saveFileDialog.OpenFile()) != null)
-                {
-                    if (_AlignMidiToFirstNote)
-                    {
-                        RealignMidiFile(MidiBardImporter.Convert(_midifile, CloneTracks())).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
-                        { TextEncoding = Encoding.UTF8 });
-                    }
-                    else
-                    {
-                        MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
-                        { TextEncoding = Encoding.UTF8 });
-                    }
-                    myStream.Close();
-                    myStream.Dispose();
-                }
-            }
-        }
-        #endregion
-
-        private List<MidiBardImporter.MidiTrack> CloneTracks()
-        {
-            List<MidiBardImporter.MidiTrack> tracks = new List<MidiBardImporter.MidiTrack>();
-            foreach (var a in _tracks)
-            {
-                MidiBardImporter.MidiTrack ntrack = new MidiBardImporter.MidiTrack();
-                ntrack.Index = a.Index;
-                ntrack.TrackNumber = a.TrackNumber;
-                ntrack.trackInstrument = a.trackInstrument;
-                ntrack.Transpose = a.Transpose;
-                ntrack.ToneMode = a.ToneMode;
-                ntrack.trackChunk = (TrackChunk)a.trackChunk.Clone();
-                tracks.Add(ntrack);
-            }
-            return tracks;
-        }
-
         #region Octave Up/Down
 
         private void OctaveControl_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -409,6 +294,105 @@ namespace BardMusicPlayer.Ui.Controls
         }
         #endregion
 
+        #region Sidemenu
+
+        private void Sequencer_Click(object sender, RoutedEventArgs e)
+        {
+            if (_midifile == null)
+                return;
+            if (_tracks.Count() <= 0)
+                return;
+
+            MemoryStream myStream = new MemoryStream();
+            if (_AlignMidiToFirstNote)
+            {
+                RealignMidiFile(MidiBardImporter.Convert(_midifile, CloneTracks())).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                { TextEncoding = Encoding.UTF8 });
+            }
+            else
+            {
+                MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                { TextEncoding = Encoding.UTF8 });
+            }
+            myStream.Rewind();
+            var song = BmpSong.ImportMidiFromByte(myStream.ToArray(), "Import");
+            Maestro.BmpMaestro.Instance.SetSong(song.Result);
+            PlaybackFunctions.LoadSongFromPlaylist(song.Result);
+            myStream.Close();
+            myStream.Dispose();
+        }
+
+        /// <summary>
+        /// Send song to Siren
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Siren_Click(object sender, RoutedEventArgs e)
+        {
+            if (_midifile == null)
+                return;
+            if (_tracks.Count() <= 0)
+                return;
+
+            MemoryStream myStream = new MemoryStream();
+            if (_AlignMidiToFirstNote)
+            {
+                RealignMidiFile(MidiBardImporter.Convert(_midifile, CloneTracks())).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                { TextEncoding = Encoding.UTF8 });
+            }
+            else
+            {
+                MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                { TextEncoding = Encoding.UTF8 });
+            }
+            myStream.Rewind();
+
+            var song = BmpSong.ImportMidiFromByte(myStream.ToArray(), "Import");
+            _ = BmpSiren.Instance.Load(song.Result);
+            myStream.Close();
+            myStream.Dispose();
+        }
+
+        /// <summary>
+        /// MidiExport
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Export_Click(object sender, RoutedEventArgs e)
+        {
+            if (_midifile == null)
+                return;
+            if (_tracks.Count() <= 0)
+                return;
+
+            Stream myStream;
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            saveFileDialog.Filter = "MIDI file (*.mid)|*.mid";
+            saveFileDialog.FilterIndex = 2;
+            saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.OverwritePrompt = true;
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                if ((myStream = saveFileDialog.OpenFile()) != null)
+                {
+                    if (_AlignMidiToFirstNote)
+                    {
+                        RealignMidiFile(MidiBardImporter.Convert(_midifile, CloneTracks())).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                        { TextEncoding = Encoding.UTF8 });
+                    }
+                    else
+                    {
+                        MidiBardImporter.Convert(_midifile, CloneTracks()).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
+                        { TextEncoding = Encoding.UTF8 });
+                    }
+                    myStream.Close();
+                    myStream.Dispose();
+                }
+            }
+        }
+
         /// <summary>
         /// Set the GuitarMode
         /// </summary>
@@ -465,6 +449,58 @@ namespace BardMusicPlayer.Ui.Controls
                 }
             }
             return Task.FromResult(originalChunk);
+        }
+#endregion
+
+        #region Context Menu
+        private void TrackListItem_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _Sender = sender;
+            e.Handled = true;
+        }
+
+        private void TrackListItem_Delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is System.Windows.Controls.ListViewItem)
+            {
+                var t = (_Sender as System.Windows.Controls.ListViewItem).Content as MidiBardImporter.MidiTrack;
+                _tracks.Remove(t);
+                RenumberTracks();
+            }
+            _Sender = null;
+        }
+        #endregion
+
+        /// <summary>
+        /// Renumber tracks
+        /// </summary>
+        private void RenumberTracks()
+        {
+            int index = 0;
+            foreach (var p in _tracks)
+                p.Index = index;
+            TrackList.Items.Refresh();
+        }
+
+        /// <summary>
+        /// Clone the tracks
+        /// </summary>
+        /// <returns></returns>
+        private List<MidiBardImporter.MidiTrack> CloneTracks()
+        {
+            List<MidiBardImporter.MidiTrack> tracks = new List<MidiBardImporter.MidiTrack>();
+            foreach (var a in _tracks)
+            {
+                MidiBardImporter.MidiTrack ntrack = new MidiBardImporter.MidiTrack();
+                ntrack.Index = a.Index;
+                ntrack.TrackNumber = a.TrackNumber;
+                ntrack.trackInstrument = a.trackInstrument;
+                ntrack.Transpose = a.Transpose;
+                ntrack.ToneMode = a.ToneMode;
+                ntrack.trackChunk = (TrackChunk)a.trackChunk.Clone();
+                tracks.Add(ntrack);
+            }
+            return tracks;
         }
     }
 }

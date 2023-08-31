@@ -1,4 +1,9 @@
-﻿using BardMusicPlayer.Ui.Skinned;
+﻿/*
+ * Copyright(c) 2023 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.Ui.Skinned;
 using BardMusicPlayer.Ui.Classic;
 using System.Windows;
 using BardMusicPlayer.Pigeonhole;

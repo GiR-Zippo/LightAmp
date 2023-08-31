@@ -7,7 +7,7 @@
         xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls" 
         mc:Ignorable="d"
         Closing="Window_Closing"  
-        Title="Meow-Bard Converter" Height="450" Width="800">
+        Title="Meow-Bard Converter" Height="450" Width="580">
 
     <Window.Resources>
         <ObjectDataProvider x:Key="Instruments" ObjectType="{x:Type local:MidiBardConverter_InstrumentHelper}" MethodName="Instruments"/>
@@ -30,17 +30,19 @@
                         <VirtualizingStackPanel Orientation="Vertical"/>
                     </ItemsPanelTemplate>
                 </Menu.ItemsPanel>
-
-                <MenuItem Header="Midi Export" IsEnabled="False" />
-                <MenuItem Header=""/>
+                <MenuItem Header="----- Midi Export -----" IsEnabled="False" />
                 <MenuItem Header="To Sequencer" Click="Sequencer_Click"/>
                 <MenuItem Header="To Siren" Click="Siren_Click"/>
                 <MenuItem Header="To MIDI-File" Click="Export_Click"/>
                 <MenuItem Header=""/>
             </Menu>
             <Menu>
-                <MenuItem Header="Options" IsEnabled="False"/>
-                <MenuItem Header=""/>
+                <Menu.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </Menu.ItemsPanel>
+                <MenuItem Header="------- Options ------" IsEnabled="False"/>
                 <CheckBox x:Name="AlignToFirstNote_CheckBox" Content="Align to first note" Checked="AlignToFirstNote_CheckBox_Checked" Unchecked="AlignToFirstNote_CheckBox_Checked"/>
                 <Label Content="Guitar-Mode" Width="120" IsEnabled="False"/>
                 <ComboBox x:Name="GuitarModeSelector" SelectionChanged ="GuitarModeSelector_Selected" Width="120" >
@@ -49,6 +51,7 @@
                     <ComboBoxItem Content="Simple"/>
                     <ComboBoxItem Content="Override By Track"/>
                 </ComboBox>
+                <MenuItem Header=""/>
             </Menu>
         </StackPanel>
 
@@ -58,8 +61,14 @@
                 <Style TargetType="{x:Type ListViewItem}">
                     <EventSetter Event="MouseMove" Handler="TrackListItem_MouseMove"/>
                     <EventSetter Event="Drop" Handler="TrackListItem_Drop"/>
+                    <EventSetter Event="PreviewMouseRightButtonDown" Handler="TrackListItem_PreviewMouseRightButtonDown"/>
                 </Style>
             </ListView.ItemContainerStyle>
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Delete Track" Click="TrackListItem_Delete_Click"></MenuItem>
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.ItemTemplate>
                 <DataTemplate DataType="local:MidiTrack">
                     <Grid>

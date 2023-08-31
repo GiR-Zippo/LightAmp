@@ -1,4 +1,9 @@
-﻿using BardMusicPlayer.Maestro;
+﻿/*
+ * Copyright(c) 2023 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Maestro.Events;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Pigeonhole;
