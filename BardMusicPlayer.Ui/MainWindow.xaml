@@ -9,7 +9,6 @@
         WindowStyle="None"
         AllowsTransparency="True"
         ResizeMode="CanResizeWithGrip">
-
     <Grid>
         <ContentControl Content="{Binding}"/>
     </Grid>

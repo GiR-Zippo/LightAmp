@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Melanchall.DryWetMidi" Version="6.1.4" />
+    <PackageReference Include="Melanchall.DryWetMidi" Version="7.0.1" />
   </ItemGroup>
 
   <ItemGroup>
