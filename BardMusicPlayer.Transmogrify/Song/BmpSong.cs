@@ -326,12 +326,12 @@ namespace BardMusicPlayer.Transmogrify.Song
                     var trackName = originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text ?? "";
                     string o_trackName = trackName;
 
-                    Regex rex = new Regex(@"^([A-Za-z _]+)([-+]\d)?");
+                    Regex rex = new Regex(@"^([A-Za-z _:]+)([-+]\d)?");
                     if (rex.Match(trackName) is Match match)
                     {
                         if (!string.IsNullOrEmpty(match.Groups[1].Value))
                         {
-                            trackName = Instrument.Parse(match.Groups[1].Value).Name;
+                            trackName = Instrument.Parse(match.Groups[1].Value.Replace(":","")).Name;
                             if (!string.IsNullOrEmpty(match.Groups[2].Value))
                                 if (int.TryParse(match.Groups[2].Value, out int os))
                                     octaveShift = os;
