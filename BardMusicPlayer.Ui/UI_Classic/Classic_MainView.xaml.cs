@@ -47,6 +47,7 @@ namespace BardMusicPlayer.Ui.Classic
 
             Siren_Volume.Value = BmpSiren.Instance.GetVolume();
             BmpSiren.Instance.SynthTimePositionChanged  += Instance_SynthTimePositionChanged;
+            BmpSiren.Instance.SongLoaded                += Instance_SongLoaded;
 
             SongBrowser.OnLoadSongFromBrowser           += Instance_SongBrowserLoadedSong;
             SongBrowser.OnAddSongFromBrowser            += Instance_SongBrowserAddSongToPlaylist;
@@ -148,7 +149,6 @@ namespace BardMusicPlayer.Ui.Classic
             
             var currentSong = BmpSong.OpenFile(filename).Result;
             _ = BmpSiren.Instance.Load(currentSong);
-            this.Siren_SongName.Content = BmpSiren.Instance.CurrentSongTitle;
 
             //Fill the lyrics editor
             lyricsData.Clear();
@@ -166,6 +166,11 @@ namespace BardMusicPlayer.Ui.Classic
         private void Instance_SynthTimePositionChanged(string songTitle, double currentTime, double endTime, int activeVoices)
         {
             this.Dispatcher.BeginInvoke(new Action(() => this.Siren_PlaybackTimeChanged(currentTime, endTime, activeVoices)));
+        }
+
+        private void Instance_SongLoaded(string songTitle)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => this.Siren_SongName.Content = songTitle));
         }
 
         private void PlaybackTimeChanged(Maestro.Events.CurrentPlayPositionEvent e)

@@ -44,6 +44,7 @@ namespace BardMusicPlayer.Ui.Controls
     public partial class MidiBardConverterWindow : Window
     {
         List<MidiBardImporter.MidiTrack> _tracks = null;
+        string _midiName { get; set; } = "Unknown";
         MidiFile _midifile { get; set; } = null;
         bool _AlignMidiToFirstNote { get; set; } = false;
         object _Sender { get; set; } = null;
@@ -70,6 +71,7 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void ReadMidi(string filename)
         {
+            _midiName = Path.GetFileNameWithoutExtension(filename);
             if (File.Exists(Path.ChangeExtension(filename, "json")))
                 ReadWithConfig(filename);
             else
@@ -143,6 +145,7 @@ namespace BardMusicPlayer.Ui.Controls
             if (song == null)
                 return;
             _tracks.Clear();
+            _midiName = song.Title;
             _midifile = song.GetMelanchallMidiFile();
             ReadMidiData();
         }
@@ -315,7 +318,7 @@ namespace BardMusicPlayer.Ui.Controls
                 { TextEncoding = Encoding.UTF8 });
             }
             myStream.Rewind();
-            var song = BmpSong.ImportMidiFromByte(myStream.ToArray(), "Import");
+            var song = BmpSong.ImportMidiFromByte(myStream.ToArray(), _midiName);
             Maestro.BmpMaestro.Instance.SetSong(song.Result);
             PlaybackFunctions.LoadSongFromPlaylist(song.Result);
             myStream.Close();
@@ -347,7 +350,7 @@ namespace BardMusicPlayer.Ui.Controls
             }
             myStream.Rewind();
 
-            var song = BmpSong.ImportMidiFromByte(myStream.ToArray(), "Import");
+            var song = BmpSong.ImportMidiFromByte(myStream.ToArray(), _midiName);
             _ = BmpSiren.Instance.Load(song.Result);
             myStream.Close();
             myStream.Dispose();

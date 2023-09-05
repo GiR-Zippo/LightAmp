@@ -39,7 +39,7 @@
                             </EventTrigger>
                         </Border.Triggers>
                         <Canvas Width="{Binding ActualWidth, ElementName=moving_border}">
-                            <TextBlock Text="Thanks to Dororo, Thymm, Lana, Liath, City-Wok, Alina, Jay, Meowchestra, Debra, Nozomi, Vita and all bards for your help and input." FontFamily="Comic Sans MS" FontSize="20" Foreground="#FFFFD200" x:Name="txt_scroll" Canvas.Left="0"/>
+                            <TextBlock Text="Thanks to Dororo, Thymm, Lana, Liath, City-Wok, Alina, Jay, Meowchestra, Debra, Nozomi, Vita, mabby and all bards for your help and input." FontFamily="Comic Sans MS" FontSize="20" Foreground="#FFFFD200" x:Name="txt_scroll" Canvas.Left="0"/>
                             <TextBlock Text="{Binding Text, ElementName=txt_scroll}" FontSize="20" FontFamily="Comic Sans MS" Foreground="Black" Canvas.Left="0"/>
                         </Canvas>
                     </Border>

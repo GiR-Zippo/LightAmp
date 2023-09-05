@@ -56,9 +56,7 @@ namespace BardMusicPlayer.Ui.Classic
                 else
                     CurrentSong = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem);
             }
-
             _ = BmpSiren.Instance.Load(CurrentSong);
-            this.Siren_SongName.Content = BmpSiren.Instance.CurrentSongTitle;
 
             //Fill the lyrics editor
             lyricsData.Clear();
