@@ -183,16 +183,19 @@ namespace BardMusicPlayer.Transmogrify.Song
             };
 
             //Get the lrc file for the midi, if there's any
-            if (path.Substring(path.Length - 4).Equals(".mid"))
+            if (path.Length > 3)
             {
-                string fn = path.Substring(0, path.Length - 3);
-                if (File.Exists(fn + "lrc"))
+                if (path.Substring(path.Length - 4).Equals(".mid"))
                 {
-                    var t = Lyrics.Parse(File.ReadAllText(fn + "lrc"));
-                    song.DisplayedTitle = t.Lyrics.MetaData.Title;
+                    string fn = path.Substring(0, path.Length - 3);
+                    if (File.Exists(fn + "lrc"))
+                    {
+                        var t = Lyrics.Parse(File.ReadAllText(fn + "lrc"));
+                        song.DisplayedTitle = t.Lyrics.MetaData.Title;
 
-                    foreach (var line in t.Lyrics.Lines)
-                        song.LyricsContainer.Add(line.Timestamp, line.Content);
+                        foreach (var line in t.Lyrics.Lines)
+                            song.LyricsContainer.Add(line.Timestamp, line.Content);
+                    }
                 }
             }
 
