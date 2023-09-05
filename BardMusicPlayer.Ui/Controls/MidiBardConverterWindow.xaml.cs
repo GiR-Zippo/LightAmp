@@ -478,7 +478,10 @@ namespace BardMusicPlayer.Ui.Controls
         {
             int index = 0;
             foreach (var p in _tracks)
+            {
                 p.Index = index;
+                index++;
+            }
             TrackList.Items.Refresh();
         }
 
