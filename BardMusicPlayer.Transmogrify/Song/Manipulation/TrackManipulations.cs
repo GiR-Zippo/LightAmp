@@ -38,6 +38,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Manipulation
         {
             if (channelNumber < 0)
                 return;
+            channelNumber = (channelNumber & 0x0F);
 
             using (var notesManager = track.ManageNotes())
             {
