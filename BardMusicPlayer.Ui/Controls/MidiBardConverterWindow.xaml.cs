@@ -22,6 +22,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -196,6 +197,7 @@ namespace BardMusicPlayer.Ui.Controls
         {
             OctaveNumericUpDown ctl = sender as OctaveNumericUpDown;
             ctl.OnValueChanged += OnOctaveValueChanged;
+            bnb = false;
         }
 
         private static void OnOctaveValueChanged(object sender, int s)
@@ -216,6 +218,11 @@ namespace BardMusicPlayer.Ui.Controls
         bool bnb = false;
         private void TrackListItem_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
+            if (bnb)
+            {
+                e.Handled = true;
+                return;
+            }
             if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
                 if (sender is System.Windows.Controls.ListViewItem celltext && !bnb)
@@ -294,6 +301,11 @@ namespace BardMusicPlayer.Ui.Controls
         private void BardNumBox_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             bnb = true;
+        }
+
+        private void Instrument_Selector_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            bnb = false;
         }
         #endregion
 
@@ -508,6 +520,11 @@ namespace BardMusicPlayer.Ui.Controls
                 tracks.Add(ntrack);
             }
             return tracks;
+        }
+
+        private void Instrument_Selector_DropDownClosed(object sender, System.EventArgs e)
+        {
+            bnb = false;
         }
     }
 }
