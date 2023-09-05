@@ -7,6 +7,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Generator;
@@ -45,9 +46,21 @@ namespace BardMusicPlayer.Siren
             //Skip first track, is eh nur "All Tracks"
             foreach (var trackChunk in trackChunks.GetRange(1, trackChunks.Count-1))
             {
+                Instrument instr = Instrument.None;
+                int trackOctaveShift = 0;
                 using (var manager = trackChunk.ManageTimedEvents())
                 {
-                    Instrument instr = Instrument.Parse(trackChunk.Events.OfType<SequenceTrackNameEvent>().First().Text);
+                    var trackName = trackChunk.Events.OfType<SequenceTrackNameEvent>().First().Text;
+                    Regex rex = new Regex(@"^([A-Za-z _:]+)([-+]\d)?");
+                    if (rex.Match(trackName) is Match match)
+                    {
+                        if (!string.IsNullOrEmpty(match.Groups[1].Value))
+                        {
+                            instr = Instrument.Parse(match.Groups[1].Value);
+                        }
+                        if (int.TryParse(match.Groups[2].Value, out int os))
+                            trackOctaveShift = os;
+                    }
                     Dictionary<float, KeyValuePair<NoteEvent, Instrument>> instrumentMap = new Dictionary<float, KeyValuePair<NoteEvent, Instrument>>();
 
                     foreach (TimedEvent _event in manager.Objects)
@@ -81,12 +94,14 @@ namespace BardMusicPlayer.Siren
                             }
                         }
 
-                        var noteNum = note.NoteNumber;
+                        var noteNum = note.NoteNumber+(12 * trackOctaveShift);
+                        if (noteNum < 0)   noteNum = 0;
+                        if (noteNum > 254) noteNum = 254;
                         var dur = (int)MinimumLength(instrument, noteNum - 48, note.Length);
                         var time = (int)note.Time;
                         events.AddProgramChange(trackCounter, time, trackCounter,
                             (byte)instrument.MidiProgramChangeCode);
-                        events.AddNote(trackCounter, time, dur, noteNum, DynamicValue.FFF, trackCounter);
+                        events.AddNote(trackCounter, time, dur, (byte)noteNum, DynamicValue.FFF, trackCounter);
                         if (trackCounter == byte.MaxValue)
                             trackCounter = byte.MinValue;
                         else
