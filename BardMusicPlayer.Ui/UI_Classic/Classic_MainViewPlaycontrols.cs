@@ -61,7 +61,6 @@ namespace BardMusicPlayer.Ui.Classic
             {
                 if (PlaybackFunctions.LoadSong())
                 {
-                    SongName.Text = PlaybackFunctions.GetSongName();
                     InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
                     _directLoaded = true;
                 }

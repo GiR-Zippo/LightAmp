@@ -121,7 +121,6 @@ namespace BardMusicPlayer.Ui.Classic
         {
             if (PlaybackFunctions.LoadSong(filename))
             {
-                SongName.Text = PlaybackFunctions.GetSongName();
                 InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
                 _directLoaded = true;
             }
@@ -199,6 +198,8 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void OnSongLoaded(Maestro.Events.SongLoadedEvent e)
         {
+            //Songtitle update
+            this.SongName.Text = PlaybackFunctions.GetSongName();
             //Statistics update
             UpdateStats(e);
             //update heatmap

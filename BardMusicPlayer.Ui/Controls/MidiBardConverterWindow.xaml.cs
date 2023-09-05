@@ -403,9 +403,10 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void GuitarModeSelector_Selected(object sender, RoutedEventArgs e)
         {
+            int mode = GuitarModeSelector.SelectedIndex;
             Parallel.ForEach(_tracks, track =>
             {
-                track.ToneMode = GuitarModeSelector.SelectedIndex;
+                track.ToneMode = mode;
             });
             TrackList.Items.Refresh();
         }

@@ -69,7 +69,6 @@ namespace BardMusicPlayer.Ui.Classic
                 }
             }
             PlaybackFunctions.LoadSongFromPlaylist(PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem));
-            this.SongName.Text = PlaybackFunctions.GetSongName();
             this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
         }
 
@@ -85,7 +84,6 @@ namespace BardMusicPlayer.Ui.Classic
             PlaylistContainer.SelectedIndex = idx;
 
             PlaybackFunctions.LoadSongFromPlaylist(PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem));
-            this.SongName.Text = PlaybackFunctions.GetSongName();
             this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
         }
 
@@ -256,7 +254,6 @@ namespace BardMusicPlayer.Ui.Classic
             }
 
             PlaybackFunctions.LoadSongFromPlaylist(PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem));
-            this.SongName.Text = PlaybackFunctions.GetSongName();
             this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
             _directLoaded = false;
             return;
