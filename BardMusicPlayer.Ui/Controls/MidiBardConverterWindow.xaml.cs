@@ -307,6 +307,10 @@ namespace BardMusicPlayer.Ui.Controls
         {
             bnb = false;
         }
+        private void Instrument_Selector_DropDownClosed(object sender, System.EventArgs e)
+        {
+            bnb = false;
+        }
         #endregion
 
         #region Sidemenu
@@ -520,11 +524,6 @@ namespace BardMusicPlayer.Ui.Controls
                 tracks.Add(ntrack);
             }
             return tracks;
-        }
-
-        private void Instrument_Selector_DropDownClosed(object sender, System.EventArgs e)
-        {
-            bnb = false;
         }
     }
 }
