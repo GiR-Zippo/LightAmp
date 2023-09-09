@@ -6,8 +6,8 @@
              xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-            Width="Auto" Height="Auto" Loaded="Window_Loaded"
-    Background="WhiteSmoke">
+             Width="Auto" Height="Auto" Loaded="Window_Loaded"
+             Background="WhiteSmoke">
 
     <UserControl.Resources>
         <ResourceDictionary>

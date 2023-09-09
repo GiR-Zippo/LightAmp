@@ -45,5 +45,15 @@ namespace BardMusicPlayer.Ui
             this.Width = 412;
             this.ResizeMode = ResizeMode.NoResize;
         }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            for (int intCounter = App.Current.Windows.Count - 1; intCounter >= 0; intCounter--)
+            {
+                try { App.Current.Windows[intCounter].Close(); }
+                catch { }
+            }
+            base.OnClosing(e);
+        }
     }
 }
