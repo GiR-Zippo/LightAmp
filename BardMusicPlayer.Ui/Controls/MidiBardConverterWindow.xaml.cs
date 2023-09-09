@@ -22,7 +22,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -470,7 +469,7 @@ namespace BardMusicPlayer.Ui.Controls
             }
             return Task.FromResult(originalChunk);
         }
-#endregion
+        #endregion
 
         #region Context Menu
         private void TrackListItem_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -479,10 +478,30 @@ namespace BardMusicPlayer.Ui.Controls
             e.Handled = true;
         }
 
+        private void TrackListItem_DrumMap_Click(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is System.Windows.Controls.ListViewItem)
+            {
+                var t = (_Sender as System.Windows.Controls.ListViewItem).Content as MidiBardImporter.MidiTrack;
+                Drummapping(t.trackChunk);
+
+                var Result = MessageBox.Show("Delete old drum-track?\r\n", "Warning!", MessageBoxButton.YesNo);
+                if (Result == MessageBoxResult.No)
+                    return;
+
+                _tracks.Remove(t);
+                RenumberTracks();
+            }
+        }
+
         private void TrackListItem_Delete_Click(object sender, RoutedEventArgs e)
         {
             if (_Sender is System.Windows.Controls.ListViewItem)
             {
+                var Result = MessageBox.Show("Delete this track?\r\n", "Warning!", MessageBoxButton.YesNo);
+                if (Result == MessageBoxResult.No)
+                    return;
+
                 var t = (_Sender as System.Windows.Controls.ListViewItem).Content as MidiBardImporter.MidiTrack;
                 _tracks.Remove(t);
                 RenumberTracks();
@@ -524,6 +543,53 @@ namespace BardMusicPlayer.Ui.Controls
                 tracks.Add(ntrack);
             }
             return tracks;
+        }
+
+        /// <summary>
+        /// Split drums in <see cref="TrackChunk"/> into new <see cref="TrackChunk"/>
+        /// </summary>
+        /// <param name="track"></param>
+        public void Drummapping(TrackChunk track)
+        {
+            if ((int)track.GetNotes().First().Channel != 9)
+            {
+                var Result = MessageBox.Show("Looks like, this isn't a drum-track\r\nContinue the mapping?", "Warning!", MessageBoxButton.YesNo);
+                if (Result == MessageBoxResult.No)
+                    return;
+            }
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Drum map | *.json",
+                Multiselect = true
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            var drumTracks = TrackManipulations.DrumMapping(track, openFileDialog.FileName);
+            if (drumTracks.Count < 1)
+                return;
+            if (drumTracks.First().Value == null)
+            {
+                MessageBox.Show(drumTracks.First().Key, "Error!", MessageBoxButton.OK);
+                return;
+            }
+
+            var lastTrack = _tracks.Last();
+            int idx = 1;
+            foreach (var nt in drumTracks)
+            {
+                MidiBardImporter.MidiTrack ntrack = new MidiBardImporter.MidiTrack();
+                ntrack.Index = lastTrack.Index+idx;
+                ntrack.TrackNumber = lastTrack.TrackNumber+idx;
+                ntrack.trackInstrument = Instrument.Parse(nt.Key).Index-1;
+                ntrack.Transpose = 0;
+                ntrack.ToneMode = 0;
+                ntrack.trackChunk = nt.Value;
+                _tracks.Add(ntrack);
+                idx++;
+            }
+            RenumberTracks();
         }
     }
 }

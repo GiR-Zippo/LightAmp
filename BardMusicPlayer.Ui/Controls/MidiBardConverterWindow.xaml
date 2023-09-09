@@ -66,6 +66,7 @@
             </ListView.ItemContainerStyle>
             <ListView.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Header="DrumMap Track" Click="TrackListItem_DrumMap_Click"></MenuItem>
                     <MenuItem Header="Delete Track" Click="TrackListItem_Delete_Click"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
