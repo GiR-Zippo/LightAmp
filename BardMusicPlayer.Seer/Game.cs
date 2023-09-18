@@ -25,6 +25,7 @@ namespace BardMusicPlayer.Seer
     public sealed partial class Game : IDisposable, IEquatable<Game>
     {
         private readonly string _uuid;
+        private bool _gameMutexActive { get; set; } = true;
 
         // reader events
         private Dictionary<Type, long> _eventDedupeHistory;
@@ -46,8 +47,8 @@ namespace BardMusicPlayer.Seer
             _uuid = Guid.NewGuid().ToString();
             Process = process;
 
-            if (Pigeonhole.BmpPigeonhole.Instance.EnableMultibox)
-                KillMutant();
+            //set true if mutex should be killed
+            _gameMutexActive = Pigeonhole.BmpPigeonhole.Instance.EnableMultibox;
         }
 
         public void Dispose()
@@ -185,6 +186,10 @@ namespace BardMusicPlayer.Seer
         {
             while (!token.IsCancellationRequested)
             {
+                //Check if mutex exists
+                if (_gameMutexActive)
+                    _gameMutexActive = !KillMutant();
+
                 while (_eventQueueHighPriority.TryDequeue(out var high))
                     try
                     {

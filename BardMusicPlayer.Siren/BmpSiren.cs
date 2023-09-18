@@ -110,6 +110,7 @@ namespace BardMusicPlayer.Siren
         /// </summary>
         public int GetVolume()
         {
+            if (_player == null) return 0;
             return (int)(_mdev.AudioSessionManager.AudioSessionControl.SimpleAudioVolume.Volume * 100);
         }
 
@@ -119,6 +120,7 @@ namespace BardMusicPlayer.Siren
         /// <param name="x"></param>
         public void SetVolume(float x)
         {
+            if (_player == null) return;
             _mdev.AudioSessionManager.AudioSessionControl.SimpleAudioVolume.Volume = x / 100;
         }
 
