@@ -45,7 +45,7 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// Sets PlayAllTracks
         /// </summary>
-        public virtual bool PlaylistAutoPlay { get; set; } = true;
+        public virtual bool PlaylistAutoPlay { get; set; } = false;
 
         /// <summary>
         /// last loaded song
@@ -70,7 +70,7 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// Sets the autostart method
         /// </summary>
-        public virtual int AutostartMethod { get; set; } = 0;
+        public virtual int AutostartMethod { get; set; } = 2;
 
         /// <summary>
         /// Sets UnequipPause
@@ -100,12 +100,12 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// brings the bmp to front
         /// </summary>
-        public virtual bool BringBMPtoFront { get; set; } = true;
+        public virtual bool BringBMPtoFront { get; set; } = false;
 
         /// <summary>
         /// Enables the multibox feature
         /// </summary>
-        public virtual bool EnableMultibox { get; set; } = false;
+        public virtual bool EnableMultibox { get; set; } = true;
 
         /// <summary>
         /// unkown but used
@@ -142,7 +142,7 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// open local orchestra after hooking new proc
         /// </summary>
-        public virtual bool LocalOrchestra { get; set; } = false;
+        public virtual bool LocalOrchestra { get; set; } = true;
 
         /// <summary>
         /// Enable the 16 voice limit in Synthesizer
@@ -167,7 +167,7 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// keep the ensmble track settings
         /// </summary>
-        public virtual bool EnsembleKeepTrackSetting { get; set; } = false;
+        public virtual bool EnsembleKeepTrackSetting { get; set; } = true;
 
         /// <summary>
         /// ignores the progchange

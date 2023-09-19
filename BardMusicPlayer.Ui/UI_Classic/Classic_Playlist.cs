@@ -253,7 +253,11 @@ namespace BardMusicPlayer.Ui.Classic
                 }
             }
 
-            PlaybackFunctions.LoadSongFromPlaylist(PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem));
+            //If no playlist is active assume we are in the song selection
+            if (_currentPlaylist == null)
+                PlaybackFunctions.LoadSongFromPlaylist(BmpCoffer.Instance.GetSong((string)PlaylistContainer.SelectedItem));
+            else
+                PlaybackFunctions.LoadSongFromPlaylist(PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem));
             this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
             _directLoaded = false;
             return;
@@ -288,6 +292,9 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void Playlist_Drop(object sender, DragEventArgs e)
         {
+            if (_currentPlaylist == null)
+                return;
+
             TextBlock droppedDataTB = e.Data.GetData(typeof(TextBlock)) as TextBlock;
             string droppedDataStr = droppedDataTB.DataContext as string;
             string target = ((TextBlock)(sender)).DataContext as string;
@@ -418,7 +425,7 @@ namespace BardMusicPlayer.Ui.Classic
                 return;
 
             BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
-            Pigeonhole.BmpPigeonhole.Instance.LastLoadedCatalog = openFileDialog.FileName;
+            BmpPigeonhole.Instance.LastLoadedCatalog = openFileDialog.FileName;
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
             _showingPlaylists = true;
         }
@@ -535,6 +542,14 @@ namespace BardMusicPlayer.Ui.Classic
                 songs.Add(sc);
             }
             JsonPlaylist.Save(openFileDialog.FileName, songs);
+        }
+
+        private void Playlist_ShowSongs_Click(object sender, RoutedEventArgs e)
+        {
+            _currentPlaylist = null;
+            _showingPlaylists = false;
+            PlaylistContainer.ItemsSource = PlaylistFunctions.GeAllSongsInDB(true);
+            Playlist_Header.Header = "All Songs";
         }
 
         /// <summary>

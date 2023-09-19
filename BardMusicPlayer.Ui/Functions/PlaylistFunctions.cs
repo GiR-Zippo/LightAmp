@@ -153,6 +153,16 @@ namespace BardMusicPlayer.Ui.Functions
             return data;
         }
 
+        public static IEnumerable<string> GeAllSongsInDB(bool withupselector = false)
+        {
+            List<string> data = new List<string>();
+            if (withupselector)
+                data.Add("..");
+            data.AddRange(BmpCoffer.Instance.GetSongTitles().Select(item => item));
+            return data;
+        }
+
+
         /// <summary>
         /// Get the total time of all items in the playlist
         /// </summary>

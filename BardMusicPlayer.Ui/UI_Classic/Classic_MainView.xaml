@@ -67,6 +67,8 @@
                                 <MenuItem Header=""/>
                                 <MenuItem Header="Import Playlist"               Click="Playlist_Import_JSon_Button" />
                                 <MenuItem Header="Export Playlist"               Click="Playlist_Export_JSon_Button" />
+                                <MenuItem Header=""/>
+                                <MenuItem Header="Show all songs"                Click="Playlist_ShowSongs_Click"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
