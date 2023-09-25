@@ -73,8 +73,10 @@ namespace BardMusicPlayer.Siren
                             instrumentMap.Add(_event.Time, new KeyValuePair<NoteEvent, Instrument>(noteEvent, instr));
 
                         if (programChangeEvent != null)
-                            instr = Instrument.ParseByProgramChange(programChangeEvent.ProgramNumber);
-
+                        {
+                            if (instr.InstrumentTone.Equals(InstrumentTone.ElectricGuitar))
+                                instr = Instrument.ParseByProgramChange(programChangeEvent.ProgramNumber);
+                        }
                         if (lyricsEvent != null)
                         {
                             if (lyrics.Count() < lyricNum+1)
