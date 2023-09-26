@@ -18,7 +18,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Button Grid.Row="0" x:Name="NumUp"   FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Segoe MDL2 Assets" Content="&#xE70E;" Click="NumUp_Click"   Width="12" TextOptions.TextHintingMode="Fixed" />
-            <Button Grid.Row="1" x:Name="NumDown" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Segoe MDL2 Assets" Content="&#xE70D;" Click="NumDown_Click" Width="12" TextOptions.TextHintingMode="Fixed"/>
+            <Button Grid.Row="1" x:Name="NumDown" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="Segoe MDL2 Assets" Content="&#xE70D;" Click="NumDown_Click" Width="12" TextOptions.TextHintingMode="Fixed" Height="13"/>
         </Grid>
     </Grid>
 </UserControl>

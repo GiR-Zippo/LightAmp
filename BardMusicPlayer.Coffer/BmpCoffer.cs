@@ -115,6 +115,17 @@ namespace BardMusicPlayer.Coffer
             //Try it and catch if the log file can't be removed
             try
             {
+                //Check if we have songs without a playlist
+                List<ObjectId> differenceQuery = this.GetSongCollection().Query().Select(x => x.Id).ToList()
+                                                 .Except(from x in this.GetPlaylistCollection().Query().ToArray()
+                                                  from y in x.Songs
+                                                  select y.Id).ToList();
+                //and remove them
+                foreach (var id in differenceQuery)
+                    this.GetSongCollection().Delete(id);
+
+                differenceQuery.Clear();
+
                 this.dbi.Checkpoint();
                 this.dbi.Rebuild();
             }
@@ -329,6 +340,8 @@ namespace BardMusicPlayer.Coffer
             {
                 if (dbList.Id != null)
                 {
+                    foreach (var song in dbList.Songs)
+                        DeleteSong(song);
                     playlists.Delete(dbList.Id);
                 }
             }
@@ -411,22 +424,31 @@ namespace BardMusicPlayer.Coffer
         }
 
         /// <summary>
-        /// This deletes a song. TODO: Make sure all data is erased
+        /// This deletes a song.
         /// </summary>
         /// <param name="song"></param>
         /// <exception cref="BmpCofferException">This is thrown if a name conflict occurs on save.</exception>
         public void DeleteSong(BmpSong song)
         {
-
             if (song == null) throw new ArgumentNullException();
 
+            //Check if the song is in use in other playlists
+            if ((from x in this.GetPlaylistCollection().Query().ToArray()
+                 from y in x.Songs
+                 where y.Id.Equals(song.Id)
+                 select y.Id).Count() > 1)
+                return;
+
+            //if not, remove it
             var songCol = this.GetSongCollection();
             try
             {
-                if (song.Id == null) return;
+                if (song.Id == null)
+                    return;
 
-                var results = songCol.Find(x => x.Title.Equals(song.Title));
-                if (results.Any()) songCol.Delete(song.Id);
+                var results = songCol.Find(x => x.Id.Equals(song.Id));
+                if (results.Any())
+                    songCol.Delete(song.Id);
             }
             catch (LiteException e)
             {

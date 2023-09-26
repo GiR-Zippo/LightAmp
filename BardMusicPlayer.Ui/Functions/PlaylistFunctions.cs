@@ -162,7 +162,6 @@ namespace BardMusicPlayer.Ui.Functions
             return data;
         }
 
-
         /// <summary>
         /// Get the total time of all items in the playlist
         /// </summary>
