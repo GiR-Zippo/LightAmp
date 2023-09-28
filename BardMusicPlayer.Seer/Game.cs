@@ -54,7 +54,7 @@ namespace BardMusicPlayer.Seer
         public void Dispose()
         {
             if (BmpSeer.Instance.Games.Count == 0)
-                RestoreGFXSettings();
+                RestoreOldConfig();
 
             if (_eventQueueHighPriority is { } && _eventDedupeHistory != null)
                 BmpSeer.Instance.PublishEvent(new GameStopped(Pid));
@@ -160,6 +160,8 @@ namespace BardMusicPlayer.Seer
                 DalamudReader = new ReaderHandler(this, new DalamudReaderBackend(100));
 
                 GfxSettingsLow = CheckIfGfxIsLow();
+                SoundOn = CheckIfSoundIsOn();
+
                 _eventTokenSource = new CancellationTokenSource();
                 Task.Factory.StartNew(() => RunEventQueue(_eventTokenSource.Token), TaskCreationOptions.LongRunning);
 

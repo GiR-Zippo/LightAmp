@@ -13,6 +13,7 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
 
         SetGfx                  = 10,   //Get<->Set
         NameAndHomeWorld        = 11,   //Get
+        SetSoundOnOff           = 12,   //Set<->Get
 
         Instrument              = 20,
         NoteOn                  = 21,

@@ -83,7 +83,7 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual int MidiInputDev { get; set; } = -1;
 
         /// <summary>
-        /// brings the bmp to front
+        /// are we using the LA for live midi input play
         /// </summary>
         public virtual bool LiveMidiPlayDelay { get; set; } = false;
 
@@ -106,11 +106,6 @@ namespace BardMusicPlayer.Pigeonhole
         /// Enables the multibox feature
         /// </summary>
         public virtual bool EnableMultibox { get; set; } = true;
-
-        /// <summary>
-        /// unkown but used
-        /// </summary>
-        public virtual bool SigIgnore { get; set; } = false;
 
         /// <summary>
         /// LastCharId
@@ -203,6 +198,11 @@ namespace BardMusicPlayer.Pigeonhole
         /// Compatmode for MidiBard
         /// </summary>
         public virtual bool MidiBardCompatMode { get; set; } = false;
+
+        /// <summary>
+        /// unkown but used
+        /// </summary>
+        public virtual bool UsePluginForKeyOutput { get; set; } = false;
 
         /// <summary>
         /// Use the Hypnotoad for instruemtn eq

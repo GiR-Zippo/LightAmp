@@ -11,6 +11,19 @@ namespace BardMusicPlayer.Seer
 {
     public sealed partial class Game
     {
+        private static int GetCfgIntSetting(string SettingsString)
+        {
+            var resultString = Convert.ToInt32(Regex.Replace(SettingsString.Split('\t')[1], "[^.0-9]", ""));
+            return resultString;
+        }
+
+        private static string SetCfgSetting(string SettingsString, string newValue)
+        {
+            SettingsString = SettingsString.Replace('\t' + SettingsString.Split('\t')[1], '\t' + newValue);
+            return SettingsString;
+        }
+
+        #region Checks
         /// <summary>
         ///     Return true if low settings
         /// </summary>
@@ -36,29 +49,41 @@ namespace BardMusicPlayer.Seer
 
                     if (s.Contains("SSAO_DX11")) number -= GetCfgIntSetting(s);
                 }
+                sr.Close();
+                sr.Dispose();
             }
             return number == 0;
         }
 
-        private static int GetCfgIntSetting(string SettingsString)
-        {
-            var resultString = Convert.ToInt32(Regex.Replace(SettingsString.Split('\t')[1], "[^.0-9]", ""));
-            return resultString;
-        }
-
-        private static string SetCfgSetting(string SettingsString, string newValue)
-        {
-            SettingsString = SettingsString.Replace('\t'+SettingsString.Split('\t')[1], '\t'+newValue);
-            return SettingsString;
-        }
-
         /// <summary>
-        /// Set GFX to low
+        ///     check if the master sound is enabled
         /// </summary>
         /// <returns></returns>
-        public bool SetGfxLow()
+        private bool CheckIfSoundIsOn()
         {
-            if (!File.Exists(ConfigPath + "FFXIV.cfg")) return false;
+            bool SoundOn = true;
+            using (var sr = File.OpenText(ConfigPath + "FFXIV.cfg"))
+            {
+                while (sr.ReadLine() is { } s)
+                {
+                    if (s.Contains("IsSndMaster"))
+                        SoundOn = GetCfgIntSetting(s) == 0 ? true : false;
+                }
+                sr.Close();
+                sr.Dispose();
+            }
+            return SoundOn;
+        }
+        #endregion
+
+        private bool CreateBackupConfig()
+        {
+            var pid = System.Diagnostics.Process.GetCurrentProcess().Id;
+            if (!File.Exists(ConfigPath + "FFXIV.cfg"))
+                return false;
+
+            if (File.Exists(ConfigPath + "FFXIV.save"))
+                return true;
 
             StreamReader reader = new StreamReader(ConfigPath + "FFXIV.cfg");
             string input = reader.ReadToEnd();
@@ -70,10 +95,55 @@ namespace BardMusicPlayer.Seer
             writer.Close();
             backupFile.Close();
 
+            return true;
+        }
+
+
+        public bool SetSoundOnOffLegacy(bool on)
+        {
+            if (!CreateBackupConfig()) return false;
+
+            string configData = File.ReadAllText(ConfigPath + "FFXIV.cfg");
             FileStream configFile = File.Open(ConfigPath + "FFXIV.cfg", FileMode.Create);
-            using (writer = new StreamWriter(configFile))
+            using (StreamWriter writer = new StreamWriter(configFile))
             {
-                using (StringReader stringreader = new StringReader(input))
+                using (StringReader stringreader = new StringReader(configData))
+                {
+                    string line = string.Empty;
+                    do
+                    {
+                        line = stringreader.ReadLine();
+                        if (line != null)
+                        {
+                            switch (line.Split('\t')[0])
+                            {
+                                case "IsSndMaster":
+                                    line = SetCfgSetting(line, on ? "0" : "1");
+                                    break;
+                            }
+                            writer.WriteLine(line);
+                        }
+                    } while (line != null) ;
+                }
+                writer.Close();
+            }
+            configFile.Close();
+           return true;
+        }
+
+        /// <summary>
+        /// Set GFX to low
+        /// </summary>
+        /// <returns></returns>
+        public bool SetGfxLow()
+        {
+            if (!CreateBackupConfig()) return false;
+
+            string configData = File.ReadAllText(ConfigPath + "FFXIV.cfg");
+            FileStream configFile = File.Open(ConfigPath + "FFXIV.cfg", FileMode.Create);
+            using (StreamWriter writer = new StreamWriter(configFile))
+            {
+                using (StringReader stringreader = new StringReader(configData))
                 {
                     string line = string.Empty;
                     do
@@ -114,20 +184,17 @@ namespace BardMusicPlayer.Seer
                                 case "GlareRepresentation_DX11":
                                     line = SetCfgSetting(line, "0");
                                     break;
-
                                 case "LodType_DX11":
                                 case "OcclusionCulling_DX11":
                                 case "ShadowLOD_DX11":
                                     line = SetCfgSetting(line, "1");
                                     break;
-
                                 case "MapResolution_DX11":
                                     line = SetCfgSetting(line, "2");
                                     break;
                             }
                             writer.WriteLine(line);
                         }
-
                     } while (line != null);
                 }
                 writer.Close();
@@ -139,6 +206,24 @@ namespace BardMusicPlayer.Seer
         public void RestoreGFXSettings()
         {
             if (!File.Exists(ConfigPath + "FFXIV.save")) 
+                return;
+
+            StreamReader reader = new StreamReader(ConfigPath + "FFXIV.save");
+            string input = reader.ReadToEnd();
+            reader.Close();
+
+            FileStream backupFile = File.Open(ConfigPath + "FFXIV.cfg", FileMode.Create);
+            StreamWriter writer = new StreamWriter(backupFile);
+            writer.Write(input);
+            writer.Close();
+            backupFile.Close();
+
+            SetSoundOnOffLegacy(SoundOn);
+        }
+
+        public void RestoreOldConfig()
+        {
+            if (!File.Exists(ConfigPath + "FFXIV.save"))
                 return;
 
             StreamReader reader = new StreamReader(ConfigPath + "FFXIV.save");

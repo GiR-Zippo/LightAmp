@@ -274,7 +274,11 @@ namespace BardMusicPlayer.Ui.Classic
             if (celltext.Text.Equals(""))
                 return;
 
-            BmpSong song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, celltext.Text);
+            BmpSong song;
+            if (_currentPlaylist == null)
+                song = BmpCoffer.Instance.GetSong(celltext.Text);
+            else
+                song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, celltext.Text);
             SongEditWindow sew = new SongEditWindow(song);
         }
 
@@ -396,10 +400,21 @@ namespace BardMusicPlayer.Ui.Classic
             {
                 try
                 {
-                    var song = _currentPlaylist.Where(x => x.Title.ToLower().Contains(inputbox.ResponseText.ToLower())).First();
-                    PlaylistContainer.SelectedIndex = PlaylistContainer.Items.IndexOf(song.Title);
-                    PlaylistContainer.ScrollIntoView(PlaylistContainer.Items[PlaylistContainer.SelectedIndex]);
-                    PlaylistContainer.UpdateLayout();
+                    //Showing all songs
+                    if (_currentPlaylist == null && !_showingPlaylists)
+                    {
+                        _currentPlaylist = null;
+                        _showingPlaylists = false;
+                        PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetSongTitles().Where(x => x.ToLower().Contains(inputbox.ResponseText.ToLower())).ToList();
+                        Playlist_Header.Header = "Search result";
+                    }
+                    else
+                    {
+                        var song = _currentPlaylist.Where(x => x.Title.ToLower().Contains(inputbox.ResponseText.ToLower())).First();
+                        PlaylistContainer.SelectedIndex = PlaylistContainer.Items.IndexOf(song.Title);
+                        PlaylistContainer.ScrollIntoView(PlaylistContainer.Items[PlaylistContainer.SelectedIndex]);
+                        PlaylistContainer.UpdateLayout();
+                    }
                 }
                 catch
                 {

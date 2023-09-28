@@ -138,7 +138,26 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
             {
                 msgType = MessageType.SetGfx,
-                message = arg ? "1" : "0"
+                message = arg.ToString()
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// switch sound on/off
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        internal bool SendSoundOnOff(int pid, bool arg)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.SetSoundOnOff,
+                message = arg.ToString()
             });
             return true;
         }
@@ -250,6 +269,16 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
                         var lowsettings = Convert.ToBoolean(t.Split(':')[1]);
                         if (BmpSeer.Instance.Games.ContainsKey(pid))
                             BmpSeer.Instance.Games[pid].GfxSettingsLow = lowsettings;
+                    }
+                    catch { }
+                    break;
+                case MessageType.SetSoundOnOff:
+                    try
+                    {
+                        var t = inMsg.message;
+                        var pid = Convert.ToInt32(t.Split(':')[0]);
+                        if (BmpSeer.Instance.Games.ContainsKey(pid))
+                            BmpSeer.Instance.Games[pid].SoundOn = Convert.ToBoolean(t.Split(':')[1]);
                     }
                     catch { }
                     break;

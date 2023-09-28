@@ -61,6 +61,8 @@ namespace BardMusicPlayer.Maestro.Performance
 
         public bool PerformerEnabled { get; set; } = true;
         public bool UsesDalamud {  get { return BmpPigeonhole.Instance.UsePluginForInstrumentOpen && GameExtensions.IsConnected(PId); } }
+        public bool UsesDalamudForKeys { get; set; } = false;
+
         public bool HostProcess { get; set; } = false;
         public int PId = 0;
         public Game game;
@@ -106,7 +108,9 @@ namespace BardMusicPlayer.Maestro.Performance
                 {
                     if ((value.LoadedFileType == Sequencer.FILETYPES.None) && !HostProcess)
                         return;
-                    
+
+                    this.UsesDalamudForKeys = BmpPigeonhole.Instance.UsePluginForKeyOutput && GameExtensions.IsConnected(PId);
+
                     //Close the input else it will hang
                     if (_sequencer is Sequencer)
                         _sequencer.CloseInputDevice();
@@ -177,6 +181,12 @@ namespace BardMusicPlayer.Maestro.Performance
             if (note.note < 0 || note.note > 36)
                 return;
 
+            if (UsesDalamudForKeys)
+            {
+                GameExtensions.SendNote(game, note.note, true);
+                return;
+            }
+
             if (game.NoteKeys[(Quotidian.Enums.NoteKey)note.note] is Quotidian.Enums.Keys keybind)
             {
                 if (game.ChatStatus && !_forcePlayback)
@@ -216,11 +226,15 @@ namespace BardMusicPlayer.Maestro.Performance
                 if (game.ChatStatus && !_forcePlayback)
                     return;
 
-                if (_holdNotes)
-                    _hook.SendKeybindDown(keybind);
+                if (UsesDalamudForKeys)
+                    GameExtensions.SendNote(game, note.note, true);
                 else
-                    _hook.SendAsyncKeybind(keybind);
-
+                {
+                    if (_holdNotes)
+                        _hook.SendKeybindDown(keybind);
+                    else
+                        _hook.SendAsyncKeybind(keybind);
+                }
                 _lastNoteTimestamp = System.Diagnostics.Stopwatch.GetTimestamp() / 10000;
             }
         }
@@ -232,6 +246,12 @@ namespace BardMusicPlayer.Maestro.Performance
 
             if (note.note < 0 || note.note > 36)
                 return;
+
+            if (UsesDalamudForKeys)
+            {
+                GameExtensions.SendNote(game, note.note, false);
+                return;
+            }
 
             if (game.NoteKeys[(Quotidian.Enums.NoteKey)note.note] is Quotidian.Enums.Keys keybind)
             {
@@ -625,6 +645,12 @@ namespace BardMusicPlayer.Maestro.Performance
                     case 31: // special guitar
                         tone = 4;
                         break;
+                }
+
+                if (UsesDalamudForKeys)
+                {
+                    GameExtensions.SendProgchange(game, tone);
+                    return;
                 }
 
                 if (tone > -1 && tone < 5 && game.InstrumentToneMenuKeys[(Quotidian.Enums.InstrumentToneMenuKey)tone] is Quotidian.Enums.Keys keybind)

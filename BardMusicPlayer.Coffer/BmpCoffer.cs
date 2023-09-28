@@ -52,12 +52,12 @@ namespace BardMusicPlayer.Coffer
             this.disposedValue = false;
         }
 
+        #region MainRoutines: Create / Load / Save / CleanUp
         /// <summary>
-        /// Create a new instance of the BmpCoffer manager based on the given LiteDB database.
+        /// Generates the <see cref="BsonMapper"/>
         /// </summary>
-        /// <param name="dbPath"></param>
-        /// <returns></returns>
-        internal static BmpCoffer CreateInstance(string dbPath)
+        /// <returns> <see cref="BsonMapper"/> </returns>
+        internal static BsonMapper GenerateMapper()
         {
             var mapper = new BsonMapper();
             mapper.RegisterType(static group => group.Index, static bson => Instrument.Parse(bson.AsInt32));
@@ -65,34 +65,40 @@ namespace BardMusicPlayer.Coffer
             mapper.RegisterType(static group => group.Index, static bson => OctaveRange.Parse(bson.AsInt32));
             mapper.RegisterType(static tempoMap => SerializeTempoMap(tempoMap), static bson => DeserializeTempoMap(bson.AsBinary));
             mapper.RegisterType(static trackChunk => SerializeTrackChunk(trackChunk), static bson => DeserializeTrackChunk(bson.AsBinary));
+            return mapper;
+        }
 
-            var dbi = new LiteDatabase(@"filename="+dbPath+"; journal = false", mapper);
+        /// <summary>
+        /// Create a new instance of the <see cref="BmpCoffer"/> manager based on the given LiteDB database.
+        /// </summary>
+        /// <param name="dbPath"></param>
+        /// <returns> <see cref="BmpCoffer"/> </returns>
+        internal static BmpCoffer CreateInstance(string dbPath)
+        {
+            var dbi = new LiteDatabase(@"filename=" + dbPath + "; journal = false", GenerateMapper());
             MigrateDatabase(dbi);
 
             return new BmpCoffer(dbi);
         }
 
         /// <summary>
-        /// load an other database
+        /// Loads a LiteDB database from file
         /// </summary>
         /// <param name="file"></param>
         public void LoadNew(string file)
         {
             this.dbi.Dispose();
-            var mapper = new BsonMapper();
-            mapper.RegisterType(static group => group.Index, static bson => Instrument.Parse(bson.AsInt32));
-            mapper.RegisterType(static group => group.Index, static bson => InstrumentTone.Parse(bson.AsInt32));
-            mapper.RegisterType(static group => group.Index, static bson => OctaveRange.Parse(bson.AsInt32));
-            mapper.RegisterType(static tempoMap => SerializeTempoMap(tempoMap), static bson => DeserializeTempoMap(bson.AsBinary));
-            mapper.RegisterType(static trackChunk => SerializeTrackChunk(trackChunk), static bson => DeserializeTrackChunk(bson.AsBinary));
-
-            var dbi = new LiteDatabase(@"filename=" + file + "; journal = false", mapper); //turn journal off, for big containers
+            var dbi = new LiteDatabase(@"filename=" + file + "; journal = false", GenerateMapper()); //turn journal off, for big containers
             MigrateDatabase(dbi);
 
             _instance = new BmpCoffer(dbi);
             return;
         }
 
+        /// <summary>
+        /// Exports the current LiteDB database to a new file
+        /// </summary>
+        /// <param name="filename"></param>
         public void Export(string filename)
         {
             var t = new LiteDatabase(filename);
@@ -110,6 +116,11 @@ namespace BardMusicPlayer.Coffer
             t.Dispose();
         }
 
+        /// <summary>
+        /// Cleans the database
+        /// <para/>
+        /// Removes unbound songs and rebuild the LiteDB.
+        /// </summary>
         public void CleanUpDB()
         {
             //Try it and catch if the log file can't be removed
@@ -118,8 +129,8 @@ namespace BardMusicPlayer.Coffer
                 //Check if we have songs without a playlist
                 List<ObjectId> differenceQuery = this.GetSongCollection().Query().Select(x => x.Id).ToList()
                                                  .Except(from x in this.GetPlaylistCollection().Query().ToArray()
-                                                  from y in x.Songs
-                                                  select y.Id).ToList();
+                                                         from y in x.Songs
+                                                         select y.Id).ToList();
                 //and remove them
                 foreach (var id in differenceQuery)
                     this.GetSongCollection().Delete(id);
@@ -131,7 +142,9 @@ namespace BardMusicPlayer.Coffer
             }
             catch { }
         }
+        #endregion
 
+        #region Serializations
         /// <summary>
         /// Serializes a TempoMap from DryWetMidi.
         /// </summary>
@@ -193,13 +206,14 @@ namespace BardMusicPlayer.Coffer
             memoryStream.Dispose();
             return trackChunk;
         }
+        #endregion
 
         #region Playlist
         /// <summary>
         /// This creates a playlist containing songs that match the given tag.
         /// </summary>
         /// <param name="tag"></param>
-        /// <returns></returns>
+        /// <returns><see cref="IPlaylist"/></returns>
         public IPlaylist CreatePlaylistFromTag(string tag)
         {
             if (tag == null)
@@ -231,7 +245,7 @@ namespace BardMusicPlayer.Coffer
         /// This creates a new empty playlist with the given name.
         /// </summary>
         /// <param name="name"></param>
-        /// <returns></returns>
+        /// <returns><see cref="IPlaylist"/></returns>
         public IPlaylist CreatePlaylist(string name)
         {
             if (name == null)
@@ -350,7 +364,7 @@ namespace BardMusicPlayer.Coffer
                 throw new BmpCofferException(e.Message, e);
             }
         }
-#endregion
+        #endregion
 
         #region Songs
         /// <summary>
@@ -383,6 +397,44 @@ namespace BardMusicPlayer.Coffer
                 .ToList();
         }
 
+        /// Simple check if song is in database
+        /// </summary>
+        /// <param name="song"></param>
+        /// <returns></returns>
+        public bool IsSongInDatabase(BmpSong song, bool strict = true)
+        {
+            if (song == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            var songCol = this.GetSongCollection();
+            IEnumerable<BmpSong> sList = null;
+            if (strict)
+                sList = songCol.Find(x => x.Title == song.Title);
+            else
+                sList = songCol.Find(x => x.Title.StartsWith(song.Title));
+
+            bool inList = false;
+            foreach (var s in sList)
+            {
+                if (s.TrackContainers.Count() != song.TrackContainers.Count())
+                {
+                    for (int i = 0; i != s.TrackContainers.Count(); i++)
+                    {
+                        if (s.TrackContainers[i].SourceTrackChunk.GetNotes().Count() == song.TrackContainers[i].SourceTrackChunk.GetNotes().Count())
+                            inList = true;
+                    }
+                }
+                else
+                    inList = true;
+
+                if (s.Duration.TotalMilliseconds != song.Duration.TotalMilliseconds)
+                    inList = true;
+            }
+            return inList;
+        }
+
         /// <summary>
         /// This saves a song.
         /// </summary>
@@ -410,7 +462,6 @@ namespace BardMusicPlayer.Coffer
                         return;
                     }
 
-                    //TODO: Fix this to get a real unique idendifier
                     song.Id = ObjectId.NewObjectId();
                     songCol.Insert(song);
                 }

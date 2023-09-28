@@ -92,6 +92,20 @@ namespace BardMusicPlayer.DalamudBridge
         }
 
         /// <summary>
+        /// Sets the sound
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="low"></param>
+        /// <returns></returns>
+        public static Task<bool> SetSoundOnOff(this Game game, bool on)
+        {
+            if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendSoundOnOff(game.Pid, on));
+        }
+
+        /// <summary>
         /// starts the ensemble check
         /// </summary>
         /// <param name="game"></param>

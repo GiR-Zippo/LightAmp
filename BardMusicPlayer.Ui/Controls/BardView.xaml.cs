@@ -338,6 +338,9 @@ namespace BardMusicPlayer.Ui.Controls
                 p.First().TrackNumber = pconfig.Track;
                 if (pconfig.AffinityMask != 0)
                     p.First().game.SetAffinity(pconfig.AffinityMask);
+            
+                if (GameExtensions.SetSoundOnOff(p.First().game, pconfig.IsInGameSoundEnabled).Result)
+                    p.First().game.SoundOn = pconfig.IsInGameSoundEnabled;
             }
 
             List<Performer> tempPerf = new List<Performer>(BardsList.Items.OfType<Performer>().ToList());
@@ -371,6 +374,13 @@ namespace BardMusicPlayer.Ui.Controls
 
             BmpPigeonhole.Instance.EnsembleKeepTrackSetting = true;
             Globals.Globals.ReloadConfig();
+
+            tempPerf = BardsList.Items.OfType<Performer>().ToList();
+            foreach (var perf in tempPerf)
+            {
+                if (!perf.game.SoundOn && !perf.HostProcess)
+                    Mute_CheckBox.IsChecked = true;
+            }
         }
 
         /// <summary>
@@ -398,6 +408,7 @@ namespace BardMusicPlayer.Ui.Controls
                 pdata.Track = performer.TrackNumber;
                 pdata.AffinityMask = (long)performer.game.GetAffinity();
                 pdata.IsHost = performer.HostProcess;
+                pdata.IsInGameSoundEnabled = performer.game.SoundOn;
                 pdatalist.Add(pdata);
             }
             var t = JsonConvert.SerializeObject(pdatalist);
@@ -409,6 +420,12 @@ namespace BardMusicPlayer.Ui.Controls
             pdatalist.Clear();
         }
 
+
+        /// <summary>
+        /// Opens the QEdit with the current loaded song
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OpenQuickEdit_Button(object sender, RoutedEventArgs e)
         {
             if (_QuickEdit == null)
@@ -432,6 +449,15 @@ namespace BardMusicPlayer.Ui.Controls
             {
                 p.game.GfxSettingsLow = GfxLow_CheckBox.IsChecked ?? false;
                 p.game.GfxSetLow(GfxLow_CheckBox.IsChecked ?? false);
+            }
+        }
+
+        private void Mute_CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            foreach (var p in BardsList.Items.OfType<Performer>().ToList().Where(p => !p.HostProcess))
+            {
+                p.game.SoundOn = !Mute_CheckBox.IsChecked ?? false;
+                p.game.SetSoundOnOff(!Mute_CheckBox.IsChecked ?? false);
             }
         }
 
@@ -519,5 +545,6 @@ namespace BardMusicPlayer.Ui.Controls
         public int Track { get; set; } = 0;
         public long AffinityMask { get; set; } = 0;
         public bool IsHost { get; set; } = false;
+        public bool IsInGameSoundEnabled { get; set; } = true;
     }
 }

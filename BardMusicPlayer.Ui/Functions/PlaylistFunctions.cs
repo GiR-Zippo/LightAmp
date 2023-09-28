@@ -21,12 +21,19 @@ namespace BardMusicPlayer.Ui.Functions
         /// <returns>true if success</returns>
         public static bool AddFilesToPlaylist(IPlaylist currentPlaylist, string filename)
         {
-           
             var song = BmpSong.OpenFile(filename).Result;
             {
                 if (currentPlaylist.SingleOrDefault(x => x.Title.Equals(song.Title)) == null)
                     currentPlaylist.Add(song);
-
+                /*else
+                {
+                    if (BmpCoffer.Instance.IsSongInDatabase(song))
+                    {
+                        var sList = BmpCoffer.Instance.GetSongTitles().Where(x => x.StartsWith(song.Title)).ToList();
+                        song.Title = song.Title + "(" + sList.Count() + ")";
+                        currentPlaylist.Add(song);
+                    }
+                }*/
                 BmpCoffer.Instance.SaveSong(song);
             }
             BmpCoffer.Instance.SavePlaylist(currentPlaylist);
@@ -40,7 +47,7 @@ namespace BardMusicPlayer.Ui.Functions
         /// <returns>true if success</returns>
         public static bool AddFilesToPlaylist(IPlaylist currentPlaylist)
         {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            var openFileDialog = new OpenFileDialog
             {
                 Filter = Globals.Globals.FileFilters,
                 Multiselect = true
@@ -49,14 +56,8 @@ namespace BardMusicPlayer.Ui.Functions
             if (openFileDialog.ShowDialog() != true)
                 return false;
 
-            foreach (var song in openFileDialog.FileNames.Select(d => BmpSong.OpenFile(d).Result))
-            {
-                if(currentPlaylist.SingleOrDefault(x => x.Title.Equals(song.Title)) == null)
-                    currentPlaylist.Add(song);
-
-                BmpCoffer.Instance.SaveSong(song);
-            }
-            BmpCoffer.Instance.SavePlaylist(currentPlaylist);
+            foreach (string song in openFileDialog.FileNames)
+                AddFilesToPlaylist(currentPlaylist, song);
             return true;
         }
 

@@ -36,6 +36,7 @@ namespace BardMusicPlayer.Maestro
         /// <summary>
         /// Get all performers the orchestrator has created
         /// </summary>
+        /// <returns><see cref="IEnumerable{Performer}"/></returns>
         public IEnumerable<Performer> GetAllPerformers()
         {
             if (_orchestrator != null)
@@ -46,7 +47,7 @@ namespace BardMusicPlayer.Maestro
         /// <summary>
         /// Get the host bard track number
         /// </summary>
-        /// <returns>tracknumber</returns>
+        /// <returns><see cref="int"/> tracknumber</returns>
         public int GetHostBardTrack()
         {
             if (_orchestrator != null)
@@ -57,7 +58,7 @@ namespace BardMusicPlayer.Maestro
         /// <summary>
         /// Get host bard Pid
         /// </summary>
-        /// <returns>Pid</returns>
+        /// <returns><see cref="int"/> ProcessId</returns>
         public int GetHostPid()
         {
             if (_orchestrator != null)
@@ -73,7 +74,6 @@ namespace BardMusicPlayer.Maestro
         {
             if (_orchestrator != null)
                 return _orchestrator.GetSongTitleParsingBard();
-            
             return new KeyValuePair<TitleParsingHelper, Performer>(new TitleParsingHelper{}, null);
         }
         #endregion
@@ -151,7 +151,6 @@ namespace BardMusicPlayer.Maestro
             {
                 _orchestrator.SetSpeedshift(perf, percentage);
             });
-            
         }
 
         /// <summary>
@@ -261,9 +260,7 @@ namespace BardMusicPlayer.Maestro
         public void StartLocalPerformer(int delay)
         {
             if (_orchestrator != null)
-            {
                 _orchestrator.Start(delay);
-            }
         }
 
         /// <summary>
@@ -272,9 +269,7 @@ namespace BardMusicPlayer.Maestro
         public void PauseLocalPerformer()
         {
             if (_orchestrator != null)
-            {
                 _orchestrator.Pause();
-            }
         }
 
         /// <summary>
@@ -283,9 +278,7 @@ namespace BardMusicPlayer.Maestro
         public void StopLocalPerformer()
         {
             if (_orchestrator != null)
-            {
                 _orchestrator.Stop();
-            }
         }
 
         /// <summary>
@@ -358,6 +351,13 @@ namespace BardMusicPlayer.Maestro
             }
         }
 
+        /// <summary>
+        /// Tap a key
+        /// </summary>
+        /// <param name="BardName"></param>
+        /// <param name="modifier"></param>
+        /// <param name="character"></param>
+        /// <param name="unselected_bards"></param>
         public void TapKey(string BardName, string modifier, string character, List<string> unselected_bards = null)
         {
             if (_orchestrator == null)
@@ -391,15 +391,6 @@ namespace BardMusicPlayer.Maestro
             }
         }
         #endregion
-
-        /// <summary>
-        /// Destroys the sequencer
-        /// </summary>
-        public void DestroySongFromLocalPerformer()
-        {
-            if (_orchestrator != null)
-                _orchestrator.Dispose();
-        }
 
         /// <summary>
         /// Start the eventhandler

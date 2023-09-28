@@ -46,6 +46,7 @@
                         <MenuItem Header="Open Quick Edit"               Click="OpenQuickEdit_Button"/>
                         <MenuItem Header=""/>
                         <CheckBox Content="Set all Gfx to low" x:Name="GfxLow_CheckBox" Unchecked="GfxLow_CheckBox_Checked" Checked="GfxLow_CheckBox_Checked"/>
+                        <CheckBox Content="Mute clients except host" x:Name="Mute_CheckBox" Unchecked="Mute_CheckBox_Checked" Checked="Mute_CheckBox_Checked"/>
                         <MenuItem Header=""/>
                         <MenuItem Header="Arrange XIV Windows"           Click="ArrangeWindow_Click"/>
 

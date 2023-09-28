@@ -21,6 +21,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="10"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -119,6 +120,14 @@
                         </Grid.ColumnDefinitions>
                         <Label    Grid.Column="0" Content="Set Gfx to low:"/>
                         <CheckBox Grid.Column="1" x:Name="GfxTest" Click="GfxTest_Checked" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Grid Grid.Row="5" Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label    Grid.Column="0" Content="Sound On:"/>
+                        <CheckBox Grid.Column="1" x:Name="SoundOn" Click="SoundOn_Checked" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Grid>
                 </Grid>
             </TabItem>

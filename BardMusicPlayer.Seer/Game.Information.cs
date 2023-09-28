@@ -105,6 +105,11 @@ namespace BardMusicPlayer.Seer
         public bool GfxSettingsLow { get; set; }
 
         /// <summary>
+        ///     Indicates if sound is on
+        /// </summary>
+        public bool SoundOn { get; set; } = false;
+
+        /// <summary>
         ///     Contains nearby partymember list. Updated by Sharlayan & Machina. Currently only Sharlayan updates during logoff.
         ///     Fields: uint ActorId, string PlayerName
         ///     This dictionary is sorted on ActorId and can be compared to another Game's PartyMembers with .Equals() extension

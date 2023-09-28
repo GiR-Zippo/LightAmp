@@ -55,6 +55,7 @@ namespace BardMusicPlayer.Ui.Controls
 
             this.Lyrics_TrackNr.Value = performer.SingerTrackNr.ToString();
             GfxTest.IsChecked = _performer.game.GfxSettingsLow;
+            SoundOn.IsChecked = _performer.game.SoundOn;
             PopulateCPUTab();
         }
 
@@ -242,6 +243,26 @@ namespace BardMusicPlayer.Ui.Controls
                 if(!GameExtensions.GfxSetLow(_performer.game, false).Result)
                     _performer.game.RestoreGFXSettings();
                 _performer.game.GfxSettingsLow = false;
+            }
+        }
+
+        private void SoundOn_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((bool)SoundOn.IsChecked)
+            {
+                if (_performer.game.SoundOn)
+                    return;
+                if (!GameExtensions.SetSoundOnOff(_performer.game, true).Result)
+                    _performer.game.SetSoundOnOffLegacy(true);
+                _performer.game.SoundOn = true;
+            }
+            else
+            {
+                if (!_performer.game.SoundOn)
+                    return;
+                if (!GameExtensions.SetSoundOnOff(_performer.game, false).Result)
+                    _performer.game.SetSoundOnOffLegacy(false);
+                _performer.game.SoundOn = false;
             }
         }
     }
