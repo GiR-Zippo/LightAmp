@@ -46,8 +46,25 @@ namespace BardMusicPlayer.Ui.Controls
             BmpSeer.Instance.PlayerNameChanged          += OnPlayerNameChanged;
             BmpSeer.Instance.InstrumentHeldChanged      += OnInstrumentHeldChanged;
             BmpSeer.Instance.HomeWorldChanged           += OnHomeWorldChanged;
+            BmpSeer.Instance.PartyLeaderChanged         += Instance_PartyLeaderChanged;
             Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
             Globals_OnConfigReload(null, null);
+        }
+
+        private void Instance_PartyLeaderChanged(PartyLeaderChanged seerEvent)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (!seerEvent.IsValid())
+                    return;
+                if (BmpMaestro.Instance.GetAllPerformers().Count() == 0)
+                    return;
+                var result = BmpMaestro.Instance.GetAllPerformers().Where( x => x.game.ActorId == seerEvent.PartyLeader.Key).First();
+                if (BardsList.Items.OfType<Performer>().Count(x => (x.PId == result.PId) && x.HostProcess) > 0)
+                    return;
+                BmpMaestro.Instance.SetHostBard(result.game);
+                UpdateView();
+            }));
         }
 
         private void Globals_OnConfigReload(object sender, EventArgs e)
@@ -127,6 +144,11 @@ namespace BardMusicPlayer.Ui.Controls
                 comparator = tempPerf.Except(BmpMaestro.Instance.GetAllPerformers()).ToList();
                 foreach (var p in comparator)
                     BardsList.Items.Remove(p);
+
+                var result = BmpMaestro.Instance.GetAllPerformers().Where(x => x.game.ActorId == x.game.PartyLeader.Key);
+                if (result.Count() > 0)
+                    if (BardsList.Items.OfType<Performer>().Count(x => (x.PId == result.First().PId) && !x.HostProcess) > 0)
+                        BmpMaestro.Instance.SetHostBard(result.First().game);
 
                 this.BardsList.Items.Refresh();
             }));

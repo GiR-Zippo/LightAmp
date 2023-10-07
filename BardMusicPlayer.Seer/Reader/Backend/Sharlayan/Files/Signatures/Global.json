@@ -8,7 +8,7 @@
     },
     {
         "Key": "CHARMAP",
-        "Value": "48c1ea0381faa9010000****8bc2488d0d",
+        "Value": "48c1ea0381fa????0000****8bc2488d0d",
         "ASMSignature": true,
         "PointerPath": [ 0, 0 ]
     },
@@ -16,7 +16,7 @@
         "Key": "PARTYMAP",
         "Value": "8b7c24440fb66c2440400fb6d5488d0d",
         "ASMSignature": true,
-        "PointerPath": [ 0, 0 ]
+        "PointerPath": [ 0, 744 ]
     },
     {
         "Key": "PARTYCOUNT",
@@ -24,8 +24,14 @@
         "ASMSignature": true,
         "PointerPath": [
             0,
-            15708
+            25564
         ]
+    },
+    {
+        "Key": "PARTYLEAD",
+        "Value": "8b7c24440fb66c2440400fb6d5488d0d",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 25560 ]
     },
     {
         "Key": "PLAYERINFO",
@@ -43,7 +49,7 @@
             0,
             0
         ],
-        "Value": "C3E8??????FF84C074??488B5708488D0D"
+        "Value": "897B60488B5C2430488B7424384883C4205FC3837960007C3133D2488D0D"
     },
     {
         "ASMSignature": true,

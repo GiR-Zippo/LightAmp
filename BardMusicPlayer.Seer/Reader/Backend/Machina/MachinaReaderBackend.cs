@@ -1,6 +1,6 @@
 /*
- * Copyright(c) 2023 MoogleTroupe, GiR-Zippo
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 #region
@@ -78,11 +78,11 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                             case 664:
                                 _packet.Size664(timeStamp, otherActorId, myActorId, message); //Handles Homeworld and Playername --DALAMUD
                                 break;
-                            case 928:
-                                _packet.Size928(timeStamp, otherActorId, myActorId, message); //Handles group data
-                                break;
                             case 3576:
                                 _packet.Size3576(timeStamp, otherActorId, myActorId, message);
+                                break;
+                            case 3640:
+                                _packet.Size3640(timeStamp, otherActorId, myActorId, message); //Handles group data
                                 break;
                             default:
                                 ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,

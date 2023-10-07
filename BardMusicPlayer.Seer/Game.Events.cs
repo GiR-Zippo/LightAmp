@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright(c) 2023 MoogleTroupe, trotlinebeercan, GiR-Zippo
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe, trotlinebeercan
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 #region
@@ -96,7 +96,6 @@ namespace BardMusicPlayer.Seer
                             InstrumentHeld = instrumentHeld.InstrumentHeld;
                             BmpSeer.Instance.PublishEvent(instrumentHeld);
                         }
-
                         break;
                     case IsLoggedInChanged isLoggedIn:
                         if (IsLoggedIn != isLoggedIn.IsLoggedIn)
@@ -147,7 +146,14 @@ namespace BardMusicPlayer.Seer
                             PartyMembers = partyMembers.PartyMembers;
                             BmpSeer.Instance.PublishEvent(partyMembers);
                         }
+                        break;
 
+                    case PartyLeaderChanged partyLeader:
+                        if (PartyLeader.Key != partyLeader.PartyLeader.Key)
+                        {
+                            PartyLeader = partyLeader.PartyLeader;
+                            BmpSeer.Instance.PublishEvent(partyLeader);
+                        }
                         break;
 
                     case PlayerNameChanged playerName:

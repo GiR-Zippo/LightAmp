@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright(c) 2023 MoogleTroupe, trotlinebeercan, GiR-Zippo
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe, trotlinebeercan
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 #region
@@ -56,6 +56,8 @@ namespace BardMusicPlayer.Seer
         public delegate void MidibardPlaylistEventHandler(MidibardPlaylistEvent seerEvent);
 
         public delegate void PartyMembersChangedHandler(PartyMembersChanged seerEvent);
+
+        public delegate void PartyLeaderChangedHandler(PartyLeaderChanged seerEvent);
 
         public delegate void PlayerNameChangedHandler(PlayerNameChanged seerEvent);
 
@@ -266,6 +268,16 @@ namespace BardMusicPlayer.Seer
         }
 
         /// <summary>
+        ///     Called when the player's party leader changes.
+        /// </summary>
+        public event PartyLeaderChangedHandler PartyLeaderChanged;
+
+        private void OnPartyLeaderChanged(PartyLeaderChanged seerEvent)
+        {
+            PartyLeaderChanged?.Invoke(seerEvent);
+        }
+
+        /// <summary>
         ///     Called when the player's name changes.
         /// </summary>
         public event PlayerNameChangedHandler PlayerNameChanged;
@@ -355,6 +367,9 @@ namespace BardMusicPlayer.Seer
                             break;
                         case PartyMembersChanged partyMembersChanged:
                             OnPartyMembersChanged(partyMembersChanged);
+                            break;
+                        case PartyLeaderChanged partyLeaderChanged:
+                            OnPartyLeaderChanged(partyLeaderChanged);
                             break;
                         case PlayerNameChanged playerNameChanged:
                             OnPlayerNameChanged(playerNameChanged);

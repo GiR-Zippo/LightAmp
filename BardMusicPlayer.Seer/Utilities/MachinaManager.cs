@@ -1,6 +1,6 @@
 /*
- * Copyright(c) 2023 MoogleTroupe
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 #region
@@ -53,7 +53,7 @@ namespace BardMusicPlayer.Seer.Utilities
             }
         }
 
-        private static readonly List<int> Lengths = new() { 48, 56, 88, 656, 664, 928, 3576 };
+        private static readonly List<int> Lengths = new() { 48, 56, 88, 656, 664, 3576, 3640 };
         private readonly FFXIVNetworkMonitor _monitor;
         private readonly object _lock;
         private bool _monitorRunning;
@@ -150,6 +150,11 @@ namespace BardMusicPlayer.Seer.Utilities
             */
             if (Lengths.Contains(message.Length))
                 MessageReceived?.Invoke((int)connection.ProcessId, message);
+            else if ((message.Length == 3640))
+            {
+                string hexString = BitConverter.ToString(message);
+                System.Diagnostics.Debug.WriteLine("MMMM" + hexString + " " + message.Length.ToString());
+            }
         }
 
         ~MachinaManager() { Dispose(); }
