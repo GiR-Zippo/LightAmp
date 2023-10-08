@@ -93,6 +93,8 @@ namespace BardMusicPlayer.Maestro.Performance
                         return "None";
                     if (this._trackNumber >= _sequencer.Sequence.Count)
                         return "None";
+                    if (_sequencer.LoadedBmpSong.TrackContainers.Count <= TrackNumber)
+                        return "None";
 
                     Transmogrify.Song.Config.ClassicProcessorConfig classicConfig = (Transmogrify.Song.Config.ClassicProcessorConfig)_sequencer.LoadedBmpSong.TrackContainers[TrackNumber - 1].ConfigContainers[0].ProcessorConfig; // track -1 cuz track 0 isn't in this container
                     return classicConfig.Instrument.Name;
@@ -391,6 +393,9 @@ namespace BardMusicPlayer.Maestro.Performance
                     await Task.Delay(BmpPigeonhole.Instance.EnsembleReadyDelay).ConfigureAwait(false);
                 }
             }
+
+            if (Instrument.Parse(TrackInstrument).Equals(Instrument.None))
+                return 0;
 
             if (UsesDalamud)
                 DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.Instrument, game = game, IntData = Instrument.Parse(TrackInstrument).Index });
