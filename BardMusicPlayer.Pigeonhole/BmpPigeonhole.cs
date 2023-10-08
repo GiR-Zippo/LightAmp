@@ -32,6 +32,8 @@ namespace BardMusicPlayer.Pigeonhole
         /// </summary>
         public static BmpPigeonhole Instance => _instance ?? throw new BmpException("This pigeonhole must be initialized first.");
 
+        #region Playlist Settings
+
         /// <summary>
         /// Sets PlayAllTracks
         /// </summary>
@@ -51,6 +53,13 @@ namespace BardMusicPlayer.Pigeonhole
         /// last loaded song
         /// </summary>
         public virtual string LastLoadedCatalog { get; set; } = "";
+
+        #endregion
+
+        /// <summary>
+        /// sets/gets if the host should be switches according to the group lead
+        /// </summary>
+        public virtual bool AutoselectHost { get; set; } = true;
 
         /// <summary>
         /// last loaded song
@@ -93,11 +102,6 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual bool ForcePlayback { get; set; } = false;
 
         /// <summary>
-        /// brings the game to front
-        /// </summary>
-        public virtual int MidiConverter_Type { get; set; } = 0;
-
-        /// <summary>
         /// brings the bmp to front
         /// </summary>
         public virtual bool BringBMPtoFront { get; set; } = false;
@@ -106,11 +110,6 @@ namespace BardMusicPlayer.Pigeonhole
         /// Enables the multibox feature
         /// </summary>
         public virtual bool EnableMultibox { get; set; } = true;
-
-        /// <summary>
-        /// LastCharId
-        /// </summary>
-        public virtual string LastCharId { get; set; } = "";
 
         /// <summary>
         /// BMP window location
@@ -183,16 +182,6 @@ namespace BardMusicPlayer.Pigeonhole
         /// Contains the last path of an opened midi file
         /// </summary>
         public virtual string LastOpenedMidiPath { get; set; } = "";
-
-        /// <summary>
-        /// Contains the delay used for note pressing. This should be no less then 1 and no greater then 25.
-        /// </summary>
-        public virtual int NoteKeyDelay { get; set; } = 1;
-
-        /// <summary>
-        /// Contains the delay used for tone pressing. This should be no less then 1 and no greater then 25.
-        /// </summary>
-        public virtual int ToneKeyDelay { get; set; } = 3;
 
         /// <summary>
         /// Compatmode for MidiBard
