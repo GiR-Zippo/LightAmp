@@ -18,7 +18,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
     {
         public KeyValuePair<uint, string> GetPartyLeader()
         {
-            var result = new KeyValuePair<uint, string >();
+            KeyValuePair<uint, string> result = new KeyValuePair<uint, string >();
 
             if (!CanGetPartyMembers() || !MemoryHandler.IsAttached) return result;
 

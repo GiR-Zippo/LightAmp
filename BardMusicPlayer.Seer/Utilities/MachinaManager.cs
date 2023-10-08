@@ -150,11 +150,6 @@ namespace BardMusicPlayer.Seer.Utilities
             */
             if (Lengths.Contains(message.Length))
                 MessageReceived?.Invoke((int)connection.ProcessId, message);
-            else if ((message.Length == 3640))
-            {
-                string hexString = BitConverter.ToString(message);
-                System.Diagnostics.Debug.WriteLine("MMMM" + hexString + " " + message.Length.ToString());
-            }
         }
 
         ~MachinaManager() { Dispose(); }

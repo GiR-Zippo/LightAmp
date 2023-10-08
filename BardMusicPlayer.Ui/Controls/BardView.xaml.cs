@@ -59,10 +59,12 @@ namespace BardMusicPlayer.Ui.Controls
                     return;
                 if (BmpMaestro.Instance.GetAllPerformers().Count() == 0)
                     return;
-                var result = BmpMaestro.Instance.GetAllPerformers().Where( x => x.game.ActorId == seerEvent.PartyLeader.Key).First();
-                if (BardsList.Items.OfType<Performer>().Count(x => (x.PId == result.PId) && x.HostProcess) > 0)
+                var result = BmpMaestro.Instance.GetAllPerformers().Where( x => x.game.ActorId == seerEvent.PartyLeader.Key);
+                if (result.Count() > 0)
                     return;
-                BmpMaestro.Instance.SetHostBard(result.game);
+                if (BardsList.Items.OfType<Performer>().Count(x => (x.PId == result.First().PId) && x.HostProcess) > 0)
+                    return;
+                BmpMaestro.Instance.SetHostBard(result.First().game);
                 UpdateView();
             }));
         }

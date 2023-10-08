@@ -38,13 +38,15 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                 byte currentLeader = (byte)BitConverter.ToInt16(message, 3632);
                 for (var i = 0; i <= 3136; i += 448)
                 {
+                    //Check for empty column
                     var actorId = BitConverter.ToUInt32(message, 80 + i);
                     if (actorId == 0)
-                        continue; // This player is too far away for us to consider them "in party."
+                        continue;
 
                     var playerName = Encoding.UTF8.GetString(message, 32 + i, 32).Trim((char)0);
                     uint currentZoneId = BitConverter.ToUInt16(message, 102 + i);
                     uint currentWorldId = BitConverter.ToUInt16(message, 104 + i);
+                    //Change me
                     switch (i)
                     {
                         case 0 when actorId != myActorId: // The first ActorId should always be this Game's ActorId.
@@ -60,6 +62,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                             break;
                     }
 
+                    //Get the party lead
                     if (i/ 448 == currentLeader)
                         currentPartyLead = new KeyValuePair<uint, string>(actorId, playerName);
 
