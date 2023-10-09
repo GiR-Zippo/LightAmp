@@ -18,6 +18,9 @@ namespace BardMusicPlayer.Ui
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            SplashScreen splashScreen = new SplashScreen("/Resources/Images/splash.jpg");
+            splashScreen.Show(true);
+
             Globals.Globals.DataPath = @"data\";
 
             //init pigeon at first

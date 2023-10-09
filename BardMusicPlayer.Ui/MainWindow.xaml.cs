@@ -8,8 +8,6 @@ using BardMusicPlayer.Ui.Classic;
 using System.Windows;
 using BardMusicPlayer.Pigeonhole;
 using System.Reflection;
-using System.Collections.Generic;
-using System;
 
 namespace BardMusicPlayer.Ui
 {
