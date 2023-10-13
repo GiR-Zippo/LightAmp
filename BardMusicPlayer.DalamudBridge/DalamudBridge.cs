@@ -35,7 +35,8 @@ namespace BardMusicPlayer.DalamudBridge
                 return;
             if (!BmpSeer.Instance.Started) throw new DalamudBridgeException("DalamudBridge requires Seer to be running.");
             DalamudServer = new DalamudServer();
-            StartEventsHandler();
+            StartResponeEventsHandler();
+            StartCommandEventsHandler();
             Started = true;
         }
 
@@ -45,7 +46,8 @@ namespace BardMusicPlayer.DalamudBridge
         public void Stop()
         {
             if (!Started) return;
-            StopEventsHandler();
+            StopResponseEventsHandler();
+            StopCommandEventsHandler();
             DalamudServer?.Dispose();
             DalamudServer = null;
             Started = false;
@@ -55,7 +57,7 @@ namespace BardMusicPlayer.DalamudBridge
         public void ActionToQueue(DalamudBridgeCommandStruct data)
         {
             if (!Started) return;
-            PublishEvent(data);
+            PublishCommandEvent(data);
         }
 
 

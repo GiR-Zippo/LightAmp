@@ -13,7 +13,10 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
 
         SetGfx                  = 10,   //Get<->Set
         NameAndHomeWorld        = 11,   //Get
-        SetSoundOnOff           = 12,   //Set<->Get
+        MasterSoundState        = 12,   //Set<->Get
+        MasterVolume            = 13,   //Set<->Get
+        VoiceSoundState         = 14,   //Set<->Get
+        EffectsSoundState       = 15,   //Set<->Get
 
         Instrument              = 20,
         NoteOn                  = 21,
@@ -26,6 +29,7 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
 
         Chat                    = 40,
 
-        NetworkPacket           = 50
+        NetworkPacket           = 50,
+        ExitGame                = 55
     }
 }

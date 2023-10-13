@@ -299,7 +299,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                 {
                     var tempoMap = midiFile.GetTempoMap().Clone();
                     int noteVelocity = int.Parse(index.ToString()) + 1;
-
+                    #region trim and realign
                     //Generate NoteDict
                     Dictionary<int, Dictionary<long, Note>> allNoteEvents = Extensions.GetNoteDictionary(originalChunk, tempoMap, firstNoteus, noteVelocity).Result;
 
@@ -322,6 +322,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                     allNoteEvents = null;
                     //Fix EndSpacing
                     fixedNotes = Extensions.FixEndSpacing(fixedNotes).Result;
+                    #endregion  
 
                     #region Tracknaming and octave shifting
 

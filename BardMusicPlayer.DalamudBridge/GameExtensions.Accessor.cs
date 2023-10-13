@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using BardMusicPlayer.Quotidian.Structs;
@@ -106,6 +107,47 @@ namespace BardMusicPlayer.DalamudBridge
         }
 
         /// <summary>
+        /// Sets the voice mute
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="low"></param>
+        /// <returns></returns>
+        public static Task<bool> SetVoiceOnOff(this Game game, bool on)
+        {
+            if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendVoiceOnOff(game.Pid, on));
+        }
+
+        /// <summary>
+        /// Sets the effect mute
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="low"></param>
+        /// <returns></returns>
+        public static Task<bool> SetEffectOnOff(this Game game, bool on)
+        {
+            if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendEffectOnOff(game.Pid, on));
+        }
+        /// <summary>
+        /// Sets the master volume sound
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="low"></param>
+        /// <returns></returns>
+        public static Task<bool> SetMasterVolume(this Game game, short value)
+        {
+            if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SetMasterVolume(game.Pid, value));
+        }
+
+        /// <summary>
         /// starts the ensemble check
         /// </summary>
         /// <param name="game"></param>
@@ -116,6 +158,19 @@ namespace BardMusicPlayer.DalamudBridge
 
             return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
                        DalamudBridge.Instance.DalamudServer.SendStartEnsemble(game.Pid));
+        }
+
+        /// <summary>
+        /// quits the client
+        /// </summary>
+        /// <param name="game"></param>
+        /// <returns></returns>
+        public static Task<bool> TerminateClient(this Game game)
+        {
+            if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                       DalamudBridge.Instance.DalamudServer.SendQuitClient(game.Pid));
         }
 
         /// <summary>

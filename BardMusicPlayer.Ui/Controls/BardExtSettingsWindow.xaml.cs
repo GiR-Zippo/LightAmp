@@ -13,6 +13,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BardMusicPlayer.Quotidian.Structs;
+using System.Data;
+using CSCore.CoreAudioAPI;
+using CSCore.XAudio2;
+using System.Threading.Tasks;
+using System.Security.Cryptography;
+using BardMusicPlayer.Dalamud.Events;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -56,9 +62,58 @@ namespace BardMusicPlayer.Ui.Controls
             this.Lyrics_TrackNr.Value = performer.SingerTrackNr.ToString();
             GfxTest.IsChecked = _performer.game.GfxSettingsLow;
             SoundOn.IsChecked = _performer.game.SoundOn;
+
+            if (!GameExtensions.IsConnected(_performer.game.Pid))
+                MasterVolume.Value = MasterAudioVol(-1);
+            else
+            {
+                GameExtensions.SetMasterVolume(_performer.game, -1);
+                DalamudBridge.DalamudBridge.Instance.OnMasterVolumeChangedEvent += Instance_DalamudMasterVol;
+                DalamudBridge.DalamudBridge.Instance.OnMasterVolumeMuteEvent += Instance_DalamudMasterMute;
+                DalamudBridge.DalamudBridge.Instance.OnVoiceVolumeMuteEvent += Instance_DalamudVoiceMute;
+                DalamudBridge.DalamudBridge.Instance.OnEffectVolumeMuteEvent += Instance_DalamudEffectMute;
+            }
+
+            CharUUID_Label.Content = _performer.game.ConfigId;
             PopulateCPUTab();
         }
 
+        private void Instance_DalamudMasterVol(object sender, MasterVolumeChangedEvent e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => 
+            { 
+                if (e.PId == this._performer.game.Pid)
+                    MasterVolume.Value = e.MasterVolume;
+            }));
+        }
+
+        private void Instance_DalamudMasterMute(object sender, MasterVolumeMuteEvent e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (e.PId == this._performer.game.Pid)
+                    SoundOn.IsChecked = !e.MasterState;
+            }));
+        }
+
+        private void Instance_DalamudVoiceMute(object sender, VoiceVolumeMuteEvent e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (e.PId == this._performer.game.Pid)
+                    VoiceOn.IsChecked = !e.State;
+            }));
+        }
+
+        private void Instance_DalamudEffectMute(object sender, EffectVolumeMuteEvent e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (e.PId == this._performer.game.Pid)
+                    EffectOn.IsChecked = !e.State;
+            }));
+        }
+        #region ChatControl
         private void Songtitle_Post_Type_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ChatMessageChannelType chanType = ChatMessageChannelType.None;
@@ -147,7 +202,154 @@ namespace BardMusicPlayer.Ui.Controls
             ctl.OnValueChanged -= Lyrics_TrackNr_OnValueChanged;
         }
 
-    #region CPU-Tab
+        private void GfxTest_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((bool)GfxTest.IsChecked)
+            {
+                if (_performer.game.GfxSettingsLow)
+                    return;
+                if (!GameExtensions.GfxSetLow(_performer.game, true).Result)
+                    _performer.game.SetGfxLow();
+                _performer.game.GfxSettingsLow = true;
+            }
+            else
+            {
+                if (!_performer.game.GfxSettingsLow)
+                    return;
+                if (!GameExtensions.GfxSetLow(_performer.game, false).Result)
+                    _performer.game.RestoreGFXSettings();
+                _performer.game.GfxSettingsLow = false;
+            }
+        }
+
+        private void KillClient_Click(object sender, RoutedEventArgs e)
+        {
+            if (!GameExtensions.TerminateClient(_performer.game).Result)
+                _performer.game.Process.Kill();
+        }
+
+        private void SoundOn_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((bool)SoundOn.IsChecked)
+            {
+                if (_performer.game.SoundOn)
+                    return;
+                if (!GameExtensions.SetSoundOnOff(_performer.game, true).Result)
+                {
+                    _performer.game.SetSoundOnOffLegacy(true);
+                    MuteAudio(false);
+                }
+                _performer.game.SoundOn = true;
+            }
+            else
+            {
+                if (!_performer.game.SoundOn)
+                    return;
+                if (!GameExtensions.SetSoundOnOff(_performer.game, false).Result)
+                {
+                    _performer.game.SetSoundOnOffLegacy(false);
+                    MuteAudio(true);
+                }
+                _performer.game.SoundOn = false;
+            }
+        }
+
+        private void MasterVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!GameExtensions.SetMasterVolume(_performer.game, (short)e.NewValue).Result)
+                MasterAudioVol((float)e.NewValue);
+        }
+
+        private void VoiceOn_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((bool)VoiceOn.IsChecked)
+            {
+                if (!GameExtensions.SetVoiceOnOff(_performer.game, true).Result)
+                    return;
+            }
+            else
+            {
+                if (!GameExtensions.SetVoiceOnOff(_performer.game, false).Result)
+                    return;
+            }
+        }
+
+        private void EffectOn_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((bool)EffectOn.IsChecked)
+            {
+                if (!GameExtensions.SetEffectOnOff(_performer.game, true).Result)
+                    return;
+            }
+            else
+            {
+                if (!GameExtensions.SetEffectOnOff(_performer.game, false).Result)
+                    return;
+            }
+        }
+
+        private void MuteAudio(bool state)
+        {
+            var sessionManager = Task.Run(() => Task.FromResult(GetDefaultAudioSessionManager2(DataFlow.Render))).Result;
+
+            //using (var sessionManager = GetDefaultAudioSessionManager2(DataFlow.Render))
+            {
+                using (var sessionEnumerator = sessionManager.GetSessionEnumerator())
+                {
+                    foreach (var session in sessionEnumerator)
+                    {
+                        using (var simpleVolume = session.QueryInterface<SimpleAudioVolume>())
+                        using (var sessionControl = session.QueryInterface<AudioSessionControl2>())
+                        {
+                            if (sessionControl.ProcessID == _performer.game.Pid)
+                                simpleVolume.IsMuted = state;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        private float MasterAudioVol(float state)
+        {
+            var sessionManager = Task.Run(() => Task.FromResult(GetDefaultAudioSessionManager2(DataFlow.Render))).Result;
+
+            //using (var sessionManager = GetDefaultAudioSessionManager2(DataFlow.Render))
+            {
+                using (var sessionEnumerator = sessionManager.GetSessionEnumerator())
+                {
+                    foreach (var session in sessionEnumerator)
+                    {
+                        using (var simpleVolume = session.QueryInterface<SimpleAudioVolume>())
+                        using (var sessionControl = session.QueryInterface<AudioSessionControl2>())
+                        {
+                            if (sessionControl.ProcessID == _performer.game.Pid)
+                                if (state == -1)
+                                    return simpleVolume.MasterVolume * 100;
+                                else
+                                    simpleVolume.MasterVolume = state /100;
+                        }
+                    }
+                }
+            }
+            return state;
+        }
+
+        private static AudioSessionManager2 GetDefaultAudioSessionManager2(DataFlow dataFlow)
+        {
+            using (var enumerator = new MMDeviceEnumerator())
+            {
+                using (var device = enumerator.GetDefaultAudioEndpoint(dataFlow, Role.Multimedia))
+                {
+                    //Debug.WriteLine("DefaultDevice: " + device.FriendlyName);
+                    var sessionManager = AudioSessionManager2.FromMMDevice(device);
+                    return sessionManager;
+                }
+            }
+        }
+        #endregion
+
+        #region CPU-Tab
         private void PopulateCPUTab()
         {
             //Get the our application's process.
@@ -226,44 +428,5 @@ namespace BardMusicPlayer.Ui.Controls
 
         #endregion
 
-        private void GfxTest_Checked(object sender, RoutedEventArgs e)
-        {
-            if ((bool)GfxTest.IsChecked)
-            {
-                if (_performer.game.GfxSettingsLow)
-                    return;
-                if (!GameExtensions.GfxSetLow(_performer.game, true).Result)
-                    _performer.game.SetGfxLow();
-                _performer.game.GfxSettingsLow = true;
-            }
-            else
-            {
-                if (!_performer.game.GfxSettingsLow)
-                    return;
-                if(!GameExtensions.GfxSetLow(_performer.game, false).Result)
-                    _performer.game.RestoreGFXSettings();
-                _performer.game.GfxSettingsLow = false;
-            }
-        }
-
-        private void SoundOn_Checked(object sender, RoutedEventArgs e)
-        {
-            if ((bool)SoundOn.IsChecked)
-            {
-                if (_performer.game.SoundOn)
-                    return;
-                if (!GameExtensions.SetSoundOnOff(_performer.game, true).Result)
-                    _performer.game.SetSoundOnOffLegacy(true);
-                _performer.game.SoundOn = true;
-            }
-            else
-            {
-                if (!_performer.game.SoundOn)
-                    return;
-                if (!GameExtensions.SetSoundOnOff(_performer.game, false).Result)
-                    _performer.game.SetSoundOnOffLegacy(false);
-                _performer.game.SoundOn = false;
-            }
-        }
     }
 }
