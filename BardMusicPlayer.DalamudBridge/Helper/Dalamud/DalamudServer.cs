@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright(c) 2023 MoogleTroupe, GiR-Zippo
+ * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
@@ -16,8 +16,6 @@ using H.Pipes;
 using H.Pipes.AccessControl;
 using H.Pipes.Args;
 using BardMusicPlayer.Seer.Utilities;
-using BardMusicPlayer.Seer.Events;
-using System.Security.Cryptography;
 using BardMusicPlayer.Dalamud.Events;
 
 namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
