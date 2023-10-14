@@ -13,12 +13,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BardMusicPlayer.Quotidian.Structs;
-using System.Data;
 using CSCore.CoreAudioAPI;
-using CSCore.XAudio2;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
 using BardMusicPlayer.Dalamud.Events;
+using System.ComponentModel;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -69,13 +67,23 @@ namespace BardMusicPlayer.Ui.Controls
             {
                 GameExtensions.SetMasterVolume(_performer.game, -1);
                 DalamudBridge.DalamudBridge.Instance.OnMasterVolumeChangedEvent += Instance_DalamudMasterVol;
-                DalamudBridge.DalamudBridge.Instance.OnMasterVolumeMuteEvent += Instance_DalamudMasterMute;
-                DalamudBridge.DalamudBridge.Instance.OnVoiceVolumeMuteEvent += Instance_DalamudVoiceMute;
-                DalamudBridge.DalamudBridge.Instance.OnEffectVolumeMuteEvent += Instance_DalamudEffectMute;
+                DalamudBridge.DalamudBridge.Instance.OnMasterVolumeMuteEvent    += Instance_DalamudMasterMute;
+                DalamudBridge.DalamudBridge.Instance.OnVoiceVolumeMuteEvent     += Instance_DalamudVoiceMute;
+                DalamudBridge.DalamudBridge.Instance.OnEffectVolumeMuteEvent    += Instance_DalamudEffectMute;
+                this.Closing += Instance_WindowClose;
             }
 
             CharUUID_Label.Content = _performer.game.ConfigId;
             PopulateCPUTab();
+        }
+
+        #region EventCtrl
+        private void Instance_WindowClose(object sender, CancelEventArgs e)
+        {
+            DalamudBridge.DalamudBridge.Instance.OnMasterVolumeChangedEvent -= Instance_DalamudMasterVol;
+            DalamudBridge.DalamudBridge.Instance.OnMasterVolumeMuteEvent    -= Instance_DalamudMasterMute;
+            DalamudBridge.DalamudBridge.Instance.OnVoiceVolumeMuteEvent     -= Instance_DalamudVoiceMute;
+            DalamudBridge.DalamudBridge.Instance.OnEffectVolumeMuteEvent    -= Instance_DalamudEffectMute;
         }
 
         private void Instance_DalamudMasterVol(object sender, MasterVolumeChangedEvent e)
@@ -113,6 +121,8 @@ namespace BardMusicPlayer.Ui.Controls
                     EffectOn.IsChecked = !e.State;
             }));
         }
+        #endregion
+
         #region ChatControl
         private void Songtitle_Post_Type_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -202,6 +212,11 @@ namespace BardMusicPlayer.Ui.Controls
             ctl.OnValueChanged -= Lyrics_TrackNr_OnValueChanged;
         }
 
+        /// <summary>
+        /// Sets the GFX to Low or back to High
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void GfxTest_Checked(object sender, RoutedEventArgs e)
         {
             if ((bool)GfxTest.IsChecked)
@@ -222,12 +237,24 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
+        /// <summary>
+        /// Kills the client
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void KillClient_Click(object sender, RoutedEventArgs e)
         {
             if (!GameExtensions.TerminateClient(_performer.game).Result)
                 _performer.game.Process.Kill();
         }
+        #endregion
 
+        #region Sound Tab
+        /// <summary>
+        /// Enables/Disables the master sound
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SoundOn_Checked(object sender, RoutedEventArgs e)
         {
             if ((bool)SoundOn.IsChecked)
@@ -254,12 +281,22 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
+        /// <summary>
+        /// Sets the master volume (by dalamud or legacy windows mixer)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MasterVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (!GameExtensions.SetMasterVolume(_performer.game, (short)e.NewValue).Result)
                 MasterAudioVol((float)e.NewValue);
         }
 
+        /// <summary>
+        /// Enables/Disables the voices
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void VoiceOn_Checked(object sender, RoutedEventArgs e)
         {
             if ((bool)VoiceOn.IsChecked)
@@ -274,6 +311,11 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
+        /// <summary>
+        /// Enables/Disables the effects
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void EffectOn_Checked(object sender, RoutedEventArgs e)
         {
             if ((bool)EffectOn.IsChecked)
@@ -288,6 +330,10 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
+        /// <summary>
+        /// Mutes the audio out in legacy mode
+        /// </summary>
+        /// <param name="state"></param>
         private void MuteAudio(bool state)
         {
             var sessionManager = Task.Run(() => Task.FromResult(GetDefaultAudioSessionManager2(DataFlow.Render))).Result;
@@ -310,6 +356,11 @@ namespace BardMusicPlayer.Ui.Controls
 
         }
 
+        /// <summary>
+        /// Sets the Mastervolume in legacy mode
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns><see cref="float"/> volume</returns>
         private float MasterAudioVol(float state)
         {
             var sessionManager = Task.Run(() => Task.FromResult(GetDefaultAudioSessionManager2(DataFlow.Render))).Result;
@@ -350,6 +401,9 @@ namespace BardMusicPlayer.Ui.Controls
         #endregion
 
         #region CPU-Tab
+        /// <summary>
+        /// Populates the CPU-Tab
+        /// </summary>
         private void PopulateCPUTab()
         {
             //Get the our application's process.
@@ -387,6 +441,11 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
+        /// <summary>
+        /// Saves the CPU affinity settings
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Save_CPU_Click(object sender, RoutedEventArgs e)
         {
             long mask = 0;
@@ -410,6 +469,11 @@ namespace BardMusicPlayer.Ui.Controls
                 _performer.game.SetAffinity(mask);
         }
 
+        /// <summary>
+        /// Clears the CPU aff. mask
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Clear_CPU_Click(object sender, RoutedEventArgs e)
         {
             foreach (CheckBox box in _cpuBoxes)
@@ -418,6 +482,12 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
+        /// <summary>
+        /// Resets the CPU aff. to default
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+
         private void Reset_CPU_Click(object sender, RoutedEventArgs e)
         {
             foreach (CheckBox box in _cpuBoxes)
@@ -425,8 +495,6 @@ namespace BardMusicPlayer.Ui.Controls
                 box.IsChecked = true;
             }
         }
-
         #endregion
-
     }
 }

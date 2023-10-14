@@ -21,10 +21,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="10"/>
-                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="10"/>
@@ -125,8 +123,10 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="74*"/>
+                            <ColumnDefinition Width="207*"/>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="1" x:Name="KillClient" Content="Kill Client"  Click="KillClient_Click" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" x:Name="KillClient" Content="!Kill Client!"  Click="KillClient_Click" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Grid>
                 </Grid>
             </TabItem>
