@@ -222,6 +222,7 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
                                         <CheckBox Margin="10,0,0,0"  Grid.Row="1" Content="Bring LA to front" x:Name="AMPInFrontBox" Checked="AMPInFrontBox_Checked" Unchecked="AMPInFrontBox_Checked" ToolTip="{StaticResource GAME_AMPFRONT}"/>
                                         <CheckBox Margin="10,0,0,0"  Grid.Row="2" Content="Enable Multibox" x:Name="MultiBox_Box" Checked="MultiBox_Checked" Unchecked="MultiBox_Checked" ToolTip="{StaticResource GAME_MULTIBOX}"/>
@@ -231,6 +232,7 @@
                                         <Label Margin="0,0,0,0"      Grid.Row="6" Content="Advanced:"/>
                                         <CheckBox Margin="10,0,0,0"  Grid.Row="7" x:Name="MidiBardComp"      Content="Enable MidiBard Compat."          Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"          ToolTip="{StaticResource MISC_MIDIBARD}"/>
                                         <CheckBox Margin="10,0,0,0"  Grid.Row="8" x:Name="SkinUiBox"         Content="Use skinned Ui"                   Unchecked="SkinUiBox_Checked"         Checked="SkinUiBox_Checked"         ToolTip="{StaticResource MISC_SKINNEDUI}"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="9" x:Name="Sp_DalamudKeyOut"  Content="Use Dalamud Key out"              Unchecked="Sp_DalamudKeyOut_Checked"  Checked="Sp_DalamudKeyOut_Checked"  Visibility="Hidden"/>
                                     </Grid>
                                 </TabItem>
                             </TabControl>

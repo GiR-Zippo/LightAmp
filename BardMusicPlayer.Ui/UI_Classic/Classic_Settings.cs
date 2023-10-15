@@ -2,9 +2,11 @@
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -43,7 +45,13 @@ namespace BardMusicPlayer.Ui.Classic
             SkinUiBox.IsChecked = !BmpPigeonhole.Instance.ClassicUi;
 
             //Playlist
-            AutoPlay_CheckBox.IsChecked = BmpPigeonhole.Instance.PlaylistAutoPlay;            
+            AutoPlay_CheckBox.IsChecked = BmpPigeonhole.Instance.PlaylistAutoPlay;
+
+            if (BmpPigeonhole.Instance.UsePluginForKeyOutput)
+            {
+                Sp_DalamudKeyOut.Visibility = Visibility.Visible;
+                Sp_DalamudKeyOut.IsChecked = BmpPigeonhole.Instance.UsePluginForKeyOutput;
+            }
         }
 
         #region Orchestra
@@ -151,5 +159,31 @@ namespace BardMusicPlayer.Ui.Classic
             BmpPigeonhole.Instance.ClassicUi = !(SkinUiBox.IsChecked ?? true);
         }
         #endregion
+
+        private void Sp_DalamudKeyOut_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.UsePluginForKeyOutput = (Sp_DalamudKeyOut.IsChecked ?? true);
+        }
+
+        private static readonly Key[] KonamiCode = { Key.Up, Key.Up, Key.Down, Key.Down, Key.Left, Key.Right, Key.Left, Key.Right, Key.B, Key.A };
+        private readonly Queue<Key> _inputKeys = new Queue<Key>();
+        private void Classic_MainView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (IsCompletedBy(e.Key))
+            {
+                Sp_DalamudKeyOut.Visibility = Visibility.Visible;
+                this.KeyDown -= Classic_MainView_KeyDown;
+            }
+            e.Handled = true;
+        }
+        public bool IsCompletedBy(Key inputKey)
+        {
+            _inputKeys.Enqueue(inputKey);
+
+            while (_inputKeys.Count > KonamiCode.Length)
+                _inputKeys.Dequeue();
+
+            return _inputKeys.SequenceEqual(KonamiCode);
+        }
     }
 }

@@ -28,6 +28,7 @@ namespace BardMusicPlayer.Ui.Classic
         public Classic_MainView()
         {
             InitializeComponent();
+
             //Always start with the playlists
             _showingPlaylists = true;
             //Fill the list
@@ -55,6 +56,10 @@ namespace BardMusicPlayer.Ui.Classic
             BmpSeer.Instance.MidibardPlaylistEvent      += Instance_MidibardPlaylistEvent;
 
             Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
+
+            if (!BmpPigeonhole.Instance.UsePluginForKeyOutput)
+                this.KeyDown                            += Classic_MainView_KeyDown;
+
             LoadConfig();
         }
 
