@@ -174,7 +174,6 @@ namespace BardMusicPlayer.Ui.Classic
                 Sp_DalamudKeyOut.Visibility = Visibility.Visible;
                 this.KeyDown -= Classic_MainView_KeyDown;
             }
-            e.Handled = true;
         }
         public bool IsCompletedBy(Key inputKey)
         {

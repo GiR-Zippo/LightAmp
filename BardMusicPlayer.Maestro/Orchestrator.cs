@@ -748,9 +748,6 @@ namespace BardMusicPlayer.Maestro
 
             //delay calc
             int delayvalue = 0;
-            if (BmpPigeonhole.Instance.MidiBardCompatMode)
-                delayvalue = 1836;
-
             if (BmpPigeonhole.Instance.EnsemblePlayDelay)
                 delayvalue = 2490;
 
