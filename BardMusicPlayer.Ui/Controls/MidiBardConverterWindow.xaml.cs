@@ -126,6 +126,7 @@ namespace BardMusicPlayer.Ui.Controls
                 _tracks.Add(midiTrack);
                 idx++;
             }
+            AnalyzeLoadedMidi();
             TrackList.ItemsSource = _tracks;
             TrackList.Items.Refresh();
         }
@@ -185,9 +186,27 @@ namespace BardMusicPlayer.Ui.Controls
                 _tracks.Add(midiTrack);
                 idx++;
             }
-
+            AnalyzeLoadedMidi();
             TrackList.ItemsSource = _tracks;
             TrackList.Items.Refresh();
+        }
+
+        private void AnalyzeLoadedMidi()
+        {
+            foreach (var track in _tracks)
+                AnalyzeTrack(track);
+
+        }
+
+        private void AnalyzeTrack(MidiBardImporter.MidiTrack track)
+        {
+            foreach (var item in track.trackChunk.GetNotes())
+            {
+                if (item.NoteNumber < track.MinNote.NoteNumber)
+                    track.MinNote = item;
+                if (item.NoteNumber > track.MaxNote.NoteNumber)
+                    track.MaxNote = item;
+            };
         }
 
         #region Octave Up/Down
@@ -313,7 +332,6 @@ namespace BardMusicPlayer.Ui.Controls
         #endregion
 
         #region Sidemenu
-
         private void Sequencer_Click(object sender, RoutedEventArgs e)
         {
             if (_midifile == null)
@@ -476,6 +494,58 @@ namespace BardMusicPlayer.Ui.Controls
         {
             _Sender = sender;
             e.Handled = true;
+        }
+
+        private void TrackListItem_Duplicate_Click(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is System.Windows.Controls.ListViewItem)
+            {
+                var t = (_Sender as System.Windows.Controls.ListViewItem).Content as MidiBardImporter.MidiTrack;
+                MidiBardImporter.MidiTrack ntrack = new MidiBardImporter.MidiTrack();
+                ntrack.Index = t.Index+1;
+                ntrack.TrackNumber = t.TrackNumber+1;
+                ntrack.trackInstrument = t.trackInstrument;
+                ntrack.Transpose = t.Transpose;
+                ntrack.ToneMode = t.ToneMode;
+                ntrack.trackChunk = (TrackChunk)t.trackChunk.Clone();
+                _tracks.Insert(t.Index, ntrack);
+                AnalyzeTrack(ntrack);
+                RenumberTracks();
+            }
+        }
+
+        private void TrackListItem_Autotranspose_Click(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is System.Windows.Controls.ListViewItem)
+            {
+                int highOctave = -1;
+                int lowOctave = -1;
+                var t = (_Sender as System.Windows.Controls.ListViewItem).Content as MidiBardImporter.MidiTrack;
+                
+
+                if (t.MinNote.Octave < 3)
+                    lowOctave = t.MinNote.Octave;
+
+                if (t.MaxNote.NoteNumber > 84)
+                    highOctave =t.MaxNote.Octave;
+
+
+                if (highOctave != -1 && lowOctave != -1)
+                    return;
+
+                if (lowOctave != -1)
+                {
+                    int newOctave = 3-lowOctave;
+                    t.Transpose = t.Transpose+newOctave;
+                }
+
+                if (highOctave != -1)
+                {
+                    int newOctave = t.MaxNote.Octave - 5;
+                    t.Transpose = t.Transpose - newOctave;
+                }
+                TrackList.Items.Refresh();
+            }
         }
 
         private void TrackListItem_DrumMap_Click(object sender, RoutedEventArgs e)

@@ -66,7 +66,10 @@
             </ListView.ItemContainerStyle>
             <ListView.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Header="Autotranspose Track" Click="TrackListItem_Autotranspose_Click"></MenuItem>
                     <MenuItem Header="DrumMap Track" Click="TrackListItem_DrumMap_Click"></MenuItem>
+                    <MenuItem Header="Duplicate Track" Click="TrackListItem_Duplicate_Click"></MenuItem>
+                    <MenuItem/>
                     <MenuItem Header="Delete Track" Click="TrackListItem_Delete_Click"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
@@ -89,10 +92,12 @@
                             <!-- 3 Bardnumber -->
                             <ColumnDefinition Width="10" />
                             <!-- 4 spacer -->
+                            <ColumnDefinition Width="50" />
+                            <!-- 5 Min/MaxNote -->
                             <ColumnDefinition Width="80" />
-                            <!-- 5 Transpose -->
+                            <!-- 6 Transpose -->
                             <ColumnDefinition Width="40" />
-                            <!-- 6 track-->
+                            <!-- 7 track-->
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Grid.RowSpan="1" Text="{Binding Index}" VerticalAlignment="Center"/>
@@ -111,8 +116,11 @@
                         <TextBox Grid.Column="3" Grid.Row="1" Text="{Binding TrackNumber}" 
                             PreviewMouseDown="BardNumBox_PreviewMouseDown" PreviewMouseUp="Instrument_Selector_PreviewMouseUp"/>
 
-                        <Label Grid.Column="5" Grid.Row="0" Content="Transpose" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
-                        <control:OctaveNumericUpDown Grid.Column="5" Grid.Row="1" x:Name="OctaveControl" PreviewMouseUp="OctaveControl_PreviewMouseUp" Value="{Binding Transpose}"  
+                        <Label Grid.Column="5" Grid.Row="0" Content="{Binding MaxNote}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        <Label Grid.Column="5" Grid.Row="1" Content="{Binding MinNote}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+
+                        <Label Grid.Column="6" Grid.Row="0" Content="Transpose" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                        <control:OctaveNumericUpDown Grid.Column="6" Grid.Row="1" x:Name="OctaveControl" PreviewMouseUp="OctaveControl_PreviewMouseUp" Value="{Binding Transpose}"  
                             PreviewMouseDown="BardNumBox_PreviewMouseDown"/>
                     </Grid>
                 </DataTemplate>
