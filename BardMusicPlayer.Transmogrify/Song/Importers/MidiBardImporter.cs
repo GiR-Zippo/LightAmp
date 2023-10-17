@@ -44,6 +44,8 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             public int trackInstrument { get; set; }
             public int Transpose { get; set; }
             public int ToneMode { get; set; }
+            public Note MinNote { get; set; } = new Note((SevenBitNumber)127);
+            public Note MaxNote { get; set; } = new Note((SevenBitNumber)0);
             public TrackChunk trackChunk { get; set; }
         }
 
@@ -140,7 +142,12 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                     TrackManipulations.SetTrackName(d.First().trackChunk, Instrument.Parse(d.First().trackInstrument + 1).Name);
                     TrackManipulations.SetInstrument(d.First().trackChunk, Instrument.Parse(d.First().trackInstrument + 1).MidiProgramChangeCode);
 
-                    d.First().trackChunk.ProcessNotes(n => n.NoteNumber += (SevenBitNumber)(getMaxTranspose(d.First().trackChunk, d.First().Transpose) * 12));
+                    d.First().trackChunk.ProcessNotes(n =>
+                    {
+                        if ((n.NoteNumber + (getMaxTranspose(d.First().trackChunk, d.First().Transpose) * 12) <= 127) ||
+                            (n.NoteNumber + (getMaxTranspose(d.First().trackChunk, d.First().Transpose) * 12) >= 0))
+                             n.NoteNumber = (SevenBitNumber)(n.NoteNumber + (getMaxTranspose(d.First().trackChunk, d.First().Transpose) * 12));
+                    });
 
                     TrackManipulations.SetChanNumber(d.First().trackChunk, chanNum);
                     exportMidi.Chunks.Add(d.First().trackChunk);
