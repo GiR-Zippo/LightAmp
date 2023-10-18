@@ -536,13 +536,15 @@ namespace BardMusicPlayer.Ui.Controls
                 if (lowOctave != -1)
                 {
                     int newOctave = 3-lowOctave;
-                    t.Transpose = t.Transpose+newOctave;
+                    if (newOctave != t.Transpose)
+                        t.Transpose = newOctave;
                 }
 
                 if (highOctave != -1)
                 {
                     int newOctave = t.MaxNote.Octave - 5;
-                    t.Transpose = t.Transpose - newOctave;
+                    if (-newOctave != t.Transpose)
+                        t.Transpose = -newOctave;
                 }
                 TrackList.Items.Refresh();
             }
