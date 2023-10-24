@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers
 {
@@ -43,6 +44,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             public int TrackNumber { get; set; }
             public int trackInstrument { get; set; }
             public int Transpose { get; set; }
+            public MusicalTimeSpan Quantize { get; set; } = null;
             public int ToneMode { get; set; }
             public Note MinNote { get; set; } = new Note((SevenBitNumber)127);
             public Note MaxNote { get; set; } = new Note((SevenBitNumber)0);
@@ -99,7 +101,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                 idx++;
             }
             pdatalist = null;
-            return Convert(midifile, tracks);
+            return Convert(midifile, tracks).Result;
         }
 
         public static void PrepareGuitarTrack(TrackChunk tc, int mode, int prognumber)
@@ -110,7 +112,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             }
         }
 
-        public static MidiFile Convert(MidiFile midiFile, List<MidiTrack> tracks)
+        public static Task<MidiFile> Convert(MidiFile midiFile, List<MidiTrack> tracks)
         {
             MidiFile exportMidi = new MidiFile();
             exportMidi.ReplaceTempoMap(midiFile.GetTempoMap());
@@ -133,34 +135,53 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                 var d = tracks.FindAll(n => n.TrackNumber == TrackNum);
                 if (d.Count < 1)
                     continue;
+
                 //The fast way
                 else if (d.Count == 1)
                 {
+                    //Get min-max transpose
+                    foreach (var item in d.First().trackChunk.GetNotes())
+                    {
+                        if (item.NoteNumber < d.First().MinNote.NoteNumber)
+                            d.First().MinNote = item;
+                        if (item.NoteNumber > d.First().MaxNote.NoteNumber)
+                            d.First().MaxNote = item;
+                    };
+                    var transpose = getMaxTranspose(d.First(), d.First().Transpose);
                     int chanNum = d.First().Index; // TrackNum - 1;
 
                     PrepareGuitarTrack(d.First().trackChunk, d.First().ToneMode, Instrument.Parse(d.First().trackInstrument + 1).MidiProgramChangeCode);
                     TrackManipulations.SetTrackName(d.First().trackChunk, Instrument.Parse(d.First().trackInstrument + 1).Name);
                     TrackManipulations.SetInstrument(d.First().trackChunk, Instrument.Parse(d.First().trackInstrument + 1).MidiProgramChangeCode);
-
                     d.First().trackChunk.ProcessNotes(n =>
                     {
-                        if ((n.NoteNumber + (getMaxTranspose(d.First().trackChunk, d.First().Transpose) * 12) <= 127) ||
-                            (n.NoteNumber + (getMaxTranspose(d.First().trackChunk, d.First().Transpose) * 12) >= 0))
-                             n.NoteNumber = (SevenBitNumber)(n.NoteNumber + (getMaxTranspose(d.First().trackChunk, d.First().Transpose) * 12));
+                        n.NoteNumber = (SevenBitNumber)(n.NoteNumber + 12*transpose);
                     });
 
                     TrackManipulations.SetChanNumber(d.First().trackChunk, chanNum);
                     exportMidi.Chunks.Add(d.First().trackChunk);
                 }
-                else if (d.Count > 1)
+                else if (d.Count > 1) //merge track groups
                 {
+                    //Get min-max transpose
+                    foreach (var item in d.First().trackChunk.GetNotes())
+                    {
+                        if (item.NoteNumber < d.First().MinNote.NoteNumber)
+                            d.First().MinNote = item;
+                        if (item.NoteNumber > d.First().MaxNote.NoteNumber)
+                            d.First().MaxNote = item;
+                    };
+                    var transpose = getMaxTranspose(d.First(), d.First().Transpose);
                     int chanNum = d.First().Index; // TrackNum - 1;
 
                     //Do the octave shift and push them into a list
                     List<KeyValuePair<long, KeyValuePair<int, TimedEvent>>> tis = new List<KeyValuePair<long, KeyValuePair<int, TimedEvent>>>();
                     foreach (var subChunk in d)
                     {
-                        d.First().trackChunk.ProcessNotes(n => n.NoteNumber += (SevenBitNumber)(getMaxTranspose(d.First().trackChunk, d.First().Transpose) * 12));
+                        d.First().trackChunk.ProcessNotes(n =>
+                        {
+                            n.NoteNumber = (SevenBitNumber)(n.NoteNumber + 12 * transpose);
+                        });
 
                         foreach (TimedEvent t in subChunk.trackChunk.GetTimedEvents())
                         {
@@ -214,7 +235,31 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                     tis.Clear();
                 }
             }
-            return exportMidi;
+            return Task.FromResult(exportMidi);
+        }
+
+        /// <summary>
+        /// Get the lowest and highest note
+        /// </summary>
+        /// <param name="trackChunk"></param>
+        /// <returns></returns>
+        private static int getMaxTranspose(MidiTrack track, int transpose)
+        {
+            var x = track.MinNote.NoteNumber + (12 * transpose);
+            var y = track.MaxNote.NoteNumber + (12 * transpose);
+
+            int minTranspose = -1;
+            int maxTranspose = -1;
+            if (x < 0)
+                minTranspose = (int)Math.Ceiling((double)-x / 12);
+            if (y > 127)
+                maxTranspose = (int)Math.Ceiling((double)(y - 127) / 12);
+
+            if (minTranspose != -1)
+                return transpose + minTranspose;
+            if (maxTranspose != -1)
+                return transpose - maxTranspose;
+            return transpose;
         }
 
         /// <summary>

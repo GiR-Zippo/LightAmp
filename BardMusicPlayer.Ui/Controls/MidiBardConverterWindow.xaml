@@ -69,7 +69,15 @@
                     <MenuItem Header="Autotranspose Track" Click="TrackListItem_Autotranspose_Click"></MenuItem>
                     <MenuItem Header="DrumMap Track" Click="TrackListItem_DrumMap_Click"></MenuItem>
                     <MenuItem Header="Duplicate Track" Click="TrackListItem_Duplicate_Click"></MenuItem>
-                    <MenuItem/>
+                    <MenuItem Header="Quantize">
+                        <MenuItem Header="Off"  IsCheckable="True" x:Name="Quant0" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
+                        <MenuItem Header="64th" IsCheckable="True" x:Name="Quant64" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
+                        <MenuItem Header="32th" IsCheckable="True" x:Name="Quant32" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
+                        <MenuItem Header="16th" IsCheckable="True" x:Name="Quant16" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
+                        <MenuItem Header="8th"  IsCheckable="True" x:Name="Quant8" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
+                        <MenuItem Header="4th"  IsCheckable="True" x:Name="Quant4" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
+                    </MenuItem>
+                    
                     <MenuItem Header="Delete Track" Click="TrackListItem_Delete_Click"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
