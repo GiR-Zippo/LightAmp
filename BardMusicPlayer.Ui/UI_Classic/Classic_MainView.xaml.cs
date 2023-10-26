@@ -14,6 +14,7 @@ using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Siren;
 using BardMusicPlayer.Quotidian;
 using BardMusicPlayer.Transmogrify.Song;
+using BardMusicPlayer.Ui.Controls;
 
 namespace BardMusicPlayer.Ui.Classic
 {

@@ -52,6 +52,8 @@
                     <ComboBoxItem Content="Override By Track"/>
                 </ComboBox>
                 <MenuItem Header=""/>
+                <MenuItem Header="Open OMNI Vision" Click="VoiceMap_Click"/>
+                <MenuItem Header=""/>
             </Menu>
         </StackPanel>
 

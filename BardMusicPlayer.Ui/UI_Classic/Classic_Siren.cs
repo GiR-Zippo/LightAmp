@@ -1,5 +1,6 @@
 ﻿using BardMusicPlayer.Siren;
 using BardMusicPlayer.Transmogrify.Song;
+using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
 using Microsoft.Win32;
 using System;
@@ -324,6 +325,12 @@ namespace BardMusicPlayer.Ui.Classic
                 BmpSiren.Instance.CurrentSong.LyricsContainer.Add(l.time, l.line);
 
 
+        }
+
+        private void Siren_Omni_Click(object sender, RoutedEventArgs e)
+        {
+            VoiceMap vm = new VoiceMap(null);
+            vm.Visibility = Visibility.Visible;
         }
     }
 }

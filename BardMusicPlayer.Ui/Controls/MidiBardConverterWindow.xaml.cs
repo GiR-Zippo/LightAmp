@@ -15,7 +15,6 @@ using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.Tools;
 using Microsoft.Win32;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -458,42 +457,10 @@ namespace BardMusicPlayer.Ui.Controls
             _AlignMidiToFirstNote = (bool)AlignToFirstNote_CheckBox.IsChecked;
         }
 
-        /// <summary>
-        /// Realign the the notes and Events in a <see cref="MidiFile"/> to the beginning
-        /// </summary>
-        /// <param name="midi"></param>
-        /// <returns><see cref="MidiFile"/></returns>
-        private MidiFile RealignMidiFile(MidiFile midi)
+        private void VoiceMap_Click(object sender, RoutedEventArgs e)
         {
-            //realign the events
-            var x = midi.GetTrackChunks().GetNotes().First().GetTimedNoteOnEvent().Time;
-            Parallel.ForEach(midi.GetTrackChunks(), chunk =>
-            {
-                chunk = RealignTrackEvents(chunk, x).Result;
-            });
-            return midi;
-        }
-
-        /// <summary>
-        /// Realigns the track events in <see cref="TrackChunk"/>
-        /// </summary>
-        /// <param name="originalChunk"></param>
-        /// <param name="delta"></param>
-        /// <returns><see cref="Task{TResult}"/> is <see cref="TrackChunk"/></returns>
-        internal static Task<TrackChunk> RealignTrackEvents(TrackChunk originalChunk, long delta)
-        {
-            using (var manager = originalChunk.ManageTimedEvents())
-            {
-                foreach (TimedEvent _event in manager.Objects)
-                {
-                    long newStart = _event.Time - delta;
-                    if (newStart <= -1)
-                        _event.Time = 0;
-                    else
-                        _event.Time = newStart;
-                }
-            }
-            return Task.FromResult(originalChunk);
+            VoiceMap vm = new VoiceMap(_midifile);
+            vm.Visibility = Visibility.Visible;
         }
         #endregion
 
@@ -729,5 +696,44 @@ namespace BardMusicPlayer.Ui.Controls
             }
             RenumberTracks();
         }
+
+        /// <summary>
+        /// Realign the the notes and Events in a <see cref="MidiFile"/> to the beginning
+        /// </summary>
+        /// <param name="midi"></param>
+        /// <returns><see cref="MidiFile"/></returns>
+        private MidiFile RealignMidiFile(MidiFile midi)
+        {
+            //realign the events
+            var x = midi.GetTrackChunks().GetNotes().First().GetTimedNoteOnEvent().Time;
+            Parallel.ForEach(midi.GetTrackChunks(), chunk =>
+            {
+                chunk = RealignTrackEvents(chunk, x).Result;
+            });
+            return midi;
+        }
+
+        /// <summary>
+        /// Realigns the track events in <see cref="TrackChunk"/>
+        /// </summary>
+        /// <param name="originalChunk"></param>
+        /// <param name="delta"></param>
+        /// <returns><see cref="Task{TResult}"/> is <see cref="TrackChunk"/></returns>
+        internal static Task<TrackChunk> RealignTrackEvents(TrackChunk originalChunk, long delta)
+        {
+            using (var manager = originalChunk.ManageTimedEvents())
+            {
+                foreach (TimedEvent _event in manager.Objects)
+                {
+                    long newStart = _event.Time - delta;
+                    if (newStart <= -1)
+                        _event.Time = 0;
+                    else
+                        _event.Time = newStart;
+                }
+            }
+            return Task.FromResult(originalChunk);
+        }
+
     }
 }
