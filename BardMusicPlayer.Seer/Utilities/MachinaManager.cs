@@ -3,8 +3,6 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
-#region
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -14,8 +12,6 @@ using System.Threading;
 using Machina.FFXIV;
 using Machina.FFXIV.Oodle;
 using Machina.Infrastructure;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Utilities
 {
@@ -53,7 +49,7 @@ namespace BardMusicPlayer.Seer.Utilities
             }
         }
 
-        private static readonly List<int> Lengths = new() { 48, 56, 88, 656, 664, 3576, 3640 };
+        private static readonly List<int> Lengths = new() { 48, 56, 88, 656, 664, 672, 3576, 3640 };
         private readonly FFXIVNetworkMonitor _monitor;
         private readonly object _lock;
         private bool _monitorRunning;
@@ -141,13 +137,6 @@ namespace BardMusicPlayer.Seer.Utilities
 
         private void MessageReceivedEventHandler(TCPConnection connection, long epoch, byte[] message)
         {
-            /*if (BmpSeer.Instance.Games.TryGetValue((int)connection.ProcessId, out Game game))
-            {
-                string hexString = BitConverter.ToString(message);
-                System.Diagnostics.Debug.WriteLine("DE:" + hexString + " " + message.Length.ToString());
-            }
-                //game.PublishEvent(new NetworkPacket(EventSource.Machina, message));
-            */
             if (Lengths.Contains(message.Length))
                 MessageReceived?.Invoke((int)connection.ProcessId, message);
         }

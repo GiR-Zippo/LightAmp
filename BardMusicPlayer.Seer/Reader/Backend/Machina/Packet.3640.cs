@@ -3,15 +3,10 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
-#region
-
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using BardMusicPlayer.Seer.Events;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 {
