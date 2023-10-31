@@ -1,4 +1,5 @@
-﻿using BardMusicPlayer.Siren;
+﻿using BardMusicPlayer.Coffer;
+using BardMusicPlayer.Siren;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
@@ -55,7 +56,13 @@ namespace BardMusicPlayer.Ui.Classic
                         return;
                 }
                 else
-                    CurrentSong = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem);
+                {
+                    //No playlist but song name, load the song directly
+                    if (_currentPlaylist == null)
+                        CurrentSong =  BmpCoffer.Instance.GetSong((string)PlaylistContainer.SelectedItem);
+                    else
+                        CurrentSong = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem);
+                }
             }
             _ = BmpSiren.Instance.Load(CurrentSong);
 
