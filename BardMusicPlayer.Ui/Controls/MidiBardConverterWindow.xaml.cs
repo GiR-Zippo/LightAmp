@@ -167,7 +167,7 @@ namespace BardMusicPlayer.Ui.Controls
                 int octaveShift = 0;
                 int progNum = -1;
 
-                Regex rex = new Regex(@"^([A-Za-z _]+)([-+]\d)?");
+                Regex rex = new Regex(@"^([A-Za-z _:]+)([-+]\d)?");
                 if (rex.Match(trackName) is Match match)
                     if (!string.IsNullOrEmpty(match.Groups[1].Value))
                     {
