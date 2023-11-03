@@ -11,6 +11,7 @@
 
     <Window.Resources>
         <ObjectDataProvider x:Key="Instruments" ObjectType="{x:Type local:MidiBardConverter_InstrumentHelper}" MethodName="Instruments"/>
+        <ObjectDataProvider x:Key="TrackGroups" ObjectType="{x:Type local:MidiBardConverter_GroupHelper}" MethodName="TrackGroups"/>
     </Window.Resources>
 
     <Grid>
@@ -122,9 +123,18 @@
                                 SelectedIndex="{Binding trackInstrument}" >
                         </ComboBox>
 
-                        <Label Grid.Column="3" Grid.Row="0" Content="Bard-Number" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                        <TextBox Grid.Column="3" Grid.Row="1" Text="{Binding TrackNumber}" 
-                            PreviewMouseDown="BardNumBox_PreviewMouseDown" PreviewMouseUp="Instrument_Selector_PreviewMouseUp"/>
+                        <Label Grid.Column="3" Grid.Row="0" Content="Track-Group" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        <!--<TextBox Grid.Column="3" Grid.Row="1" Text="{Binding TrackNumber}" TextChanged="TrackNumber_TextChanged" PreviewMouseDown="BardNumBox_PreviewMouseDown" PreviewMouseUp="Instrument_Selector_PreviewMouseUp"/>
+-->
+                        <ComboBox Grid.Column="3" Grid.Row="1" x:Name="TInstrument_Selector" HorizontalAlignment="Stretch" VerticalAlignment="Top" 
+                                PreviewMouseDown="BardNumBox_PreviewMouseDown"
+                                PreviewMouseUp="Instrument_Selector_PreviewMouseUp"
+                                DropDownClosed="Instrument_Selector_DropDownClosed"
+                                SelectedValuePath="Key" DisplayMemberPath="Value"
+                                ItemsSource="{Binding Source={StaticResource TrackGroups}}"
+                                SelectedIndex="{Binding TrackNumber}" >
+                        </ComboBox>
+
 
                         <Label Grid.Column="5" Grid.Row="0" Content="{Binding MaxNote}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         <Label Grid.Column="5" Grid.Row="1" Content="{Binding MinNote}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>

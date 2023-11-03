@@ -15,6 +15,7 @@ using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.Tools;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -36,6 +37,19 @@ namespace BardMusicPlayer.Ui.Controls
             Dictionary<int, string> instrumentList = new Dictionary<int, string>();
             foreach (var instr in Instrument.All)
                 instrumentList.Add(instr.Index, instr.Name);
+            return instrumentList;
+        }
+    }
+
+    public class MidiBardConverter_GroupHelper
+    {
+        public MidiBardConverter_GroupHelper() { }
+
+        public static Dictionary<int, string> TrackGroups()
+        {
+            Dictionary<int, string> instrumentList = new Dictionary<int, string>();
+            for (int i =1; i != 40; i++)
+                instrumentList.Add(i, Convert.ToString(i-1));
             return instrumentList;
         }
     }
@@ -331,6 +345,7 @@ namespace BardMusicPlayer.Ui.Controls
         {
             bnb = false;
         }
+
         #endregion
 
         #region Sidemenu
@@ -734,6 +749,5 @@ namespace BardMusicPlayer.Ui.Controls
             }
             return Task.FromResult(originalChunk);
         }
-
     }
 }
