@@ -138,7 +138,7 @@ namespace BardMusicPlayer.Ui.Classic
                 Task.Run(() =>
                 {
                     foreach (var game in BmpSeer.Instance.Games.Values)
-                        game.KillMutant();
+                        game.KillMutant(true);
                 });
             }
             BmpPigeonhole.Instance.EnableMultibox = MultiBox_Box.IsChecked ?? false;
