@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright(c) 2023 MoogleTroupe, GiR-Zippo
+ * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
@@ -16,6 +16,7 @@ using H.Pipes;
 using H.Pipes.AccessControl;
 using H.Pipes.Args;
 using BardMusicPlayer.Seer.Utilities;
+using BardMusicPlayer.Dalamud.Events;
 
 namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
 {
@@ -30,7 +31,7 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
     {
         private readonly PipeServer<Message> _pipe;
         private readonly ConcurrentDictionary<int, string> _clients;
-        private readonly Version minVersion = new Version("0.0.1.8");
+        private readonly Version minVersion = new Version("0.0.2.5");
 
         /// <summary>
         /// 
@@ -156,7 +157,64 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
 
             _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
             {
-                msgType = MessageType.SetSoundOnOff,
+                msgType = MessageType.MasterSoundState,
+                message = arg.ToString()
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// switch voice on/off
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        internal bool SendVoiceOnOff(int pid, bool arg)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.VoiceSoundState,
+                message = arg.ToString()
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// switch effect on/off
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        internal bool SendEffectOnOff(int pid, bool arg)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.EffectsSoundState,
+                message = arg.ToString()
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// send master volume
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        internal bool SetMasterVolume(int pid, short arg)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.MasterVolume,
                 message = arg.ToString()
             });
             return true;
@@ -220,6 +278,24 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         }
 
         /// <summary>
+        /// Send ensemble start
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <returns></returns>
+        internal bool SendQuitClient(int pid)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.ExitGame,
+                message = ""
+            });
+            return true;
+        }
+
+        /// <summary>
         /// If message from client rec
         /// </summary>
         /// <param name="sender"></param>
@@ -272,13 +348,43 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
                     }
                     catch { }
                     break;
-                case MessageType.SetSoundOnOff:
+                case MessageType.MasterSoundState:
                     try
                     {
                         var t = inMsg.message;
                         var pid = Convert.ToInt32(t.Split(':')[0]);
                         if (BmpSeer.Instance.Games.ContainsKey(pid))
-                            BmpSeer.Instance.Games[pid].SoundOn = Convert.ToBoolean(t.Split(':')[1]);
+                            DalamudBridge.Instance.PublishResponseEvent(new MasterVolumeMuteEvent(pid, Convert.ToBoolean(t.Split(':')[1])));
+                    }
+                    catch { }
+                    break;
+                case MessageType.VoiceSoundState:
+                    try
+                    {
+                        var t = inMsg.message;
+                        var pid = Convert.ToInt32(t.Split(':')[0]);
+                        if (BmpSeer.Instance.Games.ContainsKey(pid))
+                            DalamudBridge.Instance.PublishResponseEvent(new VoiceVolumeMuteEvent(pid, Convert.ToBoolean(t.Split(':')[1])));
+                    }
+                    catch { }
+                    break;
+                case MessageType.EffectsSoundState:
+                    try
+                    {
+                        var t = inMsg.message;
+                        var pid = Convert.ToInt32(t.Split(':')[0]);
+                        if (BmpSeer.Instance.Games.ContainsKey(pid))
+                            DalamudBridge.Instance.PublishResponseEvent(new EffectVolumeMuteEvent(pid, Convert.ToBoolean(t.Split(':')[1])));
+                    }
+                    catch { }
+                    break;
+                case MessageType.MasterVolume:
+                    try
+                    {
+                        var t = inMsg.message;
+                        var pid = Convert.ToInt32(t.Split(':')[0]);
+                        if (BmpSeer.Instance.Games.ContainsKey(pid))
+                            DalamudBridge.Instance.PublishResponseEvent(new MasterVolumeChangedEvent(pid, Convert.ToInt16(t.Split(':')[1])));
                     }
                     catch { }
                     break;

@@ -46,8 +46,29 @@ namespace BardMusicPlayer.Ui.Controls
             BmpSeer.Instance.PlayerNameChanged          += OnPlayerNameChanged;
             BmpSeer.Instance.InstrumentHeldChanged      += OnInstrumentHeldChanged;
             BmpSeer.Instance.HomeWorldChanged           += OnHomeWorldChanged;
+            BmpSeer.Instance.PartyLeaderChanged         += Instance_PartyLeaderChanged;
             Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
             Globals_OnConfigReload(null, null);
+        }
+
+        private void Instance_PartyLeaderChanged(PartyLeaderChanged seerEvent)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (!BmpPigeonhole.Instance.AutoselectHost)
+                    return;
+                if (!seerEvent.IsValid())
+                    return;
+                if (BmpMaestro.Instance.GetAllPerformers().Count() == 0)
+                    return;
+                var result = BmpMaestro.Instance.GetAllPerformers().Where( x => x.game.ActorId == seerEvent.PartyLeader.Key);
+                if (result.Count() == 0)
+                    return;
+                if (BardsList.Items.OfType<Performer>().Count(x => (x.PId == result.First().PId) && x.HostProcess) > 0)
+                    return;
+                BmpMaestro.Instance.SetHostBard(result.First().game);
+                UpdateView();
+            }));
         }
 
         private void Globals_OnConfigReload(object sender, EventArgs e)
@@ -128,6 +149,13 @@ namespace BardMusicPlayer.Ui.Controls
                 foreach (var p in comparator)
                     BardsList.Items.Remove(p);
 
+                if (BmpPigeonhole.Instance.AutoselectHost)
+                {
+                    var result = BmpMaestro.Instance.GetAllPerformers().Where(x => x.game.ActorId == x.game.PartyLeader.Key);
+                    if (result.Count() > 0)
+                        if (BardsList.Items.OfType<Performer>().Count(x => (x.PId == result.First().PId) && !x.HostProcess) > 0)
+                            BmpMaestro.Instance.SetHostBard(result.First().game);
+                }
                 this.BardsList.Items.Refresh();
             }));
         }

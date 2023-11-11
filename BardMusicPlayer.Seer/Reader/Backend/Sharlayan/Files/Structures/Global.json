@@ -8,17 +8,17 @@
         "LogEnd": 92
     },
     "CurrentPlayer": {
-        "SourceSize": 650,
-        "JobID": 110,
+        "SourceSize": 250,
+        "JobID": 126,
         // BMP
-        "ID": 84,
+        "ID": 100,
         "Name": 1
         // END BMP
     },
     "PartyMember": {
-        "SourceSize": 560,
-        "ID": 424,
-        "Name": 452
+        "SourceSize": 912,
+        "ID": 32,
+        "Name": 60
     },
     // BMP
     "PerformanceInfo": {

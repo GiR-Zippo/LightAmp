@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright(c) 2023 MoogleTroupe, isaki, GiR-Zippo
+ * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe, isaki
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 

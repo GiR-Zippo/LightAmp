@@ -155,83 +155,88 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="Settings">
-                        <Grid Background="WhiteSmoke">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <GroupBox Grid.Row="0" Grid.Column="0" Margin="10,0,0,0" Header="Misc">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="0" Content="Bring LA to front" x:Name="AMPInFrontBox" Checked="AMPInFrontBox_Checked" Unchecked="AMPInFrontBox_Checked" ToolTip="{StaticResource GAME_AMPFRONT}"/>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="1" Content="Enable Multibox" x:Name="MultiBox_Box" Checked="MultiBox_Checked" Unchecked="MultiBox_Checked" ToolTip="{StaticResource GAME_MULTIBOX}"/>
-                                </Grid>
-                            </GroupBox>
-                            <GroupBox Grid.Row="0" Grid.Column="1" Header="Playback">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <CheckBox Margin="10,10,0,0"  Grid.Row="1" x:Name="HoldNotesBox" Content="Hold notes"          Unchecked="Hold_Notes_Checked"        Checked="Hold_Notes_Checked"       ToolTip="{StaticResource PL_HOLDNOTES}"/>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="2" x:Name="ForcePlaybackBox" Content="Force playback"   Unchecked="Force_Playback_Checked"    Checked="Force_Playback_Checked"   ToolTip="{StaticResource PL_FORCE}"/>
-                                    <Label Margin="10,0,0,0"     Grid.Row="3" Content="MIDI Input device" HorizontalAlignment="Left"/>
-                                    <ComboBox Margin="120,0,0,0" Grid.Row="3" x:Name="MIDI_Input_DeviceBox" ItemsSource="{Binding}"
-                                        DisplayMemberPath="Value"
-                                        SelectionChanged="MIDI_Input_Device_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="80" ToolTip="{StaticResource PL_MIDIINPUT}">
-                                        <ComboBoxItem>None</ComboBoxItem>
-                                    </ComboBox>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="4" x:Name="LiveMidiDelay" Content="Enable note delay for live playing" Unchecked="LiveMidiDelay_Checked" Checked="LiveMidiDelay_Checked" ToolTip="{StaticResource PL_LIVE}"/>
-                                </Grid>
-                            </GroupBox>
-                            <GroupBox Grid.Row="1" Grid.Column="0" Margin="10,0,0,0" Header="Misc">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <Label Margin="10,0,0,0"    Grid.Row="0" Content="Autostart" HorizontalAlignment="Left" ToolTip="{StaticResource MISC_AUTOSTART}"/>
-                                    <ComboBox Margin="90,0,0,0" Grid.Row="0" x:Name="Autostart_source" SelectionChanged="Autostart_source_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" ToolTip="{StaticResource MISC_AUTOSTART}">
-                                        <ComboBoxItem>Disabled</ComboBoxItem>
-                                        <ComboBoxItem>Chat</ComboBoxItem>
-                                        <ComboBoxItem>Metronome</ComboBoxItem>
-                                    </ComboBox>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="1" x:Name="MidiBardComp"      Content="Enable MidiBard Compat."          Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"          ToolTip="{StaticResource MISC_MIDIBARD}"/>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="3" x:Name="AutoequipDalamud"  Content="Liath Equip Mode"                 Unchecked="AutoequipDalamud_Checked"  Checked="AutoequipDalamud_Checked"  ToolTip="{StaticResource MISC_AUTOEQPLGN}"/>
-                                    <CheckBox Margin="10,0,0,0"  Grid.Row="4" x:Name="SkinUiBox"         Content="Use skinned Ui"                   Unchecked="SkinUiBox_Checked"         Checked="SkinUiBox_Checked"         ToolTip="{StaticResource MISC_SKINNEDUI}"/>
-                                </Grid>
-                            </GroupBox>
-                            <GroupBox Grid.Row="1" Grid.Column="1" Header="Local Ochestra">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <CheckBox Margin="10,10,0,0" Grid.Row="0" x:Name="LocalOrchestraBox"       Content="Local Orchestra enabled"          Unchecked="LocalOrchestraBox_Checked"     Checked="LocalOrchestraBox_Checked"     ToolTip="{StaticResource LO_ENABLE}"/>
-                                    <CheckBox Margin="10,0,0,0" Grid.Row="1" x:Name="AutoEquipBox"             Content="Debras Auto Equip Bards"          Unchecked="AutoEquipBox_Checked"          Checked="AutoEquipBox_Checked"          ToolTip="{StaticResource LO_AUTOEQ}"/>
-                                    <CheckBox Margin="10,0,0,0" Grid.Row="2" x:Name="KeepTrackSettingsBox"     Content="Thymms I know what I'm doing box" Unchecked="KeepTrackSettingsBox_Checked"  Checked="KeepTrackSettingsBox_Checked"  ToolTip="{StaticResource LO_KEEPTRACKS}"/>
-                                    <CheckBox Margin="10,0,0,0" Grid.Row="3" x:Name="IgnoreProgchangeBox"      Content="City-Wok mode"                    Unchecked="IgnoreProgchangeBox_Checked"   Checked="IgnoreProgchangeBox_Checked"   ToolTip="{StaticResource LO_INGOREPROG}"/>
-                                    <CheckBox Margin="10,0,0,0" Grid.Row="4" x:Name="StartBardIndividuallyBox" Content="Individual start"                 Unchecked="StartBardIndividually_Checked" Checked="StartBardIndividually_Checked" ToolTip="{StaticResource LO_ISTART}"/>
-                                </Grid>
-                            </GroupBox>
-                        </Grid>
+                        <GroupBox>
+                            <TabControl TabStripPlacement="Left" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <TabItem Header="Orchestra">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="10"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="1" x:Name="LocalOrchestraBox"       Content="Local Orchestra enabled"          Unchecked="LocalOrchestraBox_Checked"     Checked="LocalOrchestraBox_Checked"     ToolTip="{StaticResource LO_ENABLE}"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="2" x:Name="KeepTrackSettingsBox"    Content="Thymms I know what I'm doing box" Unchecked="KeepTrackSettingsBox_Checked"  Checked="KeepTrackSettingsBox_Checked"  ToolTip="{StaticResource LO_KEEPTRACKS}"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="3" x:Name="IgnoreProgchangeBox"     Content="City-Wok mode"                    Unchecked="IgnoreProgchangeBox_Checked"   Checked="IgnoreProgchangeBox_Checked"   ToolTip="{StaticResource LO_INGOREPROG}"/>
+                                        <Label Margin="10,0,0,0"     Grid.Row="4" Content="Autostart" HorizontalAlignment="Left" ToolTip="{StaticResource MISC_AUTOSTART}"/>
+                                        <ComboBox Margin="90,0,0,0"  Grid.Row="4" x:Name="Autostart_source" SelectionChanged="Autostart_source_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120" ToolTip="{StaticResource MISC_AUTOSTART}">
+                                            <ComboBoxItem>Disabled</ComboBoxItem>
+                                            <ComboBoxItem>Chat</ComboBoxItem>
+                                            <ComboBoxItem>Metronome</ComboBoxItem>
+                                        </ComboBox>
+                                        <Label Margin="0,0,0,0"     Grid.Row="5"/>
+                                        <Separator                  Grid.Row="6"/>
+                                        <Label Margin="0,0,0,0"     Grid.Row="7" Content="Advanced:"/>
+                                        <CheckBox Margin="10,0,0,0" Grid.Row="8" x:Name="AutoEquipBox"              Content="Debras Auto Equip Bards"          Unchecked="AutoEquipBox_Checked"          Checked="AutoEquipBox_Checked"          ToolTip="{StaticResource LO_AUTOEQ}"/>
+                                        <CheckBox Margin="10,0,0,0" Grid.Row="9" x:Name="AutoselectHostBox"         Content="Autoselect Host"                  Unchecked="AutoselectHost_Checked"        Checked="AutoselectHost_Checked"        />
+                                        <CheckBox Margin="10,0,0,0" Grid.Row="10" x:Name="StartBardIndividuallyBox" Content="Individual start"                 Unchecked="StartBardIndividually_Checked" Checked="StartBardIndividually_Checked" ToolTip="{StaticResource LO_ISTART}"/>
+                                    </Grid>
+                                </TabItem>
+                                <TabItem Header="Playback">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="10"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="1" x:Name="HoldNotesBox" Content="Hold notes"          Unchecked="Hold_Notes_Checked"        Checked="Hold_Notes_Checked"       ToolTip="{StaticResource PL_HOLDNOTES}"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="2" x:Name="ForcePlaybackBox" Content="Force playback"   Unchecked="Force_Playback_Checked"    Checked="Force_Playback_Checked"   ToolTip="{StaticResource PL_FORCE}"/>
+                                        <Label Margin="10,0,0,0"     Grid.Row="3" Content="MIDI Input device" HorizontalAlignment="Left"/>
+                                        <ComboBox Margin="120,0,0,0" Grid.Row="3" x:Name="MIDI_Input_DeviceBox" ItemsSource="{Binding}"
+                                            DisplayMemberPath="Value"
+                                            SelectionChanged="MIDI_Input_Device_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="80" ToolTip="{StaticResource PL_MIDIINPUT}">
+                                            <ComboBoxItem>None</ComboBoxItem>
+                                        </ComboBox>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="4" x:Name="LiveMidiDelay" Content="Enable note delay for live playing" Unchecked="LiveMidiDelay_Checked" Checked="LiveMidiDelay_Checked" ToolTip="{StaticResource PL_LIVE}"/>
+                                    </Grid>
+                                </TabItem>
+                                <TabItem Header="Misc">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="10"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="1" Content="Bring LA to front" x:Name="AMPInFrontBox" Checked="AMPInFrontBox_Checked" Unchecked="AMPInFrontBox_Checked" ToolTip="{StaticResource GAME_AMPFRONT}"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="2" Content="Enable Multibox" x:Name="MultiBox_Box" Checked="MultiBox_Checked" Unchecked="MultiBox_Checked" ToolTip="{StaticResource GAME_MULTIBOX}"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="3" x:Name="AutoequipDalamud"  Content="Liath Equip Mode"                 Unchecked="AutoequipDalamud_Checked"  Checked="AutoequipDalamud_Checked"  ToolTip="{StaticResource MISC_AUTOEQPLGN}"/>
+                                        <Label Margin="0,0,0,0"      Grid.Row="4"/>
+                                        <Separator                   Grid.Row="5"/>
+                                        <Label Margin="0,0,0,0"      Grid.Row="6" Content="Advanced:"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="7" x:Name="MidiBardComp"      Content="Enable MidiBard Compat."          Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"          ToolTip="{StaticResource MISC_MIDIBARD}"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="8" x:Name="SkinUiBox"         Content="Use skinned Ui"                   Unchecked="SkinUiBox_Checked"         Checked="SkinUiBox_Checked"         ToolTip="{StaticResource MISC_SKINNEDUI}"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="9" x:Name="Sp_DalamudKeyOut"  Content="Use Dalamud Key out"              Unchecked="Sp_DalamudKeyOut_Checked"  Checked="Sp_DalamudKeyOut_Checked"  Visibility="Hidden"/>
+                                    </Grid>
+                                </TabItem>
+                            </TabControl>
+                        </GroupBox>
                     </TabItem>
                     <TabItem Header="Statistics" >
                         <Grid Background="WhiteSmoke">
@@ -346,6 +351,7 @@
                                     <ColumnDefinition Width="30"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="50"/>
                                 </Grid.ColumnDefinitions>
                                 <Button Grid.Column="0" x:Name="Siren_Load" Content="Load" Click="Siren_Load_Click" Height="20" Width="30" />
                                 <Button Grid.Column="1" x:Name="Siren_Play" Content="Play" Click="Siren_Play_Click" Height="20" Width="30" />
@@ -353,6 +359,9 @@
                                 <Button Grid.Column="3" x:Name="Siren_Stop" Content="Stop" Click="Siren_Stop_Click" Height="20" Width="30" />
                                 <Button Grid.Column="5" x:Name="Siren_Record" Content="Record" Click="Siren_Record_Click" Height="20" Width="50" />
                                 <Button Grid.Column="8" x:Name="Siren_SaveLRC" Content="Save Lrc" Click="Siren_Save_LRC_Click" Height="20" Width="50" />
+                            </Grid>
+                            <Grid Grid.Row="4" Grid.Column="3">
+                                <Button x:Name="Siren_Omni" Content="OMNI Vision" Click="Siren_Omni_Click" Height="20" Width="75" />
                             </Grid>
                         </Grid>
                     </TabItem>

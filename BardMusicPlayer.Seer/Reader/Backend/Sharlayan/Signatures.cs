@@ -21,6 +21,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
 
         public static string PartyCountKey => "PARTYCOUNT";
 
+        public static string PartyLeadKey => "PARTYLEAD";
+
         public static string PartyMapKey => "PARTYMAP";
 
         public static string PlayerInformationKey => "PLAYERINFO";

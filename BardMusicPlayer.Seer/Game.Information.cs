@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright(c) 2023 MoogleTroupe, trotlinebeercan, GiR-Zippo
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe, trotlinebeercan
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 #region
@@ -117,6 +117,12 @@ namespace BardMusicPlayer.Seer
         /// </summary>
         public IReadOnlyDictionary<uint, string> PartyMembers { get; private set; } =
             new ReadOnlyDictionary<uint, string>(new SortedDictionary<uint, string>());
+
+        /// <summary>
+        ///     Gets the party leader
+        /// </summary>
+        public KeyValuePair<uint, string> PartyLeader { get; private set; } =
+            new KeyValuePair<uint, string>();
 
         /// <summary>
         ///     Contains the config path used by DatReader. Updated by Sharlayan.

@@ -554,8 +554,11 @@ namespace BardMusicPlayer.Seer
 
     public sealed partial class Game
     {
-        public bool KillMutant()
+        public bool KillMutant(bool force = false)
         {
+            if (force)
+                return MutantHandler.KillMutant(Process);
+
             //Check for mutex
             if (DateTime.Now.ToUtcMilliTime() - Process.StartTime.ToUtcMilliTime() < 60000)
                 return MutantHandler.KillMutant(Process);

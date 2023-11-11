@@ -1,6 +1,6 @@
 /*
- * Copyright(c) 2021 MoogleTroupe
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 #region
@@ -62,6 +62,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                     GetConfigId(token);
                     GetInstrument(token);
                     GetPartyMembers(token);
+                    GetPartyLeader(token);
                     GetChatInputOpen(token);
                     GetChatLog(token);
 
@@ -98,6 +99,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                 IsBard = true,
                 World = "",
                 PartyMembers = new SortedDictionary<uint, string>(),
+                PartyLeader = new KeyValuePair<uint, string>(),
                 ChatOpen = false
             };
             _reader ??= new Reader.Reader(new MemoryHandler(new Scanner(), ReaderHandler.Game.GameRegion));
@@ -191,6 +193,10 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             if (!signaturesFoundEvent.Signatures.Keys.Contains("PARTYCOUNT"))
                 ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Sharlayan,
                     new BmpSeerSharlayanSigException("PARTYCOUNT")));
+
+            if (!signaturesFoundEvent.Signatures.Keys.Contains("PARTYLEAD"))
+                ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Sharlayan,
+                    new BmpSeerSharlayanSigException("PARTYLEAD")));
 
             if (!signaturesFoundEvent.Signatures.Keys.Contains("CHARMAP"))
                 ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Sharlayan,
@@ -370,6 +376,20 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             ReaderHandler.Game.PublishEvent(new PartyMembersChanged(EventSource.Sharlayan, _lastScan.PartyMembers));
         }
 
+        private void GetPartyLeader(CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            if (!_reader.CanGetPartyMembers()) return;
+
+            var result = _reader.GetPartyLeader();
+            if (!_lastScan.FirstScan && result.Equals(_lastScan.PartyLeader)) return;
+
+            _lastScan.PartyLeader = result;
+            ReaderHandler.Game.PublishEvent(new PartyLeaderChanged(EventSource.Sharlayan, _lastScan.PartyLeader));
+        }
+
         private void GetChatInputOpen(CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -397,6 +417,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
             public string ConfigId;
             public uint ActorId;
             public SortedDictionary<uint, string> PartyMembers;
+            public KeyValuePair<uint, string> PartyLeader;
             public bool ChatOpen;
         }
     }

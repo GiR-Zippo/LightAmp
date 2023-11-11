@@ -1,14 +1,10 @@
 /*
- * Copyright(c) 2023 MoogleTroupe
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
-
-#region
 
 using System;
 using System.Collections.Generic;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 {

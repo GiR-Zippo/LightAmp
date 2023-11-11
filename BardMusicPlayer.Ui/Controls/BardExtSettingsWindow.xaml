@@ -21,10 +21,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="10"/>
-                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="10"/>
@@ -84,7 +82,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition />
                             <ColumnDefinition />
                             <ColumnDefinition />
@@ -123,23 +121,83 @@
                     </Grid>
                     <Grid Grid.Row="5" Grid.Column="2">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="74*"/>
+                            <ColumnDefinition Width="207*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="1" x:Name="KillClient" Content="!Kill Client!"  Click="KillClient_Click" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Sound-Settings">
+                <Grid Grid.Row="2" Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="5"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="5"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="0" Grid.Column="2">
+                        <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Label    Grid.Column="0" Content="Sound On:"/>
                         <CheckBox Grid.Column="1" x:Name="SoundOn" Click="SoundOn_Checked" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Grid>
+                    <Grid Grid.Row="1" Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label    Grid.Column="0" Content="Master Volume"/>
+                        <Slider Grid.Column="1" Grid.ColumnSpan="3" x:Name="MasterVolume" ValueChanged="MasterVolume_ValueChanged" HorizontalAlignment="Center" VerticalAlignment="Center" Minimum="0" Maximum="100" Width="262"/>
+                    </Grid>
+                    <Grid Grid.Row="2" Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label    Grid.Column="0" Content="Voice On:"/>
+                        <CheckBox Grid.Column="1" x:Name="VoiceOn" Click="VoiceOn_Checked" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Grid Grid.Row="3" Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label    Grid.Column="0" Content="Effect On:"/>
+                        <CheckBox Grid.Column="1" x:Name="EffectOn" Click="EffectOn_Checked" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </Grid>
             </TabItem>
-
             <TabItem Header="XIV Affinity">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="25"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="25"/>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" x:Name="CPUDisplay" />
-                    <Grid Grid.Row="1">
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0"  Content="Character UID:"/>
+                        <Label Grid.Column="1"  x:Name="CharUUID_Label"/>
+                    </Grid>
+                    <Grid Grid.Row="1" x:Name="CPUDisplay" />
+                    <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="50"/>
                             <ColumnDefinition Width="50"/>

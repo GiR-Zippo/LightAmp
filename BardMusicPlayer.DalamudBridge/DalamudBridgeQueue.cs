@@ -11,37 +11,37 @@ namespace BardMusicPlayer.DalamudBridge
 {
     public sealed partial class DalamudBridge
     {
-        private ConcurrentQueue<DalamudBridgeCommandStruct> _eventQueue;
-        private bool _eventQueueOpen;
+        private ConcurrentQueue<DalamudBridgeCommandStruct> _commandQueue;
+        private bool _commandQueueOpen;
 
-        private async Task RunEventsHandler(CancellationToken token)
+        private async Task RunCommandEventsHandler(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
-                while (_eventQueue.TryDequeue(out var d_event))
+                while (_commandQueue.TryDequeue(out var d_command))
                 {
                     if (token.IsCancellationRequested)
                         break;
 
                     try
                     {
-                        switch (d_event.messageType)
+                        switch (d_command.messageType)
                         {
                             case Helper.Dalamud.MessageType.Chat:
-                                await GameExtensions.SendText(d_event.game, d_event.chatType, d_event.TextData);
+                                await GameExtensions.SendText(d_command.game, d_command.chatType, d_command.TextData);
                                 break;
                             case Helper.Dalamud.MessageType.Instrument:
-                                await GameExtensions.OpenInstrument(d_event.game, d_event.IntData);
+                                await GameExtensions.OpenInstrument(d_command.game, d_command.IntData);
                                 break;
                             case Helper.Dalamud.MessageType.AcceptReply:
-                                await GameExtensions.AcceptEnsemble(d_event.game, d_event.BoolData);
+                                await GameExtensions.AcceptEnsemble(d_command.game, d_command.BoolData);
                                 break;
                             case Helper.Dalamud.MessageType.NoteOn:
                             case Helper.Dalamud.MessageType.NoteOff:
-                                _ = GameExtensions.SendNote(d_event.game, d_event.IntData, d_event.BoolData);
+                                _ = GameExtensions.SendNote(d_command.game, d_command.IntData, d_command.BoolData);
                                 break;
                             case Helper.Dalamud.MessageType.ProgramChange:
-                                _ = GameExtensions.SendProgchange(d_event.game, d_event.IntData);
+                                _ = GameExtensions.SendProgchange(d_command.game, d_command.IntData);
                                 break;
                         };
                     }
@@ -52,31 +52,31 @@ namespace BardMusicPlayer.DalamudBridge
             }
         }
 
-        private CancellationTokenSource _eventsTokenSource;
+        private CancellationTokenSource _commandTokenSource;
 
-        private void StartEventsHandler()
+        private void StartCommandEventsHandler()
         {
-            _eventQueue = new ConcurrentQueue<DalamudBridgeCommandStruct>();
-            _eventsTokenSource = new CancellationTokenSource();
-            Task.Factory.StartNew(() => RunEventsHandler(_eventsTokenSource.Token), TaskCreationOptions.LongRunning);
-            _eventQueueOpen = true;
+            _commandQueue = new ConcurrentQueue<DalamudBridgeCommandStruct>();
+            _commandTokenSource = new CancellationTokenSource();
+            Task.Factory.StartNew(() => RunCommandEventsHandler(_commandTokenSource.Token), TaskCreationOptions.LongRunning);
+            _commandQueueOpen = true;
         }
 
-        private void StopEventsHandler()
+        private void StopCommandEventsHandler()
         {
-            _eventQueueOpen = false;
-            _eventsTokenSource.Cancel();
-            while (_eventQueue.TryDequeue(out _))
+            _commandQueueOpen = false;
+            _commandTokenSource.Cancel();
+            while (_commandQueue.TryDequeue(out _))
             {
             }
         }
 
-        internal void PublishEvent(DalamudBridgeCommandStruct meastroEvent)
+        internal void PublishCommandEvent(DalamudBridgeCommandStruct commandEvent)
         {
-            if (!_eventQueueOpen)
+            if (!_commandQueueOpen)
                 return;
 
-            _eventQueue.Enqueue(meastroEvent);
+            _commandQueue.Enqueue(commandEvent);
         }
     }
 }
