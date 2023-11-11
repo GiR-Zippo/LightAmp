@@ -31,6 +31,16 @@
                         <VirtualizingStackPanel Orientation="Vertical"/>
                     </ItemsPanelTemplate>
                 </Menu.ItemsPanel>
+                <MenuItem Header="--- Save MB Config ---" IsEnabled="False" />
+                <MenuItem Header="Save MidiBard config" Click="MBardSave_Click"/>
+                <MenuItem Header=""/>
+            </Menu>
+            <Menu>
+                <Menu.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </Menu.ItemsPanel>
                 <MenuItem Header="----- Midi Export -----" IsEnabled="False" />
                 <MenuItem Header="To Sequencer" Click="Sequencer_Click"/>
                 <MenuItem Header="To Siren" Click="Siren_Click"/>

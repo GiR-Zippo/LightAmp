@@ -15,6 +15,7 @@ using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.Tools;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,6 +26,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Xml.Serialization;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -385,6 +387,52 @@ namespace BardMusicPlayer.Ui.Controls
             tracks.Clear();
             myStream.Rewind();
             return myStream;
+        }
+
+        private void MBardSave_Click(object sender, RoutedEventArgs e)
+        {
+            if (_midifile == null)
+                return;
+            if (_tracks.Count() <= 0)
+                return;
+
+            var config = new MidiBardImporter.MidiFileConfig();
+            int toneMode = -1;
+            foreach (var x in CloneTracks())
+            {
+                var track = new MidiBardImporter.TrackConfig();
+                track.Index = x.Index;
+                track.Enabled = true;
+                track.Name = Instrument.Parse(x.trackInstrument+1) + "(Bard " + Convert.ToString(x.TrackNumber)+")";
+                track.Transpose = x.Transpose*12;
+                track.Instrument = x.trackInstrument+1;
+                track.AssignedCids.Add(x.TrackNumber);
+                toneMode = x.ToneMode;
+                config.Tracks.Add(track);
+            }
+            config.Speed = 1;
+            config.AdaptNotes = false;
+            config.ToneMode = toneMode;
+
+            Stream myStream;
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            saveFileDialog.Filter = "Config file (*.json)|*.json";
+            saveFileDialog.FilterIndex = 2;
+            saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.OverwritePrompt = true;
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                if ((myStream = saveFileDialog.OpenFile()) != null)
+                {
+                    string json = JsonConvert.SerializeObject(config, Formatting.Indented);
+                    using (StreamWriter swriter = new StreamWriter(myStream))
+                        swriter.Write(json);
+                    myStream.Close();
+                    myStream.Dispose();
+                }
+            }
         }
 
         private void Sequencer_Click(object sender, RoutedEventArgs e)
