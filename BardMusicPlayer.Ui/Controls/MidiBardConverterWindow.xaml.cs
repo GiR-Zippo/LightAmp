@@ -351,8 +351,6 @@ namespace BardMusicPlayer.Ui.Controls
         #endregion
 
         #region Sidemenu
-
-
         private MemoryStream PrepareMidi()
         {
             List<MidiBardImporter.MidiTrack> tracks = CloneTracks();
