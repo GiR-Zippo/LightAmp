@@ -731,9 +731,6 @@ namespace BardMusicPlayer.Maestro
             if (result.Key == seerEvent.Game.Pid)
                 result.Value.EnsembleAccept();
 
-            foreach (var i in _performers)
-                if (i.Value.game.Pid == seerEvent.Game.Pid)
-                    i.Value.EnsembleAccept();
             return 0;
         }
 
