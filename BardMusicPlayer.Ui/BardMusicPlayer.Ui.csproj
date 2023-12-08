@@ -295,6 +295,7 @@
     <Compile Include="Controls\VoiceMap.xaml.cs">
       <DependentUpon>VoiceMap.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Functions\PlaybackFunctions.cs" />
     <Compile Include="Functions\PlaylistImporter.cs" />
     <Compile Include="Globals\BmpChatParser.cs" />
     <Compile Include="Controls\KeyboardHeatMap.xaml.cs">
@@ -313,22 +314,6 @@
     <Compile Include="UI_Classic\NetworkPlayWindow.xaml.cs">
       <DependentUpon>NetworkPlayWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI_Skinned\BardWindow\BardsWindow.xaml.cs">
-      <DependentUpon>BardsWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_Skinned\MainView\Skinned_MainView_Ex.xaml.cs">
-      <DependentUpon>Skinned_MainView_Ex.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_Skinned\NetworkPlayWindow\NetworkPlayWindow.xaml.cs">
-      <DependentUpon>NetworkPlayWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_Skinned\Playlist\Mediabrowser\MediaBrowser.xaml.cs">
-      <DependentUpon>MediaBrowser.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_Skinned\Playlist\Skinned_PlaylistView_Siren.cs" />
-    <Compile Include="UI_Skinned\Playlist\Skinned_PlaylistView.xaml.cs" />
-    <Compile Include="UI_Skinned\Playlist\SongBrowser\Skinned_SongbrowserView.xaml.cs" />
-    <Compile Include="UI_Skinned\Playlist\SongBrowser\Skinned_SongbrowserView_Siren.cs" />
     <Page Include="Controls\BardExtSettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -381,27 +366,16 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Functions\PlaybackFunctions.cs" />
     <Compile Include="Functions\PlaylistFunctions.cs" />
     <Compile Include="Resources\TextInputWindow.xaml.cs">
       <DependentUpon>TextInputWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI_Classic\Classic_MainViewPlaycontrols.cs" />
     <Compile Include="UI_Classic\Classic_Playlist.cs" />
-    <Compile Include="UI_Skinned\BitmapText.cs" />
     <Compile Include="Globals\Globals.cs" />
-    <Compile Include="Globals\SkinContainer.cs" />
-    <Compile Include="UI_Skinned\MainView\Skinned_MainViewControls.xaml.cs" />
     <Compile Include="UI_Classic\Classic_MainView.xaml.cs">
       <DependentUpon>Classic_MainView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI_Skinned\MainView\Skinned_MainView.xaml.cs">
-      <DependentUpon>Skinned_MainView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_Skinned\Settings\SettingsView.xaml.cs">
-      <DependentUpon>SettingsView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_Skinned\Skinloader.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -450,41 +424,9 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI_Skinned\BardWindow\BardsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI_Skinned\MainView\Skinned_MainView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Resources\PlayBarStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI_Skinned\MainView\Skinned_MainView_Ex.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI_Skinned\NetworkPlayWindow\NetworkPlayWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI_Skinned\Playlist\Mediabrowser\MediaBrowser.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI_Skinned\Playlist\SongBrowser\Skinned_SongbrowserView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UI_Skinned\Settings\SettingsView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI_Skinned\Playlist\Skinned_PlaylistView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -514,9 +456,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\mb.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BardMusicPlayer.Coffer\BardMusicPlayer.Coffer.csproj">
@@ -569,31 +508,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Skin\avs.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\main.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\titlebar.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\cbuttons.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\nums_ex.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\text.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\pledit.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\posbar.bmp" />
-    <Resource Include="Resources\Skin\volume.bmp" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.8 %28x86 und x64%29</ProductName>
@@ -604,15 +518,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\shufrep.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\balance.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Skin\eqmain.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="iconp.ico" />

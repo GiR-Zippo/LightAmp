@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using UI.Resources;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -42,7 +43,12 @@ namespace BardMusicPlayer.Ui.Classic
             MultiBox_Box.IsChecked = BmpPigeonhole.Instance.EnableMultibox;
             AutoequipDalamud.IsChecked = BmpPigeonhole.Instance.UsePluginForInstrumentOpen;
             MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
-            SkinUiBox.IsChecked = !BmpPigeonhole.Instance.ClassicUi;
+
+            if (!BmpPigeonhole.Instance.ClassicUi)
+            {
+                SkinUiBox.Visibility = Visibility.Visible;
+                SkinUiBox.IsChecked = !BmpPigeonhole.Instance.ClassicUi;
+            }
 
             //Playlist
             AutoPlay_CheckBox.IsChecked = BmpPigeonhole.Instance.PlaylistAutoPlay;
@@ -156,6 +162,17 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void SkinUiBox_Checked(object sender, RoutedEventArgs e)
         {
+            if ((bool)SkinUiBox.IsChecked)
+            {
+                var openFileDialog = new FolderPicker();
+                if (openFileDialog.ShowDialog() != true)
+                    return;
+
+                if (openFileDialog.ResultPath == "")
+                    return;
+
+                BmpPigeonhole.Instance.LastSkin = openFileDialog.ResultPath+ "\\SkinnedUi.dll";
+            }
             BmpPigeonhole.Instance.ClassicUi = !(SkinUiBox.IsChecked ?? true);
         }
         #endregion
@@ -172,6 +189,7 @@ namespace BardMusicPlayer.Ui.Classic
             if (IsCompletedBy(e.Key))
             {
                 Sp_DalamudKeyOut.Visibility = Visibility.Visible;
+                SkinUiBox.Visibility = Visibility.Visible;
                 this.KeyDown -= Classic_MainView_KeyDown;
             }
         }

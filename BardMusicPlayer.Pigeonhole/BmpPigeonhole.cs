@@ -129,11 +129,6 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual string LastSkin { get; set; } = "";
 
         /// <summary>
-        /// Sets/Gets skin directory
-        /// </summary>
-        public virtual string SkinDirectory { get; set; } = "";
-
-        /// <summary>
         /// open local orchestra after hooking new proc
         /// </summary>
         public virtual bool LocalOrchestra { get; set; } = true;
