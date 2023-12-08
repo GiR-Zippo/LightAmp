@@ -7,11 +7,7 @@ using BardMusicPlayer.Ui.Classic;
 using System.Windows;
 using BardMusicPlayer.Pigeonhole;
 using System.Reflection;
-using System.Collections.Generic;
 using System;
-using System.Buffers;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -50,35 +46,27 @@ namespace BardMusicPlayer.Ui
                 this.Height = 174;
                 this.Width = 412;
                 this.ResizeMode = ResizeMode.NoResize;
-                var dll = Assembly.LoadFile(BmpPigeonhole.Instance.LastSkin);
-                
-                //get dll refs
-                string loadir = Path.GetDirectoryName(BmpPigeonhole.Instance.LastSkin);
-                var deps = Assembly.GetExecutingAssembly().GetReferencedAssemblies().Select(n=>n.Name);
 
-                foreach (var n in Directory.GetFiles(loadir))
+                var dll = Assembly.LoadFile(BmpPigeonhole.Instance.LastSkin);
+                if (!loadSkinDLLDepencies())
                 {
-                    if (!n.EndsWith(".dll"))
-                        continue;
-                    string file = Path.GetFileNameWithoutExtension(n);
-                    if (file == "SkinnedUi")
-                        continue;
-                    if (file.Contains("Melanchall_DryWetMidi_Native"))
-                        continue;
-                    if (deps.Contains(file))
-                        continue;
-                    Assembly.LoadFile(loadir + "\\" + file + ".dll");
+                    SwitchClassicStyle();
+                    return;
                 }
                 //init the skin
-                var type = dll.GetType("Skin.Ui.Skinned.Skin_MainView");
+                var type = dll.GetType("Skin.Ui.Skin_MainView");
                 var runnable = Activator.CreateInstance(type);
                 this.DataContext = runnable;
                 Application.Current.MainWindow = this;
             }
-            catch
+            catch (FileNotFoundException)
             {
-                SwitchClassicStyle();
+                var retval = MessageBox.Show("Skin not found.\r\nUsing default Ui.", "Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes, MessageBoxOptions.DefaultDesktopOnly);
+                if (retval == MessageBoxResult.OK)
+                    SwitchClassicStyle();
             }
+            catch
+            { }
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -89,6 +77,37 @@ namespace BardMusicPlayer.Ui
                 catch { }
             }
             base.OnClosing(e);
+        }
+
+        private bool loadSkinDLLDepencies()
+        {
+            //get dll refs, ignore the ones we already have
+            string loadir = Path.GetDirectoryName(BmpPigeonhole.Instance.LastSkin);
+            var deps = Assembly.GetExecutingAssembly().GetReferencedAssemblies().Select(n => n.Name);
+
+            foreach (var n in Directory.GetFiles(loadir))
+            {
+                if (!n.EndsWith(".dll"))
+                    continue;
+                string file = Path.GetFileNameWithoutExtension(n);
+                if (file == "Skin")
+                    continue;
+                if (deps.Contains(file))
+                    continue;
+                try
+                {
+                    Assembly.LoadFile(loadir + "\\" + file + ".dll");
+                }
+                catch (BadImageFormatException)
+                { }
+                catch (Exception e)
+                {
+                    var retval = MessageBox.Show("Error loading skin depency DLL:\r\n" + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes, MessageBoxOptions.DefaultDesktopOnly);
+                    if (retval == MessageBoxResult.OK)               
+                        return false;
+                }
+            }
+            return true;
         }
     }
 }

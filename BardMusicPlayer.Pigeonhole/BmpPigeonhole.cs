@@ -197,7 +197,5 @@ namespace BardMusicPlayer.Pigeonhole
         /// Defaults to log level Info
         /// </summary>
         public virtual BmpLog.Verbosity DefaultLogLevel { get; set; } = BmpLog.Verbosity.Info;
-
-        public virtual bool SkinnedUi_UseExtendedView { get; set; } = false;
     }
 }

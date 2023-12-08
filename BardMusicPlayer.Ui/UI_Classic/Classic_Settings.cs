@@ -171,7 +171,7 @@ namespace BardMusicPlayer.Ui.Classic
                 if (openFileDialog.ResultPath == "")
                     return;
 
-                BmpPigeonhole.Instance.LastSkin = openFileDialog.ResultPath+ "\\SkinnedUi.dll";
+                BmpPigeonhole.Instance.LastSkin = openFileDialog.ResultPath+ "\\Skin.dll";
             }
             BmpPigeonhole.Instance.ClassicUi = !(SkinUiBox.IsChecked ?? true);
         }
