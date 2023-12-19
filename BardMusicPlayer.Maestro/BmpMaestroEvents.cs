@@ -40,9 +40,13 @@ namespace BardMusicPlayer.Maestro
                         switch (meastroEvent)
                         {
                             case CurrentPlayPositionEvent currentPlayPosition:
+                                if (OnPlaybackTimeChanged == null)
+                                    break;
                                 OnPlaybackTimeChanged(this, currentPlayPosition);
                                 break;
                             case MaxPlayTimeEvent maxPlayTime:
+                                if (OnSongMaxTime == null)
+                                    break;
                                 OnSongMaxTime(this, maxPlayTime);
                                 break;
                             case SongLoadedEvent songloaded:
