@@ -124,6 +124,26 @@ namespace BardMusicPlayer.Siren
             _mdev.AudioSessionManager.AudioSessionControl.SimpleAudioVolume.Volume = x / 100;
         }
 
+        /// <summary>
+        ///     Sets the volume
+        /// </summary>
+        /// <param name="x"></param>
+        public bool GetMute()
+        {
+            if (_player == null) return false;
+            return _mdev.AudioSessionManager.AudioSessionControl.SimpleAudioVolume.Mute;
+        }
+
+        /// <summary>
+        ///     Sets mute state
+        /// </summary>
+        /// <param name="x"></param>
+        public void SetMute(bool muted)
+        {
+            if (_player == null) return;
+            _mdev.AudioSessionManager.AudioSessionControl.SimpleAudioVolume.Mute = muted;
+        }
+
         internal void BeginInvoke(Action action)
         {
             _taskQueue.Enqueue(() => Task.Run(action));
