@@ -1,6 +1,7 @@
 ﻿using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
+using BardMusicPlayer.Ui.Resources;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,6 +56,7 @@ namespace BardMusicPlayer.Ui.Classic
 
             if (BmpPigeonhole.Instance.UsePluginForKeyOutput)
             {
+                SkinUiBox.Visibility = Visibility.Visible;
                 Sp_DalamudKeyOut.Visibility = Visibility.Visible;
                 Sp_DalamudKeyOut.IsChecked = BmpPigeonhole.Instance.UsePluginForKeyOutput;
             }

@@ -10,7 +10,6 @@ using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -42,6 +41,12 @@ namespace BardMusicPlayer.Ui.Controls
             midi = arg;
             //if (arg == null)
                 ClearData();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            BmpSiren.Instance.SynthTimePositionChanged -= Instance_SynthTimePositionChanged;
+            BmpSiren.Instance.SongLoaded -= Instance_SongLoaded;
         }
 
         private void Instance_SongLoaded(string songTitle)

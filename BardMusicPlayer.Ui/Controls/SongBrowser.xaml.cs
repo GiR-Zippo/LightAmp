@@ -4,6 +4,7 @@
  */
 
 using BardMusicPlayer.Pigeonhole;
+using BardMusicPlayer.Ui.Resources;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +12,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using UI.Resources;
 
 namespace BardMusicPlayer.Ui.Controls
 {

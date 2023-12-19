@@ -180,11 +180,7 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void PlaybackTimeChanged(Maestro.Events.CurrentPlayPositionEvent e)
         {
-            string time;
-            string Seconds = e.timeSpan.Seconds.ToString();
-            string Minutes = e.timeSpan.Minutes.ToString();
-            time = ((Minutes.Length == 1) ? "0" + Minutes : Minutes) + ":" + ((Seconds.Length == 1) ? "0" + Seconds : Seconds);
-            ElapsedTime.Content = time;
+            ElapsedTime.Content = HelperFunctions.TimeSpanToString(e.timeSpan);
 
             if (!_Playbar_dragStarted)
                 Playbar_Slider.Value = e.tick;
@@ -192,14 +188,8 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void PlaybackMaxTime(Maestro.Events.MaxPlayTimeEvent e)
         {
-            string time;
-            string Seconds = e.timeSpan.Seconds.ToString();
-            string Minutes = e.timeSpan.Minutes.ToString();
-            time = ((Minutes.Length == 1) ? "0" + Minutes : Minutes) + ":" + ((Seconds.Length == 1) ? "0" + Seconds : Seconds);
-            TotalTime.Content = time;
-
+            TotalTime.Content = HelperFunctions.TimeSpanToString(e.timeSpan);
             Playbar_Slider.Maximum = e.tick;
-
         }
 
         private void OnSongLoaded(Maestro.Events.SongLoadedEvent e)

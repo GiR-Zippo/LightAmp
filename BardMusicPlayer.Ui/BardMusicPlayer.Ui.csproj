@@ -295,6 +295,7 @@
     <Compile Include="Controls\VoiceMap.xaml.cs">
       <DependentUpon>VoiceMap.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Functions\HelperFunctions.cs" />
     <Compile Include="Functions\PlaybackFunctions.cs" />
     <Compile Include="Functions\PlaylistImporter.cs" />
     <Compile Include="Globals\BmpChatParser.cs" />

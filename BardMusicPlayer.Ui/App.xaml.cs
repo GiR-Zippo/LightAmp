@@ -26,7 +26,6 @@ namespace BardMusicPlayer.Ui
             //init pigeon at first
             BmpPigeonhole.Initialize(Globals.Globals.DataPath + @"\Configuration.json");
 
-            // var view = (MainView)View;
             // LogManager.Initialize(new(view.Log));
 
             //Load the last used catalog

@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 // Fixes and colors chat accordingly
 
 namespace BardMusicPlayer.Ui {
-	static class BmpChatParser
+	public static class BmpChatParser
 	{
 		public static string Fixup(Seer.Events.ChatLog item)
 		{

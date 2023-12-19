@@ -1,5 +1,6 @@
 ﻿using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Transmogrify.Song;
+using BardMusicPlayer.Ui.Resources;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -68,7 +69,7 @@ namespace BardMusicPlayer.Ui.Functions
         /// <returns>true if success</returns>
         public static bool AddFolderToPlaylist(IPlaylist currentPlaylist)
         {
-            var dlg = new UI.Resources.FolderPicker();
+            var dlg = new FolderPicker();
 
             if (System.IO.Directory.Exists(Pigeonhole.BmpPigeonhole.Instance.SongDirectory))
                 dlg.InputPath = System.IO.Path.GetFullPath(Pigeonhole.BmpPigeonhole.Instance.SongDirectory);
