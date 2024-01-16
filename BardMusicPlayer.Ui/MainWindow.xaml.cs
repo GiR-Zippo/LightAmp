@@ -21,7 +21,7 @@ namespace BardMusicPlayer.Ui
         public MainWindow()
         {
             InitializeComponent();
-            this.Title = "LightAmp Ver:" + Assembly.GetExecutingAssembly().GetName().Version + " - Beelzebub";
+            this.Title = "LightAmp Ver:" + Assembly.GetExecutingAssembly().GetName().Version + " - Azusa";
             if (BmpPigeonhole.Instance.ClassicUi)
                 SwitchClassicStyle();
             else
@@ -65,8 +65,15 @@ namespace BardMusicPlayer.Ui
                 if (retval == MessageBoxResult.OK)
                     SwitchClassicStyle();
             }
-            catch
-            { }
+            catch(TargetInvocationException e)
+            {
+                var retval = MessageBox.Show("Skin error:\r\n"
+                                             + e.Message + "\r\n"
+                                             + e.InnerException + "\r\n"
+                                             + e.HelpLink+ "\r\n", "Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes, MessageBoxOptions.DefaultDesktopOnly);
+                if (retval == MessageBoxResult.OK)
+                    SwitchClassicStyle();
+            }
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
