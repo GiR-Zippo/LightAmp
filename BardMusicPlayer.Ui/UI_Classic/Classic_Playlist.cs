@@ -5,11 +5,13 @@
 
 using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Pigeonhole;
+using BardMusicPlayer.Siren;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
 using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -261,25 +263,6 @@ namespace BardMusicPlayer.Ui.Classic
             this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
             _directLoaded = false;
             return;
-        }
-
-        /// <summary>
-        /// Opens the edit window
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PlaylistContainer_RightButton(object sender, MouseButtonEventArgs e)
-        {
-            TextBlock celltext = sender as TextBlock;
-            if (celltext.Text.Equals(""))
-                return;
-
-            BmpSong song;
-            if (_currentPlaylist == null)
-                song = BmpCoffer.Instance.GetSong(celltext.Text);
-            else
-                song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, celltext.Text);
-            SongEditWindow sew = new SongEditWindow(song);
         }
 
         /// <summary>
@@ -579,5 +562,60 @@ namespace BardMusicPlayer.Ui.Classic
             contextMenu.IsOpen = true;
         }
         #endregion
+
+        private void PlaylistPreview_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = (MenuItem)sender;
+            var contextMenu = (ContextMenu)menuItem.Parent;
+            var item = (DataGrid)contextMenu.PlacementTarget;
+            String iName = item.SelectedCells[0].Item as String;
+            if (iName.Equals(""))
+                return;
+
+            BmpSong song;
+            if (_currentPlaylist == null)
+                song = BmpCoffer.Instance.GetSong(iName);
+            else
+                song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, iName);
+
+            if (song == null)
+                return;
+
+            _ = BmpSiren.Instance.Load(song);
+
+            //Fill the lyrics editor
+            lyricsData.Clear();
+            foreach (var line in song.LyricsContainer)
+                lyricsData.Add(new LyricsContainer(line.Key, line.Value));
+            Siren_Lyrics.DataContext = lyricsData;
+            Siren_Lyrics.Items.Refresh();
+
+        }
+
+        /// <summary>
+        /// Opens the edit window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PlaylistMetaEdit_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = (MenuItem)sender;
+            var contextMenu = (ContextMenu)menuItem.Parent;
+            var item = (DataGrid)contextMenu.PlacementTarget;
+            String iName = item.SelectedCells[0].Item as String;
+            if (iName.Equals(""))
+                return;
+
+            BmpSong song;
+            if (_currentPlaylist == null)
+                song = BmpCoffer.Instance.GetSong(iName);
+            else
+                song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, iName);
+
+            if (song == null)
+                return;
+
+            SongEditWindow sew = new SongEditWindow(song);
+        }
     }
 }

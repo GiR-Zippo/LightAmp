@@ -77,6 +77,12 @@
                         PreviewMouseDoubleClick="PlaylistContainer_PreviewMouseDoubleClick"
                         AllowDrop="true" 
                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Preview Song" Click="PlaylistPreview_Click" />
+                                <MenuItem Header="Edit Metadata" Click="PlaylistMetaEdit_Click" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
                         <DataGrid.ColumnHeaderStyle>
                             <Style TargetType="DataGridColumnHeader">
                                 <EventSetter Event="Click" Handler="PlaylistContainer_HeaderClick" />
@@ -86,7 +92,6 @@
                             <DataGridTextColumn x:Name="Playlist_Header" Header="Name" IsReadOnly="true" Width="*" Binding="{Binding}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="{x:Type TextBlock}">
-                                        <EventSetter Event="PreviewMouseRightButtonDown" Handler="PlaylistContainer_RightButton"/>
                                         <EventSetter Event="MouseMove" Handler="PlaylistContainer_MouseMove"/>
                                         <EventSetter Event="Drop" Handler="Playlist_Drop"/>
                                     </Style>

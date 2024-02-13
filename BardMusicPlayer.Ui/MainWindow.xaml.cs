@@ -40,6 +40,12 @@ namespace BardMusicPlayer.Ui
 
         public void SwitchSkinnedStyle()
         {
+            if (BmpPigeonhole.Instance.LastSkin == "")
+            {
+                SwitchClassicStyle();
+                return;
+            }
+
             try
             {
                 this.AllowsTransparency = true;

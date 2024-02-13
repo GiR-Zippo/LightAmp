@@ -39,31 +39,11 @@ namespace BardMusicPlayer.Ui.Classic
         private void Siren_Load_Click(object sender, RoutedEventArgs e)
         {
             Siren_VoiceCount.Content = 0;
-            BmpSong CurrentSong = null;
-            string song = PlaylistContainer.SelectedItem as String;
-            if (song == null)
-            {
-                CurrentSong = Siren_LoadMidiFile();
-                if (CurrentSong == null)
-                    return;
-            }
-            else
-            {
-                if ((string)PlaylistContainer.SelectedItem == "..")
-                {
-                    CurrentSong = Siren_LoadMidiFile();
-                    if (CurrentSong == null)
-                        return;
-                }
-                else
-                {
-                    //No playlist but song name, load the song directly
-                    if (_currentPlaylist == null)
-                        CurrentSong =  BmpCoffer.Instance.GetSong((string)PlaylistContainer.SelectedItem);
-                    else
-                        CurrentSong = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem);
-                }
-            }
+            BmpSong CurrentSong = Siren_LoadMidiFile();
+
+            if (CurrentSong == null)
+                return;
+
             _ = BmpSiren.Instance.Load(CurrentSong);
 
             //Fill the lyrics editor
