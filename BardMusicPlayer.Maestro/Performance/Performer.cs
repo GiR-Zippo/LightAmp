@@ -29,8 +29,10 @@ namespace BardMusicPlayer.Maestro.Performance
         private int _trackNumber { get; set; } = 1;
         private long _lastNoteTimestamp = 0;
         private bool _livePlayDelay { get; set; } = false;
+
         public int SingerTrackNr { get; set; } = 0;
         public int OctaveShift { get; set; } = 0;
+        public bool OctaveShiftEnabled { get { return !BmpPigeonhole.Instance.UseNoteOffset; } }
         public int TrackNumber { get { return _trackNumber; }
             set {
                 if (value == _trackNumber)

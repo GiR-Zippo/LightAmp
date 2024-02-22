@@ -197,5 +197,10 @@ namespace BardMusicPlayer.Pigeonhole
         /// Defaults to log level Info
         /// </summary>
         public virtual BmpLog.Verbosity DefaultLogLevel { get; set; } = BmpLog.Verbosity.Info;
+
+        /// <summary>
+        /// Use the NoteOffset instead the instrument offset
+        /// </summary>
+        public virtual bool UseNoteOffset { get; set; } = false;
     }
 }

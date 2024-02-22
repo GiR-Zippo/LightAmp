@@ -21,6 +21,7 @@ using BardMusicPlayer.DalamudBridge;
 using System.Windows.Input;
 using BardMusicPlayer.Ui.Functions;
 using System.ComponentModel;
+using System.Windows.Media;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -74,6 +75,7 @@ namespace BardMusicPlayer.Ui.Controls
         private void Globals_OnConfigReload(object sender, EventArgs e)
         {
             Autoequip_CheckBox.IsChecked = BmpPigeonhole.Instance.AutoEquipBards;
+            UpdateOctaveEnabled();
         }
 
         public Performer SelectedBard { get; set; }
@@ -93,7 +95,6 @@ namespace BardMusicPlayer.Ui.Controls
         private void OnPerformerUpdate(object sender, PerformerUpdate e) { UpdateView(); }
         private void OnPlayerNameChanged(PlayerNameChanged e) { UpdateView(); }
         private void OnHomeWorldChanged(HomeWorldChanged e) { UpdateView(); }
-
         private void OnInstrumentHeldChanged(InstrumentHeldChanged e)
         {
             UpdateView();
@@ -130,6 +131,21 @@ namespace BardMusicPlayer.Ui.Controls
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 this.BardsList.Items.Refresh();
+            }));
+        }
+
+        /// <summary>
+        /// Toggle Octaveshift enabled
+        /// </summary>
+        private void UpdateOctaveEnabled()
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                foreach (var f in FindVisualChildren<OctaveNumericUpDown>(BardsList).ToList())
+                {
+                    if (f is OctaveNumericUpDown)
+                        f.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
+                }
             }));
         }
 
@@ -259,7 +275,7 @@ namespace BardMusicPlayer.Ui.Controls
         #endregion
 
         /* Track UP/Down */
-        private void TrackNumericUpDown_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void TrackNumericUpDown_MouseUp(object sender, MouseButtonEventArgs e)
         {
             TrackNumericUpDown ctl = sender as TrackNumericUpDown;
             ctl.OnValueChanged += OnValueChanged;
@@ -275,7 +291,7 @@ namespace BardMusicPlayer.Ui.Controls
         }
 
         /* Octave UP/Down */
-        private void OctaveControl_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OctaveControl_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             OctaveNumericUpDown ctl = sender as OctaveNumericUpDown;
             ctl.OnValueChanged += OnOctaveValueChanged;
@@ -386,13 +402,6 @@ namespace BardMusicPlayer.Ui.Controls
                 }
             }
             
-            //Set the host performer
-            /*var host_perf = pdatalist.Where(p => p.IsHost);
-            if (host_perf.Count() != 0)
-            {
-                BmpMaestro.Instance.SetHostBard(tempPerf.Find(p => p.game.ConfigId == host_perf.First().CID));
-                BmpMaestro.Instance.SetTracknumber(tempPerf.Find(p => p.game.ConfigId == host_perf.First().CID), host_perf.First().Track);
-            }*/
             tempPerf.Clear();
             pdatalist.Clear();
 
@@ -559,6 +568,35 @@ namespace BardMusicPlayer.Ui.Controls
             contextMenu.PlacementTarget = rectangle;
             contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             contextMenu.IsOpen = true;
+        }
+
+        /// <summary>
+        /// Finds the visual child.
+        /// </summary>
+        /// <typeparam name="childItem">The type of the child item.</typeparam>
+        /// <param name="obj">The obj.</param>
+        /// <returns></returns>
+        private IEnumerable<T> FindVisualChildren<T>(DependencyObject obj) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+                if (child != null && child is T)
+                {
+                    yield return (T)child;
+                }
+                else
+                {
+                    var childOfChild = FindVisualChildren<T>(child);
+                    if (childOfChild != null)
+                    {
+                        foreach (var subchild in childOfChild)
+                        {
+                            yield return subchild;
+                        }
+                    }
+                }
+            }
         }
     }
 

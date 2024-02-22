@@ -203,6 +203,7 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
                                         <CheckBox Margin="10,0,0,0"  Grid.Row="1" x:Name="HoldNotesBox" Content="Hold notes"          Unchecked="Hold_Notes_Checked"        Checked="Hold_Notes_Checked"       ToolTip="{StaticResource PL_HOLDNOTES}"/>
                                         <CheckBox Margin="10,0,0,0"  Grid.Row="2" x:Name="ForcePlaybackBox" Content="Force playback"   Unchecked="Force_Playback_Checked"    Checked="Force_Playback_Checked"   ToolTip="{StaticResource PL_FORCE}"/>
@@ -213,6 +214,7 @@
                                             <ComboBoxItem>None</ComboBoxItem>
                                         </ComboBox>
                                         <CheckBox Margin="10,0,0,0"  Grid.Row="4" x:Name="LiveMidiDelay" Content="Enable note delay for live playing" Unchecked="LiveMidiDelay_Checked" Checked="LiveMidiDelay_Checked" ToolTip="{StaticResource PL_LIVE}"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="5" x:Name="NoteOffsetBox" Content="Enable note offset"                 Unchecked="NoteOffsetBox_Checked" Checked="NoteOffsetBox_Checked" />
                                     </Grid>
                                 </TabItem>
                                 <TabItem Header="Misc">

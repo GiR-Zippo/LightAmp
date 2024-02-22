@@ -314,6 +314,27 @@ namespace BardMusicPlayer.Quotidian.Structs
         }
 
         /// <summary>
+        /// Gets the per note sound sample offset for a given instrument. Should be combined with the SampleOffest.
+        /// </summary>
+        /// <param name="note">The in game note in this Instrument's default range</param>
+        /// <returns>The millisecond offset</returns>
+        public long NoteSampleOffsetOrDefault(int note, bool mb2CompatMode = false)
+        {
+            int max = InstrumentOffset.GetMaxOffset();
+            if (mb2CompatMode)
+            {
+                max = InstrumentOffset.MidiBard2CompatOffset.Max();
+                if (this.Name.Equals(Instrument.Clarinet.Name) && (note - 48 >= 0) && (note - 48 <= 9))
+                    return max - InstrumentOffset.MidiBard2CompatOffset[note - 48];
+            }
+
+            //in case we have an invalid note number, get the "default" offset
+            if ((note - 48 < 0) || (note - 48 > 36))
+                return max - InstrumentOffset.NoteInstrumentsampleOffset[Index].Min();
+            return max - InstrumentOffset.NoteInstrumentsampleOffset[Index][note-48];
+        }
+
+        /// <summary>
         /// Gets the new note value for a note that needs to move to a different base octave.
         /// </summary>
         /// <param name="currentOctaveRange">The current octave range this note is in</param>
@@ -333,5 +354,283 @@ namespace BardMusicPlayer.Quotidian.Structs
         /// <param name="note">The note</param>
         /// <returns></returns>
         public bool ValidateNoteRange(int note) => DefaultOctaveRange.ValidateNoteRange(note);
+    }
+
+    public static class InstrumentOffset
+    {
+        public static int GetMaxOffset() { return NoteInstrumentsampleOffset.Max((byte[] val) => val.Max()); }
+        public static readonly byte[] MidiBard2CompatOffset = new byte[]
+        {
+            135, 135, 135, 135, 135, 135, 135, 135, 135, 135
+        };
+
+        //public const byte NoteInstrumentsampleOffset[28][37] ={{}};
+        public static readonly byte[][] NoteInstrumentsampleOffset = new byte[][]
+        {
+            //  01  02  03  04  05  06  07  08  09  10  11  12  13  14  15  16  17
+            //00 None
+            new byte[]
+            {
+                00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+                00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+                00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+            },
+            //01 Harp - 4 samples
+            new byte[]
+            {
+                64, 64, 64, 64, 64, 64, 64, 64, 64, 64,                                 //first     64.33
+                64, 64, 64, 64, 64, 64, 64, 64, 64, 64,                                 //second    64.18
+                64, 64, 64, 64, 64, 64, 64, 64, 64,                                     //third     64.47
+                65, 65, 65, 65, 65, 65, 65, 65                                          //fourth    64.87
+            },
+            //02 Piano - 5 samples
+            new byte[]
+            {
+                69, 69, 69, 69, 69, 69, 69, 69, 69, 69, 69, 69,                         //first     68.83
+                69, 69, 69, 69, 69, 69, 69,                                             //second    69.0
+                69, 69, 69, 69, 69, 69, 69,                                             //third     69.6
+                69, 69, 69,                                                             //fourth    68.77
+                69, 69, 69, 69, 69, 69, 69, 69                                          //fifth     69.16
+            },
+            //03 Lute - 4 samples
+            new byte[]
+            {
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,             //first     80.16
+                78, 78, 78, 78, 78, 78, 78,                                             //second    78.31
+                78, 78, 78, 78, 78, 78, 78,                                             //third     78.33
+                78, 78, 78, 78, 78, 78, 78, 78                                          //fourth    78.08
+            },
+            //04 Fiddle - 8 samples
+            new byte[]
+            {
+                66, 66, 66, 66,                                                         //first     65.87
+                65, 65, 65,                                                             //second    65.43
+                65, 65, 65, 65, 65,                                                     //third     65.25
+                65, 65, 65, 65,                                                         //fourth    65.16
+                65, 65, 65,                                                             //fifth     64.95
+                65, 65, 65, 65, 65,                                                     //sixth     65.43
+                65, 65, 65, 65, 65, 65, 65,                                             //seventh   65.18
+                65, 65, 65, 65, 65, 65                                                  //eighth    65.18
+            },
+            //05 Flute - 6 samples
+            new byte[]
+            {
+                65, 65, 65, 65, 65, 65, 65, 65,                                         //first     65.10
+                65, 65, 65, 65, 65, 65, 65, 65,                                         //second    65.04
+                65, 65, 65,                                                             //third     65.00
+                65, 65, 65, 65, 65,                                                     //fourth    65.70
+                67, 67, 67, 67, 67, 67, 67,                                             //fifth     66.93
+                67, 67, 67, 67, 67, 67                                                  //sixth     65.75
+            },
+
+            //06 Oboe - 5 samples
+            new byte[]
+            {
+                67, 67, 67, 67, 67, 67, 67, 67, 67, 67,                                 //first     67.08
+                67, 67, 67, 67, 67,                                                     //second    66.79
+                67, 67, 67, 67,                                                         //third     67.56
+                64, 64, 64,                                                             //fourth    63.93
+                64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64              //fifth     64.47
+            },
+            //07 Clarinet - 5 samples
+            new byte[]
+            {
+                186, 180, 173, 166, 156, 146, 136, 126,                                 //first     126.25, actually 186 at lowest... Clarinet, Why???*/
+                63, 63, 63, 63, 63,                                                     //second    62.71
+                64, 64, 64, 64, 64, 64, 64, 64, 64,                                     //third     64.08
+                66, 66, 66, 66, 66, 66, 66,                                             //fourth    66.39
+                66, 66, 66, 66, 66, 66, 66, 66                                          //fifth     65.95
+            },
+            //08 Fife - 5 samples
+            new byte[]
+            {
+                65, 65, 65, 65, 65, 65, 65, 65,                                         //first     65.34
+                67, 67, 67, 67, 67,                                                     //second    66.97
+                66, 66, 66, 66,                                                         //third     65.67
+                67, 67, 67, 67, 67, 67, 67,                                             //fourth    66.73
+                67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67                  //fifth     67.57
+            },
+            //09 Panpipe - 4 samples
+            new byte[]
+            {
+                64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, //first     63.50
+                66, 66, 66,                                                             //second    66.375
+                66, 66, 66, 66,                                                         //third     66.29
+                66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66                  //fourth    66.18
+            },
+            //10 Timpani - 3 samples
+            new byte[]
+            {
+                67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67,         //first     66.62
+                66, 66, 66, 66, 66, 66, 66, 66,                                         //second    65.63
+                66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66                      //third     66.52
+            },
+            //11 Bongo - 3 samples
+            new byte[]
+            {
+                69, 69, 69, 69, 69, 69, 69, 69,                                         //first     68.79
+                65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,                 //second    64.81
+                53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53, 53              //third     53.31
+            },
+            //12 Bassdrum - 4 samples
+            new byte[]
+            {
+                71, 71, 71, 71, 71, 71, 71,                                             //first     70.60
+                64, 64, 64, 64, 64,                                                     //second    63.72
+                52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52,                         //third     52.29
+                46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46                      //fourth    45.79
+            },
+            //13 SnareDrum - 4 samples
+            new byte[]
+            {
+                70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70,                         //first     70.20
+                63, 63, 63, 63, 63, 63, 63, 63,                                         //second    62.75
+                62, 62, 62, 62,                                                         //third     62.02
+                55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55                      //fourth    54.93
+            },
+            //14 Cymbals - 7 samples
+            new byte[]
+            {
+                00, 00, 00,                                                             //first     00.00
+                00, 00, 00, 00, 00, 00,                                                 //second    00.00
+                00, 00, 00, 00, 00, 00,                                                 //third     00.00
+                00, 00, 00, 00, 00, 00,                                                 //fourth    00.00
+                00, 00, 00, 00, 00, 00,                                                 //fifth     00.00
+                00, 00, 00, 00, 00, 00,                                                 //sixth     00.00
+                00, 00, 00, 00                                                          //seventh   00.00
+            },
+            //15 Trumpet - 6 samples
+            new byte[]
+            {
+                01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01,                     //first     01.31
+                11, 11, 11, 11, 11, 11, 11,                                             //second    10.95
+                07, 07, 07, 07,                                                         //third     07.25
+                03, 03, 03, 03,                                                         //fourth    03.58
+                01, 01, 01,                                                             //fifth     01.46
+                12, 12, 12, 12, 12, 12                                                  //sixth     12.44
+            },
+            //16 Trombone - 5 samples
+            new byte[]
+            {
+                01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01,             //first     01.42
+                03, 03, 03, 03, 03, 03, 03,                                             //second    02.71
+                04, 04,                                                                 //third     03.81
+                01, 01, 01, 01,                                                         //fourth    01.11
+                03, 03, 03, 03, 03, 03, 03, 03, 03                                      //fifth     02.65
+            },
+            //17 Tuba - 6 samples
+            new byte[]
+            {
+                02, 02, 02, 02, 02, 02, 02, 02, 02, 02,                                 //first     02.23
+                01, 01, 01,                                                             //second    01.13
+                00, 00, 00, 00, 00, 00, 00, 00,                                         //third     00.54
+                00, 00, 00,                                                             //fourth    00.58
+                02, 02, 02, 02, 02,                                                     //fifth     02.06
+                02, 02, 02, 02, 02, 02, 02, 02                                          //sixth     02.25
+            },
+            //18 Horn - 5 samples
+            new byte[]
+            {
+                01, 01, 01, 01, 01, 01, 01, 01,                                         //first     00.90
+                01, 01, 01, 01, 01, 01, 01, 01,                                         //second    01.08
+                03, 03, 03,                                                             //third     02.67
+                01, 01, 01, 01,                                                         //fourth    00.81
+                02, 02, 02, 02, 02, 02, 02, 02, 02, 02, 02, 02, 02, 02                  //fifth     01.93
+            },
+            //19 Saxophone - 4 samples
+            new byte[]
+            {
+                00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,                         //first     00.46
+                02, 02, 02, 02, 02, 02,                                                 //second    02.36
+                02, 02, 02, 02, 02, 02, 02, 02, 02, 02,                                 //third     01.87
+                03, 03, 03, 03, 03, 03, 03, 03, 03,                                     //fourth    02.50
+            },
+            //20 Violin - 5 samples
+            new byte[]
+            {
+                04, 04, 04, 04, 04, 04, 04, 04, 04, 04,                                 //first     04.02
+                01, 01, 01, 01, 01, 01, 01, 01,                                         //second    00.96
+                02, 02, 02, 02, 02, 02,                                                 //third     02.40
+                01, 01, 01, 01, 01,                                                     //fourth    01.35
+                02, 02, 02, 02, 02, 02, 02, 02                                          //fifth     01.96
+            },
+            //21 Viola - 5 samples
+            new byte[]
+            {
+                04, 04, 04, 04, 04, 04, 04, 04,                                         //first     03.52
+                03, 03, 03, 03, 03, 03, 03,                                             //second    02.92
+                03, 03, 03, 03, 03, 03, 03,                                             //third     02.94
+                03, 03, 03, 03, 03, 03, 03,                                             //fourth    02.98
+                02, 02, 02, 02, 02, 02, 02, 02                                          //fifth     02.33
+            },
+            //22 Cello - 5 samples
+            new byte[]
+            {
+                06, 06, 06, 06, 06, 06, 06,                                             //first     05.79
+                01, 01, 01, 01, 01, 01, 01,                                             //second    01.44
+                02, 02, 02, 02, 02, 02, 02, 02, 02,                                     //third     02.48
+                02, 02, 02, 02, 02,                                                     //fourth    01.90
+                03, 03, 03, 03, 03, 03, 03, 03, 03                                      //fifth     03.13
+            },
+            //23 Doublebass - 5 samples
+            new byte[]
+            {
+                01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01,                             //first     01.17
+                02, 02, 02, 02,                                                         //second    01.94
+                02, 02, 02, 02, 02, 02, 02,                                             //third     02.17
+                02, 02, 02, 02, 02, 02,                                                 //fourth    01.98
+                03, 03, 03, 03, 03, 03, 03, 03, 03                                      //fifth     02.50
+            },
+            //24 ElectricGuitarOverdriven - 5 samples
+            new byte[]
+            {
+                04, 04, 04, 04, 04, 04, 04, 04, 04, 04, 04,                             //first     03.75
+                01, 01, 01, 01, 01, 01,                                                 //second    00.98
+                02, 02, 02, 02, 02,                                                     //third     02.46
+                02, 02, 02, 02, 02, 02, 02, 02, 02,                                     //fourth    01.87
+                03, 03, 03, 03, 03, 03                                                  //fifth     02.96
+            },
+            //25 ElectricGuitarClean - 5 samples
+            new byte[]
+            {
+                04, 04, 04, 04, 04, 04, 04, 04, 04, 04,                                 //first     03.54
+                00, 00, 00, 00, 00, 00, 00,                                             //second    00.00
+                03, 03, 03, 03, 03, 03, 03,                                             //third     03.10
+                01, 01, 01, 01, 01, 01, 01,                                             //fourth    01.08
+                03, 03, 03, 03, 03, 03,                                                 //fifth     02.56
+            },
+            //26 ElectricGuitarMuted - 10 samples
+            new byte[]
+            {
+                64, 64, 64, 64,                                                         //first     64.38
+                59, 59, 59,                                                             //second    59.34
+                67, 67, 67, 67, 67,                                                     //third     67.29
+                62, 62,                                                                 //fourth    62.19
+                65, 65, 65, 65, 65,                                                     //fifth     64.75
+                66, 66, 66, 66, 66,                                                     //sixth     66.02
+                60, 60, 60, 60,                                                         //seventh   60.48
+                65, 65, 65,                                                             //eighth    64.79
+                66, 66, 66,                                                             //ninth     65.77
+                66, 66, 66                                                              //tenth     65.65
+            },
+            //27 ElectricGuitarPowerChords - 5 samples
+            new byte[]
+            {
+                06, 06, 06, 06, 06, 06, 06, 06, 06,                                     //first     05.67
+                00, 00, 00, 00, 00, 00, 00, 00,                                         //second    00.00
+                05, 05, 05, 05, 05,                                                     //third     05.13
+                00, 00, 00, 00, 00, 00, 00,                                             //fourth    00.00
+                05, 05, 05, 05, 05, 05, 05, 05                                          //fifth     05.29
+            },
+            //27 ElectricGuitarSpecial - 5 samples
+            new byte[]
+            {
+                00, 00, 00, 00, 00, 00,                                                 //first     00.00
+                00, 00, 00, 00, 00, 00, 00,                                             //second    00.00
+                00, 00, 00, 00, 00, 00, 00,                                             //third     00.00
+                00, 00, 00, 00, 00, 00, 00, 00, 00,                                     //fourth    00.00
+                00, 00, 00, 00, 00, 00, 00, 00                                          //fifth     00.25
+            }
+        };
     }
 }

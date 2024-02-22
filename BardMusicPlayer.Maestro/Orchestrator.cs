@@ -276,6 +276,9 @@ namespace BardMusicPlayer.Maestro
         /// <param name="song"></param>
         public void LoadBMPSong(BmpSong song)
         {
+            if (song == null)
+                return;
+
             if (!BmpPigeonhole.Instance.LocalOrchestra)
                 LocalOchestraInitialized = false;
 

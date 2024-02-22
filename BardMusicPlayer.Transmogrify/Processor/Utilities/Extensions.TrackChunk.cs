@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Structs;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
@@ -172,6 +173,82 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
                         //if theres a new offset, use this one
                         if ((programChangeEvent.ProgramNumber >= 27) && (programChangeEvent.ProgramNumber <= 31))
                             offset = Instrument.ParseByProgramChange(programChangeEvent.ProgramNumber).SampleOffset;
+                    }
+                }
+
+
+                /*foreach (TimedEvent _event in manager.Events)
+                {
+                    var programChangeEvent = _event.Event as ChannelAftertouchEvent;
+                    if (programChangeEvent == null)
+                        continue;
+
+                    long newStart = _event.Time - delta;
+                    if (newStart <= -1)
+                        manager.Events.Remove(_event);
+                    else
+                        _event.Time = newStart;
+                }*/
+
+            }
+            return Task.FromResult(originalChunk);
+        }
+
+        /// <summary>
+        /// Realigns the track events in <see cref="TrackChunk"/> by note offset
+        /// </summary>
+        /// <param name="originalChunk"></param>
+        /// <param name="delta"></param>
+        /// <returns><see cref="Task{TResult}"/> is <see cref="TrackChunk"/></returns>
+        internal static Task<TrackChunk> RealignTrackEventsByNoteOffset(TrackChunk originalChunk, long delta)
+        {
+            bool mb2Compat = BmpPigeonhole.Instance.MidiBardCompatMode;
+            Instrument instrument = Instrument.Parse(originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text);
+            int lastNoteNumber = -1;
+
+            using (var manager = originalChunk.ManageTimedEvents())
+            {
+                foreach (TimedEvent _event in manager.Objects)
+                {
+                    var noteEvent = _event.Event as NoteEvent;
+                    var programChangeEvent = _event.Event as ProgramChangeEvent;
+                    var lyricsEvent = _event.Event as LyricEvent;
+
+                    //Note alignment
+                    if (noteEvent != null)
+                    {
+                        _event.Time = _event.Time + instrument.NoteSampleOffsetOrDefault(noteEvent.NoteNumber, mb2Compat) - delta;
+                        lastNoteNumber = noteEvent.NoteNumber;
+                    }
+                    //lyrics
+                    if (lyricsEvent != null)
+                    {
+                        if (lastNoteNumber == -1)
+                        {
+                            if (_event.Time + 10 - delta <= -0)
+                                manager.Objects.Remove(_event);
+                            else
+                                _event.Time = _event.Time + 10 - delta;
+                        }
+                        else
+                            _event.Time = _event.Time + instrument.NoteSampleOffsetOrDefault(lastNoteNumber, mb2Compat) - delta;
+                    }
+                    //Prog alignment
+                    if (programChangeEvent != null)
+                    {
+                        if (lastNoteNumber == -1)
+                        {
+                            if(_event.Time + 10 - delta <= -0)
+                                manager.Objects.Remove(_event);
+                            else
+                                _event.Time = _event.Time + 10 - delta;
+                        }
+                        else
+                            _event.Time = _event.Time + instrument.NoteSampleOffsetOrDefault(lastNoteNumber, mb2Compat) - delta;
+
+                        //if theres a new offset, use this one
+                        if ((programChangeEvent.ProgramNumber >= 27) && (programChangeEvent.ProgramNumber <= 31))
+                            instrument = Instrument.ParseByProgramChange(programChangeEvent.ProgramNumber);
                     }
                 }
 

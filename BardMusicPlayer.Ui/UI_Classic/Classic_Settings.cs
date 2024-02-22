@@ -38,6 +38,11 @@ namespace BardMusicPlayer.Ui.Classic
                 MIDI_Input_DeviceBox.SelectedIndex = BmpPigeonhole.Instance.MidiInputDev + 1;
             }
             LiveMidiDelay.IsChecked = BmpPigeonhole.Instance.LiveMidiPlayDelay;
+            NoteOffsetBox.IsChecked = BmpPigeonhole.Instance.UseNoteOffset;
+            octave_txtNum.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
+            octave_cmdUp.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
+            octave_cmdDown.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
+
 
             //Misc
             AMPInFrontBox.IsChecked = BmpPigeonhole.Instance.BringBMPtoFront;
@@ -130,6 +135,15 @@ namespace BardMusicPlayer.Ui.Classic
         private void LiveMidiDelay_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.LiveMidiPlayDelay = (LiveMidiDelay.IsChecked ?? false);
+        }
+
+        private void NoteOffsetBox_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.UseNoteOffset = (NoteOffsetBox.IsChecked ?? false);
+            octave_txtNum.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
+            octave_cmdUp.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
+            octave_cmdDown.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
+            Globals.Globals.ReloadConfig();
         }
         #endregion
 

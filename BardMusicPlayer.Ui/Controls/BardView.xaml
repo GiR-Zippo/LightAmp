@@ -119,7 +119,7 @@
 
                         <TextBlock Grid.Column="6" Grid.Row="0" Text="Track" HorizontalAlignment="Center" />
                         <control:TrackNumericUpDown Grid.Column="6" Grid.Row="1"  x:Name="TrackControl"   PreviewMouseUp="TrackNumericUpDown_MouseUp"   Value="{Binding TrackNumber}"/>
-                        <control:OctaveNumericUpDown Grid.Column="7" Grid.Row="1" x:Name="OctaveControl"  PreviewMouseUp="OctaveControl_PreviewMouseUp" Value="{Binding OctaveShift}"/>
+                        <control:OctaveNumericUpDown Grid.Column="7" Grid.Row="1" x:Name="OctaveControl"  PreviewMouseUp="OctaveControl_PreviewMouseUp" Value="{Binding OctaveShift}" IsEnabled="{Binding OctaveShiftEnabled}"/>
 
                         <TextBlock Grid.Column="8" Grid.Row="0" Text="Host" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <CheckBox  Grid.Column="8" Grid.Row="1" x:Name="HostChecker" HorizontalAlignment="Center" Checked="HostChecker_Checked" IsChecked="{Binding HostProcess, Mode=TwoWay}"/>

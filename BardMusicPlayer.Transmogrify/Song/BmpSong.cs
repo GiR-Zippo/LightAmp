@@ -19,6 +19,7 @@ using BardMusicPlayer.Transmogrify.Song.Importers;
 using BardMusicPlayer.Transmogrify.Song.Importers.LrcParser;
 using BardMusicPlayer.Transmogrify.Song.Utilities;
 using LiteDB;
+using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 
@@ -340,12 +341,16 @@ namespace BardMusicPlayer.Transmogrify.Song
                                 if (int.TryParse(match.Groups[2].Value, out int os))
                                     octaveShift = os;
 
-                            trackName = octaveShift switch
+                            //We are transposing automatically when UseNoteOffset
+                            if (!BmpPigeonhole.Instance.UseNoteOffset)
                             {
-                                > 0 => trackName + "+" + octaveShift,
-                                < 0 => trackName + octaveShift,
-                                _ => trackName
-                            };
+                                trackName = octaveShift switch
+                                {
+                                    > 0 => trackName + "+" + octaveShift,
+                                    < 0 => trackName + octaveShift,
+                                    _ => trackName
+                                };
+                            }
                         }
 
                         //last try with the program number
@@ -385,7 +390,13 @@ namespace BardMusicPlayer.Transmogrify.Song
                             timedEvents.Add(new TimedEvent(new ChannelAftertouchEvent(programChangeEvent.AftertouchValue), 5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote));
                         }
                     }*/
+
                     newChunk.AddObjects(fixedNotes);
+
+                    //We are transposing automatically when UseNoteOffset
+                    if (BmpPigeonhole.Instance.UseNoteOffset)
+                        newChunk.ProcessNotes(n => { n.NoteNumber = (SevenBitNumber)(n.NoteNumber + 12 * octaveShift); });
+
                     newTrackChunks.TryAdd(noteVelocity, newChunk);
                 });
 
@@ -402,7 +413,10 @@ namespace BardMusicPlayer.Transmogrify.Song
                 long delta = (newMidiFile.GetTrackChunks().GetNotes().First().GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(newMidiFile.GetTempoMap()).TotalMicroseconds / 1000);
                 Parallel.ForEach(newMidiFile.GetTrackChunks(), chunk =>
                 {
-                    chunk = Extensions.RealignTrackEvents(chunk, delta).Result;
+                    if (BmpPigeonhole.Instance.UseNoteOffset)
+                        chunk = Extensions.RealignTrackEventsByNoteOffset(chunk, delta).Result;
+                    else
+                        chunk = Extensions.RealignTrackEvents(chunk, delta).Result;
                 });
 
                 //Append the lyrics from the lrc
