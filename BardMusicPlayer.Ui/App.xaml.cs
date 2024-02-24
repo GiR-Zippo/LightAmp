@@ -7,6 +7,8 @@ using System.Diagnostics;
 using BardMusicPlayer.Siren;
 using BardMusicPlayer.Jamboree;
 using BardMusicPlayer.Script;
+using System.Globalization;
+using System;
 
 namespace BardMusicPlayer.Ui
 {
@@ -49,6 +51,7 @@ namespace BardMusicPlayer.Ui
 
             BmpSiren.Instance.Setup();
             //BmpJamboree.Instance.Start();
+            ConfigureLanguage(System.Threading.Thread.CurrentThread.CurrentUICulture.ToString());
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -70,6 +73,17 @@ namespace BardMusicPlayer.Ui
 
             //Wasabi hangs kill it with fire
             Process.GetCurrentProcess().Kill();
+        }
+        internal static void ConfigureLanguage(string langCode = null)
+        {
+            try
+            {
+                Locales.Language.Culture = new CultureInfo(langCode);
+            }
+            catch (Exception)
+            {
+                Locales.Language.Culture = CultureInfo.DefaultThreadCurrentUICulture;
+            }
         }
     }
 }

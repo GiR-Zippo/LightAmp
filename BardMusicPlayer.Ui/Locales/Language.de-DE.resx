@@ -1,0 +1,293 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Global_Load_Song_To_Playlist" xml:space="preserve">
+    <value>Fügt das Lied der Playlist hinzu</value>
+  </data>
+  <data name="Global_Load_Song_To_Preview" xml:space="preserve">
+    <value>Läd das Lied in den Preview</value>
+  </data>
+  <data name="Main_All_Tracks" xml:space="preserve">
+    <value>Lässt dich alle Tracks als einen spielen</value>
+  </data>
+  <data name="Main_Play" xml:space="preserve">
+    <value>Spielt das geladene Lied ab.
+Rechtsklick: Wählt automatisch das Instrument aus, macht den Readycheck und fängt an zu spielen</value>
+  </data>
+  <data name="Main_Playback_Speed" xml:space="preserve">
+    <value>Stellt die Abspielgeschwindigkeit ein</value>
+  </data>
+  <data name="Main_Rewind" xml:space="preserve">
+    <value>Setzt das Lieder wieder auf Anfang</value>
+  </data>
+  <data name="Main_Script" xml:space="preserve">
+    <value>Öffnet das Scriptpanel</value>
+  </data>
+  <data name="Misc_More_Options" xml:space="preserve">
+    <value>Mehr Optionen...</value>
+  </data>
+  <data name="Misc_OMNI" xml:space="preserve">
+    <value>Öffnet den Voicegraph</value>
+  </data>
+  <data name="Misc_QEdit" xml:space="preserve">
+    <value>Öffnet den QuickEditor</value>
+  </data>
+  <data name="Playlist_Add" xml:space="preserve">
+    <value>Fügt ein Lied der Playlist hinzu.
+Rechtsklick: Fügt einen kompletten Ordner hinzu</value>
+  </data>
+  <data name="Playlist_Autoplay" xml:space="preserve">
+    <value>Autoplay an / aus
+(funktioniert nur mit Solobarden)</value>
+  </data>
+  <data name="Playlist_Catalog_Cleanup" xml:space="preserve">
+    <value>Versucht den Musikkatalog zu verkleinern und Müll zu entfernen</value>
+  </data>
+  <data name="Playlist_Catalog_Export" xml:space="preserve">
+    <value>Exportiert das geladene Lied als Mididatei</value>
+  </data>
+  <data name="Playlist_Catalog_New" xml:space="preserve">
+    <value>Erstellt einen neuen Musikkatalog</value>
+  </data>
+  <data name="Playlist_Catalog_Open" xml:space="preserve">
+    <value>Öffnet einen Musikkatalog</value>
+  </data>
+  <data name="Playlist_Catalog_Search_Songs" xml:space="preserve">
+    <value>Sucht nach ein Lied in der aktuellen Playlist</value>
+  </data>
+  <data name="Playlist_Delete" xml:space="preserve">
+    <value>Löscht die aktuelle Playlist</value>
+  </data>
+  <data name="Playlist_New" xml:space="preserve">
+    <value>Erstell eine neue Playlist im Kalalog</value>
+  </data>
+  <data name="Playlist_Open_Metadata" xml:space="preserve">
+    <value>Öffnet den Metadateneditor</value>
+  </data>
+  <data name="Playlist_Remove_Songs" xml:space="preserve">
+    <value>Löscht die ausgewählten Lieder aus der Playliste</value>
+  </data>
+  <data name="Playlist_Show_All_Songs" xml:space="preserve">
+    <value>Zeigt alle Lieder im Musikkatalog an</value>
+  </data>
+  <data name="Playlist_Skip" xml:space="preserve">
+    <value>Überspringt das aktuelle Lied</value>
+  </data>
+  <data name="QEdit_Align_Zero" xml:space="preserve">
+    <value>Löscht die Pausen am anfang eines Lieds</value>
+  </data>
+  <data name="QEdit_GuitarMode" xml:space="preserve">
+    <value>Bestimmt den Gitarrenmodus der Midi
+Standard: Alle programchanges werden genutzt
+Simple: Der Trackname gibt die Gitarre vor, die Switches werden gelöscht
+Override By Track: Der Trackname gibt die Gitarre vor, die Switches werden gelöscht</value>
+  </data>
+  <data name="QEdit_Save_MB2_Config" xml:space="preserve">
+    <value>Speichert die Einstellungen als MidiBard2 config</value>
+  </data>
+  <data name="QEdit_To_MidiFile" xml:space="preserve">
+    <value>Speichert das Lied als Mididatei</value>
+  </data>
+  <data name="QEdit_To_Sequencer" xml:space="preserve">
+    <value>Läd das Lied in den Sequencer</value>
+  </data>
+  <data name="QEdit_To_Siren" xml:space="preserve">
+    <value>Läd das Lied in den Preview</value>
+  </data>
+  <data name="Settings_AmpFront" xml:space="preserve">
+    <value>Brings the amp in front after a new song was loaded from the playlist</value>
+  </data>
+  <data name="Settings_Autoequip" xml:space="preserve">
+    <value>Autoequiped die Barden wenn ein neues Lied geladen wird</value>
+  </data>
+  <data name="Settings_Autohost" xml:space="preserve">
+    <value>Der Gruppenlead wird zum Hostbarde</value>
+  </data>
+  <data name="Settings_Dalamud_KeyOut" xml:space="preserve">
+    <value>Die Hypnotoad drückt nun die Tasten zum spielen</value>
+  </data>
+  <data name="Settings_Force_Playback" xml:space="preserve">
+    <value>Spielt das Lied, komme was wolle</value>
+  </data>
+  <data name="Settings_Hold_Notes" xml:space="preserve">
+    <value>Spielt die Noten in der länge wie in der Midi (ist eine alte funktion, lass sie einfach an)</value>
+  </data>
+  <data name="Settings_Ignore_GuitarSwitching" xml:space="preserve">
+    <value>Ignoriere die Gitarrenswitches</value>
+  </data>
+  <data name="Settings_Individual_Start" xml:space="preserve">
+    <value>Jeder Barde hat seinen eigenes Startsignal (ist präziser)
+Geht nur bis 8 Barden</value>
+  </data>
+  <data name="Settings_Keep_Tracks" xml:space="preserve">
+    <value>Lässt die Performereinstellungen in Ruhe und ändert nichts</value>
+  </data>
+  <data name="Settings_Live_Play" xml:space="preserve">
+    <value>Verbessert das spielen mit Midikeyboards. Nicht nutzen wenn Mididateien gespielt werden.
+Wird erst beim laden eines neuen Lieds übernommen.</value>
+  </data>
+  <data name="Settings_Local_Orchestra" xml:space="preserve">
+    <value>Wird genutzt um mit mehreren Barden auf dem PC spielen zu können</value>
+  </data>
+  <data name="Settings_MidiBard" xml:space="preserve">
+    <value>Option zum synchronen Starten mit dem MidiBard2
+Wird erst beim laden eines neuen Lieds übernommen.</value>
+  </data>
+  <data name="Settings_Midi_Input" xml:space="preserve">
+    <value>Auswahl deines Midigerätes (Midikeyboard) zum manuellen Spielen</value>
+  </data>
+  <data name="Settings_Multibox" xml:space="preserve">
+    <value>Damit kann man mehr als 2x FFXIV starten</value>
+  </data>
+  <data name="Settings_Note_Offset" xml:space="preserve">
+    <value>Aktiviert die Verzögerung pro Note und verbessert die Wiedergabe
+Deaktiviert die manuelle Oktavenanpassung
+Wird erst beim laden eines neuen Lieds übernommen.</value>
+  </data>
+  <data name="Settings_TriggerSource" xml:space="preserve">
+    <value>Auswahl des Starttriggers [Metronome ist der Standard]</value>
+  </data>
+  <data name="Settings_Use_Skin" xml:space="preserve">
+    <value>Lässt dich eine andere Ui nutzen (wenn vorhanden)</value>
+  </data>
+  <data name="Siren_Load" xml:space="preserve">
+    <value>Läd ein Lied in den Preview</value>
+  </data>
+  <data name="Siren_Lyrics" xml:space="preserve">
+    <value>Speichert die Lyrics in eine Lrc-Datei</value>
+  </data>
+  <data name="Siren_Pause" xml:space="preserve">
+    <value>Pausiert das apielende Lied</value>
+  </data>
+  <data name="Siren_Play" xml:space="preserve">
+    <value>Spielt das geladene Lied</value>
+  </data>
+  <data name="Siren_Record" xml:space="preserve">
+    <value>Nimmt das abspielende Lied als Wav auf</value>
+  </data>
+  <data name="Siren_Stop" xml:space="preserve">
+    <value>Stoppt die Wiedergabe</value>
+  </data>
+  <data name="SongeBrowser_TargetDir" xml:space="preserve">
+    <value>Auswahl des Ordners, wo die Lieder gespeichert sind</value>
+  </data>
+  <data name="Statistics_Export_Song" xml:space="preserve">
+    <value>Exportiert das aktuel geladene Lied als Mididatei</value>
+  </data>
+</root>

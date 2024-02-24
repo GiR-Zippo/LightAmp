@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BardMusicPlayer.Ui.Controls"
-        xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls" 
+        xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls"
+        xmlns:Locale ="clr-namespace:BardMusicPlayer.Ui.Locales"
         mc:Ignorable="d"
         Closing="Window_Closing"  
         Title="Meow-Bard Converter" Height="450" Width="580">
@@ -32,7 +33,7 @@
                     </ItemsPanelTemplate>
                 </Menu.ItemsPanel>
                 <MenuItem Header="--- Save MB Config ---" IsEnabled="False" />
-                <MenuItem Header="Save MidiBard config" Click="MBardSave_Click"/>
+                <MenuItem Header="Save MidiBard config" Click="MBardSave_Click" ToolTip="{x:Static Locale:Language.QEdit_Save_MB2_Config}"/>
                 <MenuItem Header=""/>
             </Menu>
             <Menu>
@@ -42,9 +43,9 @@
                     </ItemsPanelTemplate>
                 </Menu.ItemsPanel>
                 <MenuItem Header="----- Midi Export -----" IsEnabled="False" />
-                <MenuItem Header="To Sequencer" Click="Sequencer_Click"/>
-                <MenuItem Header="To Siren" Click="Siren_Click"/>
-                <MenuItem Header="To MIDI-File" Click="Export_Click"/>
+                <MenuItem Header="To Sequencer" Click="Sequencer_Click"         ToolTip="{x:Static Locale:Language.QEdit_To_Sequencer}"/>
+                <MenuItem Header="To Siren" Click="Siren_Click"                 ToolTip="{x:Static Locale:Language.QEdit_To_Siren}"/>
+                <MenuItem Header="To MIDI-File" Click="Export_Click"            ToolTip="{x:Static Locale:Language.QEdit_To_MidiFile}"/>
                 <MenuItem Header=""/>
             </Menu>
             <Menu>
@@ -54,16 +55,16 @@
                     </ItemsPanelTemplate>
                 </Menu.ItemsPanel>
                 <MenuItem Header="------- Options ------" IsEnabled="False"/>
-                <CheckBox x:Name="AlignToFirstNote_CheckBox" Content="Align to first note" Checked="AlignToFirstNote_CheckBox_Checked" Unchecked="AlignToFirstNote_CheckBox_Checked"/>
+                <CheckBox x:Name="AlignToFirstNote_CheckBox" Content="Align to first note" IsChecked="True" Checked="AlignToFirstNote_CheckBox_Checked" Unchecked="AlignToFirstNote_CheckBox_Checked" ToolTip="{x:Static Locale:Language.QEdit_Align_Zero}"/>
                 <Label Content="Guitar-Mode" Width="120" IsEnabled="False"/>
-                <ComboBox x:Name="GuitarModeSelector" SelectionChanged ="GuitarModeSelector_Selected" Width="120" >
+                <ComboBox x:Name="GuitarModeSelector" SelectionChanged ="GuitarModeSelector_Selected" Width="120" ToolTip="{x:Static Locale:Language.QEdit_GuitarMode}" >
                     <ComboBoxItem Content="None"/>
                     <ComboBoxItem Content="Standard"/>
                     <ComboBoxItem Content="Simple"/>
                     <ComboBoxItem Content="Override By Track"/>
                 </ComboBox>
                 <MenuItem Header=""/>
-                <MenuItem Header="Open OMNI Vision" Click="VoiceMap_Click"/>
+                <MenuItem Header="Open OMNI Vision" Click="VoiceMap_Click" ToolTip="{x:Static Locale:Language.Misc_OMNI}"/>
                 <MenuItem Header=""/>
             </Menu>
         </StackPanel>
@@ -79,9 +80,9 @@
             </ListView.ItemContainerStyle>
             <ListView.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Autotranspose Track" Click="TrackListItem_Autotranspose_Click"></MenuItem>
-                    <MenuItem Header="DrumMap Track" Click="TrackListItem_DrumMap_Click"></MenuItem>
-                    <MenuItem Header="Duplicate Track" Click="TrackListItem_Duplicate_Click"></MenuItem>
+                    <MenuItem Header="Autotranspose Track" Click="TrackListItem_Autotranspose_Click"/>
+                    <MenuItem Header="DrumMap Track" Click="TrackListItem_DrumMap_Click"/>
+                    <MenuItem Header="Duplicate Track" Click="TrackListItem_Duplicate_Click"/>
                     <MenuItem Header="Quantize">
                         <MenuItem Header="Off"  IsCheckable="True" x:Name="Quant0" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
                         <MenuItem Header="64th" IsCheckable="True" x:Name="Quant64" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
@@ -90,8 +91,8 @@
                         <MenuItem Header="8th"  IsCheckable="True" x:Name="Quant8" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
                         <MenuItem Header="4th"  IsCheckable="True" x:Name="Quant4" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
                     </MenuItem>
-                    
-                    <MenuItem Header="Delete Track" Click="TrackListItem_Delete_Click"></MenuItem>
+
+                    <MenuItem Header="Delete Track" Click="TrackListItem_Delete_Click"/>
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.ItemTemplate>
