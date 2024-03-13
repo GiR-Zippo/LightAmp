@@ -295,7 +295,14 @@ namespace BardMusicPlayer.Maestro.Performance
                     }
                 }
                 else
+                {
                     _sequencer.Pause();
+
+                    if (UsesDalamud)
+                        DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.NoteOn, game = game, BoolData = false });
+                    else
+                        _hook.ClearLastPerformanceKeybinds();
+                }
             }
         }
 
@@ -307,7 +314,11 @@ namespace BardMusicPlayer.Maestro.Performance
             if (_sequencer is Sequencer)
             {
                 _sequencer.Stop();
-                _hook.ClearLastPerformanceKeybinds();
+
+                if (UsesDalamud)
+                    DalamudBridge.DalamudBridge.Instance.ActionToQueue(new DalamudBridgeCommandStruct { messageType = MessageType.NoteOn, game = game, BoolData = false });
+                else
+                    _hook.ClearLastPerformanceKeybinds();
             }
         }
 

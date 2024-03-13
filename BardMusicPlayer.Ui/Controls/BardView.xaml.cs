@@ -435,26 +435,23 @@ namespace BardMusicPlayer.Ui.Controls
             if (openFileDialog.ShowDialog() != true)
                 return;
 
-            List<PerformerSettingData> pdatalist = new List<PerformerSettingData>();
-            foreach (var performer in BardsList.Items.OfType<Performer>().ToList())
-            {
-                PerformerSettingData pdata = new PerformerSettingData();
-                pdata.OrderNum = BardsList.Items.IndexOf(performer);
-                pdata.CID = performer.game.ConfigId;
-                pdata.Name = performer.game.PlayerName;
-                pdata.Track = performer.TrackNumber;
-                pdata.AffinityMask = (long)performer.game.GetAffinity();
-                pdata.IsHost = performer.HostProcess;
-                pdata.IsInGameSoundEnabled = performer.game.SoundOn;
-                pdatalist.Add(pdata);
-            }
-            var t = JsonConvert.SerializeObject(pdatalist);
-            byte[] content = new UTF8Encoding(true).GetBytes(t);
+            string json = JsonConvert.SerializeObject(BardsList.Items.OfType<Performer>()
+                .Select(performer => new PerformerSettingData
+                {
+                    OrderNum = BardsList.Items.IndexOf(performer),
+                    CID = performer.game.ConfigId,
+                    Name = performer.game.PlayerName,
+                    Track = performer.TrackNumber,
+                    AffinityMask = (long)performer.game.GetAffinity(),
+                    IsHost = performer.HostProcess,
+                    IsInGameSoundEnabled = performer.game.SoundOn
+                }).ToList());
+
+            byte[] content = new UTF8Encoding(true).GetBytes(json);
 
             FileStream fileStream = File.Create(openFileDialog.FileName);
             fileStream.Write(content, 0, content.Length);
             fileStream.Close();
-            pdatalist.Clear();
         }
 
 

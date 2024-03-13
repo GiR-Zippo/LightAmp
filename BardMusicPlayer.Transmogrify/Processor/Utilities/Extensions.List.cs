@@ -181,6 +181,11 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
                 {
                     switch (notes[j].Length)
                     {
+                        // BACON MABBY
+                        // Adjust note length for 4 second sustained notes so that it doesn't conflict with natural 4s note-off events
+                        case >= 3925 and <= 4050 when notes[j + 1].Time <= notes[j].Time + notes[j].Length + 25:
+                            dur = 3925;
+                            break;
                         // BACON MEOWCHESTRA
                         // Bandaid fix: If sustained note is 100ms or greater, ensure 60ms between the end of that note and the beginning of the next note.
                         // Otherwise, leave the behavior as it was before.
