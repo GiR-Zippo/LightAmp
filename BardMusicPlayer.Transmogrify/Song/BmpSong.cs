@@ -304,7 +304,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                     //Generate NoteDict
                     Dictionary<int, Dictionary<long, Note>> allNoteEvents = Extensions.GetNoteDictionary(originalChunk, tempoMap, firstNoteus, noteVelocity).Result;
 
-                    //das triggern nur sehr wenige Midis, lassen oder löschen?
+                    //das triggern nur sehr wenige Midis, lassen oder lï¿½schen?
                     //eigentlich nur Verschwendung
                     /*for (int i = 0; i < 128; i++)
                     {
@@ -420,21 +420,24 @@ namespace BardMusicPlayer.Transmogrify.Song
                 });
 
                 //Append the lyrics from the lrc
-                var lrcTrack = new TrackChunk(new SequenceTrackNameEvent("Lyrics: "));
-                using (var manager = new TimedObjectsManager(lrcTrack.Events, ObjectType.TimedEvent | ObjectType.Note))
+                if (LyricsContainer.Count > 0)
                 {
-                    TimedObjectsCollection<ITimedObject> timedEvents = manager.Objects;
-                    foreach (var line in LyricsContainer)
+                    var lrcTrack = new TrackChunk(new SequenceTrackNameEvent("Lyrics: "));
+                    using (var manager = new TimedObjectsManager(lrcTrack.Events, ObjectType.TimedEvent | ObjectType.Note))
                     {
-                        var timedEvent = new TimedEvent(new LyricEvent(line.Value)) as ITimedObject;
-                        timedEvent.SetTime(new MetricTimeSpan(line.Key.Hour, line.Key.Minute, line.Key.Second, line.Key.Millisecond), newMidiFile.GetTempoMap());
-                        timedEvents.Add(timedEvent);
+                        TimedObjectsCollection<ITimedObject> timedEvents = manager.Objects;
+                        foreach (var line in LyricsContainer)
+                        {
+                            var timedEvent = new TimedEvent(new LyricEvent(line.Value)) as ITimedObject;
+                            timedEvent.SetTime(new MetricTimeSpan(line.Key.Hour, line.Key.Minute, line.Key.Second, line.Key.Millisecond), newMidiFile.GetTempoMap());
+                            timedEvents.Add(timedEvent);
+                        }
                     }
+                    newMidiFile.Chunks.Add(lrcTrack);
                 }
-                newMidiFile.Chunks.Add(lrcTrack);
 
-                using (var manager = new TimedObjectsManager<TimedEvent>(newMidiFile.GetTrackChunks().First().Events))
-                    manager.Objects.Add(new TimedEvent(new MarkerEvent(), (newMidiFile.GetDuration<MetricTimeSpan>().TotalMicroseconds / 1000)));
+                //using (var manager = new TimedObjectsManager<TimedEvent>(newMidiFile.GetTrackChunks().First().Events))
+                //    manager.Objects.Add(new TimedEvent(new MarkerEvent(), (newMidiFile.GetDuration<MetricTimeSpan>().TotalMicroseconds / 1000)));
 
                 cachedSequencerMidi = newMidiFile;
 

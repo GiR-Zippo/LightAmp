@@ -113,13 +113,13 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
         internal static Task<TrackChunk> AddLyricsEvents(TrackChunk originalChunk, TempoMap tempoMap, long firstNote)
         {
             TrackChunk newChunk = new TrackChunk();
-            IEnumerable<TimedEvent> events = originalChunk.ManageTimedEvents().Objects.Where(e => e.Event.EventType == MidiEventType.Text);
+            IEnumerable<TimedEvent> events = originalChunk.ManageTimedEvents().Objects.Where(e => e.Event.EventType == MidiEventType.Lyric);
             foreach (var timedEvent in events)
             {
                 if (timedEvent.Event is not LyricEvent lyricsEvent)
                     continue;
 
-                using (var manager = new TimedObjectsManager(newChunk.Events, ObjectType.TimedEvent | ObjectType.Note))
+                using (var manager = new TimedObjectsManager(newChunk.Events, ObjectType.TimedEvent))
                 {
                     TimedObjectsCollection<ITimedObject> timedEvents = manager.Objects;
                     if ((5000 + (timedEvent.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000) - firstNote) < 5000)
