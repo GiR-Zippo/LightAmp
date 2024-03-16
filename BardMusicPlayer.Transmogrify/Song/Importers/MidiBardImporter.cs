@@ -155,7 +155,8 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                     TrackManipulations.SetInstrument(d.First().trackChunk, Instrument.Parse(d.First().trackInstrument + 1).MidiProgramChangeCode);
                     d.First().trackChunk.ProcessNotes(n =>
                     {
-                        n.NoteNumber = (SevenBitNumber)(n.NoteNumber + 12*transpose);
+                        if ((n.NoteNumber + 12 * transpose) >= 0 && (n.NoteNumber + 12 * transpose) <= 127)
+                            n.NoteNumber = (SevenBitNumber)(n.NoteNumber + 12*transpose);
                     });
 
                     TrackManipulations.SetChanNumber(d.First().trackChunk, chanNum);
@@ -180,7 +181,8 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                     {
                         d.First().trackChunk.ProcessNotes(n =>
                         {
-                            n.NoteNumber = (SevenBitNumber)(n.NoteNumber + 12 * transpose);
+                            if ((n.NoteNumber + 12 * transpose) >= 0 && (n.NoteNumber + 12 * transpose) <= 127)
+                                n.NoteNumber = (SevenBitNumber)(n.NoteNumber + 12 * transpose);
                         });
 
                         foreach (TimedEvent t in subChunk.trackChunk.GetTimedEvents())

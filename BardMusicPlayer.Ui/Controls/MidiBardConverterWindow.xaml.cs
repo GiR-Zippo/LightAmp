@@ -26,7 +26,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Xml.Serialization;
 
 namespace BardMusicPlayer.Ui.Controls
 {
