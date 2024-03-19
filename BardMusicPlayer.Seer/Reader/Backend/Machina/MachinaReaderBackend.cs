@@ -61,13 +61,13 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         switch (message.Length)
                         {
                             case 48:
-                                _packet.Size48(timeStamp, otherActorId, myActorId, message); //[6.57]Handles Ensemble Stop
+                                _packet.Size48(timeStamp, otherActorId, myActorId, message); //[6.58]Handles Ensemble Stop
                                 break;
                             case 56:
-                                _packet.Size56(timeStamp, otherActorId, myActorId, message); //[6.57]Handles Ensemble Request, Ensemble Reject, and Instrument Equip/De-Equip.
+                                _packet.Size56(timeStamp, otherActorId, myActorId, message); //[6.58]Handles Ensemble Request, Ensemble Reject, and Instrument Equip/De-Equip.
                                 break;
                             case 88:
-                                _packet.Size88(timeStamp, otherActorId, myActorId, message); //[6.57]Handles EnsembleStart --DALAMUD
+                                _packet.Size88(timeStamp, otherActorId, myActorId, message); //[6.58]Handles EnsembleStart --DALAMUD
                                 break;
                             case 656:
                                 _packet.Size656(timeStamp, otherActorId, myActorId, message); //Handles old Homeworld and Playername --DALAMUD
@@ -76,13 +76,13 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                                 _packet.Size664(timeStamp, otherActorId, myActorId, message); //[6.50]Handles Homeworld and Playername --DALAMUD
                                 break;
                             case 672:
-                                _packet.Size672(timeStamp, otherActorId, myActorId, message); //[6.57]Handles Homeworld and Playername --DALAMUD
+                                _packet.Size672(timeStamp, otherActorId, myActorId, message); //[6.58]Handles Homeworld and Playername --DALAMUD
                                 break;
                             case 3576:
                                 _packet.Size3576(timeStamp, otherActorId, myActorId, message);
                                 break;
                             case 3640:
-                                _packet.Size3640(timeStamp, otherActorId, myActorId, message); //[6.57]Handles group data
+                                _packet.Size3640(timeStamp, otherActorId, myActorId, message); //[6.58]Handles group data
                                 break;
                             default:
                                 ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,

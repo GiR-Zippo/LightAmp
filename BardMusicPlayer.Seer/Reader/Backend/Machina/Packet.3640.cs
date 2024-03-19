@@ -51,7 +51,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                             myWorldId = currentWorldId;
                             break;
                         default:
-                            if (myZoneId != currentZoneId || myWorldId != currentWorldId)
+                            if (myZoneId != currentZoneId) // || myWorldId != currentWorldId) 6.58 why home-world now?
                                 continue; // The player is in a different location.
 
                             break;
