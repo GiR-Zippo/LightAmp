@@ -234,9 +234,7 @@ namespace BardMusicPlayer.Maestro.Performance
             if (_startDelayTimer.Enabled)
                 _startDelayTimer.Enabled = false;
 
-            if (_lyricsTick.Enabled)
-                _lyricsTick.Enabled = false;
-            LyricsOffsetTime = -1;
+            StopLyricsTimer();
 
             if (_sequencer is Sequencer)
             {

@@ -844,11 +844,10 @@ namespace BardMusicPlayer.Maestro
             if (_performers.Count() == 0)
                 return;
 
-            Performer perf = _performers.Find(i => i.Key == Pid).Value;
-            if (perf == null)
-                return;
-
-            perf.LyricsOffsetTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            Parallel.ForEach(_performers, perf =>
+            {
+                perf.Value.LyricsOffsetTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            });
         }
 
         /// <summary>
@@ -900,10 +899,9 @@ namespace BardMusicPlayer.Maestro
             if (_performers.Count() == 0)
                 return;
 
-            Task.Run(() =>
+            Parallel.ForEach(_performers, perf =>
             {
-                var perf = _performers.AsParallel().Where(i => i.Value.game.Pid == seerEvent.Game.Pid);
-                perf.First().Value.StartLyricsTimer();
+                perf.Value.StartLyricsTimer();
             });
         }
 

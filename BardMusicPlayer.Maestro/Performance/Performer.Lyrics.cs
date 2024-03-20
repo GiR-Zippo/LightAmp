@@ -21,14 +21,21 @@ namespace BardMusicPlayer.Maestro.Performance
             if (_lyricsTick.Enabled)
                 return;
 
-            while (_lyricsQueue.TryDequeue(out _))
-            {
-            }
-
             LyricsOffsetTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - LyricsOffsetTime;
             _lyricsTick.Interval = 50;
             _lyricsTick.Enabled = true;
             _lyricsTick.Start();            
+        }
+
+        public void StopLyricsTimer()
+        {
+            while (_lyricsQueue.TryDequeue(out _))
+            {
+            }
+
+            if (_lyricsTick.Enabled)
+                _lyricsTick.Enabled = false;
+            LyricsOffsetTime = -1;
         }
 
         ConcurrentQueue<KeyValuePair<long, string> > _lyricsQueue = new ConcurrentQueue<KeyValuePair<long, string>>();
