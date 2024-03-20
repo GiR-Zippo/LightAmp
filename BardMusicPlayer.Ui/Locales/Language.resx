@@ -261,6 +261,9 @@ Changing this will settings only take effect when a new song was loded</value>
 Disables the live octave shifting.
 Changing this will settings only take effect when a new song was loded</value>
   </data>
+  <data name="Settings_Sync_Lyrics" xml:space="preserve">
+    <value>Tries to sync the lyrics to the ensemble</value>
+  </data>
   <data name="Settings_TriggerSource" xml:space="preserve">
     <value>Select the autostart trigger [Metronome is preferred]</value>
   </data>

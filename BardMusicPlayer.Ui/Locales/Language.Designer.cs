@@ -469,6 +469,15 @@ namespace BardMusicPlayer.Ui.Locales {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Tries to sync the lyrics to the ensemble ähnelt.
+        /// </summary>
+        public static string Settings_Sync_Lyrics {
+            get {
+                return ResourceManager.GetString("Settings_Sync_Lyrics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Select the autostart trigger [Metronome is preferred] ähnelt.
         /// </summary>
         public static string Settings_TriggerSource {

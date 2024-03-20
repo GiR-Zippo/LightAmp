@@ -260,6 +260,9 @@ Wird erst beim laden eines neuen Lieds übernommen.</value>
 Deaktiviert die manuelle Oktavenanpassung
 Wird erst beim laden eines neuen Lieds übernommen.</value>
   </data>
+  <data name="Settings_Sync_Lyrics" xml:space="preserve">
+    <value>Lyrics mit dem Orchester synchronisieren</value>
+  </data>
   <data name="Settings_TriggerSource" xml:space="preserve">
     <value>Auswahl des Starttriggers [Metronome ist der Standard]</value>
   </data>

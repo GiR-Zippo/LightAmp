@@ -202,5 +202,10 @@ namespace BardMusicPlayer.Pigeonhole
         /// Use the NoteOffset instead the instrument offset
         /// </summary>
         public virtual bool UseNoteOffset { get; set; } = false;
+
+        /// <summary>
+        /// Use the LyricsOffset to keep lyrics in sync with the ensemble
+        /// </summary>
+        public virtual bool UseLyricsOffset { get; set; } = false;
     }
 }

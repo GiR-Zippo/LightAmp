@@ -841,6 +841,9 @@ namespace BardMusicPlayer.Maestro
         /// <param name="delay">in ms</param>
         private void startLyrics(int Pid)
         {
+            if (!BmpPigeonhole.Instance.UseLyricsOffset)
+                return;
+            
             if (_performers.Count() == 0)
                 return;
 
@@ -893,6 +896,9 @@ namespace BardMusicPlayer.Maestro
 
         private void Instance_EnsembleStreamdata(Seer.Events.EnsembleStreamdata seerEvent)
         {
+            if (!BmpPigeonhole.Instance.UseLyricsOffset)
+                return;
+            
             if (BmpPigeonhole.Instance.AutostartMethod != 2)
                 return;
 

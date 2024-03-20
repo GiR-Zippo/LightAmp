@@ -4,6 +4,7 @@
  */
 
 using BardMusicPlayer.DalamudBridge;
+using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Structs;
 using System;
 using System.Collections.Concurrent;
@@ -29,13 +30,13 @@ namespace BardMusicPlayer.Maestro.Performance
 
         public void StopLyricsTimer()
         {
+            LyricsOffsetTime = -1;
+            if (_lyricsTick.Enabled)
+                _lyricsTick.Enabled = false;
+
             while (_lyricsQueue.TryDequeue(out _))
             {
             }
-
-            if (_lyricsTick.Enabled)
-                _lyricsTick.Enabled = false;
-            LyricsOffsetTime = -1;
         }
 
         ConcurrentQueue<KeyValuePair<long, string> > _lyricsQueue = new ConcurrentQueue<KeyValuePair<long, string>>();
@@ -68,7 +69,7 @@ namespace BardMusicPlayer.Maestro.Performance
             if (_sequencer.GetTrackNum(e.MidiTrack) == SingerTrackNr + mainSequencer.LyricStartTrack - 1)
             {
                 //if the ensemble is running compensate the latency
-                if (LyricsOffsetTime > -1)
+                if (BmpPigeonhole.Instance.UseLyricsOffset && (LyricsOffsetTime > -1))
                     _lyricsQueue.Enqueue(new KeyValuePair<long, string>(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), text));
                 else
                     GameExtensions.SendText(game, ChatMessageChannelType.Say, text);

@@ -26,6 +26,7 @@ namespace BardMusicPlayer.Ui.Classic
             Autostart_source.SelectedIndex = BmpPigeonhole.Instance.AutostartMethod;
             AutoEquipBox.IsChecked = BmpPigeonhole.Instance.AutoEquipBards;
             AutoselectHostBox.IsChecked = BmpPigeonhole.Instance.AutoselectHost;
+            LyricsLatencyBox.IsChecked = BmpPigeonhole.Instance.UseLyricsOffset;
             StartBardIndividuallyBox.IsChecked = BmpPigeonhole.Instance.EnsembleStartIndividual;
 
             //Playback
@@ -89,7 +90,6 @@ namespace BardMusicPlayer.Ui.Classic
             BmpPigeonhole.Instance.AutostartMethod = (int)d;
         }
 
-
         private void AutoEquipBox_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.AutoEquipBards = AutoEquipBox.IsChecked ?? false;
@@ -100,6 +100,11 @@ namespace BardMusicPlayer.Ui.Classic
         {
             BmpPigeonhole.Instance.AutoselectHost = AutoselectHostBox.IsChecked ?? false;
             Globals.Globals.ReloadConfig();
+        }
+
+        private void LyricsLatency_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.UseLyricsOffset = LyricsLatencyBox.IsChecked ?? false;
         }
 
         private void StartBardIndividually_Checked(object sender, RoutedEventArgs e)
