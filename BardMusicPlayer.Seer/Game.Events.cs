@@ -90,6 +90,10 @@ namespace BardMusicPlayer.Seer
                         BmpSeer.Instance.PublishEvent(ensembleStopped);
                         break;
 
+                    case EnsembleStreamdata ensembleStreamdata:
+                        BmpSeer.Instance.PublishEvent(ensembleStreamdata);
+                        break;
+
                     case InstrumentHeldChanged instrumentHeld:
                         if (!InstrumentHeld.Equals(instrumentHeld.InstrumentHeld))
                         {

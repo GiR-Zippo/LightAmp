@@ -34,6 +34,8 @@ namespace BardMusicPlayer.Seer
 
         public delegate void EnsembleStoppedHandler(EnsembleStopped seerEvent);
 
+        public delegate void EnsembleStreamdataHandler(EnsembleStreamdata seerEvent);
+
         public delegate void GameExceptionEventHandler(GameExceptionEvent seerExceptionEvent);
 
         public delegate void GameStartedHandler(GameStarted seerEvent);
@@ -208,6 +210,16 @@ namespace BardMusicPlayer.Seer
         }
 
         /// <summary>
+        ///     Called when there is data for an ensemble.
+        /// </summary>
+        public event EnsembleStreamdataHandler EnsembleStreamdata;
+
+        private void OnEnsembleStreamdata(EnsembleStreamdata seerEvent)
+        {
+            EnsembleStreamdata?.Invoke(seerEvent);
+        }
+
+        /// <summary>
         ///     Called when the home world of a player changes.
         /// </summary>
         public event HomeWorldChangedHandler HomeWorldChanged;
@@ -352,6 +364,9 @@ namespace BardMusicPlayer.Seer
                             break;
                         case EnsembleStopped ensembleStopped:
                             OnEnsembleStopped(ensembleStopped);
+                            break;
+                        case EnsembleStreamdata ensembleStreamdata:
+                            OnEnsembleStreamdata(ensembleStreamdata);
                             break;
                         case HomeWorldChanged homeWorldChanged:
                             OnHomeWorldChanged(homeWorldChanged);

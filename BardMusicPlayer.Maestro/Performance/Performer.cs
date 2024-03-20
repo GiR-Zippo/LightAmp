@@ -167,7 +167,27 @@ namespace BardMusicPlayer.Maestro.Performance
                 PId = arg.Pid;
                 game = arg;
                 _startDelayTimer.Elapsed += startDelayTimer_Elapsed;
+                _lyricsTick.Elapsed += LyricsTick_Elapsed;
             }
+        }
+
+        /// <summary>
+        /// Close the input device
+        /// </summary>
+        public void Close()
+        {
+            if (_sequencer is Sequencer)
+            {
+                _sequencer.CloseInputDevice();
+                _sequencer.Dispose();
+            }
+            _hook.ClearLastPerformanceKeybinds();
+
+            _lyricsTick.Elapsed -= LyricsTick_Elapsed;
+            _lyricsTick.Dispose();
+
+            _startDelayTimer.Elapsed -= startDelayTimer_Elapsed;
+            _startDelayTimer.Dispose();
         }
 
         public void SetProgress(int progress)
@@ -214,6 +234,10 @@ namespace BardMusicPlayer.Maestro.Performance
             if (_startDelayTimer.Enabled)
                 _startDelayTimer.Enabled = false;
 
+            if (_lyricsTick.Enabled)
+                _lyricsTick.Enabled = false;
+            LyricsOffsetTime = -1;
+
             if (_sequencer is Sequencer)
             {
                 _sequencer.Stop();
@@ -223,21 +247,6 @@ namespace BardMusicPlayer.Maestro.Performance
                 else
                     _hook.ClearLastPerformanceKeybinds();
             }
-        }
-
-        /// <summary>
-        /// Close the input device
-        /// </summary>
-        public void Close()
-        {
-            if (_sequencer is Sequencer)
-            {
-                _sequencer.CloseInputDevice();
-                _sequencer.Dispose();
-            }
-            _hook.ClearLastPerformanceKeybinds();
-            _startDelayTimer.Elapsed -= startDelayTimer_Elapsed;
-            _startDelayTimer.Dispose();
         }
 
         #endregion

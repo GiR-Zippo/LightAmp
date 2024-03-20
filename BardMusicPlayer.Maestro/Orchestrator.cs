@@ -63,6 +63,7 @@ namespace BardMusicPlayer.Maestro
             BmpSeer.Instance.EnsembleStarted += delegate (Seer.Events.EnsembleStarted e) { Instance_EnsembleStarted(e); };
             BmpSeer.Instance.EnsembleStopped += delegate (Seer.Events.EnsembleStopped e) { Instance_EnsembleStopped(e); };
             BmpSeer.Instance.InstrumentHeldChanged += delegate (Seer.Events.InstrumentHeldChanged e) { Instance_InstrumentHeldChanged(e); };
+            BmpSeer.Instance.EnsembleStreamdata += delegate (Seer.Events.EnsembleStreamdata e) { Instance_EnsembleStreamdata(e); };
 
             _addPushedbackGamesTimer = new System.Timers.Timer();
             _addPushedbackGamesTimer.Interval = 2000;
@@ -522,6 +523,18 @@ namespace BardMusicPlayer.Maestro
             if (_updaterTokenSource != null)
                 _updaterTokenSource.Cancel();
 
+            BmpSeer.Instance.GameStarted -= delegate (Seer.Events.GameStarted e) { Instance_OnGameStarted(e.Game); };
+            BmpSeer.Instance.GameStopped -= delegate (Seer.Events.GameStopped e) { Instance_OnGameStopped(e); };
+            BmpSeer.Instance.EnsembleRequested -= delegate (Seer.Events.EnsembleRequested e) { Instance_EnsembleRequested(e); };
+            BmpSeer.Instance.EnsembleStarted -= delegate (Seer.Events.EnsembleStarted e) { Instance_EnsembleStarted(e); };
+            BmpSeer.Instance.EnsembleStopped -= delegate (Seer.Events.EnsembleStopped e) { Instance_EnsembleStopped(e); };
+            BmpSeer.Instance.InstrumentHeldChanged -= delegate (Seer.Events.InstrumentHeldChanged e) { Instance_InstrumentHeldChanged(e); };
+            BmpSeer.Instance.EnsembleStreamdata -= delegate (Seer.Events.EnsembleStreamdata e) { Instance_EnsembleStreamdata(e); };
+
+            _addPushedbackGamesTimer.Enabled = false;
+            _addPushedbackGamesTimer.Elapsed -= CheckFoundGames;
+            _addPushedbackGamesTimer.Dispose();
+
             foreach (var perf in _performers)
                 perf.Value.Close();
 
@@ -757,9 +770,6 @@ namespace BardMusicPlayer.Maestro
             if (BmpPigeonhole.Instance.EnsemblePlayDelay)
                 delayvalue = 2490;
 
-            //main delay, currently not needed
-            //int rdelay = (int)(Quotidian.UtcMilliTime.Clock.Time.Now - seerEvent.TimeStamp); delayvalue - rdelay
-
             //if we are a single bard
             //- start and exit
             if (!BmpPigeonhole.Instance.LocalOrchestra)
@@ -777,6 +787,7 @@ namespace BardMusicPlayer.Maestro
             if (BmpPigeonhole.Instance.EnsembleStartIndividual)
             {
                 start(delayvalue, seerEvent.Game.Pid);
+                startLyrics(seerEvent.Game.Pid); //start the lyrics-tick
                 return;
             }
 
@@ -825,6 +836,22 @@ namespace BardMusicPlayer.Maestro
         }
 
         /// <summary>
+        /// starts the lyrics-tick
+        /// </summary>
+        /// <param name="delay">in ms</param>
+        private void startLyrics(int Pid)
+        {
+            if (_performers.Count() == 0)
+                return;
+
+            Performer perf = _performers.Find(i => i.Key == Pid).Value;
+            if (perf == null)
+                return;
+
+            perf.LyricsOffsetTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        }
+
+        /// <summary>
         /// starts the performance
         /// </summary>
         /// <param name="delay">in ms</param>
@@ -864,6 +891,22 @@ namespace BardMusicPlayer.Maestro
                 }
             }
         }
+
+        private void Instance_EnsembleStreamdata(Seer.Events.EnsembleStreamdata seerEvent)
+        {
+            if (BmpPigeonhole.Instance.AutostartMethod != 2)
+                return;
+
+            if (_performers.Count() == 0)
+                return;
+
+            Task.Run(() =>
+            {
+                var perf = _performers.AsParallel().Where(i => i.Value.game.Pid == seerEvent.Game.Pid);
+                perf.First().Value.StartLyricsTimer();
+            });
+        }
+
         #endregion
 
         /// <summary>
