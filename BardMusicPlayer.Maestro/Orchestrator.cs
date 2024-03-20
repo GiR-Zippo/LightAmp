@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright(c) 2023 GiR-Zippo
+ * Copyright(c) 2024 GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
@@ -394,7 +394,13 @@ namespace BardMusicPlayer.Maestro
             foreach (var perf in _performers)
             {
                 if (perf.Value.HostProcess)
-                    perf.Value.Sequencer.CloseInputDevice();
+                {
+                    try
+                    {
+                        perf.Value.Sequencer.CloseInputDevice();
+                    }
+                    catch { }
+                }
             }
         }
         #endregion

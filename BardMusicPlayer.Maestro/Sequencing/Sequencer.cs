@@ -1,5 +1,5 @@
 /*
- * Copyright(c) 2023 Parulina, trotlinebeercan, GiR-Zippo
+ * Copyright(c) 2024 GiR-Zippo, Parulina, trotlinebeercan
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 

@@ -40,7 +40,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 
                     var playerName = Encoding.UTF8.GetString(message, 32 + i, 32).Trim((char)0);
                     uint currentZoneId = BitConverter.ToUInt16(message, 102 + i);
-                    uint currentWorldId = BitConverter.ToUInt16(message, 104 + i);
+                    uint homeWorldId = BitConverter.ToUInt16(message, 104 + i);
                     //Change me
                     switch (i)
                     {
@@ -48,10 +48,10 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                             return;
                         case 0 when actorId == myActorId: // Store location of this Game for lookup later.
                             myZoneId = currentZoneId;
-                            myWorldId = currentWorldId;
+                            myWorldId = homeWorldId;
                             break;
                         default:
-                            if (myZoneId != currentZoneId) // || myWorldId != currentWorldId) 6.58 why home-world now?
+                            if (myZoneId != currentZoneId)
                                 continue; // The player is in a different location.
 
                             break;
