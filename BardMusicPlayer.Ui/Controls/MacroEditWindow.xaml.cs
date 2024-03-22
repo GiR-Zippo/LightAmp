@@ -25,14 +25,15 @@ namespace BardMusicPlayer.Ui.Controls
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "Basic file | *.bas",
+                Filter = "Script file | *.bas;*.lua",
                 Multiselect = true
             };
 
             if (openFileDialog.ShowDialog() != true)
                 return;
 
-            if (!openFileDialog.FileName.ToLower().EndsWith(".bas", StringComparison.Ordinal))
+            if (!openFileDialog.FileName.ToLower().EndsWith(".bas", StringComparison.Ordinal) &&
+                !openFileDialog.FileName.ToLower().EndsWith(".lua", StringComparison.Ordinal))
                 return;
 
             _macro.File = openFileDialog.FileName;

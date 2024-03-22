@@ -139,6 +139,9 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
         /// <returns><see cref="Task{TResult}"/> is <see cref="TrackChunk"/></returns>
         internal static Task<TrackChunk> RealignTrackEvents(TrackChunk originalChunk, long delta)
         {
+            //realign the progchanges
+            originalChunk = RealignProgramChanges(originalChunk).Result;
+
             int offset = Instrument.Parse(originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text).SampleOffset; //get the offset
             using (var manager = originalChunk.ManageTimedEvents())
             {
@@ -202,7 +205,11 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
         /// <returns><see cref="Task{TResult}"/> is <see cref="TrackChunk"/></returns>
         internal static Task<TrackChunk> RealignTrackEventsByNoteOffset(TrackChunk originalChunk, long delta)
         {
+            //realign the progchanges
+            originalChunk = RealignProgramChanges(originalChunk).Result;
+
             bool mb2Compat = BmpPigeonhole.Instance.MidiBardCompatMode;
+            bool toadEnabled = BmpPigeonhole.Instance.UsePluginForKeyOutput;
             Instrument instrument = Instrument.Parse(originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text);
             int lastNoteNumber = -1;
 
@@ -217,7 +224,7 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
                     //Note alignment
                     if (noteEvent != null)
                     {
-                        _event.Time = _event.Time + instrument.NoteSampleOffsetOrDefault(noteEvent.NoteNumber, mb2Compat) - delta;
+                        _event.Time = _event.Time + instrument.NoteSampleOffsetOrDefault(noteEvent.NoteNumber, mb2Compat, toadEnabled) - delta;
                         lastNoteNumber = noteEvent.NoteNumber;
                     }
                     //lyrics
@@ -238,13 +245,13 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
                     {
                         if (lastNoteNumber == -1)
                         {
-                            if(_event.Time + 10 - delta <= -0)
+                            if (_event.Time + 10 - delta <= -0)
                                 manager.Objects.Remove(_event);
                             else
                                 _event.Time = _event.Time + 10 - delta;
                         }
                         else
-                            _event.Time = _event.Time + instrument.NoteSampleOffsetOrDefault(lastNoteNumber, mb2Compat) - delta;
+                            _event.Time = _event.Time + instrument.NoteSampleOffsetOrDefault(lastNoteNumber, mb2Compat, toadEnabled) - delta;
 
                         //if theres a new offset, use this one
                         if ((programChangeEvent.ProgramNumber >= 27) && (programChangeEvent.ProgramNumber <= 31))
@@ -266,6 +273,39 @@ namespace BardMusicPlayer.Transmogrify.Processor.Utilities
                         _event.Time = newStart;
                 }*/
 
+            }
+            return Task.FromResult(originalChunk);
+        }
+
+        /// <summary>
+        /// Realigns the programchange events in <see cref="TrackChunk"/> to compensate the game input latency
+        /// </summary>
+        /// <param name="originalChunk"></param>
+        /// <param name="delta"></param>
+        /// <returns><see cref="Task{TResult}"/> is <see cref="TrackChunk"/></returns>
+        internal static Task<TrackChunk> RealignProgramChanges(TrackChunk originalChunk)
+        {
+            //check progs
+            using (var manager = originalChunk.ManageTimedEvents())
+            {
+                foreach (TimedEvent _event in manager.Objects)
+                {
+                    if (_event.Event.EventType != MidiEventType.ProgramChange)
+                        continue;
+
+                    if (_event.Time <= 5000)
+                        continue;
+
+                    var fEvent = manager.Objects.FirstOrDefault(n =>
+                                                                _event.Time - n.Time > -20 && _event.Time - n.Time <= 0 &&
+                                                                n.Event.EventType == MidiEventType.NoteOn);
+                    if (fEvent != null)
+                    {
+                        long d = _event.Time - fEvent.Time;
+                        if (d < 20)
+                            _event.Time -= 20 + d;
+                    }
+                }
             }
             return Task.FromResult(originalChunk);
         }

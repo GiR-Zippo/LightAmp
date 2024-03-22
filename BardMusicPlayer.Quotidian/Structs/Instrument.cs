@@ -318,14 +318,15 @@ namespace BardMusicPlayer.Quotidian.Structs
         /// </summary>
         /// <param name="note">The in game note in this Instrument's default range</param>
         /// <returns>The millisecond offset</returns>
-        public long NoteSampleOffsetOrDefault(int note, bool mb2CompatMode = false)
+        public long NoteSampleOffsetOrDefault(int note, bool mb2CompatMode = false, bool toadcompensation = false)
         {
             int max = InstrumentOffset.GetMaxOffset();
             if (mb2CompatMode)
             {
-                max = InstrumentOffset.MidiBard2CompatOffset.Max();
+                //if we are using the toad compensate by 25ms
+                max = toadcompensation ? InstrumentOffset.MidiBard2CompatOffset.Max() - 25: InstrumentOffset.MidiBard2CompatOffset.Max();
                 if (this.Name.Equals(Instrument.Clarinet.Name) && (note - 48 >= 0) && (note - 48 <= 9))
-                    return max - InstrumentOffset.MidiBard2CompatOffset[note - 48];
+                    return max - (toadcompensation ? InstrumentOffset.MidiBard2CompatOffset[note - 48] -25 : InstrumentOffset.MidiBard2CompatOffset[note - 48]);
             }
 
             //in case we have an invalid note number, get the "default" offset

@@ -121,6 +121,127 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             List<int> trackNums = new List<int>();
 
             //tracks suchen
+            foreach (var midiTrack in tracks)
+            {
+                if (trackNums.Contains(midiTrack.TrackNumber))
+                    continue;
+
+                trackNums.Add(midiTrack.TrackNumber);
+            }
+
+            //und verarbeiten
+            foreach (int TrackNum in trackNums)
+            {
+                var midiTrackList = tracks.FindAll(n => n.TrackNumber == TrackNum);
+                if (midiTrackList.Count < 1)
+                    continue;
+
+                //The fast way
+                else if (midiTrackList.Count == 1)
+                {
+                    //Get min-max transpose
+                    foreach (var item in midiTrackList.First().trackChunk.GetNotes())
+                    {
+                        if (item.NoteNumber < midiTrackList.First().MinNote.NoteNumber)
+                            midiTrackList.First().MinNote = item;
+                        if (item.NoteNumber > midiTrackList.First().MaxNote.NoteNumber)
+                            midiTrackList.First().MaxNote = item;
+                    };
+                    var transpose = getMaxTranspose(midiTrackList.First(), midiTrackList.First().Transpose);
+                    int chanNum = midiTrackList.First().Index; // TrackNum - 1;
+
+                    PrepareGuitarTrack(midiTrackList.First().trackChunk, midiTrackList.First().ToneMode, Instrument.Parse(midiTrackList.First().trackInstrument + 1).MidiProgramChangeCode);
+                    TrackManipulations.SetTrackName(midiTrackList.First().trackChunk, Instrument.Parse(midiTrackList.First().trackInstrument + 1).Name);
+                    TrackManipulations.SetInstrument(midiTrackList.First().trackChunk, Instrument.Parse(midiTrackList.First().trackInstrument + 1).MidiProgramChangeCode);
+                    midiTrackList.First().trackChunk.ProcessNotes(n =>
+                    {
+                        if ((n.NoteNumber + 12 * transpose) >= 0 && (n.NoteNumber + 12 * transpose) <= 127)
+                            n.NoteNumber = (SevenBitNumber)(n.NoteNumber + 12 * transpose);
+                    });
+
+                    TrackManipulations.SetChanNumber(midiTrackList.First().trackChunk, chanNum);
+                    exportMidi.Chunks.Add(midiTrackList.First().trackChunk);
+                }
+                else if (midiTrackList.Count > 1) //merge track groups
+                {
+                    //Get min-max transpose
+                    foreach (var item in midiTrackList.First().trackChunk.GetNotes())
+                    {
+                        if (item.NoteNumber < midiTrackList.First().MinNote.NoteNumber)
+                            midiTrackList.First().MinNote = item;
+                        if (item.NoteNumber > midiTrackList.First().MaxNote.NoteNumber)
+                            midiTrackList.First().MaxNote = item;
+                    };
+                    var transpose = getMaxTranspose(midiTrackList.First(), midiTrackList.First().Transpose);
+                    int chanNum = midiTrackList.First().Index; // TrackNum - 1;
+
+                    //Do the octave shift and push them into a list
+                    List<KeyValuePair<long, KeyValuePair<int, TimedEvent>>> tis = new List<KeyValuePair<long, KeyValuePair<int, TimedEvent>>>();
+                    foreach (var subChunk in midiTrackList)
+                    {
+                        midiTrackList.First().trackChunk.ProcessNotes(n =>
+                        {
+                            if ((n.NoteNumber + 12 * transpose) >= 0 && (n.NoteNumber + 12 * transpose) <= 127)
+                                n.NoteNumber = (SevenBitNumber)(n.NoteNumber + 12 * transpose);
+                        });
+
+                        foreach (TimedEvent t in subChunk.trackChunk.GetTimedEvents())
+                        {
+                            if (t.Event.EventType == MidiEventType.NoteOn ||
+                                t.Event.EventType == MidiEventType.NoteOff)
+                                tis.Add(new KeyValuePair<long, KeyValuePair<int, TimedEvent>>(t.Time, new KeyValuePair<int, TimedEvent>(Instrument.Parse(subChunk.trackInstrument + 1).MidiProgramChangeCode, t)));
+                        }
+                    }
+
+                    TrackChunk newTrackChunk = new TrackChunk(new SequenceTrackNameEvent("None"));
+                    int instr = -1;
+                    using (var events = newTrackChunk.ManageTimedEvents())
+                    {
+                        foreach (var t in tis.OrderBy(n => n.Key))
+                        {
+                            long time = t.Key;
+                            TimedEvent ev = t.Value.Value;
+
+                            if (instr != t.Value.Key)
+                            {
+                                if (instr == -1)
+                                {
+                                    var fev = events.Objects.Where(fe => fe.Event.EventType == MidiEventType.SequenceTrackName).FirstOrDefault();
+                                    if (fev != null)
+                                        (fev.Event as SequenceTrackNameEvent).Text = Instrument.ParseByProgramChange(t.Value.Key).Name;
+                                    var pe = new ProgramChangeEvent((SevenBitNumber)t.Value.Key);
+                                    pe.Channel = (FourBitNumber)chanNum;
+                                    events.Objects.Add(new TimedEvent(pe, 0));
+                                }
+
+                                instr = t.Value.Key;
+                                var noteOn = ev.Event as NoteOnEvent;
+                                if (noteOn != null)
+                                {
+                                    ProgramChangeEvent pc = new ProgramChangeEvent((SevenBitNumber)instr);
+                                    events.Objects.Add(new TimedEvent(pc, ev.Time));
+                                }
+                            }
+                            events.Objects.Add(ev);
+                        }
+                    }
+                    TrackManipulations.SetChanNumber(newTrackChunk, chanNum);
+                    exportMidi.Chunks.Add(newTrackChunk);
+                    tis.Clear();
+                }
+            }
+            return Task.FromResult(exportMidi);
+        }
+
+        public static Task<MidiFile> Convert_old(MidiFile midiFile, List<MidiTrack> tracks)
+        {
+            MidiFile exportMidi = new MidiFile();
+            exportMidi.ReplaceTempoMap(midiFile.GetTempoMap());
+
+            List<TrackChunk> chunks = new List<TrackChunk>();
+            List<int> trackNums = new List<int>();
+
+            //tracks suchen
             foreach (var d in tracks)
             {
                 if (trackNums.Contains(d.TrackNumber))
