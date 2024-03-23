@@ -56,6 +56,7 @@
                 </Menu.ItemsPanel>
                 <MenuItem Header="------- Options ------" IsEnabled="False"/>
                 <CheckBox x:Name="AlignToFirstNote_CheckBox" Content="Align to first note" IsChecked="True" Checked="AlignToFirstNote_CheckBox_Checked" Unchecked="AlignToFirstNote_CheckBox_Checked" ToolTip="{x:Static Locale:Language.QEdit_Align_Zero}"/>
+                <CheckBox x:Name="AlignProgramChanges_CheckBox" Content="Align Guitar Switches" IsChecked="True"/>
                 <Label Content="Guitar-Mode" Width="120" IsEnabled="False"/>
                 <ComboBox x:Name="GuitarModeSelector" SelectionChanged ="GuitarModeSelector_Selected" Width="120" ToolTip="{x:Static Locale:Language.QEdit_GuitarMode}" >
                     <ComboBoxItem Content="None"/>

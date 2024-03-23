@@ -368,18 +368,18 @@ namespace BardMusicPlayer.Ui.Controls
                                 });
                 }
             }
-
+            
             MemoryStream myStream = new MemoryStream();
+            MidiFile outputMidi = _midifile.Clone(); //MidiBardImporter.Convert(_midifile, tracks).Result;
+
+            if ((bool)AlignProgramChanges_CheckBox.IsChecked)
+                outputMidi = RealignProgrmChanges(outputMidi);
+
             if (_AlignMidiToFirstNote)
-            {
-                RealignMidiFile(MidiBardImporter.Convert(_midifile, tracks).Result).Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
-                { TextEncoding = Encoding.UTF8 });
-            }
-            else
-            {
-                MidiBardImporter.Convert(_midifile, tracks).Result.Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings
-                { TextEncoding = Encoding.UTF8 });
-            }
+                outputMidi = RealignMidiFile(outputMidi);
+
+            outputMidi.Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings { TextEncoding = Encoding.UTF8 });
+
             tracks.Clear();
             myStream.Rewind();
             return myStream;
@@ -793,5 +793,45 @@ namespace BardMusicPlayer.Ui.Controls
             }
             return Task.FromResult(originalChunk);
         }
+
+        private MidiFile RealignProgrmChanges(MidiFile midi)
+        {
+            Parallel.ForEach(midi.GetTrackChunks(), chunk =>
+            {
+                chunk = RealignProgrmChangeTrackEvents(chunk, midi).Result;
+            });
+            return midi;
+        }
+
+        internal static Task<TrackChunk> RealignProgrmChangeTrackEvents(TrackChunk originalChunk, MidiFile midi)
+        {
+            using (var manager = originalChunk.ManageTimedEvents())
+            {
+                foreach (TimedEvent _event in manager.Objects)
+                {
+                    if (_event.Event.EventType != MidiEventType.ProgramChange)
+                        continue;
+
+                    if (_event.Time == 0)
+                        continue;
+
+                    Note overlap = originalChunk.GetNotes().FirstOrDefault(n => n.Time < _event.Time && _event.Time <= n.EndTime);
+                    if (overlap == null)
+                        continue;
+
+                    Note nextNote = originalChunk.GetNotes().FirstOrDefault(n => n.Time >= overlap.EndTime);
+                    if (_event.Time == overlap.EndTime) //leave it if it's at the end
+                        continue;
+                    else if (overlap.EndTime == nextNote.Time) //move it to the start of the next note
+                        _event.Time = nextNote.Time;
+                    else if ((nextNote.TimeAs<MetricTimeSpan>(midi.GetTempoMap()).TotalMilliseconds - overlap.EndTimeAs<MetricTimeSpan>(midi.GetTempoMap()).TotalMilliseconds) < 20) //below 20ms, move it to the beginning
+                        _event.Time = nextNote.Time;
+                    else //in any other case
+                        _event.Time = overlap.EndTime;
+                }
+            }
+            return Task.FromResult(originalChunk);
+        }
+
     }
 }

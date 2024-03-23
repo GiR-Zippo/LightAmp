@@ -146,7 +146,7 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// playback delay enabled
         /// </summary>
-        public virtual bool EnsemblePlayDelay { get; set; } = true;
+        public virtual bool EnsemblePlayDelay { get; set; } = false;
 
         /// <summary>
         /// autoequip bards after song loaded
