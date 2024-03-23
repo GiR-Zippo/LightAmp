@@ -370,7 +370,7 @@ namespace BardMusicPlayer.Ui.Controls
             }
             
             MemoryStream myStream = new MemoryStream();
-            MidiFile outputMidi = _midifile.Clone(); //MidiBardImporter.Convert(_midifile, tracks).Result;
+            MidiFile outputMidi = MidiBardImporter.Convert(_midifile.Clone(), tracks).Result;
 
             if ((bool)AlignProgramChanges_CheckBox.IsChecked)
                 outputMidi = RealignProgrmChanges(outputMidi);
