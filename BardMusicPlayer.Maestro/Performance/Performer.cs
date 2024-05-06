@@ -43,7 +43,7 @@ namespace BardMusicPlayer.Maestro.Performance
                     return;
                 }
 
-                if (value > mainSequencer.MaxTrack)
+                if (value > mainSequencer.MaxTrack || value < 0)
                 {
                     BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(game, _trackNumber, HostProcess));
                     return;

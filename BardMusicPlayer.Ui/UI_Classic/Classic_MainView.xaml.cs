@@ -15,6 +15,7 @@ using BardMusicPlayer.Siren;
 using BardMusicPlayer.Quotidian;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Controls;
+using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -45,6 +46,7 @@ namespace BardMusicPlayer.Ui.Classic
             BmpMaestro.Instance.OnTrackNumberChanged    += Instance_TrackNumberChanged;
             BmpMaestro.Instance.OnOctaveShiftChanged    += Instance_OctaveShiftChanged;
             BmpMaestro.Instance.OnSpeedChanged          += Instance_OnSpeedChange;
+
             BmpSeer.Instance.ChatLog                    += Instance_ChatLog;
 
             Siren_Volume.Value = BmpSiren.Instance.GetVolume();
@@ -53,7 +55,8 @@ namespace BardMusicPlayer.Ui.Classic
 
             SongBrowser.OnLoadSongFromBrowser           += Instance_SongBrowserLoadedSong;
             SongBrowser.OnAddSongFromBrowser            += Instance_SongBrowserAddSongToPlaylist;
-            SongBrowser.OnLoadSongFromBrowserToPreview += Instance_SongBrowserLoadSongToPreview;
+            SongBrowser.OnLoadSongFromBrowserToPreview  += Instance_SongBrowserLoadSongToPreview;
+
             BmpSeer.Instance.MidibardPlaylistEvent      += Instance_MidibardPlaylistEvent;
 
             Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
@@ -313,17 +316,24 @@ namespace BardMusicPlayer.Ui.Classic
             BmpMaestro.Instance.SetTracknumberOnHost(NumValue);
         }
 
-        private void track_txtNum_TextChanged(object sender, TextChangedEventArgs e)
+        private void track_txtNum_KeyDownHandler(object sender, KeyEventArgs e)
         {
-            if (track_txtNum == null)
-                return;
-
-            if (int.TryParse(track_txtNum.Text.Replace("t", ""), out _numValue))
+            if (e.Key == Key.Return)
             {
-                if (_numValue < 0 || _numValue > MaxTracks)
+                if (track_txtNum == null)
                     return;
-                track_txtNum.Text = "t" + _numValue.ToString();
-                BmpMaestro.Instance.SetTracknumberOnHost(_numValue);
+
+                if (int.TryParse(track_txtNum.Text.ToLower().Replace("t", ""), out var num))
+                {
+                    if (num < 0 || num > MaxTracks)
+                    {
+                        track_txtNum.Text = "t" + NumValue.ToString();
+                        return;
+                    }
+                    _numValue = num;
+                    track_txtNum.Text = "t" + _numValue.ToString();
+                    BmpMaestro.Instance.SetTracknumberOnHost(_numValue);
+                }
             }
         }
         #endregion

@@ -352,7 +352,6 @@ namespace BardMusicPlayer.Maestro
                 if (perf.Value.HostProcess)
                 {
                     perf.Value.TrackNumber = tracknumber;
-                    BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(perf.Value.game, tracknumber, true));
                     return;
                 }
             }
@@ -366,7 +365,6 @@ namespace BardMusicPlayer.Maestro
         {
             foreach (var perf in _performers)
                 perf.Value.TrackNumber = tracknumber;
-            BmpMaestro.Instance.PublishEvent(new TrackNumberChangedEvent(null, tracknumber));
         }
         #endregion
 

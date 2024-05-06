@@ -3,6 +3,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -47,7 +48,6 @@ namespace BardMusicPlayer.Ui.Controls
             {
                 _numValue = value;
                 this.Text.Text = "T" + NumValue.ToString();
-                OnValueChanged?.Invoke(this, _numValue);
                 return;
             }
         }
@@ -58,6 +58,7 @@ namespace BardMusicPlayer.Ui.Controls
             if (NumValue + 1 > PlaybackFunctions.CurrentSong.TrackContainers.Count)
                 return;
             NumValue++;
+            OnValueChanged?.Invoke(this, NumValue);
         }
 
         private void NumDown_Click(object sender, RoutedEventArgs e)
@@ -65,26 +66,31 @@ namespace BardMusicPlayer.Ui.Controls
             if (NumValue - 1 < 0)
                 return;
             NumValue--;
+            OnValueChanged?.Invoke(this, NumValue);
         }
 
-        private void TextChanged(object sender, TextChangedEventArgs e)
+
+        private void TextChanged_KeyDownHandler(object sender, KeyEventArgs e)
         {
-            if (Text == null)
-                return;
-
-            string str = Regex.Replace(Text.Text, "[^0-9]", "");
-            if (!int.TryParse(str, out var val)) 
-                return;
-            if (PlaybackFunctions.CurrentSong == null)
-                return;
-
-            if (val < 0 || NumValue + 1 > PlaybackFunctions.CurrentSong.TrackContainers.Count)
+            if (e.Key == Key.Return)
             {
-                NumValue = NumValue;
-                return;
-            }
-            NumValue = val;
-        }
+                if (Text == null)
+                    return;
 
+                string str = Regex.Replace(Text.Text, "[^0-9]", "");
+                if (!int.TryParse(str, out var val))
+                    return;
+                if (PlaybackFunctions.CurrentSong == null)
+                    return;
+
+                if (val < 0 || val > PlaybackFunctions.CurrentSong.TrackContainers.Count)
+                {
+                    NumValue = NumValue;
+                    return;
+                }
+                NumValue = val;
+                OnValueChanged?.Invoke(this, NumValue);
+            }
+        }
     }
 }
