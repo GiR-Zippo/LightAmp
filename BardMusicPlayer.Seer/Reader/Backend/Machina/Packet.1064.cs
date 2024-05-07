@@ -22,8 +22,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
         {
             try
             {
-                if (otherActorId != myActorId)
-                    return;
+                //if (otherActorId != myActorId)
+                //    return;
 
                 var streamData = new List<PerformerStream>();
 
@@ -46,7 +46,10 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                     });
                 }
                 if (streamData.Count > 0)
-                    _machinaReader.Game.PublishEvent(new EnsembleStreamdata(EventSource.Machina, streamData));
+                {
+                    if (streamData.Find(n=> n.ActorId == myActorId) != null)
+                        _machinaReader.Game.PublishEvent(new EnsembleStreamdata(EventSource.Machina, streamData));
+                }
 
             }
             catch (Exception ex)
