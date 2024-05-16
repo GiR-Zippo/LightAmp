@@ -1,5 +1,4 @@
-﻿using BardMusicPlayer.Maestro.Performance;
-using BardMusicPlayer.Script;
+﻿using BardMusicPlayer.Script;
 using BardMusicPlayer.Ui.Controls;
 using Newtonsoft.Json;
 using System;
@@ -21,7 +20,7 @@ namespace BardMusicPlayer.Ui.Classic
 
     public sealed partial class MacroLaunchpad : Window
     {
-        public List<Macro> _Macros { get; private set; }
+        public List<Macro> Macros { get; private set; } = new List<Macro>();
 
         public Macro SelectedMacro { get; set; }
 
@@ -30,10 +29,7 @@ namespace BardMusicPlayer.Ui.Classic
             InitializeComponent();
             BmpScript.Instance.OnRunningStateChanged += Instance_OnRunningStateChanged;
 
-
             this.DataContext = this;
-            _Macros = new List<Macro>();
-            MacroList.ItemsSource = _Macros;
         }
 
         private void Instance_OnRunningStateChanged(object sender, KeyValuePair<string, bool> e)
@@ -47,7 +43,9 @@ namespace BardMusicPlayer.Ui.Classic
             else
             {
                 Dispatcher.BeginInvoke(new Action(() => {
-                    var macro = _Macros.Find(s => s.File == e.Key.Split('@')[1]);
+                    var macro = Macros.Find(s => s.File == e.Key.Split('@')[1]);
+                    if (macro == null)
+                        return;
                     macro.Running = e.Value;
                     macro.Uid = e.Value ? e.Key : "";
                     this.MacroList.Items.Refresh();
@@ -57,7 +55,6 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Macros_CollectionChanged()
         {
-            MacroList.ItemsSource = _Macros;
             this.MacroList.Items.Refresh();
         }
 
@@ -98,7 +95,6 @@ namespace BardMusicPlayer.Ui.Classic
             BmpScript.Instance.StopExecution(SelectedMacro.Uid);
         }
 
-
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             var newMacro = new Macro();
@@ -106,7 +102,7 @@ namespace BardMusicPlayer.Ui.Classic
             MacroEditWindow macroEdit = new MacroEditWindow(newMacro);
             macroEdit.Visibility = Visibility.Visible;
             macroEdit.Closed += MacroEdit_Closed;
-            _Macros.Add(newMacro);
+            Macros.Add(newMacro);
             Macros_CollectionChanged();
         }
 
@@ -114,7 +110,7 @@ namespace BardMusicPlayer.Ui.Classic
         {
             if (SelectedMacro == null)
                 return;
-            _Macros.Remove(SelectedMacro);
+            Macros.Remove(SelectedMacro);
             SelectedMacro = null;
             Macros_CollectionChanged();
         }
@@ -136,17 +132,17 @@ namespace BardMusicPlayer.Ui.Classic
             fileStream.Close();
 
             var data = memoryStream.ToArray();
-            _Macros.Clear();
+            Macros.Clear();
             var x = JsonConvert.DeserializeObject<List<Macro>>(new UTF8Encoding(true).GetString(data));
             foreach (var m in x)
-                _Macros.Add(m);
+                Macros.Add(m);
 
             Macros_CollectionChanged();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (_Macros.Count <= 0)
+            if (Macros.Count <= 0)
                 return;
 
             var openFileDialog = new Microsoft.Win32.SaveFileDialog
@@ -178,7 +174,7 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void MacroEdit_Closed(object sender, System.EventArgs e)
         {
-            this.MacroList.Items.Refresh();
+            Macros_CollectionChanged();
         }
 
         private void StopIndicator_Click(object sender, RoutedEventArgs e)

@@ -34,9 +34,9 @@
             <Button Grid.Column="6" Content="Save" Click="Save_Click"/>
         </Grid>
 
-        <ListView x:Name="MacroList" Grid.Row="1" SelectedItem="{Binding SelectedMacro}" SelectionChanged="MacroList_SelectionChanged" MouseDoubleClick="MacroList_MouseDoubleClick" MouseRightButtonDown="TextBlock_MouseDown">
+        <ListView x:Name="MacroList" Grid.Row="1" SelectedItem="{Binding SelectedMacro}" ItemsSource="{Binding Macros}" SelectionChanged="MacroList_SelectionChanged" MouseDoubleClick="MacroList_MouseDoubleClick" MouseRightButtonDown="TextBlock_MouseDown">
             <ListView.ItemTemplate>
-                <DataTemplate DataType="maestro:Performer">
+                <DataTemplate DataType="local:Macro">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
