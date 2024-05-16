@@ -14,23 +14,29 @@ using System.Windows;
 using System;
 using System.IO;
 
-namespace BardMusicPlayer.Script
+namespace BardMusicPlayer.Script.Engines
 {
-    public partial class BmpScript
+    public partial class BmpBASICScript : IBmpScript
     {
-        private string selectedBardName { get; set; } = "";
-        private List<string> unselected_bards { get; set; } = null;
-        string playtime { get; set; } = "";
+        public Thread thread { get; set; }
+        private Interpreter basic { get; set; } = null;
+        public BmpBASICScript(string Id)
+        {
+            UId = Id;
+        }
 
-        private void LoadBasic(string basicfile)
+        #region IBmpScript Members
+        public event EventHandler<KeyValuePair<string, bool>> OnRunningStateChanged;
+        public string UId { get; set; }
+
+        public void LoadAndRun(string filename)
         {
             Task basictask = Task.Run(() =>
             {
                 thread = Thread.CurrentThread;
-                OnRunningStateChanged?.Invoke(this, true);
-
+                OnRunningStateChanged?.Invoke(this, new KeyValuePair<string, bool>(UId, true));
                 unselected_bards = new List<string>();
-                basic = new Interpreter(File.ReadAllText(basicfile));
+                basic = new Interpreter(File.ReadAllText(filename));
                 basic.printHandler += Print;
                 basic.cprintHandler += Console.WriteLine;
                 basic.tapKeyHandler += TapKey;
@@ -42,24 +48,51 @@ namespace BardMusicPlayer.Script
                 {
                     basic.Exec();
                 }
+                catch (ThreadAbortException /*e*/)
+                {
+                    CleanUp();
+                }
                 catch (Exception e)
                 {
                     MessageBox.Show(e.Message + "\r\n" + basic.GetLine(), "Exec Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                CleanUp();
 
-                OnRunningStateChanged?.Invoke(this, false);
-
-                unselected_bards = null;
-                basic.printHandler -= Print;
-                basic.cprintHandler -= Console.WriteLine;
-                basic.tapKeyHandler -= TapKey;
-                basic.selectedBardHandler -= SetSelectedBard;
-                basic.selectedBardAsStringHandler -= SetSelectedBardName;
-                basic.unselectBardHandler -= UnSelectBardName;
-                basic.playbackPositionHandler -= PlaybackPosition;
-                basic = null;
             });
         }
+
+        public void StopExecution()
+        {
+            if (thread == null)
+                return;
+
+            if (basic is not null)
+                basic.StopExec();
+
+            if (thread.ThreadState != ThreadState.Stopped)
+                thread.Abort();
+        }
+        #endregion
+
+        private void CleanUp()
+        {
+            OnRunningStateChanged?.Invoke(this, new KeyValuePair<string, bool>(UId, false));
+
+            unselected_bards = null;
+            basic.printHandler -= Print;
+            basic.cprintHandler -= Console.WriteLine;
+            basic.tapKeyHandler -= TapKey;
+            basic.selectedBardHandler -= SetSelectedBard;
+            basic.selectedBardAsStringHandler -= SetSelectedBardName;
+            basic.unselectBardHandler -= UnSelectBardName;
+            basic.playbackPositionHandler -= PlaybackPosition;
+            basic = null;
+        }
+
+        #region BASIC Commandhelper
+        private string selectedBardName { get; set; } = "";
+        private List<string> unselected_bards { get; set; } = null;
+        string playtime { get; set; } = "";
 
         public void SetSelectedBard(int num)
         {
@@ -131,5 +164,6 @@ namespace BardMusicPlayer.Script
             playtime = ((Minutes.Length == 1) ? "0" + Minutes : Minutes) + ":" +
                     ((Seconds.Length == 1) ? "0" + Seconds : Seconds);
         }
+        #endregion
     }
 }

@@ -12,16 +12,29 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BardMusicPlayer.Script
+namespace BardMusicPlayer.Script.Engines
 {
-    public partial class BmpScript
+    public class BmpLuaScript : IBmpScript
     {
-        private void LoadLua(string filename)
+        private Thread thread { get; set; }
+        private Lua lua { get; set; } = null;
+
+        public BmpLuaScript(string Id)
+        {
+            UId = Id;
+        }
+
+        #region IBmpScript Members
+        public event EventHandler<KeyValuePair<string, bool>> OnRunningStateChanged;
+        public string UId { get; set; }
+
+        //Load and run a script from file
+        public void LoadAndRun(string filename)
         {
             Task task = Task.Run(() =>
             {
                 thread = Thread.CurrentThread;
-                OnRunningStateChanged?.Invoke(this, true);
+                OnRunningStateChanged?.Invoke(this, new KeyValuePair<string, bool>(UId, true));
                 using (lua = new Lua())
                 {
                     string text = File.ReadAllText(filename);
@@ -30,7 +43,7 @@ namespace BardMusicPlayer.Script
                     env.Sleep = new Action<int>(Sleep);
                     env.Say = new Action<string, string, LuaTable>(Say);
                     env.Macro = new Action<string, string, LuaTable>(Macro);
-                    env.GetPerformerNames = new Func<LuaTable> (GetPerformerNames);
+                    env.GetPerformerNames = new Func<LuaTable>(GetPerformerNames);
                     try
                     {
                         var chunk = lua.CompileChunk(text, filename, new LuaCompileOptions() { DebugEngine = LuaStackTraceDebugger.Default });
@@ -38,20 +51,35 @@ namespace BardMusicPlayer.Script
                     }
                     catch (Exception e)
                     {
+                        OnRunningStateChanged?.Invoke(this, new KeyValuePair<string, bool>(UId, false));
                         Console.WriteLine("Expception: {0}", e.Message);
                         var d = LuaExceptionData.GetData(e); // get stack trace
                         Console.WriteLine("StackTrace: {0}", d.FormatStackTrace(0, false));
-                        OnRunningStateChanged?.Invoke(this, false);
                     }
+                    OnRunningStateChanged?.Invoke(this, new KeyValuePair<string, bool>(UId, false));
                     lua.Dispose();
                     lua = null;
                 }
-                OnRunningStateChanged?.Invoke(this, false);
             });
-
             return;
         }
 
+        //Stop this Script
+        public void StopExecution()
+        {
+            if (thread == null)
+                return;
+
+            if (thread.ThreadState != ThreadState.Stopped)
+            {
+                if (lua is not null)
+                    lua.Dispose();
+                thread.Abort();
+            }
+        }
+        #endregion
+
+        #region Lua Implementations
         private static LuaTable GetPerformerNames()
         {
             LuaTable tbl = new LuaTable();
@@ -80,5 +108,6 @@ namespace BardMusicPlayer.Script
         {
             BmpMaestro.Instance.SendText(bard, Quotidian.Structs.ChatMessageChannelType.None, "/" + text, unselected_bards == null ? null : ((IDictionary<object, object>)unselected_bards).Values.OfType<string>().ToList());
         } // proc Macro
+        #endregion
     }
 }

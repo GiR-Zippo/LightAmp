@@ -8,7 +8,6 @@
         ResizeMode="CanResize"
         Title="MacroLaunchpad" 
         Height="450" 
-        MinWidth="350"
         Width="350"
         MaxWidth="350">
     <Grid>
@@ -46,11 +45,27 @@
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4" />  <!-- 0 Spacer-->
-                            <ColumnDefinition Width="*" />  <!-- 1 -->
+                            <ColumnDefinition Width="290" />  <!-- 1 -->
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="4" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding DisplayedText}"                           HorizontalAlignment="Stretch" MouseRightButtonDown="TextBlock_MouseDown"/>
-                        <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding File, Mode=OneTime, StringFormat=m\\:ss}" HorizontalAlignment="Stretch" MouseRightButtonDown="TextBlock_MouseDown" />
+                        <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding File, Mode=OneTime, StringFormat=m\\:ss}" HorizontalAlignment="Stretch" MouseRightButtonDown="TextBlock_MouseDown" MaxWidth="302"/>
+                        <TextBlock Grid.Column="2" Grid.RowSpan="2" MouseLeftButtonDown="MacroRunning_MouseLeftButtonDown">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Running}" Value="False">
+                                            <Setter Property="Background" Value="Red"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Running}" Value="True">
+                                            <Setter Property="Background" Value="GreenYellow"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
