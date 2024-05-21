@@ -130,8 +130,9 @@ namespace BardMusicPlayer.Maestro.Performance
 
                     if (HostProcess)
                     {
-                        if (BmpPigeonhole.Instance.MidiInputDev != -1)
-                            _sequencer.OpenInputDevice(BmpPigeonhole.Instance.MidiInputDev);
+                        if (BmpPigeonhole.Instance.MidiInputDev != -1 && 
+                           (BmpPigeonhole.Instance.MidiInputDev < Sanford.Multimedia.Midi.InputDevice.DeviceCount))
+                                _sequencer.OpenInputDevice(BmpPigeonhole.Instance.MidiInputDev);
                     }
 
                     this._sequencer.OnNote += InternalNote;
