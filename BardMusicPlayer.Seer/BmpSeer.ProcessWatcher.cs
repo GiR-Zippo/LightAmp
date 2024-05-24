@@ -1,9 +1,7 @@
 ﻿/*
- * Copyright(c) 2023 MoogleTroupe, GiR-Zippo
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2024 GiR-Zippo, 2021 MoogleTroupe
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
-
-#region
 
 using System;
 using System.Diagnostics;
@@ -13,8 +11,6 @@ using System.Threading.Tasks;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.UtcMilliTime;
 using BardMusicPlayer.Seer.Events;
-
-#endregion
 
 namespace BardMusicPlayer.Seer
 {

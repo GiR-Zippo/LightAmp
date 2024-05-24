@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright(c) 2023 GiR-Zippo, Meowchestra
+ * Copyright(c) 2024 GiR-Zippo, Meowchestra
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 

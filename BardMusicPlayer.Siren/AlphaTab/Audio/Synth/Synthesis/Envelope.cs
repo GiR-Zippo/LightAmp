@@ -32,11 +32,7 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#region
-
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Util;
-
-#endregion
 
 namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Synthesis
 {

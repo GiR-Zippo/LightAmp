@@ -3,11 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
-#region
-
 using System.Collections.Generic;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.DatFile.Utilities
 {

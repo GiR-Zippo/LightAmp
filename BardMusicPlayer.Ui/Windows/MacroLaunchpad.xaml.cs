@@ -1,4 +1,9 @@
-﻿using BardMusicPlayer.Script;
+﻿/*
+ * Copyright(c) 2024 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.Script;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

@@ -32,8 +32,6 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,8 +39,6 @@ using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.SoundFont;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Util;
 using BardMusicPlayer.Siren.AlphaTab.Collections;
-
-#endregion
 
 namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Synthesis
 {

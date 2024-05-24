@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright(c) 2023 GiR-Zippo
+ * Copyright(c) 2024 GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
@@ -7,7 +7,6 @@ using BardMusicPlayer.Quotidian.UtcMilliTime;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;

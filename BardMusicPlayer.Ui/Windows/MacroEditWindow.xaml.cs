@@ -1,4 +1,9 @@
-﻿using Microsoft.Win32;
+﻿/*
+ * Copyright(c) 2024 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using Microsoft.Win32;
 using System;
 using System.Windows;
 

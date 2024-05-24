@@ -3,8 +3,6 @@
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,8 +11,6 @@ using System.Text;
 using BardMusicPlayer.Quotidian.Enums;
 using BardMusicPlayer.Seer.Reader.Backend.DatFile.Objects;
 using BardMusicPlayer.Seer.Reader.Backend.DatFile.Utilities;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.DatFile
 {

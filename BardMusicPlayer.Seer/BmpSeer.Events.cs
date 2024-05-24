@@ -1,16 +1,12 @@
 ﻿/*
- * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe, trotlinebeercan
+ * Copyright(c) 2024 GiR-Zippo, 2021 MoogleTroupe, trotlinebeercan
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
-
-#region
 
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using BardMusicPlayer.Seer.Events;
-
-#endregion
 
 namespace BardMusicPlayer.Seer
 {

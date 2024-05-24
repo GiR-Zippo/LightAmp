@@ -1,16 +1,10 @@
 /*
- * Copyright(c) 2023 GiR-Zippo
+ * Copyright(c) 2024 GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
-#region
-
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using BardMusicPlayer.Seer.Utilities;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Events
 {

@@ -3,14 +3,10 @@
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
-#region
-
 using System;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Utilities
 {

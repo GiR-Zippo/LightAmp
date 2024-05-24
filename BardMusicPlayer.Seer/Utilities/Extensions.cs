@@ -3,14 +3,10 @@
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
-#region
-
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Utilities
 {

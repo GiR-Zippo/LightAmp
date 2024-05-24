@@ -1,9 +1,7 @@
 ﻿/*
- * Copyright(c) 2023 MoogleTroupe, GiR-Zippo
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2024 GiR-Zippo, 2021 MoogleTroupe
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
-
-#region
 
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +14,6 @@ using BardMusicPlayer.Transmogrify.Song;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 using MidiFile = BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Midi.MidiFile;
-
-#endregion
 
 namespace BardMusicPlayer.Siren
 {

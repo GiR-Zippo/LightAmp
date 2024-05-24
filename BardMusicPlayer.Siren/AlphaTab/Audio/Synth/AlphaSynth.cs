@@ -1,22 +1,16 @@
 /*
- * Copyright(c) 2023 GiR-Zippo, 2021 Daniel Kuschny
+ * Copyright(c) 2024 GiR-Zippo, 2021 Daniel Kuschny
  * Licensed under the MPL-2.0 license. See https://github.com/CoderLine/alphaTab/blob/develop/LICENSE for full license information.
  */
 
-#region
-
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Midi;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.SoundFont;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Synthesis;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Util;
 using BardMusicPlayer.Siren.AlphaTab.IO;
 using BardMusicPlayer.Siren.AlphaTab.Util;
-using NAudio.Wave;
-
-#endregion
 
 namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
 {

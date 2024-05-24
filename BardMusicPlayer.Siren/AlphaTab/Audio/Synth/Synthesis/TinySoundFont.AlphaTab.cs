@@ -5,16 +5,12 @@
 
 // This file contains alphaTab specific extensions to the TinySoundFont audio synthesis
 
-#region
-
 using System.Linq;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Ds;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Midi.Event;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Util;
 using BardMusicPlayer.Siren.AlphaTab.Collections;
 using BardMusicPlayer.Siren.AlphaTab.Util;
-
-#endregion
 
 namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Synthesis
 {

@@ -1,11 +1,15 @@
-﻿using BardMusicPlayer.MidiUtil.Managers;
+﻿/*
+ * Copyright(c) 2024 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.MidiUtil.Managers;
 using BardMusicPlayer.Ui.Functions;
 using BardMusicPlayer.Ui.Windows;
 using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-
 
 namespace BardMusicPlayer.Ui.Classic
 {

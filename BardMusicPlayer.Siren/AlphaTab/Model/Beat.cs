@@ -3,14 +3,10 @@
  * Licensed under the MPL-2.0 license. See https://github.com/CoderLine/alphaTab/blob/develop/LICENSE for full license information.
  */
 
-#region
-
 using System.Linq;
 using BardMusicPlayer.Siren.AlphaTab.Audio;
 using BardMusicPlayer.Siren.AlphaTab.Collections;
 using BardMusicPlayer.Siren.AlphaTab.Util;
-
-#endregion
 
 namespace BardMusicPlayer.Siren.AlphaTab.Model
 {

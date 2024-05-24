@@ -3,11 +3,7 @@
  * Licensed under the MPL-2.0 license. See https://github.com/CoderLine/alphaTab/blob/develop/LICENSE for full license information.
  */
 
-#region
-
 using BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Midi.Event;
-
-#endregion
 
 namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
 {

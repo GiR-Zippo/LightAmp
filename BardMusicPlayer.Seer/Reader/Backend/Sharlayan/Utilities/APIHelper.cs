@@ -3,8 +3,6 @@
  * Licensed under the MIT license. See https://github.com/FFXIVAPP/sharlayan/blob/master/LICENSE.md for full license information.
  */
 
-#region
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,8 +11,6 @@ using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Files.Structures;
 using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Models;
 using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Models.Structures;
 using Newtonsoft.Json;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Utilities
 {

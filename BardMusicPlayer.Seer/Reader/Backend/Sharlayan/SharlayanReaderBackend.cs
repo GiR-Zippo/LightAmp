@@ -1,9 +1,7 @@
 /*
- * Copyright(c) 2023 GiR-Zippo, 2021 MoogleTroupe
+ * Copyright(c) 2024 GiR-Zippo, 2021 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
-
-#region
 
 using System;
 using System.Collections.Generic;
@@ -17,8 +15,6 @@ using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Events;
 using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Models;
 using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Models.ReadResults;
 using BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Utilities;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
 {

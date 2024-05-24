@@ -3,7 +3,6 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
-using System.Threading;
 using System;
 using System.Collections.Generic;
 

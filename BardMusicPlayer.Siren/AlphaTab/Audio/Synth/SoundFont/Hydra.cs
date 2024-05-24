@@ -32,13 +32,9 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#region
-
 using System;
 using BardMusicPlayer.Siren.AlphaTab.Collections;
 using BardMusicPlayer.Siren.AlphaTab.IO;
-
-#endregion
 
 namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth.SoundFont
 {

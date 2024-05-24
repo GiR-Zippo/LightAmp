@@ -1,12 +1,8 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
 using BardMusicPlayer.Seer.Events;
-
-#endregion
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Ping
 {

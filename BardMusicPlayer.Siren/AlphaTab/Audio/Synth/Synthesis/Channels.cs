@@ -32,12 +32,8 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#region
-
 using System;
 using BardMusicPlayer.Siren.AlphaTab.Collections;
-
-#endregion
 
 namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Synthesis
 {
