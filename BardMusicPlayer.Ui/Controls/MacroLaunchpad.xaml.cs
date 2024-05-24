@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 
-namespace BardMusicPlayer.Ui.Classic
+namespace BardMusicPlayer.Ui.Controls
 {
     public sealed class Macro
     {

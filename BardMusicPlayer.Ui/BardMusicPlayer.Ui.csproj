@@ -315,7 +315,7 @@
     <Compile Include="UI_Classic\Classic_Settings.cs" />
     <Compile Include="UI_Classic\Classic_Siren.cs" />
     <Compile Include="UI_Classic\Classic_Statistics.cs" />
-    <Compile Include="UI_Classic\MacroLaunchpad.xaml.cs">
+    <Compile Include="Controls\MacroLaunchpad.xaml.cs">
       <DependentUpon>MacroLaunchpad.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI_Classic\NetworkPlayWindow.xaml.cs">
@@ -407,7 +407,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI_Classic\MacroLaunchpad.xaml">
+    <Page Include="Controls\MacroLaunchpad.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
