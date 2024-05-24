@@ -2,7 +2,7 @@
 using BardMusicPlayer.Transmogrify.Song;
 using System.Windows;
 
-namespace BardMusicPlayer.Ui.Controls
+namespace BardMusicPlayer.Ui.Windows
 {
     /// <summary>
     /// Interaktionslogik für SongEditWindow.xaml

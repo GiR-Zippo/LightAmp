@@ -1,14 +1,17 @@
 ﻿/*
- * Copyright(c) 2023 GiR-Zippo
+ * Copyright(c) 2024 GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.DalamudBridge;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Maestro.Events;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BardMusicPlayer.Seer.Events;
+using BardMusicPlayer.Ui.Functions;
+using BardMusicPlayer.Ui.Windows;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,9 +20,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
-using BardMusicPlayer.DalamudBridge;
 using System.Windows.Input;
-using BardMusicPlayer.Ui.Functions;
 using System.ComponentModel;
 using System.Windows.Media;
 

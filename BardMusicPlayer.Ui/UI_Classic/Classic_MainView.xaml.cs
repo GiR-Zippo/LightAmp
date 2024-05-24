@@ -15,6 +15,7 @@ using BardMusicPlayer.Siren;
 using BardMusicPlayer.Quotidian;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Controls;
+using BardMusicPlayer.Ui.Windows;
 using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Classic

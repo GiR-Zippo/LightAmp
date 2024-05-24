@@ -1,5 +1,4 @@
 ﻿using BardMusicPlayer.Script;
-using BardMusicPlayer.Ui.Controls;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 
-namespace BardMusicPlayer.Ui.Controls
+namespace BardMusicPlayer.Ui.Windows
 {
     public sealed class Macro
     {

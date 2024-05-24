@@ -9,6 +9,7 @@ using BardMusicPlayer.Siren;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Transmogrify.Song.Importers;
 using BardMusicPlayer.Transmogrify.Song.Manipulation;
+using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
@@ -26,7 +27,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace BardMusicPlayer.Ui.Controls
+namespace BardMusicPlayer.Ui.Windows
 {
     public class MidiBardConverter_InstrumentHelper
     {

@@ -262,13 +262,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\BardExtSettingsWindow.xaml.cs">
+    <Compile Include="Windows\BardExtSettingsWindow.xaml.cs">
       <DependentUpon>BardExtSettingsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\MacroEditWindow.xaml.cs">
+    <Compile Include="Windows\MacroEditWindow.xaml.cs">
       <DependentUpon>MacroEditWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\MidiBardConverterWindow.xaml.cs">
+    <Compile Include="Windows\MidiBardConverterWindow.xaml.cs">
       <DependentUpon>MidiBardConverterWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\NetworkWindow.xaml.cs">
@@ -286,7 +286,7 @@
     <Compile Include="Controls\OctaveNumericUpDown.xaml.cs">
       <DependentUpon>OctaveNumericUpDown.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\SongEditWindow.xaml.cs">
+    <Compile Include="Windows\SongEditWindow.xaml.cs">
       <DependentUpon>SongEditWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TrackNumericUpDown.xaml.cs">
@@ -315,21 +315,21 @@
     <Compile Include="UI_Classic\Classic_Settings.cs" />
     <Compile Include="UI_Classic\Classic_Siren.cs" />
     <Compile Include="UI_Classic\Classic_Statistics.cs" />
-    <Compile Include="Controls\MacroLaunchpad.xaml.cs">
+    <Compile Include="Windows\MacroLaunchpad.xaml.cs">
       <DependentUpon>MacroLaunchpad.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI_Classic\NetworkPlayWindow.xaml.cs">
       <DependentUpon>NetworkPlayWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="Controls\BardExtSettingsWindow.xaml">
+    <Page Include="Windows\BardExtSettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\MacroEditWindow.xaml">
+    <Page Include="Windows\MacroEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\MidiBardConverterWindow.xaml">
+    <Page Include="Windows\MidiBardConverterWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -349,7 +349,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\SongEditWindow.xaml">
+    <Page Include="Windows\SongEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -407,7 +407,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\MacroLaunchpad.xaml">
+    <Page Include="Windows\MacroLaunchpad.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

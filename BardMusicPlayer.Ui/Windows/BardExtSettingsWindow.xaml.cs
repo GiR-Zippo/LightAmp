@@ -3,22 +3,24 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.DalamudBridge;
+using BardMusicPlayer.Dalamud.Events;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Maestro.Performance;
-using BardMusicPlayer.DalamudBridge;
+using BardMusicPlayer.Quotidian.Structs;
+using BardMusicPlayer.Ui.Controls;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using BardMusicPlayer.Quotidian.Structs;
 using CSCore.CoreAudioAPI;
 using System.Threading.Tasks;
-using BardMusicPlayer.Dalamud.Events;
 using System.ComponentModel;
 
-namespace BardMusicPlayer.Ui.Controls
+
+namespace BardMusicPlayer.Ui.Windows
 {
     /// <summary>
     /// Interaktionslogik für BardExtSettingsWindow.xaml

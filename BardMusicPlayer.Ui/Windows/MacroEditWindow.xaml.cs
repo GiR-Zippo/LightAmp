@@ -1,9 +1,8 @@
-﻿using BardMusicPlayer.Ui.Classic;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Windows;
 
-namespace BardMusicPlayer.Ui.Controls
+namespace BardMusicPlayer.Ui.Windows
 {
     /// <summary>
     /// Interaktionslogik für MacroEditWindow.xaml

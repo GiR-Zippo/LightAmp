@@ -1,11 +1,8 @@
 ﻿using BardMusicPlayer.MidiUtil.Managers;
-using BardMusicPlayer.MidiUtil.Ui;
-using BardMusicPlayer.Transmogrify.Song;
-using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
+using BardMusicPlayer.Ui.Windows;
 using Microsoft.Win32;
 using System.Collections.Generic;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
