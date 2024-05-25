@@ -21,7 +21,7 @@ namespace BardMusicPlayer.Ui
         public MainWindow()
         {
             InitializeComponent();
-            this.Title = "LightAmp Ver:" + Assembly.GetExecutingAssembly().GetName().Version + " - Laika";
+            this.Title = "LightAmp Ver:" + Assembly.GetExecutingAssembly().GetName().Version + " - Flatorte";
             if (BmpPigeonhole.Instance.ClassicUi)
                 SwitchClassicStyle();
             else
