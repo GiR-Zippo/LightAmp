@@ -89,10 +89,22 @@ namespace BardMusicPlayer.Ui.Windows
         private void ReadMidi(string filename)
         {
             _midiName = Path.GetFileNameWithoutExtension(filename);
-            if (File.Exists(Path.ChangeExtension(filename, "json")))
-                ReadWithConfig(filename);
+            string ext = Path.GetExtension(filename);
+            if (ext.StartsWith(".gp"))
+                ReadGPX(filename);
             else
-                ReadWithoutConfig(filename);
+            {
+                if (File.Exists(Path.ChangeExtension(filename, "json")))
+                    ReadWithConfig(filename);
+                else
+                    ReadWithoutConfig(filename);
+            }
+        }
+
+        private void ReadGPX(string filename)
+        {
+            _midifile = Transmogrify.Song.Importers.GuitarPro.ImportGuitarPro.OpenGTPSongFile(filename);
+            ReadMidiData();
         }
 
         /// <summary>
@@ -821,6 +833,8 @@ namespace BardMusicPlayer.Ui.Windows
                         continue;
 
                     Note nextNote = originalChunk.GetNotes().FirstOrDefault(n => n.Time >= overlap.EndTime);
+                    if (nextNote == null) //no next note? ignore it
+                        continue;
                     if (_event.Time == overlap.EndTime) //leave it if it's at the end
                         continue;
                     else if (overlap.EndTime == nextNote.Time) //move it to the start of the next note
