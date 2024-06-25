@@ -166,8 +166,20 @@ namespace BardMusicPlayer.Ui.Windows
         /// <param name="filename"></param>
         private void ReadWithoutConfig(string filename)
         {
-            _midifile = MidiFile.Read(filename);
-            ReadMidiData();
+            try
+            {
+                _midifile = MidiFile.Read(filename);
+                ReadMidiData();
+            }
+            catch //last resort if regular read fail
+            {
+                BmpSong bmpSong = BmpSong.OpenFile(filename).Result;
+                MemoryStream stream = bmpSong.GetExportMidi();
+                _midifile = MidiFile.Read(stream);
+                stream.Close();
+                stream.Dispose();
+                ReadMidiData();
+            }
         }
 
         public void MidiFromSong(BmpSong song)
