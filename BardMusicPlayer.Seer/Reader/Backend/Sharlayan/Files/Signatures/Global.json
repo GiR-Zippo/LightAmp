@@ -14,24 +14,24 @@
     },
     {
         "Key": "PARTYMAP",
-        "Value": "8b7c24440fb66c2440400fb6d5488d0d",
+        "Value": "5EC348895C2430488d0d",
         "ASMSignature": true,
-        "PointerPath": [ 0, 744 ]
+        "PointerPath": [ 0, 784 ]
     },
     {
         "Key": "PARTYCOUNT",
-        "Value": "8b7c24440fb66c2440400fb6d5488d0d",
+        "Value": "5EC348895C2430488d0d",
         "ASMSignature": true,
         "PointerPath": [
             0,
-            25564
+            26044
         ]
     },
     {
         "Key": "PARTYLEAD",
-        "Value": "8b7c24440fb66c2440400fb6d5488d0d",
+        "Value": "5EC348895C2430488d0d",
         "ASMSignature": true,
-        "PointerPath": [ 0, 25560 ]
+        "PointerPath": [ 0, 26040 ]
     },
     {
         "Key": "PLAYERINFO",
@@ -49,7 +49,7 @@
             0,
             0
         ],
-        "Value": "897B60488B5C2430488B7424384883C4205FC3837960007C3133D2488D0D"
+        "Value": "897B60488B5C2430488B7424384883C4205FC385C0783133D2488D0D"
     },
     {
         "ASMSignature": true,
@@ -58,7 +58,7 @@
             0,
             0
         ],
-        "Value": "4C8BCF4C8D05????????BA04010000488D0D"
+        "Value": "41807D00000F85????????4889B424????????488D0D"
     },
     {
         "ASMSignature": true,
@@ -68,7 +68,7 @@
             0,
             56
         ],
-        "Value": "e8********85c0740e488b0d********33D2E8********488b0d"
+        "Value": "33D2E8????????488b0d"
     },
     {
         "ASMSignature": true,

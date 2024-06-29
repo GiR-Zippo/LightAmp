@@ -19,7 +19,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
         /// <param name="otherActorId"></param>
         /// <param name="myActorId"></param>
         /// <param name="message"></param>
-        internal void Size3640(long timeStamp, uint otherActorId, uint myActorId, byte[] message)
+        internal void Size3704(long timeStamp, uint otherActorId, uint myActorId, byte[] message)
         {
             try
             {
@@ -30,17 +30,17 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                 var partyMembers = new SortedDictionary<uint, string>();
                 var currentPartyLead = new KeyValuePair<uint, string>();
 
-                byte currentLeader = (byte)BitConverter.ToInt16(message, 3632);
-                for (var i = 0; i <= 3136; i += 448)
+                byte currentLeader = (byte)BitConverter.ToInt16(message, 3697);
+                for (var i = 0; i <= 3136; i += 456)
                 {
                     //Check for empty column
-                    var actorId = BitConverter.ToUInt32(message, 80 + i);
+                    var actorId = BitConverter.ToUInt32(message, 88 + i);
                     if (actorId == 0)
                         continue;
 
                     var playerName = Encoding.UTF8.GetString(message, 32 + i, 32).Trim((char)0);
-                    uint currentZoneId = BitConverter.ToUInt16(message, 102 + i);
-                    uint homeWorldId = BitConverter.ToUInt16(message, 104 + i);
+                    uint currentZoneId = BitConverter.ToUInt16(message, 110 + i);
+                    uint homeWorldId = BitConverter.ToUInt16(message, 112 + i);
                     //Change me
                     switch (i)
                     {

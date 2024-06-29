@@ -40,8 +40,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
                         var source = MemoryHandler.GetByteArray(new IntPtr(address), sourceSize);
 
                         var actorId = SBitConverter.TryToUInt32(source, MemoryHandler.Structures.PartyMember.ID);
-                        var playerName =
-                            MemoryHandler.GetStringFromBytes(source, MemoryHandler.Structures.PartyMember.Name);
+                        var playerName = MemoryHandler.GetStringFromBytes(source, MemoryHandler.Structures.PartyMember.Name);
                         if (ActorIdTools.RangeOkay(actorId) && !string.IsNullOrEmpty(playerName))
                             result[actorId] = playerName;
                     }

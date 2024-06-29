@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.MidiUtil.Managers;
 using BardMusicPlayer.Quotidian;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Siren;
@@ -11,6 +12,7 @@ using BardMusicPlayer.Transmogrify.Song.Importers;
 using BardMusicPlayer.Transmogrify.Song.Manipulation;
 using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
+using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.Tools;
@@ -19,6 +21,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -625,6 +628,15 @@ namespace BardMusicPlayer.Ui.Windows
             }
         }
 
+        private void PitchConvert_Click(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                var t = (_Sender as ListViewItem).Content as MidiBardImporter.MidiTrack;
+                AutoPitchConvert(t.trackChunk);
+            }
+        }
+
         private void QuantCheck_Checked(object sender, RoutedEventArgs e)
         {
             MenuItem[] array = new MenuItem[] { Quant64, Quant32, Quant16, Quant8, Quant4, Quant0 };
@@ -860,5 +872,107 @@ namespace BardMusicPlayer.Ui.Windows
             return Task.FromResult(originalChunk);
         }
 
+
+        private struct PitchData
+        {
+            public int Pitch;
+            public long start;
+            public long end;
+        }
+        private void AutoPitchConvert(TrackChunk originalChunk)
+        {
+            List<PitchData> activePitchbends = new List<PitchData>();
+            PitchData tempPitch = new PitchData() { Pitch = 0xff, end = -1 };
+            int lastPitch = 0;
+            foreach (var timedEvent in originalChunk.GetTimedEvents().Where(e => e.Event is PitchBendEvent))
+            {
+                PitchBendEvent pitch = timedEvent.Event as PitchBendEvent;
+                int newPitch = 0;
+                if (pitch.PitchValue < 4096)
+                    newPitch = -2;
+                else if (pitch.PitchValue < 8192)
+                    newPitch = -1;
+                else if (pitch.PitchValue < 12288)
+                    newPitch = 0;
+                else if (pitch.PitchValue < 16383)
+                    newPitch = 1;
+                else
+                    newPitch = 2;
+
+                if (newPitch == lastPitch)
+                    continue;
+
+                tempPitch.end = timedEvent.Time;
+
+                if (tempPitch.Pitch != 0xff)
+                    activePitchbends.Add(tempPitch);
+
+                tempPitch.Pitch = newPitch;
+                tempPitch.start = timedEvent.Time;
+                tempPitch.end = -1;
+                lastPitch = newPitch;
+            }
+            activePitchbends.Add(tempPitch);
+
+            originalChunk.RemoveTimedEvents(e => e.Event is PitchBendEvent);
+
+            foreach (var v in activePitchbends)
+                originalChunk.ManageNotes().Objects.SplitObjectsByGrid(new SteppedGrid(new MidiTimeSpan(v.start)), _midifile.GetTempoMap());
+
+            using (var notesManager = originalChunk.ManageNotes())
+            {
+                List<Note> active = new List<Note>();
+                PitchData currentPitch = new PitchData() { Pitch = 0 };
+                for (long i = 0; i != originalChunk.ManageTimedEvents().Objects.Last().Time; i++)
+                {
+                    var notes = originalChunk.GetNotes().StartAtTime(i);
+                    if (notes != null)
+                        active.AddRange(notes.ToList());
+
+                    active.RemoveAll(n => n.EndTime == i);
+
+                    //check if a pitch exists
+                    var pitchData = activePitchbends.FirstOrDefault(n => n.start == i);
+                    if (pitchData.end != default)
+                    {
+                        foreach (var note in active)
+                        {
+                            var pNote = notesManager.Objects.FirstOrDefault(n => n.Time == note.Time && n.EndTime == note.EndTime);
+                            if (pNote != null)
+                            {
+                                //Notesplit
+                                if (pNote.Time < pitchData.start)
+                                {
+                                    notesManager.Objects.Remove(pNote);
+                                    var split = pNote.Split(i);
+                                    Note lNote = new Note((SevenBitNumber)(pNote.NoteNumber + currentPitch.Pitch));
+                                    lNote.Time = split.LeftPart.Time;
+                                    lNote.Length = split.LeftPart.Length;
+                                    notesManager.Objects.Add(lNote);
+
+                                    Note rNote = new Note((SevenBitNumber)(pNote.NoteNumber + pitchData.Pitch));
+                                    rNote.Time = split.RightPart.Time;
+                                    rNote.Length = split.RightPart.Length;
+
+                                    notesManager.Objects.Add(rNote);
+                                    notesManager.SaveChanges();
+                                }
+                                else
+                                {
+                                    pNote.NoteNumber = (SevenBitNumber)(pNote.NoteNumber + pitchData.Pitch);
+                                    notesManager.SaveChanges();
+                                }
+                            }
+                        }
+                        currentPitch = pitchData;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Std");
+                    }
+                    
+                }
+            }
+        }
     }
 }

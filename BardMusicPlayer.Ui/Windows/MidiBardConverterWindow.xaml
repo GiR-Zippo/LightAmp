@@ -81,9 +81,10 @@
             </ListView.ItemContainerStyle>
             <ListView.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Autotranspose Track" Click="TrackListItem_Autotranspose_Click"/>
-                    <MenuItem Header="DrumMap Track" Click="TrackListItem_DrumMap_Click"/>
-                    <MenuItem Header="Duplicate Track" Click="TrackListItem_Duplicate_Click"/>
+                    <MenuItem Header="Autotranspose Track"  Click="TrackListItem_Autotranspose_Click"/>
+                    <MenuItem Header="DrumMap Track"        Click="TrackListItem_DrumMap_Click"/>
+                    <MenuItem Header="Pitch/Bend to notes"  Click="PitchConvert_Click"/>
+                    <MenuItem Header="Duplicate Track"      Click="TrackListItem_Duplicate_Click"/>
                     <MenuItem Header="Quantize">
                         <MenuItem Header="Off"  IsCheckable="True" x:Name="Quant0" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
                         <MenuItem Header="64th" IsCheckable="True" x:Name="Quant64" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>

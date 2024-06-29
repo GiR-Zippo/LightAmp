@@ -18,14 +18,14 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
         /// <param name="otherActorId"></param>
         /// <param name="myActorId"></param>
         /// <param name="message"></param>
-        internal void Size672(long timeStamp, uint otherActorId, uint myActorId, byte[] message)
+        internal void Size688(long timeStamp, uint otherActorId, uint myActorId, byte[] message)
         {
             try
             {
                 if (otherActorId != myActorId) return;
 
-                var homeWorldId = BitConverter.ToUInt16(message, 38);
-                var playerName = Encoding.UTF8.GetString(message, 592, 32).Trim((char)0);
+                var homeWorldId = BitConverter.ToUInt16(message, 54);
+                var playerName = Encoding.UTF8.GetString(message, 608, 32).Trim((char)0);
 
                 if (World.Ids.ContainsKey(homeWorldId))
                     _machinaReader.Game.PublishEvent(new HomeWorldChanged(EventSource.Machina,

@@ -49,7 +49,7 @@ namespace BardMusicPlayer.Seer.Utilities
             }
         }
 
-        private static readonly List<int> Lengths = new() { 48, 56, 88, 656, 664, 672, 1064, 3576, 3640 };
+        private static readonly List<int> Lengths = new() { 48, 56, 88, 656, 664, 688, 1064, 3576, 3704 };
         private readonly FFXIVNetworkMonitor _monitor;
         private readonly object _lock;
         private bool _monitorRunning;
@@ -137,6 +137,16 @@ namespace BardMusicPlayer.Seer.Utilities
 
         private void MessageReceivedEventHandler(TCPConnection connection, long epoch, byte[] message)
         {
+/*
+                string hexString = BitConverter.ToString(message);
+                
+                if (hexString.Contains("4D-69-65-74-"))
+                { 
+                    Console.WriteLine("FOUND:" + message.Length.ToString());
+                    System.Diagnostics.Debug.WriteLine("MMMM" + hexString + " " + message.Length.ToString());
+
+                }
+*/
             if (Lengths.Contains(message.Length))
                 MessageReceived?.Invoke((int)connection.ProcessId, message);
         }
