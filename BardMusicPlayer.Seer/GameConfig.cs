@@ -39,8 +39,6 @@ namespace BardMusicPlayer.Seer
                 {
                     if (s.Contains("DisplayObjectLimitType")) number -= GetCfgIntSetting(s);
 
-                    if (s.Contains("WaterWet_DX11")) number -= GetCfgIntSetting(s);
-
                     if (s.Contains("OcclusionCulling_DX11")) number -= GetCfgIntSetting(s);
 
                     if (s.Contains("ReflectionType_DX11")) number -= GetCfgIntSetting(s);
@@ -153,16 +151,10 @@ namespace BardMusicPlayer.Seer
                         {
                             switch (line.Split('\t')[0])
                             {
-                                case "DisplayObjectLimitType":
-                                    line = SetCfgSetting(line, "4");
-                                    break;
                                 case "AntiAliasing_DX11":
-                                case "TextureFilterQuality_DX11":
                                 case "TextureAnisotropicQuality_DX11":
                                 case "SSAO_DX11":
-                                case "Glare_DX11":
                                 case "DistortionWater_DX11":
-                                case "DepthOfField_DX11":
                                 case "RadialBlur_DX11":
                                 case "GrassQuality_DX11":
                                 case "TranslucentQuality_DX11":
@@ -178,19 +170,35 @@ namespace BardMusicPlayer.Seer
                                 case "PhysicsTypeOther_DX11":
                                 case "PhysicsTypeEnemy_DX11":
                                 case "ReflectionType_DX11":
-                                case "WaterWet_DX11":
                                 case "ParallaxOcclusion_DX11":
                                 case "Tessellation_DX11":
                                 case "GlareRepresentation_DX11":
+                                case "GrassEnableDynamicInterference":
+                                case "TextureRezoType":
+                                case "ShadowLightValidType":
                                     line = SetCfgSetting(line, "0");
                                     break;
+
+                                case "Glare_DX11":
                                 case "LodType_DX11":
                                 case "OcclusionCulling_DX11":
                                 case "ShadowLOD_DX11":
+                                case "ShadowBgLOD":
+                                case "DynamicRezoType":
                                     line = SetCfgSetting(line, "1");
                                     break;
-                                case "MapResolution_DX11":
+
+                                case "Fps":
+                                case "TextureFilterQuality_DX11":
                                     line = SetCfgSetting(line, "2");
+                                    break;
+
+                                case "DisplayObjectLimitType":
+                                    line = SetCfgSetting(line, "4");
+                                    break;
+
+                                case "WindowDispNum":
+                                    line = SetCfgSetting(line, "5");
                                     break;
                             }
                             writer.WriteLine(line);

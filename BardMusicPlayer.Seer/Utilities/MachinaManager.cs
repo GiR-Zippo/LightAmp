@@ -137,16 +137,6 @@ namespace BardMusicPlayer.Seer.Utilities
 
         private void MessageReceivedEventHandler(TCPConnection connection, long epoch, byte[] message)
         {
-/*
-                string hexString = BitConverter.ToString(message);
-                
-                if (hexString.Contains("4D-69-65-74-"))
-                { 
-                    Console.WriteLine("FOUND:" + message.Length.ToString());
-                    System.Diagnostics.Debug.WriteLine("MMMM" + hexString + " " + message.Length.ToString());
-
-                }
-*/
             if (Lengths.Contains(message.Length))
                 MessageReceived?.Invoke((int)connection.ProcessId, message);
         }
