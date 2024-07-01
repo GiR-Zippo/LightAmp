@@ -32,6 +32,7 @@ namespace BardMusicPlayer.Ui.Classic
     /// </summary>
     public sealed partial class Classic_MainView : UserControl
     {
+
         ObservableCollection<LyricsContainer> lyricsData = new ObservableCollection<LyricsContainer>();
 
         /// <summary>
@@ -51,8 +52,16 @@ namespace BardMusicPlayer.Ui.Classic
 
             //Fill the lyrics editor
             lyricsData.Clear();
+            DateTime lastTime = new DateTime();
             foreach (var line in CurrentSong.LyricsContainer)
-                lyricsData.Add(new LyricsContainer(line.Key, line.Value));
+            {
+                var f = line.Key - lastTime;
+                if (f.TotalMilliseconds < 1000 && f.TotalMilliseconds != 0)
+                    lyricsData.Add(new LyricsContainer(line.Key, "[!] > " + line.Value));
+                else
+                    lyricsData.Add(new LyricsContainer(line.Key, line.Value));
+                lastTime = line.Key;
+            }
             Siren_Lyrics.DataContext = lyricsData;
             Siren_Lyrics.Items.Refresh();
         }
@@ -306,15 +315,13 @@ namespace BardMusicPlayer.Ui.Classic
                 file.WriteLine("[" + l.time.Minute + ":"
                                    + l.time.Second + "."
                                    + l.time.Millisecond + "]"
-                                   + l.line);
+                                   + (l.line.StartsWith("[!] > ") ? l.line.Remove(0, 6) : l.line));
             }
             file.Close();
 
             BmpSiren.Instance.CurrentSong.LyricsContainer.Clear();
             foreach (var l in lyricsData)
-                BmpSiren.Instance.CurrentSong.LyricsContainer.Add(l.time, l.line);
-
-
+                BmpSiren.Instance.CurrentSong.LyricsContainer.Add(l.time, (l.line.StartsWith("[!] > ") ? l.line.Remove(0, 6) : l.line));
         }
 
         private void Siren_Omni_Click(object sender, RoutedEventArgs e)
