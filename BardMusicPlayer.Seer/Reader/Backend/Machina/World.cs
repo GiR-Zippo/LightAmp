@@ -99,6 +99,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
 
             { 168, "Namazu" },
 
+            { 190, "Mameshiba" },
+
             { 400, "Sagittarius" },
             { 401, "Phantom" },
             { 402, "Alpha" },
@@ -107,6 +109,18 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
             { 405, "Seraph" },
             { 406, "Halicarnassus" },
             { 407, "Maduin" },
+            { 408, "Cuchulainn" },
+            { 409, "Kraken" },
+            { 410, "Rafflesia" },
+            { 411, "Golem" },
+            { 412, "Titania" },
+            { 413, "Innocence" },
+            { 414, "Pixie" },
+            { 415, "Tycoon" },
+            { 416, "Wyvern" },
+            { 417, "Lakshmi" },
+            { 418, "Eden" },
+            { 419, "Syldra" },
 
             { 1040, "DiPingGuan" },
             { 1041, "MiWuShiDi" },

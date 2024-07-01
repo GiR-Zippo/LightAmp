@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
 {
@@ -22,7 +23,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
             try
             {
                 var world = MemoryHandler.GetString(worldMap, MemoryHandler.Structures.World.Offset, MemoryHandler.Structures.World.SourceSize);
-                return world;
+                return world.Split(' ').Last();
             }
             catch (Exception ex)
             {

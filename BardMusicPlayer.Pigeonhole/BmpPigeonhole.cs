@@ -207,5 +207,10 @@ namespace BardMusicPlayer.Pigeonhole
         /// Use the LyricsOffset to keep lyrics in sync with the ensemble
         /// </summary>
         public virtual bool UseLyricsOffset { get; set; } = false;
+
+        /// <summary>
+        /// Player HomeWorld cache
+        /// </summary>
+        public virtual string PlayerHomeWorldCache { get; set; } = "";
     }
 }

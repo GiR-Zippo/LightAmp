@@ -27,7 +27,7 @@
         "Instrument": 20
     },
     "World": {
-        "SourceSize": 16,
+        "SourceSize": 255,
         "Offset": 0
     },
     "CharacterId": { // Known as ConfigId in Seer. Used for DatReader.

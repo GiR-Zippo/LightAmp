@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Enums;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Seer.Utilities;
@@ -63,7 +64,48 @@ namespace BardMusicPlayer.Seer
         /// <summary>
         ///     Shows the player's home world. Updated by Sharlayan and Machina.
         /// </summary>
-        public string HomeWorld { get; private set; } = "Unknown";
+        private readonly static object _PlayerHomeWorldCacheLock = new object();
+        public string HomeWorld
+        {
+            get
+            {
+                lock (_PlayerHomeWorldCacheLock)
+                {
+                    var list = BmpPigeonhole.Instance.PlayerHomeWorldCache.Split(',');
+                    foreach (var listPlayer in list)
+                    {
+                        if (string.IsNullOrEmpty(listPlayer)) continue;
+                        var listPlayerID = listPlayer.Split('#')[0];
+                        var listPlayerHomeWorld = listPlayer.Split('#')[1];
+                        if (ConfigId.Equals(listPlayerID)) return listPlayerHomeWorld;
+                    }
+                }
+                return "Unknown";
+            }
+            private set
+            {
+                Debug.WriteLine(value);
+                lock (_PlayerHomeWorldCacheLock)
+                {
+                    var oldList = BmpPigeonhole.Instance.PlayerHomeWorldCache;
+                    Debug.WriteLine(oldList);
+                    var list = oldList.Split(',');
+                    var newList = "";
+                    bool found = false;
+                    foreach (var listPlayer in list)
+                    {
+                        if (string.IsNullOrEmpty(listPlayer)) continue;
+                        var listPlayerID = listPlayer.Split('#')[0];
+                        var listPlayerHomeWorld = listPlayer.Split('#')[1];
+                        if (ConfigId.Equals(listPlayerID)) found = true;
+                        if (ConfigId.Equals(listPlayerID) && !value.Equals(listPlayerHomeWorld)) newList = newList + ConfigId + "#" + value + ",";
+                        else newList = newList + listPlayer + ",";
+                    }
+                    if (!found) newList = newList + ConfigId + "#" + value + ",";
+                    if (!oldList.Equals(newList)) BmpPigeonhole.Instance.PlayerHomeWorldCache = newList;
+                }
+            }
+        }
 
         /// <summary>
         ///     Shows if the player is logged in.
