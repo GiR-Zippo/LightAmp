@@ -61,6 +61,44 @@ namespace BardMusicPlayer.Ui.Locales {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sets the client graphics to low specs ähnelt.
+        /// </summary>
+        public static string BardExtSettings_GFXLow {
+            get {
+                return ResourceManager.GetString("BardExtSettings_GFXLow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enables the lyrics parsing
+        ///0 means stop lyrics parsing 
+        ///1 the first lyrics track (lyric tracks are separate from the music tracks) ähnelt.
+        /// </summary>
+        public static string BardExtSettings_LyricsTrackNumber {
+            get {
+                return ResourceManager.GetString("BardExtSettings_LyricsTrackNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sends the song title in the chat ähnelt.
+        /// </summary>
+        public static string BardExtSettings_PostSongTitle {
+            get {
+                return ResourceManager.GetString("BardExtSettings_PostSongTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sends automatically at song load the title in the chat ähnelt.
+        /// </summary>
+        public static string BardExtSettings_PostSongTitle_Auto {
+            get {
+                return ResourceManager.GetString("BardExtSettings_PostSongTitle_Auto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Adds the song to the current playlist ähnelt.
         /// </summary>
         public static string Global_Load_Song_To_Playlist {

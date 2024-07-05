@@ -117,6 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BardExtSettings_GFXLow" xml:space="preserve">
+    <value>Sets the client graphics to low specs</value>
+  </data>
+  <data name="BardExtSettings_LyricsTrackNumber" xml:space="preserve">
+    <value>Enables the lyrics parsing
+0 means stop lyrics parsing 
+1 the first lyrics track (lyric tracks are separate from the music tracks)</value>
+  </data>
+  <data name="BardExtSettings_PostSongTitle" xml:space="preserve">
+    <value>Sends the song title in the chat</value>
+  </data>
+  <data name="BardExtSettings_PostSongTitle_Auto" xml:space="preserve">
+    <value>Sends automatically at song load the title in the chat</value>
+  </data>
   <data name="Global_Load_Song_To_Playlist" xml:space="preserve">
     <value>Adds the song to the current playlist</value>
   </data>

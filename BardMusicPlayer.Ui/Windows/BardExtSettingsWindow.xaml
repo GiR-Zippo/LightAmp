@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls"
+        xmlns:Locale ="clr-namespace:BardMusicPlayer.Ui.Locales"
         mc:Ignorable="d"
         Title="BardExtSettingsWindow" Height="400" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow">
     <Grid>
@@ -58,9 +59,9 @@
                             <ComboBoxItem>shout</ComboBoxItem>
                         </ComboBox>
                         <TextBox Grid.Row="1" Grid.Column="2" x:Name="Songtitle_Chat_Prefix" Text="♪" Width="30"  HorizontalAlignment="Left" VerticalAlignment="Stretch"/>
-                        <Button Grid.Row="1" Grid.Column="4" Content="Send Title" Click="PostSongTitle_Click"/>
+                        <Button Grid.Row="1" Grid.Column="4" Content="Send Title" Click="PostSongTitle_Click" ToolTip="{x:Static Locale:Language.BardExtSettings_PostSongTitle}" />
                         <Label Grid.Row="1" Grid.Column="6" Content="AutoPost"  HorizontalAlignment="Left" VerticalAlignment="Top" />
-                        <ComboBox Grid.Row="1" Grid.Column="8" x:Name="Songtitle_Post_Type" Text="AutoPost via" HorizontalAlignment="Left" VerticalAlignment="Stretch" MinWidth="90" SelectionChanged="Songtitle_Post_Type_SelectionChanged" >
+                        <ComboBox Grid.Row="1" Grid.Column="8" x:Name="Songtitle_Post_Type" Text="AutoPost via" HorizontalAlignment="Left" VerticalAlignment="Stretch" MinWidth="90" SelectionChanged="Songtitle_Post_Type_SelectionChanged" ToolTip="{x:Static Locale:Language.BardExtSettings_PostSongTitle_Auto}" >
                             <ComboBoxItem>off</ComboBoxItem>
                             <ComboBoxItem>on</ComboBoxItem>
                         </ComboBox>
@@ -109,7 +110,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Label    Grid.Column="0" Content="Lyrics Track Number:"/>
-                        <control:NumericUpDown Grid.Column="1" x:Name="Lyrics_TrackNr"   PreviewMouseUp="Lyrics_TrackNr_PreviewMouseUp" Value="-1"  ToolTip="Enables the lyrics parsing &#13;0 means stop lyrics parsing &#13;1 the first lyrics track (lyric tracks are separate from the music tracks)" />
+                        <control:NumericUpDown Grid.Column="1" x:Name="Lyrics_TrackNr"   PreviewMouseUp="Lyrics_TrackNr_PreviewMouseUp" Value="-1"  ToolTip="{x:Static Locale:Language.BardExtSettings_LyricsTrackNumber}" />
                     </Grid>
                     <Grid Grid.Row="4" Grid.Column="2">
                         <Grid.ColumnDefinitions>
@@ -117,7 +118,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Label    Grid.Column="0" Content="Set Gfx to low:"/>
-                        <CheckBox Grid.Column="1" x:Name="GfxTest" Click="GfxTest_Checked" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <CheckBox Grid.Column="1" x:Name="GfxTest" Click="GfxTest_Checked" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{x:Static Locale:Language.BardExtSettings_GFXLow}"/>
                     </Grid>
                     <Grid Grid.Row="5" Grid.Column="2">
                         <Grid.ColumnDefinitions>
