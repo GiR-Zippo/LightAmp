@@ -218,13 +218,28 @@ namespace BardMusicPlayer.Ui.Windows
 
                 Regex rex = new Regex(@"^([A-Za-z _:]+)([-+]\d)?");
                 if (rex.Match(trackName) is Match match)
+                {
                     if (!string.IsNullOrEmpty(match.Groups[1].Value))
                     {
-                        progNum = Instrument.Parse(match.Groups[1].Value).MidiProgramChangeCode;
-                        if (!string.IsNullOrEmpty(match.Groups[2].Value))
-                            if (int.TryParse(match.Groups[2].Value, out int os))
-                                octaveShift = os;
+                        if (match.Groups[1].Value == "Program:ElectricGuitar")
+                        {
+                            TimedEvent noteEvent = chunk.GetTimedEvents().FirstOrDefault(n => n.Event.EventType == MidiEventType.NoteOn);
+                            if (noteEvent != default)
+                            {
+                                TimedEvent progEvent = chunk.GetTimedEvents().LastOrDefault(n => n.Event.EventType == MidiEventType.ProgramChange && n.Time <= noteEvent.Time);
+                                if (progEvent != default)
+                                    progNum = (progEvent.Event as ProgramChangeEvent).ProgramNumber;
+                            }
+                        }
+                        else
+                        {
+                            progNum = Instrument.Parse(match.Groups[1].Value).MidiProgramChangeCode;
+                            if (!string.IsNullOrEmpty(match.Groups[2].Value))
+                                if (int.TryParse(match.Groups[2].Value, out int os))
+                                    octaveShift = os;
+                        }
                     }
+                }
 
                 MidiBardImporter.MidiTrack midiTrack = new MidiBardImporter.MidiTrack();
                 midiTrack.Index = idx + 1;

@@ -356,9 +356,16 @@ namespace BardMusicPlayer.Transmogrify.Song
                         //last try with the program number
                         if ((string.IsNullOrEmpty(match.Groups[1].Value)) || trackName.Equals("Unknown") || trackName.Equals("None"))
                         {
-                            ProgramChangeEvent prog = originalChunk.Events.OfType<ProgramChangeEvent>().FirstOrDefault();
-                            if (prog != null)
-                                trackName = Instrument.ParseByProgramChange(prog.ProgramNumber).Name;
+                            TimedEvent noteEvent = originalChunk.GetTimedEvents().FirstOrDefault(n => n.Event.EventType == MidiEventType.NoteOn);
+                            if (noteEvent != default)
+                            {
+                                TimedEvent progEvent = originalChunk.GetTimedEvents().LastOrDefault(n => n.Event.EventType == MidiEventType.ProgramChange && n.Time <= noteEvent.Time);
+                                if (progEvent != default)
+                                {
+                                    var progAfterNote = progEvent.Event as ProgramChangeEvent;
+                                    trackName = Instrument.ParseByProgramChange(progAfterNote.ProgramNumber).Name;
+                                }
+                            }
                         }
 
                     }
