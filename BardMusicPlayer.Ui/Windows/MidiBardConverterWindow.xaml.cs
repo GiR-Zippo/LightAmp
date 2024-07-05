@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Quotidian;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Siren;
@@ -27,6 +28,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Windows
 {
@@ -67,6 +69,10 @@ namespace BardMusicPlayer.Ui.Windows
         bool _AlignMidiToFirstNote { get; set; } = false;
         object _Sender { get; set; } = null;
 
+        NumericUpDown currentNumericControl { get; set; } = null;
+
+        NumericUpDown NumericUpDown { get; set; } = null;
+
         public MidiBardConverterWindow()
         {
             _tracks = new List<MidiBardImporter.MidiTrack>();
@@ -83,6 +89,9 @@ namespace BardMusicPlayer.Ui.Windows
 
         void Window_Closing(object sender, CancelEventArgs e)
         {
+            if (currentNumericControl != null)
+                currentNumericControl.OnValueChanged -= SongSpeed_Percent_OnValueChanged;
+
             if (_tracks.Count() > 0)
                 _tracks.Clear();
         }
@@ -375,6 +384,34 @@ namespace BardMusicPlayer.Ui.Windows
         #endregion
 
         #region Sidemenu
+
+        /// <summary>
+        /// Check if we have valid data and input
+        /// </summary>
+        /// <returns></returns>
+        private bool IsValidInput()
+        {
+            if (_midifile == null)
+                return false;
+            if (_tracks.Count() <= 0)
+                return false;
+
+            double divider = (float)(120 / (120 * (double)Convert.ToInt16(SongSpeed_Percent.Value) / 100));
+            foreach (var trackChunk in _midifile.GetTrackChunks())
+            {
+                foreach (var TempoEvent in trackChunk.Events.OfType<SetTempoEvent>())
+                {
+                    var microsecondsPerQuarterNote = TempoEvent.MicrosecondsPerQuarterNote;
+                    if ((long)Math.Round(microsecondsPerQuarterNote * divider) > 16777215)
+                    {
+                        MessageBox.Show("Invalid tempo settings!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         private MemoryStream PrepareMidi()
         {
             List<MidiBardImporter.MidiTrack> tracks = CloneTracks();
@@ -403,6 +440,19 @@ namespace BardMusicPlayer.Ui.Windows
 
             if (_AlignMidiToFirstNote)
                 outputMidi = RealignMidiFile(outputMidi);
+
+            if(Convert.ToInt16(SongSpeed_Percent.Value) != 100)
+            {
+                double divider = (float) (120 / (120 * (double)Convert.ToInt16(SongSpeed_Percent.Value) / 100));
+                foreach (var trackChunk in outputMidi.GetTrackChunks())
+                {
+                    foreach (var setTempoEvent in trackChunk.Events.OfType<SetTempoEvent>())
+                    {
+                        var microsecondsPerQuarterNote = setTempoEvent.MicrosecondsPerQuarterNote;
+                        setTempoEvent.MicrosecondsPerQuarterNote = (long)Math.Round(microsecondsPerQuarterNote * divider);
+                    }
+                }
+            }
 
             outputMidi.Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings { TextEncoding = Encoding.UTF8 });
 
@@ -459,9 +509,7 @@ namespace BardMusicPlayer.Ui.Windows
 
         private void Sequencer_Click(object sender, RoutedEventArgs e)
         {
-            if (_midifile == null)
-                return;
-            if (_tracks.Count() <= 0)
+            if (!IsValidInput())
                 return;
 
             MemoryStream myStream = PrepareMidi();
@@ -479,9 +527,7 @@ namespace BardMusicPlayer.Ui.Windows
         /// <param name="e"></param>
         private void Siren_Click(object sender, RoutedEventArgs e)
         {
-            if (_midifile == null)
-                return;
-            if (_tracks.Count() <= 0)
+            if (!IsValidInput())
                 return;
 
             MemoryStream myStream = PrepareMidi();
@@ -498,9 +544,7 @@ namespace BardMusicPlayer.Ui.Windows
         /// <param name="e"></param>
         private void Export_Click(object sender, RoutedEventArgs e)
         {
-            if (_midifile == null)
-                return;
-            if (_tracks.Count() <= 0)
+            if (!IsValidInput())
                 return;
 
             Stream myStream;
@@ -949,6 +993,20 @@ namespace BardMusicPlayer.Ui.Windows
                 notesManager.SaveChanges();
                 return;
             }
+        }
+
+        private void SongSpeed_Percent_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (currentNumericControl == null)
+            {
+                currentNumericControl = sender as NumericUpDown;
+                currentNumericControl.OnValueChanged += SongSpeed_Percent_OnValueChanged;
+            }
+        }
+
+        private void SongSpeed_Percent_OnValueChanged(object sender, int s)
+        {
+            SongSpeed_Percent.Value = s.ToString();
         }
     }
 }
