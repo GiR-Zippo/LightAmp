@@ -23,6 +23,8 @@ using System.Linq;
 using System.Windows.Input;
 using System.ComponentModel;
 using System.Windows.Media;
+using System.Windows.Data;
+using System.Globalization;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -32,6 +34,7 @@ namespace BardMusicPlayer.Ui.Controls
     public sealed partial class BardView : UserControl
     {
         MidiBardConverterWindow _QuickEdit { get; set; } = null;
+        object _Sender { get; set; } = null;
 
         public BardView()
         {
@@ -596,6 +599,43 @@ namespace BardMusicPlayer.Ui.Controls
                 }
             }
         }
+
+        #region context menu
+        /// <summary>
+        /// selected bard for context actions
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BardsListItem_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _Sender = sender;
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Invite local bards to party
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BardsListItem_PartyInvite(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                var host = (_Sender as ListViewItem).Content as Performer;
+                foreach (var target in BardsList.Items.OfType<Performer>())
+                {
+                    if (target.PlayerName == host.PlayerName)
+                        continue;
+                    ushort id = target.game.GetHomeWorldId();
+                    if (id == 0)
+                        continue;
+
+                    GameExtensions.SendPartyAccept(target.game);
+                    GameExtensions.SendPartyInvite(host.game, target.game.PlayerName, id);
+                }
+            }
+        }
+        #endregion
     }
 
     /// <summary>
@@ -610,5 +650,15 @@ namespace BardMusicPlayer.Ui.Controls
         public long AffinityMask { get; set; } = 0;
         public bool IsHost { get; set; } = false;
         public bool IsInGameSoundEnabled { get; set; } = true;
+    }
+    public class BooleanToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            (bool)value ? Visibility.Visible : Visibility.Collapsed;
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

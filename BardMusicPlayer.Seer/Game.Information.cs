@@ -13,6 +13,7 @@ using System.Text;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Enums;
 using BardMusicPlayer.Quotidian.Structs;
+using BardMusicPlayer.Seer.Reader.Backend.Machina;
 using BardMusicPlayer.Seer.Utilities;
 using BardMusicPlayer.Seer.Utilities.KnownFolder;
 
@@ -378,5 +379,14 @@ namespace BardMusicPlayer.Seer
                     + Environment.NewLine + ex.Message);
             }
         }
+
+        public ushort GetHomeWorldId()
+        {
+            var result = World.Ids.FirstOrDefault(n => n.Value == HomeWorld);
+            if (result.Value == null)
+                return 0;
+            return (ushort)result.Key;
+        }
+
     }
 }

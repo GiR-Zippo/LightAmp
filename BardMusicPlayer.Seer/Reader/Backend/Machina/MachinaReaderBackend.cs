@@ -49,8 +49,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         long timeStamp = BitConverter.ToUInt32(message, 24);
                         timeStamp *= 1000;
 
-                        //string hexString = BitConverter.ToString(message);
-                        //System.Diagnostics.Debug.WriteLine("MMMM" + hexString + " " + message.Length.ToString());
+                        //PacketDecoding.PacketInspector(message);
                         if (!(ActorIdTools.RangeOkay(myActorId) && ActorIdTools.RangeOkay(otherActorId))) 
                             continue;
 

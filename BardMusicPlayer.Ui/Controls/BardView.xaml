@@ -9,6 +9,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
+    <UserControl.Resources>
+        <local:BooleanToVisibilityConverter x:Key="b2vconv"/>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
@@ -49,7 +53,6 @@
                         <CheckBox Content="Mute clients except host" x:Name="Mute_CheckBox" Unchecked="Mute_CheckBox_Checked" Checked="Mute_CheckBox_Checked"/>
                         <MenuItem Header=""/>
                         <MenuItem Header="Arrange XIV Windows"           Click="ArrangeWindow_Click"/>
-
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
@@ -60,11 +63,17 @@
                     <EventSetter Event="PreviewMouseLeftButtonDown" Handler="BardsListItem_PreviewMouseLeftButtonDown"/>
                     <EventSetter Event="MouseMove" Handler="BardsListItem_MouseMove"/>
                     <EventSetter Event="Drop" Handler="BardsListItem_Drop"/>
+                    <EventSetter Event="PreviewMouseRightButtonDown" Handler="BardsListItem_PreviewMouseRightButtonDown"/>
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate DataType="maestro:Performer">
                     <Grid>
+                        <Grid.ContextMenu>
+                            <ContextMenu Visibility="{Binding UsesDalamud, Converter={StaticResource b2vconv}}">
+                                <MenuItem Header="Invite local characters"  Click="BardsListItem_PartyInvite" />
+                            </ContextMenu>
+                        </Grid.ContextMenu>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
                             <RowDefinition Height="*" />

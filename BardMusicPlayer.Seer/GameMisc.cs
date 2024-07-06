@@ -574,4 +574,42 @@ namespace BardMusicPlayer.Seer
             WindowSizer.SetWindowSize(Process, sz_x, sz_y, x, y, move);
         }
     }
+
+#if DEBUG
+    public static class PacketDecoding
+    {
+        public static void PacketInspector(byte[] message)
+        {
+            string hexString = BitConverter.ToString(message);
+            string output = "";
+            for (var i = 0; i != message.Length; i++)
+                output += "---";
+            output += "\n";
+
+            output += "PacketSize: " + message.Length.ToString() + "\n";
+
+            //header
+            for (var i = 0; i != message.Length; i++)
+                output += $"{i:X2}-";
+            output += "\n\n";
+
+            //content
+            output += hexString + "\n";
+            foreach (byte b in message)
+            {
+                if (b > 32 && b < 127)
+                    output += Convert.ToChar(b) + " -";
+                else
+                    output += $"{b:X2}" + "-";
+            }
+            output += "\n";
+
+            for (var i = 0; i != message.Length; i++)
+                output += ("---");
+            output += "\n";
+
+            Debug.WriteLine(output);
+        }
+    }
+#endif
 }

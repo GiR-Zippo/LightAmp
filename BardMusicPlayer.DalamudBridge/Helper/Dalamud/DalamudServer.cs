@@ -296,6 +296,37 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         }
 
         /// <summary>
+        /// Send party invite to character
+        /// </summary>
+        internal bool SendPartyInvite(int pid, string CharacterName, ushort HomeWorldId)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.PartyInvite,
+                message = CharacterName +";"+ HomeWorldId.ToString()
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// Send party invite to character
+        /// </summary>
+        internal bool SendPartyAccept(int pid)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.PartyInviteAccept
+            });
+            return true;
+        }
+
+        /// <summary>
         /// If message from client rec
         /// </summary>
         /// <param name="sender"></param>

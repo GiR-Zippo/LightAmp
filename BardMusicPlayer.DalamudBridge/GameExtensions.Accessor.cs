@@ -202,5 +202,29 @@ namespace BardMusicPlayer.DalamudBridge
             return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
                        DalamudBridge.Instance.DalamudServer.SendProgchange(game.Pid, ProgNumber));
         }
+
+        /// <summary>
+        /// Send party invite to character
+        /// </summary>
+        /// <exception cref="DalamudBridgeException"></exception>
+        public static Task<bool> SendPartyInvite(this Game game, string CharacterName, ushort HomeWorldId)
+        {
+            if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                       DalamudBridge.Instance.DalamudServer.SendPartyInvite(game.Pid, CharacterName, HomeWorldId));
+        }
+
+        /// <summary>
+        /// Send enable accept party invite
+        /// </summary>
+        /// <exception cref="DalamudBridgeException"></exception>
+        public static Task<bool> SendPartyAccept(this Game game)
+        {
+            if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                       DalamudBridge.Instance.DalamudServer.SendPartyAccept(game.Pid));
+        }
     }
 }
