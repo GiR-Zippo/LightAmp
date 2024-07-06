@@ -229,6 +229,9 @@ namespace BardMusicPlayer.Maestro
             if (p == null)
                 return;
 
+            if (p.Sequencer == null)
+                return;
+
             p.Sequencer.Speed = speed;
             BmpMaestro.Instance.PublishEvent(new SpeedShiftEvent(p.game, speed, p.HostProcess));
         }
