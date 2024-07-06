@@ -30,7 +30,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                 var partyMembers = new SortedDictionary<uint, string>();
                 var currentPartyLead = new KeyValuePair<uint, string>();
 
-                byte currentLeader = (byte)BitConverter.ToInt16(message, 3697);
+                byte currentLeader = (byte)BitConverter.ToInt16(message, 3696);
+                byte partySize = (byte)BitConverter.ToInt16(message, 3697);
+
                 for (var i = 0; i <= 3136; i += 456)
                 {
                     //Check for empty column
@@ -58,13 +60,13 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                     }
 
                     //Get the party lead
-                    if (i/ 448 == currentLeader)
+                    if (i / 456 == (currentLeader))
                         currentPartyLead = new KeyValuePair<uint, string>(actorId, playerName);
 
                     partyMembers.Add(actorId, playerName);
                 }
 
-                if (partyMembers.Count == 1)
+                if (partyMembers.Count != partySize)
                     // No party members nearby. Seer only accepts an empty collection for this case.
                     partyMembers.Clear();
                 else
