@@ -160,6 +160,18 @@ namespace BardMusicPlayer.Maestro.Performance
             Task.Delay(200);
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
         }
+
+        /// <summary>
+        /// Press Yes on a Yes / No box
+        /// </summary>
+        public void YesNoBoxAccept()
+        {
+            _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
+            Task.Delay(100).Wait();
+            _hook.SendSyncKeybind(Quotidian.Enums.Keys.NumPad4);
+            Task.Delay(100).Wait();
+            _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
+        }
         #endregion
 
         #region Textoutput

@@ -232,16 +232,18 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
                                         <CheckBox Margin="10,0,0,0"  Grid.Row="1" Content="Bring LA to front" x:Name="AMPInFrontBox" Checked="AMPInFrontBox_Checked" Unchecked="AMPInFrontBox_Checked"                              ToolTip="{x:Static Locale:Language.Settings_AmpFront}"/>
                                         <CheckBox Margin="10,0,0,0"  Grid.Row="2" Content="Enable Multibox" x:Name="MultiBox_Box" Checked="MultiBox_Checked" Unchecked="MultiBox_Checked"                                           ToolTip="{x:Static Locale:Language.Settings_Multibox}"/>
                                         <CheckBox Margin="10,0,0,0"  Grid.Row="3" x:Name="AutoequipDalamud"  Content="Liath Equip Mode"                 Unchecked="AutoequipDalamud_Checked"  Checked="AutoequipDalamud_Checked"    ToolTip="{x:Static Locale:Language.Settings_Autoequip}"/>
-                                        <Label Margin="0,0,0,0"      Grid.Row="4"/>
-                                        <Separator                   Grid.Row="5"/>
-                                        <Label Margin="0,0,0,0"      Grid.Row="6" Content="Advanced:"/>
-                                        <CheckBox Margin="10,0,0,0"  Grid.Row="7" x:Name="MidiBardComp"      Content="Enable MidiBard Compat."          Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"            ToolTip="{x:Static Locale:Language.Settings_MidiBard}"/>
-                                        <CheckBox Margin="10,0,0,0"  Grid.Row="8" x:Name="SkinUiBox"         Content="Use skinned Ui"                   Click="SkinUiBox_Checked"                                                   ToolTip="{x:Static Locale:Language.Settings_Use_Skin}"          Visibility="Hidden"/>
-                                        <CheckBox Margin="10,0,0,0"  Grid.Row="9" x:Name="Sp_DalamudKeyOut"  Content="Use Dalamud Key out"              Unchecked="Sp_DalamudKeyOut_Checked"  Checked="Sp_DalamudKeyOut_Checked"    ToolTip="{x:Static Locale:Language.Settings_Dalamud_KeyOut}"    Visibility="Hidden"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="4" x:Name="AutoAcceptInvite"  Content="Auto accept party invite"         Unchecked="AutoAcceptInvite_Checked"  Checked="AutoAcceptInvite_Checked"    ToolTip="{x:Static Locale:Language.Settings_Autoequip}"/>
+                                        <Label Margin="0,0,0,0"      Grid.Row="5"/>
+                                        <Separator                   Grid.Row="6"/>
+                                        <Label Margin="0,0,0,0"      Grid.Row="7" Content="Advanced:"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="8" x:Name="MidiBardComp"      Content="Enable MidiBard Compat."          Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"            ToolTip="{x:Static Locale:Language.Settings_MidiBard}"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="9" x:Name="SkinUiBox"         Content="Use skinned Ui"                   Click="SkinUiBox_Checked"                                                   ToolTip="{x:Static Locale:Language.Settings_Use_Skin}"          Visibility="Hidden"/>
+                                        <CheckBox Margin="10,0,0,0"  Grid.Row="10" x:Name="Sp_DalamudKeyOut"  Content="Use Dalamud Key out"              Unchecked="Sp_DalamudKeyOut_Checked"  Checked="Sp_DalamudKeyOut_Checked"    ToolTip="{x:Static Locale:Language.Settings_Dalamud_KeyOut}"    Visibility="Hidden"/>
                                     </Grid>
                                 </TabItem>
                             </TabControl>

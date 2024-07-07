@@ -57,6 +57,8 @@ namespace BardMusicPlayer.Seer
 
         public delegate void PartyLeaderChangedHandler(PartyLeaderChanged seerEvent);
 
+        public delegate void PartyInviteHandler(PartyInvite seerEvent);
+
         public delegate void PlayerNameChangedHandler(PlayerNameChanged seerEvent);
 
         public delegate void SeerExceptionEventHandler(SeerExceptionEvent seerExceptionEvent);
@@ -286,6 +288,16 @@ namespace BardMusicPlayer.Seer
         }
 
         /// <summary>
+        ///     Called when there is a party invite
+        /// </summary>
+        public event PartyInviteHandler PartyInvite;
+
+        private void OnPartyInvite(PartyInvite seerEvent)
+        {
+            PartyInvite?.Invoke(seerEvent);
+        }
+
+        /// <summary>
         ///     Called when the player's name changes.
         /// </summary>
         public event PlayerNameChangedHandler PlayerNameChanged;
@@ -381,6 +393,9 @@ namespace BardMusicPlayer.Seer
                             break;
                         case PartyLeaderChanged partyLeaderChanged:
                             OnPartyLeaderChanged(partyLeaderChanged);
+                            break;
+                        case PartyInvite partyInvite:
+                            OnPartyInvite(partyInvite);
                             break;
                         case PlayerNameChanged playerNameChanged:
                             OnPlayerNameChanged(playerNameChanged);

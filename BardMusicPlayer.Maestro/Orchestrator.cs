@@ -64,6 +64,7 @@ namespace BardMusicPlayer.Maestro
             BmpSeer.Instance.EnsembleStopped += delegate (Seer.Events.EnsembleStopped e) { Instance_EnsembleStopped(e); };
             BmpSeer.Instance.InstrumentHeldChanged += delegate (Seer.Events.InstrumentHeldChanged e) { Instance_InstrumentHeldChanged(e); };
             BmpSeer.Instance.EnsembleStreamdata += delegate (Seer.Events.EnsembleStreamdata e) { Instance_EnsembleStreamdata(e); };
+            BmpSeer.Instance.PartyInvite += delegate (Seer.Events.PartyInvite e) { Instance_PartyInvite(e); };
 
             _addPushedbackGamesTimer = new System.Timers.Timer();
             _addPushedbackGamesTimer.Interval = 2000;
@@ -910,6 +911,26 @@ namespace BardMusicPlayer.Maestro
             {
                 perf.Value.StartLyricsTimer();
             });
+        }
+
+        /// <summary>
+        /// Autoaccept a party invite
+        /// </summary>
+        /// <param name="seerEvent"></param>
+        private void Instance_PartyInvite(Seer.Events.PartyInvite seerEvent)
+        {
+            if (!BmpPigeonhole.Instance.AutoAcceptPartyInvite)
+                return;
+
+            if (_performers.Count() == 0)
+                return;
+
+            var perf = _performers.FirstOrDefault(n => n.Value.game == seerEvent.Game);
+            if (perf.Value == null)
+                return;
+            if (perf.Value.UsesDalamud)
+                return;
+            perf.Value.YesNoBoxAccept();
         }
 
         #endregion

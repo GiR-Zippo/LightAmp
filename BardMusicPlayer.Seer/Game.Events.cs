@@ -155,7 +155,9 @@ namespace BardMusicPlayer.Seer
                             BmpSeer.Instance.PublishEvent(partyLeader);
                         }
                         break;
-
+                    case PartyInvite partyInvite:
+                        BmpSeer.Instance.PublishEvent(partyInvite);
+                        break;
                     case PlayerNameChanged playerName:
                         if (!PlayerName.Equals(playerName.PlayerName))
                         {

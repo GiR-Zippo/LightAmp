@@ -212,5 +212,10 @@ namespace BardMusicPlayer.Pigeonhole
         /// Player HomeWorld cache
         /// </summary>
         public virtual string PlayerHomeWorldCache { get; set; } = "";
+
+        /// <summary>
+        /// Autoaccepts the party invite from local account
+        /// </summary>
+        public virtual bool AutoAcceptPartyInvite { get; set; } = false;
     }
 }

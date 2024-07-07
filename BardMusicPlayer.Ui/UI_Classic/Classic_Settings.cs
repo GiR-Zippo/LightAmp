@@ -53,6 +53,8 @@ namespace BardMusicPlayer.Ui.Classic
             AMPInFrontBox.IsChecked = BmpPigeonhole.Instance.BringBMPtoFront;
             MultiBox_Box.IsChecked = BmpPigeonhole.Instance.EnableMultibox;
             AutoequipDalamud.IsChecked = BmpPigeonhole.Instance.UsePluginForInstrumentOpen;
+            AutoAcceptInvite.IsChecked = BmpPigeonhole.Instance.AutoAcceptPartyInvite;
+
             MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
 
             if (!BmpPigeonhole.Instance.ClassicUi)
@@ -178,6 +180,11 @@ namespace BardMusicPlayer.Ui.Classic
         private void AutoequipDalamud_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.UsePluginForInstrumentOpen = AutoequipDalamud.IsChecked ?? false;
+        }
+
+        private void AutoAcceptInvite_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.AutoAcceptPartyInvite = AutoAcceptInvite.IsChecked ?? false;
         }
 
         private void MidiBard_Checked(object sender, RoutedEventArgs e)

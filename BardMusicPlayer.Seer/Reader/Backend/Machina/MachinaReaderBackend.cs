@@ -68,6 +68,9 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                             case 88:
                                 _packet.Size88(timeStamp, otherActorId, myActorId, message); //[7.00]Handles EnsembleStart --DALAMUD
                                 break;
+                            case 104:
+                                _packet.Size104(timeStamp, otherActorId, myActorId, message); //[7.00]Handles Party Invite
+                                break;
                             case 656:
                                 _packet.Size656(timeStamp, otherActorId, myActorId, message); //Handles old Homeworld and Playername --DALAMUD
                                 break;

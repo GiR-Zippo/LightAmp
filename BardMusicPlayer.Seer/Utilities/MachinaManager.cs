@@ -49,7 +49,7 @@ namespace BardMusicPlayer.Seer.Utilities
             }
         }
 
-        private static readonly List<int> Lengths = new() { 48, 56, 88, 656, 664, 688, 1064, 3576, 3704 };
+        private static readonly List<int> Lengths = new() { 48, 56, 88, 104, 656, 664, 688, 1064, 3576, 3704 };
         private readonly FFXIVNetworkMonitor _monitor;
         private readonly object _lock;
         private bool _monitorRunning;
