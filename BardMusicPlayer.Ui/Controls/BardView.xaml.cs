@@ -547,10 +547,14 @@ namespace BardMusicPlayer.Ui.Controls
                     i = i + 2;
                     if (value != "--")
                     {
-                        var bard = BardsList.Items.OfType<Performer>().ToList().Where(p => p.TrackNumber == Convert.ToInt32(value)).FirstOrDefault();
-                        if (bard == null)
-                            continue;
-                        bard.game.SetWindowPosAndSize(x, y, size_x, size_y, true);
+                        int val = Convert.ToInt32(value)-1;
+                        if (val < BardsList.Items.OfType<Performer>().ToList().Count)
+                        {
+                            var bard = BardsList.Items.GetItemAt(val) as Performer;
+                            if (bard == null)
+                                continue;
+                            bard.game.SetWindowPosAndSize(x, y, size_x, size_y, true);
+                        }
                     }
                     x = x + size_x;
                 }
@@ -636,6 +640,18 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
         #endregion
+
+        private void BardsListItem_PartyPromote(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                var target = (_Sender as ListViewItem).Content as Performer;
+                var host = BardsList.Items.OfType<Performer>().FirstOrDefault(n => n.HostProcess);
+                if (host == null)
+                    return;
+                GameExtensions.SendPartyPromote(host.game, target.PlayerName);
+            }
+        }
     }
 
     /// <summary>

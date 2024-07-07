@@ -327,6 +327,22 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         }
 
         /// <summary>
+        /// Send promote char to lead
+        /// </summary>
+        internal bool SendPartyPromote(int pid, string CharacterName)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.PartyPromote,
+                message = CharacterName
+            });
+            return true;
+        }
+
+        /// <summary>
         /// If message from client rec
         /// </summary>
         /// <param name="sender"></param>
