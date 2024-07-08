@@ -227,6 +227,9 @@ Override By Track: Der Trackname gibt die Gitarre vor, die Switches werden gelö
   <data name="Settings_AmpFront" xml:space="preserve">
     <value>Brings the amp in front after a new song was loaded from the playlist</value>
   </data>
+  <data name="Settings_AutoAcceptInvite" xml:space="preserve">
+    <value>Nimmt einen Partyinvite automatisch an</value>
+  </data>
   <data name="Settings_Autoequip" xml:space="preserve">
     <value>Autoequiped die Barden wenn ein neues Lied geladen wird</value>
   </data>

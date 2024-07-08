@@ -34,6 +34,8 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
 
         PartyInvite             = 60,   //Set           (name";"HomeWorldId)
         PartyInviteAccept       = 61,
-        PartyPromote            = 62    //Set           (name)
+        PartyPromote            = 62,   //Set           (name)
+        PartyEnterHouse         = 63,
+        PartyTeleport           = 64    //Set           (host?show menu : accept TP)
     }
 }

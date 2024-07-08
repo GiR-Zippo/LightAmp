@@ -228,6 +228,9 @@ Override By Track: The track name defines the guitar to use</value>
   <data name="Settings_AmpFront" xml:space="preserve">
     <value>Brings the amp in front after a new song was loaded from the playlist</value>
   </data>
+  <data name="Settings_AutoAcceptInvite" xml:space="preserve">
+    <value>Auto accept a party invite from a local bard</value>
+  </data>
   <data name="Settings_Autoequip" xml:space="preserve">
     <value>Autoequip the bard(s) at song loading</value>
   </data>

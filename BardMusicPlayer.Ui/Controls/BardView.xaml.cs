@@ -641,6 +641,11 @@ namespace BardMusicPlayer.Ui.Controls
         }
         #endregion
 
+        /// <summary>
+        /// Promote the char to lead
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BardsListItem_PartyPromote(object sender, RoutedEventArgs e)
         {
             if (_Sender is ListViewItem)
@@ -650,6 +655,37 @@ namespace BardMusicPlayer.Ui.Controls
                 if (host == null)
                     return;
                 GameExtensions.SendPartyPromote(host.game, target.PlayerName);
+            }
+        }
+
+        /// <summary>
+        /// Enter the house in front
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BardsListItem_PartyEnterHouse(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                foreach (var target in BardsList.Items.OfType<Performer>())
+                {
+                    GameExtensions.SendPartyEnterHouse(target.game);
+                }
+            }
+        }
+
+        private void BardsListItem_TeleportParty(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                var host = (_Sender as ListViewItem).Content as Performer;
+                foreach (var target in BardsList.Items.OfType<Performer>())
+                {
+                    if (target.PlayerName == host.PlayerName)
+                        GameExtensions.SendPartyTeleport(target.game, true);
+                    else
+                        GameExtensions.SendPartyTeleport(target.game, false);
+                }
             }
         }
     }

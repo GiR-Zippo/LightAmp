@@ -376,6 +376,15 @@ namespace BardMusicPlayer.Ui.Locales {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Auto accept a party invite from a local bard ähnelt.
+        /// </summary>
+        public static string Settings_AutoAcceptInvite {
+            get {
+                return ResourceManager.GetString("Settings_AutoAcceptInvite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Autoequip the bard(s) at song loading ähnelt.
         /// </summary>
         public static string Settings_Autoequip {

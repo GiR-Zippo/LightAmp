@@ -73,6 +73,8 @@
                             <ContextMenu Visibility="{Binding UsesDalamud, Converter={StaticResource b2vconv}}">
                                 <MenuItem Header="Invite local bards"   Click="BardsListItem_PartyInvite" />
                                 <MenuItem Header="Promote to lead"      Click="BardsListItem_PartyPromote" />
+                                <MenuItem Header="Party Enter House"    Click="BardsListItem_PartyEnterHouse" />
+                                <MenuItem Header="Teleport Party"       Click="BardsListItem_TeleportParty" />
                             </ContextMenu>
                         </Grid.ContextMenu>
                         <Grid.RowDefinitions>

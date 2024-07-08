@@ -172,6 +172,15 @@ namespace BardMusicPlayer.Maestro.Performance
             Task.Delay(100).Wait();
             _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
         }
+
+        public void EnterHouse()
+        {
+            _hook.SendSyncKeybind(Quotidian.Enums.Keys.NumPad0);
+            Task.Delay(1000).Wait();
+            _hook.SendSyncKeybind(Quotidian.Enums.Keys.NumPad4);
+            Task.Delay(100).Wait();
+            _hook.SendSyncKeybind(game.NavigationMenuKeys[Quotidian.Enums.NavigationMenuKey.OK]);
+        }
         #endregion
 
         #region Textoutput
