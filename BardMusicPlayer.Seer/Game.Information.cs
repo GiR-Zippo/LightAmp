@@ -382,7 +382,7 @@ namespace BardMusicPlayer.Seer
 
         public ushort GetHomeWorldId()
         {
-            var result = World.Ids.FirstOrDefault(n => n.Value == HomeWorld);
+            var result = World.Ids.FirstOrDefault(n => n.Value.StartsWith(HomeWorld));
             if (result.Value == null)
                 return 0;
             return (ushort)result.Key;

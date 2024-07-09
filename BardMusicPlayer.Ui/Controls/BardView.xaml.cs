@@ -25,6 +25,9 @@ using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Data;
 using System.Globalization;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Diagnostics;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -35,6 +38,8 @@ namespace BardMusicPlayer.Ui.Controls
     {
         MidiBardConverterWindow _QuickEdit { get; set; } = null;
         object _Sender { get; set; } = null;
+
+        bool IsFollowing { get; set; } = false;
 
         public BardView()
         {
@@ -623,6 +628,7 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void BardsListItem_PartyInvite(object sender, RoutedEventArgs e)
         {
+            Console.WriteLine("poipoi");
             if (_Sender is ListViewItem)
             {
                 var host = (_Sender as ListViewItem).Content as Performer;
@@ -631,6 +637,7 @@ namespace BardMusicPlayer.Ui.Controls
                     if (target.PlayerName == host.PlayerName)
                         continue;
                     ushort id = target.game.GetHomeWorldId();
+                    Console.WriteLine(id);
                     if (id == 0)
                         continue;
 
@@ -668,12 +675,16 @@ namespace BardMusicPlayer.Ui.Controls
             if (_Sender is ListViewItem)
             {
                 foreach (var target in BardsList.Items.OfType<Performer>())
-                {
                     GameExtensions.SendPartyEnterHouse(target.game);
-                }
+                IsFollowing = false;
             }
         }
 
+        /// <summary>
+        /// Teleport a party
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BardsListItem_TeleportParty(object sender, RoutedEventArgs e)
         {
             if (_Sender is ListViewItem)
@@ -686,6 +697,46 @@ namespace BardMusicPlayer.Ui.Controls
                     else
                         GameExtensions.SendPartyTeleport(target.game, false);
                 }
+                IsFollowing = false;
+            }
+        }
+
+        /// <summary>
+        /// Party follow
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BardsListItem_PartyFollow(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                var host = (_Sender as ListViewItem).Content as Performer;
+                if (host.game.GetHomeWorldId() == 0)
+                    return;
+                foreach (var target in BardsList.Items.OfType<Performer>())
+                {
+                    if (target.PlayerName == host.PlayerName)
+                        continue;
+                    ushort id = target.game.GetHomeWorldId();
+                    if (id == 0)
+                        continue;
+
+                    GameExtensions.SendPartyFollowMe(target.game, host.PlayerName, host.game.GetHomeWorldId());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Party unfollow
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BardsListItem_PartyUnFollow(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                foreach (var target in BardsList.Items.OfType<Performer>())
+                    GameExtensions.SendPartyFollowMe(target.game, "", 0);
             }
         }
     }

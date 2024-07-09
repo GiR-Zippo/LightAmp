@@ -75,6 +75,10 @@
                                 <MenuItem Header="Promote to lead"      Click="BardsListItem_PartyPromote" />
                                 <MenuItem Header="Party Enter House"    Click="BardsListItem_PartyEnterHouse" />
                                 <MenuItem Header="Teleport Party"       Click="BardsListItem_TeleportParty" />
+                                <MenuItem Header="Party follow">
+                                    <MenuItem Header="follow me"    Click="BardsListItem_PartyFollow"/>
+                                    <MenuItem Header="unfollow me"  Click="BardsListItem_PartyUnFollow"/>
+                                </MenuItem>
                             </ContextMenu>
                         </Grid.ContextMenu>
                         <Grid.RowDefinitions>

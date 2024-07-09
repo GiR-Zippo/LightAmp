@@ -374,6 +374,30 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         }
 
         /// <summary>
+        /// Send party follow
+        /// </summary>
+        internal bool SendPartyFollowMe(int pid, string Character, uint homeWorldId)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            if (Character == "")
+                _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+                {
+                    msgType = MessageType.PartyFollow
+                });
+            else
+                _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+                {
+                    msgType = MessageType.PartyFollow,
+                    message = Character+";"+homeWorldId.ToString()
+                });
+            return true;
+        }
+
+        
+
+        /// <summary>
         /// If message from client rec
         /// </summary>
         /// <param name="sender"></param>
