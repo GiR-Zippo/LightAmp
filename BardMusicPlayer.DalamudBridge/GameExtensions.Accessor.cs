@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using BardMusicPlayer.Quotidian.Structs;
@@ -22,6 +23,54 @@ namespace BardMusicPlayer.DalamudBridge
         private static void checkBridge()
         {
            if (!DalamudBridge.Instance.Started) throw new DalamudBridgeException("DalamudBridge not started.");
+        }
+
+        /// <summary>
+        /// sends a char logout
+        /// </summary>
+        /// <returns></returns>
+        public static Task<bool> SendCharacterLogout(this Game game)
+        {
+            checkBridge();
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendCharacterLogout(game.Pid));
+        }
+
+        /// <summary>
+        /// sends the game shutdown
+        /// </summary>
+        /// <returns></returns>
+        public static Task<bool> SendGameShutdown(this Game game)
+        {
+            checkBridge();
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendGameShutdown(game.Pid));
+        }
+
+        /// <summary>
+        /// sends a move to an absolute position
+        /// </summary>
+        /// <returns></returns>
+        public static Task<bool> SendMoveToPosition(this Game game, Vector3 position, long rotation)
+        {
+            checkBridge();
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendMoveToPosition(game.Pid, position, rotation));
+        }
+
+        /// <summary>
+        /// sends a stop move
+        /// </summary>
+        /// <returns></returns>
+        public static Task<bool> SendMoveStop(this Game game)
+        {
+            checkBridge();
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SendMoveStop(game.Pid));
         }
 
         /// <summary>
@@ -149,6 +198,21 @@ namespace BardMusicPlayer.DalamudBridge
 
             return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
                                    DalamudBridge.Instance.DalamudServer.SetMasterVolume(game.Pid, value));
+        }
+
+
+        /// <summary>
+        /// send set render size
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="low"></param>
+        /// <returns></returns>
+        public static Task<bool> SetRenderSize(this Game game, uint width, uint height)
+        {
+            checkBridge();
+
+            return Task.FromResult(DalamudBridge.Instance.DalamudServer.IsConnected(game.Pid) &&
+                                   DalamudBridge.Instance.DalamudServer.SetRenderSize(game.Pid, width, height));
         }
 
         /// <summary>

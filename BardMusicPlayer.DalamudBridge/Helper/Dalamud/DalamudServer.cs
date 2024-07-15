@@ -17,6 +17,7 @@ using H.Pipes.AccessControl;
 using H.Pipes.Args;
 using BardMusicPlayer.Seer.Utilities;
 using BardMusicPlayer.Dalamud.Events;
+using System.Numerics;
 
 namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
 {
@@ -65,6 +66,71 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         /// <param name="pid"></param>
         /// <returns></returns>
         internal bool IsConnected(int pid) => _clients.ContainsKey(pid) && _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected) is not null;
+
+        /// <summary>
+        /// sends a char logout
+        /// </summary>
+        /// <returns></returns>
+        internal bool SendCharacterLogout(int pid)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.ClientLogout
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// sends the game shutdown
+        /// </summary>
+        /// <returns></returns>
+        internal bool SendGameShutdown(int pid)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.GameShutdown
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// sends a move to an absolute position
+        /// </summary>
+        /// <returns></returns>
+        internal bool SendMoveToPosition(int pid, Vector3 position, long rotation)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.MoveCharToPosition,
+                message = position.ToString() + ";" + rotation
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// sends a stop move
+        /// </summary>
+        /// <returns></returns>
+        internal bool SendMoveStop(int pid)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.StopMovement
+            });
+            return true;
+        }
 
         /// <summary>
         /// send a text to the toad, to type during playback
@@ -216,6 +282,25 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
             {
                 msgType = MessageType.MasterVolume,
                 message = arg.ToString()
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// send set render size
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        internal bool SetRenderSize(int pid, uint width, uint height)
+        {
+            if (!IsConnected(pid))
+                return false;
+
+            _pipe.ConnectedClients.FirstOrDefault(x => x.PipeName == _clients[pid] && x.IsConnected)?.WriteAsync(new Message
+            {
+                msgType = MessageType.SetWindowRenderSize,
+                message = width.ToString() + ";" + height.ToString()
             });
             return true;
         }

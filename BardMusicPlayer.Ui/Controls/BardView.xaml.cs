@@ -25,9 +25,6 @@ using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Data;
 using System.Globalization;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Diagnostics;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -737,6 +734,24 @@ namespace BardMusicPlayer.Ui.Controls
             {
                 foreach (var target in BardsList.Items.OfType<Performer>())
                     GameExtensions.SendPartyFollowMe(target.game, "", 0);
+            }
+        }
+
+        private void BardsListItem_ClientLogout(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                var host = (_Sender as ListViewItem).Content as Performer;
+                GameExtensions.SendCharacterLogout(host.game);
+            }
+        }
+
+        private void BardsListItem_ClientShutdown(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                var host = (_Sender as ListViewItem).Content as Performer;
+                GameExtensions.SendGameShutdown(host.game);
             }
         }
     }

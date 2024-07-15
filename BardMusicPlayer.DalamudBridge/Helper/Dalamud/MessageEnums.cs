@@ -10,6 +10,11 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         None                    = 0,
         Handshake               = 1,
         Version                 = 2,
+        MoveCharToPosition      = 3,
+        StopMovement            = 4,
+
+        ClientLogout            = 5,
+        GameShutdown            = 6,
 
         SetGfx                  = 10,   //Get<->Set
         NameAndHomeWorld        = 11,   //Get
@@ -17,6 +22,7 @@ namespace BardMusicPlayer.DalamudBridge.Helper.Dalamud
         MasterVolume            = 13,   //Set<->Get
         VoiceSoundState         = 14,   //Set<->Get
         EffectsSoundState       = 15,   //Set<->Get
+        SetWindowRenderSize     = 16,
 
         Instrument              = 20,
         NoteOn                  = 21,

@@ -176,6 +176,7 @@ namespace BardMusicPlayer.Seer
                                 case "GrassEnableDynamicInterference":
                                 case "TextureRezoType":
                                 case "ShadowLightValidType":
+                                case "GraphicsRezoUpscaleType":
                                     line = SetCfgSetting(line, "0");
                                     break;
 
@@ -199,6 +200,9 @@ namespace BardMusicPlayer.Seer
 
                                 case "WindowDispNum":
                                     line = SetCfgSetting(line, "5");
+                                    break;
+                                case "GraphicsRezoScale":
+                                    line = SetCfgSetting(line, "50");
                                     break;
                             }
                             writer.WriteLine(line);
