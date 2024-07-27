@@ -17,6 +17,9 @@ using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Windows;
 using System.Windows.Input;
+using BardMusicPlayer.Quotidian.Structs;
+using BardMusicPlayer.DalamudBridge;
+using System.Linq;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -414,6 +417,23 @@ namespace BardMusicPlayer.Ui.Classic
         }
         #endregion
 
+
+        private void ChatInputText_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                var perf = BmpMaestro.Instance.GetAllPerformers().FirstOrDefault(n => n.HostProcess == true);
+                if (perf == null)
+                    return;
+
+                if (!perf.UsesDalamud)
+                    return;
+
+                string text = new string(ChatInputText.Text.ToCharArray());
+                GameExtensions.SendText(perf.game, ChatMessageChannelType.Say, text);
+                ChatInputText.Text = "";
+            }
+        }
 
         private void Info_Button_Click(object sender, RoutedEventArgs e)
         {

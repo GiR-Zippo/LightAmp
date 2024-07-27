@@ -547,6 +547,7 @@ namespace BardMusicPlayer.Seer
                 SystemHelper.SetWindowPos(proc.MainWindowHandle, new IntPtr((int)SpecialWindowHandles.HWND_TOP), pos_X, pos_Y, cx, cy, (SetWindowPosFlags.SWP_NOACTIVATE | SetWindowPosFlags.SWP_NOSENDCHANGING | SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_FRAMECHANGED));
             else
                 SystemHelper.SetWindowPos(proc.MainWindowHandle, new IntPtr((int)SpecialWindowHandles.HWND_TOP), 0, 0, cx, cy, (SetWindowPosFlags.SWP_NOACTIVATE | SetWindowPosFlags.SWP_NOSENDCHANGING | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOZORDER | SetWindowPosFlags.SWP_FRAMECHANGED));
+            SystemHelper.SendMessageA(proc.MainWindowHandle, 0x0214, 0, 0); //WM_EXITSIZEMOVE            
             SystemHelper.SendMessageA(proc.MainWindowHandle, 0x0232, 0, 0); //WM_EXITSIZEMOVE
         }
     }
