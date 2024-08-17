@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Script.Engines;
 using BardMusicPlayer.Seer;
@@ -94,7 +95,7 @@ namespace BardMusicPlayer.Script
             if (!BmpPigeonhole.Initialized) throw new BmpScriptException("Script requires Pigeonhole to be initialized.");
             if (!BmpSeer.Instance.Started) throw new BmpScriptException("Script requires Seer to be running.");
             Started = true;
-            //BmpMaestro.Instance.OnPlaybackTimeChanged += Instance_PlaybackTimeChanged;
+            BmpMaestro.Instance.OnPlaybackTimeChanged += Instance_PlaybackTimeChanged;
         }
 
         /// <summary>
@@ -104,8 +105,17 @@ namespace BardMusicPlayer.Script
         {
             if (!Started) return;
             Started = false;
-            //BmpMaestro.Instance.OnPlaybackTimeChanged -= Instance_PlaybackTimeChanged;
+            BmpMaestro.Instance.OnPlaybackTimeChanged -= Instance_PlaybackTimeChanged;
         }
+
+        #region Helper
+        public double PlaytimeTotalInSeconds { get; set; } = -1;
+        private void Instance_PlaybackTimeChanged(object sender, Maestro.Events.CurrentPlayPositionEvent e)
+        {
+            PlaytimeTotalInSeconds = e.timeSpan.TotalSeconds;
+        }
+        #endregion
+
 
         ~BmpScript() => Dispose();
         public void Dispose()

@@ -4,6 +4,7 @@
  */
 
 using BardMusicPlayer.Maestro;
+using BardMusicPlayer.Seer;
 using Neo.IronLua;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,9 @@ namespace BardMusicPlayer.Script.Engines
                     env.Say = new Action<string, string, LuaTable>(Say);
                     env.Macro = new Action<string, string, LuaTable>(Macro);
                     env.GetPerformerNames = new Func<LuaTable>(GetPerformerNames);
+                    env.GetPerformerCIDs = new Func<LuaTable>(GetPerformerCIDs);
+                    env.GetPerformerPIDs = new Func<LuaTable>(GetPerformerPIDs);
+                    env.GetPlayedTime = new Func<double>(GetPlayedTime);
                     try
                     {
                         var chunk = lua.CompileChunk(text, filename, new LuaCompileOptions() { DebugEngine = LuaStackTraceDebugger.Default });
@@ -83,8 +87,27 @@ namespace BardMusicPlayer.Script.Engines
         private static LuaTable GetPerformerNames()
         {
             LuaTable tbl = new LuaTable();
-            BmpMaestro.Instance.GetAllPerformers().ToList().ForEach(n => tbl.Add(n.PlayerName));
+            BmpMaestro.Instance.GetAllPerformers().ToList().OrderBy(n => n.game.ConfigId).ToList().ForEach(n => tbl.Add(n.game.PlayerName));
             return tbl;
+        } // Table PlayerNames
+
+        private static LuaTable GetPerformerCIDs()
+        {
+            LuaTable tbl = new LuaTable();
+            BmpMaestro.Instance.GetAllPerformers().ToList().OrderBy(n => n.game.ConfigId).ToList().ForEach(n => tbl.Add(n.game.ConfigId));
+            return tbl;
+        } // Table Performer CIDS
+
+        private static LuaTable GetPerformerPIDs()
+        {
+            LuaTable tbl = new LuaTable();
+            BmpMaestro.Instance.GetAllPerformers().ToList().OrderBy(n => n.game.ConfigId).ToList().ForEach(n => tbl.Add(n.game.Pid));
+            return tbl;
+        } // Table Performer PIDS
+
+        private double GetPlayedTime()
+        {
+            return BmpScript.Instance.PlaytimeTotalInSeconds;
         }
 
         private static void Print(object[] texts)
@@ -109,5 +132,13 @@ namespace BardMusicPlayer.Script.Engines
             BmpMaestro.Instance.SendText(bard, Quotidian.Structs.ChatMessageChannelType.None, "/" + text, unselected_bards == null ? null : ((IDictionary<object, object>)unselected_bards).Values.OfType<string>().ToList());
         } // proc Macro
         #endregion
+
+        public Game GetGameByPid(int pid)
+        {
+            var game = BmpSeer.Instance.Games.FirstOrDefault(n => n.Value.Pid == pid).Value;
+            if (game != null)
+                return game;
+            return null;
+        }
     }
 }

@@ -53,7 +53,6 @@ namespace BardMusicPlayer.DalamudBridge
             Started = false;
         }
 
-
         public void ActionToQueue(DalamudBridgeCommandStruct data)
         {
             if (!Started) return;
