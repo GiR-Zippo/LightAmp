@@ -1,0 +1,105 @@
+﻿<UserControl x:Class="BardMusicPlayer.Ui.Controls.Playlist"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:Locale ="clr-namespace:BardMusicPlayer.Ui.Locales"
+             mc:Ignorable="d" 
+             Background="WhiteSmoke"
+             d:DesignHeight="450" d:DesignWidth="410">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="25"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MaxWidth="300"/>
+            <ColumnDefinition MaxWidth="40"/>
+            <ColumnDefinition MaxWidth="20"/>
+            <ColumnDefinition MaxWidth="20"/>
+            <ColumnDefinition MaxWidth="20"/>
+            <ColumnDefinition MaxWidth="20"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="PLAYLIST" Height="25" FontSize="14" Grid.Column="0"/>
+        <Button x:Name="Playlist_New_Button"    Click="Playlist_New_Button_Click"             Content="New"  Height="20" Width="40" Grid.Column="1"                                                              ToolTip="{x:Static Locale:Language.Playlist_New}" />
+        <Button x:Name="Playlist_Add_Button"    Click="Playlist_Add_Button_Click"             Content="+"    Height="20" Width="20" Grid.Column="2" PreviewMouseRightButtonDown="Playlist_Add_Button_RightClick" ToolTip="{x:Static Locale:Language.Playlist_Add}"/>
+        <Button x:Name="Playlist_Remove_Button" Click="Playlist_Remove_Button_Click"          Content="-"    Height="20" Width="20" Grid.Column="3"                                                              ToolTip="{x:Static Locale:Language.Playlist_Remove_Songs}"/>
+        <Button x:Name="Playlist_Delete_Button" Click="Playlist_Delete_Button_Click"          Content="X"    Height="20" Width="20" Grid.Column="4"                                                              ToolTip="{x:Static Locale:Language.Playlist_Delete}"/>
+        <Button x:Name="Playlist_Open_Button"   Click="MenuButton_PreviewMouseLeftButtonDown" Content="..."  Height="20" Width="20" Grid.Column="5"                                                              ToolTip="{x:Static Locale:Language.Misc_More_Options}"
+        ContextMenuService.Placement="Bottom" ContextMenuService.ShowOnDisabled="True" >
+            <Button.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Search" Click="Search_Click"                                       ToolTip="{x:Static Locale:Language.Playlist_Catalog_Search_Songs}"/>
+                    <MenuItem Header=""/>
+                    <MenuItem Header="Create new empty MusicCatalog" Click="Playlist_New_Cat_Button"     ToolTip="{x:Static Locale:Language.Playlist_Catalog_New}"/>
+                    <MenuItem Header="Open MusicCatalog"             Click="Playlist_Open_Cat_Button"    ToolTip="{x:Static Locale:Language.Playlist_Catalog_Open}"/>
+                    <MenuItem Header="Export MusicCatalog"           Click="Playlist_Export_Cat_Button"  ToolTip="{x:Static Locale:Language.Playlist_Catalog_Export}"/>
+                    <MenuItem Header="Cleanup MusicCatalog"          Click="Playlist_Cleanup_Cat_Button" ToolTip="{x:Static Locale:Language.Playlist_Catalog_Cleanup}"/>
+                    <MenuItem Header=""/>
+                    <MenuItem Header="Import Playlist"               Click="Playlist_Import_JSon_Button" />
+                    <MenuItem Header="Export Playlist"               Click="Playlist_Export_JSon_Button" />
+                    <MenuItem Header=""/>
+                    <MenuItem Header="Show all songs"                Click="Playlist_ShowSongs_Click"    ToolTip="{x:Static Locale:Language.Playlist_Show_All_Songs}"/>
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+
+        <DataGrid x:Name="PlaylistContainer" Grid.Row="1" Grid.ColumnSpan="6" AutoGenerateColumns="False" 
+        PreviewMouseDoubleClick="PlaylistContainer_PreviewMouseDoubleClick"
+        AllowDrop="true" 
+        VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Preview Song" Click="PlaylistPreview_Click"       ToolTip="{x:Static Locale:Language.Global_Load_Song_To_Preview}"/>
+                    <MenuItem Header="Edit Metadata" Click="PlaylistMetaEdit_Click"     ToolTip="{x:Static Locale:Language.Playlist_Open_Metadata}"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <EventSetter Event="Click" Handler="PlaylistContainer_HeaderClick" />
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="Playlist_Header" Header="Name" IsReadOnly="true" Width="*" Binding="{Binding}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <EventSetter Event="MouseMove" Handler="PlaylistContainer_MouseMove"/>
+                            <EventSetter Event="Drop" Handler="Playlist_Drop"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Row="2" Grid.ColumnSpan="6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="PlaylistRepeat_Button" Grid.Column="1" Click="PlaylistRepeat_Button_Click" Opacity="0.5">
+                <Button.Background>
+                    <ImageBrush ImageSource="/LightAmp;component/Resources/Images/ClassicLoop.png"/>
+                </Button.Background>
+            </Button>
+            <Button x:Name="PlaylistShuffle_Button" Grid.Column="3" Click="PlaylistShuffle_Button_Click" Opacity="0.5">
+                <Button.Background>
+                    <ImageBrush ImageSource="/LightAmp;component/Resources/Images/ClassicShuffle.png"/>
+                </Button.Background>
+            </Button>
+            <Button Grid.Column="5" x:Name="SkipSong_Button" VerticalAlignment="Center" Content="Skip" Click="SkipSong_Button_Click"                    ToolTip="{x:Static Locale:Language.Playlist_Skip}"/>
+
+            <CheckBox Grid.Column="7" x:Name="AutoPlay_CheckBox" Checked="AutoPlay_Checked" Unchecked="AutoPlay_Checked" VerticalAlignment="Center"     ToolTip="{x:Static Locale:Language.Playlist_Autoplay}"/>
+            <Label Content="Auto-play" Grid.Column="9" VerticalAlignment="Center"/>
+
+        </Grid>
+    </Grid>
+</UserControl>

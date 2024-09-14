@@ -217,5 +217,10 @@ namespace BardMusicPlayer.Pigeonhole
         /// Autoaccepts the party invite from local account
         /// </summary>
         public virtual bool AutoAcceptPartyInvite { get; set; } = false;
+
+        /// <summary>
+        /// Songhistory in use or not
+        /// </summary>
+        public virtual bool EnableSongHistory { get; set; } = false;
     }
 }

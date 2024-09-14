@@ -56,15 +56,13 @@ namespace BardMusicPlayer.Ui.Classic
             AutoAcceptInvite.IsChecked = BmpPigeonhole.Instance.AutoAcceptPartyInvite;
 
             MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
+            SongHistoryBox.IsChecked = BmpPigeonhole.Instance.EnableSongHistory;
 
             if (!BmpPigeonhole.Instance.ClassicUi)
             {
                 SkinUiBox.Visibility = Visibility.Visible;
                 SkinUiBox.IsChecked = !BmpPigeonhole.Instance.ClassicUi;
             }
-
-            //Playlist
-            AutoPlay_CheckBox.IsChecked = BmpPigeonhole.Instance.PlaylistAutoPlay;
 
             if (BmpPigeonhole.Instance.UsePluginForKeyOutput)
             {
@@ -190,6 +188,11 @@ namespace BardMusicPlayer.Ui.Classic
         private void MidiBard_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.MidiBardCompatMode = MidiBardComp.IsChecked ?? false;
+        }
+
+        private void SongHistoryBox_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.EnableSongHistory = SongHistoryBox.IsChecked ?? false;
         }
 
         private void SkinUiBox_Checked(object sender, RoutedEventArgs e)

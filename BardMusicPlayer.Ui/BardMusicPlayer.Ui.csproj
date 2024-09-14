@@ -262,6 +262,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\PlayedHistory.xaml.cs">
+      <DependentUpon>PlayedHistory.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Playlist.xaml.cs">
+      <DependentUpon>Playlist.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\ProgressBar.xaml.cs">
+      <DependentUpon>ProgressBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI_Classic\Classic_Common.cs" />
     <Compile Include="Windows\BardExtSettingsWindow.xaml.cs">
       <DependentUpon>BardExtSettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -321,6 +331,18 @@
     <Compile Include="UI_Classic\NetworkPlayWindow.xaml.cs">
       <DependentUpon>NetworkPlayWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\PlayedHistory.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Playlist.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\ProgressBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\BardExtSettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -378,7 +400,6 @@
       <DependentUpon>TextInputWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI_Classic\Classic_MainViewPlaycontrols.cs" />
-    <Compile Include="UI_Classic\Classic_Playlist.cs" />
     <Compile Include="Globals\Globals.cs" />
     <Compile Include="UI_Classic\Classic_MainView.xaml.cs">
       <DependentUpon>Classic_MainView.xaml</DependentUpon>
@@ -530,7 +551,9 @@
   <ItemGroup>
     <Resource Include="Resources\Images\splash.jpg" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Themes\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

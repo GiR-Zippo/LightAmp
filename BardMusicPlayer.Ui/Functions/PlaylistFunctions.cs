@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Ui.Functions
 {
@@ -72,7 +73,7 @@ namespace BardMusicPlayer.Ui.Functions
         /// </summary>
         /// <param name="currentPlaylist"></param>
         /// <returns>true if success</returns>
-        public static bool AddFolderToPlaylist(IPlaylist currentPlaylist)
+        public static async Task<bool> AddFolderToPlaylist(IPlaylist currentPlaylist)
         {
             var dlg = new FolderPicker();
 
@@ -88,16 +89,22 @@ namespace BardMusicPlayer.Ui.Functions
                 if (!System.IO.Directory.Exists(path))
                     return false;
 
-                string[] files = System.IO.Directory.EnumerateFiles(path, "*.*", System.IO.SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
-                foreach (var d in files)
+                return await Task.Run(() =>
                 {
-                    BmpSong song = BmpSong.OpenFile(d).Result;
-                    if (currentPlaylist.SingleOrDefault(x => x.Title.Equals(song.Title)) == null)
-                        currentPlaylist.Add(song);
-                    BmpCoffer.Instance.SaveSong(song);
-                }
-                BmpCoffer.Instance.SavePlaylist(currentPlaylist);
-                return true;
+                    ProgressBar.Show(path, "Importing folder");
+                    string[] files = System.IO.Directory.EnumerateFiles(path, "*.*", System.IO.SearchOption.AllDirectories).Where(s => s.EndsWith(".mid") || s.EndsWith(".mml") || s.EndsWith(".mmsong")).ToArray();
+                    foreach (var it in files.Select((x, i) => new { Value = x, Index = i }))
+                    {
+                        BmpSong song = BmpSong.OpenFile(it.Value).Result;
+                        if (currentPlaylist.SingleOrDefault(x => x.Title.Equals(song.Title)) == null)
+                            currentPlaylist.Add(song);
+                        BmpCoffer.Instance.SaveSong(song);
+                        ProgressBar.Update(ProgressBar.GetPercent(it.Index, files.Count()));
+                    }
+                    BmpCoffer.Instance.SavePlaylist(currentPlaylist);
+                    ProgressBar.WndClose();
+                    return true;
+                });
             }
             return false;
         }

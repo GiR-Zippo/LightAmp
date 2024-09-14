@@ -8,7 +8,6 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using BardMusicPlayer.Ui.Functions;
-using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Siren;
@@ -30,16 +29,12 @@ namespace BardMusicPlayer.Ui.Classic
     {
         private int MaxTracks = 1;
         private bool _directLoaded { get; set; } = false; //indicates if a song was loaded directly or from playlist
+        private bool _showPlaylistGrid { get; set; } = true; //indicates if we showing the playlists or history
+
         //private NetworkPlayWindow _networkWindow = null;
         public Classic_MainView()
         {
             InitializeComponent();
-
-            //Always start with the playlists
-            _showingPlaylists = true;
-            //Fill the list
-            PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
-            Playlist_Header.Header = "Playlists";
 
             this.SongName.Text = PlaybackFunctions.GetSongName();
             BmpMaestro.Instance.OnPlaybackTimeChanged   += Instance_PlaybackTimeChanged;
@@ -57,9 +52,15 @@ namespace BardMusicPlayer.Ui.Classic
             BmpSiren.Instance.SynthTimePositionChanged  += Instance_SynthTimePositionChanged;
             BmpSiren.Instance.SongLoaded                += Instance_SongLoaded;
 
+            Playlist.OnLoadSongFromPlaylist             += Instance_PlaylistLoadSong;
+            Playlist.OnSetPlaybuttonState               += Instance_SetPlaybuttonState;
+            Playlist.OnLoadSongFromPlaylistToPreview    += Instance_PlaylistLoadSongToPreview;
+
             SongBrowser.OnLoadSongFromBrowser           += Instance_SongBrowserLoadedSong;
             SongBrowser.OnAddSongFromBrowser            += Instance_SongBrowserAddSongToPlaylist;
             SongBrowser.OnLoadSongFromBrowserToPreview  += Instance_SongBrowserLoadSongToPreview;
+
+            PlayedHistoryCtl.OnLoadSongFromHistory      += Instance_SongBrowserLoadedSong;
 
             BmpSeer.Instance.MidibardPlaylistEvent      += Instance_MidibardPlaylistEvent;
 
@@ -128,7 +129,33 @@ namespace BardMusicPlayer.Ui.Classic
         }
 
         /// <summary>
-        /// triggered by the songbrowser if a file should be loaded
+        /// triggered by the playlist when a song is loaded
+        /// </summary>
+        private void Instance_PlaylistLoadSong(object sender, BmpSong song)
+        {
+            PlaybackFunctions.LoadSongFromPlaylist(song);
+            InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
+            _directLoaded = false;
+        }
+
+        /// <summary>
+        /// triggered by the playlist
+        /// </summary>
+        private void Instance_SetPlaybuttonState(object sender, bool state)
+        {
+            Play_Button_State(state);
+        }
+
+        /// <summary>
+        /// triggered by the playlist when a song will be previewed
+        /// </summary>
+        private void Instance_PlaylistLoadSongToPreview(object sender, BmpSong song)
+        {
+            loadSongToPreview(song);
+        }
+
+        /// <summary>
+        /// triggered by the songbrowser or history if a file should be loaded
         /// </summary>
         private void Instance_SongBrowserLoadedSong(object sender, string filename)
         {
@@ -144,35 +171,17 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void Instance_SongBrowserAddSongToPlaylist(object sender, string filename)
         {
-            if (_currentPlaylist == null)
-                return;
-
-            if (!PlaylistFunctions.AddFilesToPlaylist(_currentPlaylist, filename))
-                return;
-
-            PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
-            Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
+            Playlist.AddSongToPlaylist(filename);
         }
 
         private void Instance_SongBrowserLoadSongToPreview(object sender, string filename)
         {
-            if (BmpSiren.Instance.IsReadyForPlayback)
-                BmpSiren.Instance.Stop();
-            
-            var currentSong = BmpSong.OpenFile(filename).Result;
-            _ = BmpSiren.Instance.Load(currentSong);
-
-            //Fill the lyrics editor
-            lyricsData.Clear();
-            foreach (var line in currentSong.LyricsContainer)
-                lyricsData.Add(new LyricsContainer(line.Key, line.Value));
-            Siren_Lyrics.DataContext = lyricsData;
-            Siren_Lyrics.Items.Refresh();
+            loadSongToPreview(BmpSong.OpenFile(filename).Result);
         }
 
         private void Instance_MidibardPlaylistEvent(Seer.Events.MidibardPlaylistEvent seerEvent)
         {
-            this.Dispatcher.BeginInvoke(new Action(() => this.SelectSongByIndex(seerEvent.Song)));
+            this.Dispatcher.BeginInvoke(new Action(() => Playlist.SelectSongByIndex(seerEvent.Song)));
         }
 
         private void Instance_SynthTimePositionChanged(string songTitle, double currentTime, double endTime, int activeVoices)
@@ -236,7 +245,7 @@ namespace BardMusicPlayer.Ui.Classic
 
             if (BmpPigeonhole.Instance.PlaylistAutoPlay)
             {
-                playNextSong();
+                Playlist.PlayNextSong();
                 Random rnd = new Random();
                 PlaybackFunctions.PlaySong(rnd.Next(15, 35)*100);
                 Play_Button_State(true);
@@ -449,6 +458,21 @@ namespace BardMusicPlayer.Ui.Classic
 
             MacroLaunchpad macroLaunchpad = new MacroLaunchpad();
             macroLaunchpad.Visibility = Visibility.Visible;
+        }
+
+        private void Playlist_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            _showPlaylistGrid = !_showPlaylistGrid;
+            if (_showPlaylistGrid)
+            {
+                PlaylistGrid.Visibility = Visibility.Visible;
+                HistoryGrid.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                PlaylistGrid.Visibility = Visibility.Hidden;
+                HistoryGrid.Visibility = Visibility.Visible;
+            }
         }
     }
 }

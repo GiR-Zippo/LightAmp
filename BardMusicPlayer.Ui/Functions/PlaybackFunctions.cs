@@ -10,6 +10,7 @@ using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Transmogrify.Song.Config;
+using BardMusicPlayer.Ui.Controls;
 using Microsoft.Win32;
 
 namespace BardMusicPlayer.Ui.Functions
@@ -51,6 +52,10 @@ namespace BardMusicPlayer.Ui.Functions
             if (!openFileDialog.CheckFileExists)
                 return false;
 
+            //Inform the PlayedHistory
+            if (BmpPigeonhole.Instance.EnableSongHistory)
+                PlayedHistory.SongHistory.Add(openFileDialog.FileName);
+
             PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
             
             CurrentSong = BmpSong.OpenFile(openFileDialog.FileName).Result;
@@ -66,6 +71,10 @@ namespace BardMusicPlayer.Ui.Functions
         {
             if (!File.Exists(filename) || filename == null)
                 return false;
+
+            //Inform the PlayedHistory
+            if (BmpPigeonhole.Instance.EnableSongHistory)
+                PlayedHistory.SongHistory.Add(filename);
 
             PlaybackState = PlaybackState_Enum.PLAYBACK_STATE_STOPPED;
 

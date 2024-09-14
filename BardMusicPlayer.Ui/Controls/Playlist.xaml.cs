@@ -5,10 +5,9 @@
 
 using BardMusicPlayer.Coffer;
 using BardMusicPlayer.Pigeonhole;
-using BardMusicPlayer.Siren;
 using BardMusicPlayer.Transmogrify.Song;
-using BardMusicPlayer.Ui.Windows;
 using BardMusicPlayer.Ui.Functions;
+using BardMusicPlayer.Ui.Windows;
 using Microsoft.Win32;
 using System;
 using System.Linq;
@@ -17,30 +16,47 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using UI.Resources;
 
-namespace BardMusicPlayer.Ui.Classic
+namespace BardMusicPlayer.Ui.Controls
 {
     /// <summary>
-    /// Interaktionslogik für Classic_MainView.xaml
+    /// Interaktionslogik für Playlist.xaml
     /// </summary>
-    public sealed partial class Classic_MainView : UserControl
+    public partial class Playlist : UserControl
     {
-        private bool _playlistRepeat = false;
-        private bool _playlistShuffle = false;
-        private bool _showingPlaylists = false;     //are we displaying the playlist or the songs
-        private IPlaylist _currentPlaylist = null;  //the current selected playlist
+        private bool playlistRepeat { get; set; } = false;
+        private bool playlistShuffle { get; set; } = false;
+        private bool showingPlaylists { get; set; } = false;     //are we displaying the playlist or the songs
+        private IPlaylist currentPlaylist { get; set; } = null;  //the current selected playlist
+        private bool importInProgress { get; set; } = false;
+
+        public EventHandler<BmpSong> OnLoadSongFromPlaylist;
+        public EventHandler<bool> OnSetPlaybuttonState;
+        public EventHandler<BmpSong> OnLoadSongFromPlaylistToPreview;
+
+        public Playlist()
+        {
+            InitializeComponent();
+
+            //Always start with the playlists
+            showingPlaylists = true;
+            //Fill the list
+            PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+            Playlist_Header.Header = "Playlists";
+            AutoPlay_CheckBox.IsChecked = BmpPigeonhole.Instance.PlaylistAutoPlay;
+        }
 
         /// <summary>
         /// Plays the next song from the playlist
         /// </summary>
-        private void playNextSong()
+        public void PlayNextSong()
         {
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 return;
 
             if (PlaylistContainer.Items.Count == 0)
                 return;
 
-            if (_playlistShuffle)
+            if (playlistShuffle)
             {
                 Random rnd = new Random();
                 int random = rnd.Next(1, PlaylistContainer.Items.Count);
@@ -48,7 +64,7 @@ namespace BardMusicPlayer.Ui.Classic
                 if (random == PlaylistContainer.SelectedIndex)
                     random = (random + 1) % PlaylistContainer.Items.Count;
 
-                if (random == 0) 
+                if (random == 0)
                     random = 1;
 
                 PlaylistContainer.SelectedIndex = random;
@@ -69,11 +85,11 @@ namespace BardMusicPlayer.Ui.Classic
                         PlaylistContainer.SelectedIndex = PlaylistContainer.SelectedIndex + 1;
                 }
             }
-            PlaybackFunctions.LoadSongFromPlaylist(PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem));
-            this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
+
+            OnLoadSongFromPlaylist?.Invoke(this, currentPlaylist?.FirstOrDefault(item => item.Title == (string)PlaylistContainer.SelectedItem));
         }
 
-        private void SelectSongByIndex(int idx)
+        public void SelectSongByIndex(int idx)
         {
             //are we at MB compat?
             if (!BmpPigeonhole.Instance.MidiBardCompatMode)
@@ -84,8 +100,7 @@ namespace BardMusicPlayer.Ui.Classic
 
             PlaylistContainer.SelectedIndex = idx;
 
-            PlaybackFunctions.LoadSongFromPlaylist(PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem));
-            this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
+            OnLoadSongFromPlaylist?.Invoke(this, currentPlaylist?.FirstOrDefault(item => item.Title == (string)PlaylistContainer.SelectedItem));
         }
 
         #region upper playlist button functions
@@ -102,10 +117,9 @@ namespace BardMusicPlayer.Ui.Classic
                 if (inputbox.ResponseText.Length < 1)
                     return;
 
-                _currentPlaylist = PlaylistFunctions.CreatePlaylist(inputbox.ResponseText);
-                PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
-                _showingPlaylists = false;
-                Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
+                currentPlaylist = PlaylistFunctions.CreatePlaylist(inputbox.ResponseText);
+                refreshPlaylistSongsAndTimes();
+                showingPlaylists = false;
             }
         }
 
@@ -116,14 +130,24 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void Playlist_Add_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 return;
 
-            if (!PlaylistFunctions.AddFilesToPlaylist(_currentPlaylist))
+            if (!PlaylistFunctions.AddFilesToPlaylist(currentPlaylist))
                 return;
 
-            PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
-            Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
+            refreshPlaylistSongsAndTimes();
+        }
+
+        public void AddSongToPlaylist(string filename)
+        {
+            if (currentPlaylist == null)
+                return;
+
+            if (PlaylistFunctions.AddFilesToPlaylist(currentPlaylist, filename))
+                refreshPlaylistSongsAndTimes();
+
+            return;
         }
 
         /// <summary>
@@ -131,16 +155,18 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Playlist_Add_Button_RightClick(object sender, RoutedEventArgs e)
+        private async void Playlist_Add_Button_RightClick(object sender, RoutedEventArgs e)
         {
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 return;
 
-            if (!PlaylistFunctions.AddFolderToPlaylist(_currentPlaylist))
+            if (importInProgress)
                 return;
 
-            PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
-            Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
+            importInProgress = true;
+            if (await PlaylistFunctions.AddFolderToPlaylist(currentPlaylist))
+                refreshPlaylistSongsAndTimes();
+            importInProgress = false;
         }
 
         /// <summary>
@@ -150,24 +176,23 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void Playlist_Remove_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 return;
 
-            if (_showingPlaylists)
+            if (showingPlaylists)
                 return;
 
             foreach (string s in PlaylistContainer.SelectedItems)
             {
-                BmpSong song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, s);
+                BmpSong song = PlaylistFunctions.GetSongFromPlaylist(currentPlaylist, s);
                 if (song == null)
                     continue;
-                _currentPlaylist.Remove(song);
+                currentPlaylist.Remove(song);
                 BmpCoffer.Instance.DeleteSong(song);
             }
-            BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
+            BmpCoffer.Instance.SavePlaylist(currentPlaylist);
 
-            PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
-            Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75 - _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
+            refreshPlaylistSongsAndTimes();
         }
 
         /// <summary>
@@ -178,7 +203,7 @@ namespace BardMusicPlayer.Ui.Classic
         private void Playlist_Delete_Button_Click(object sender, RoutedEventArgs e)
         {
             //Showing the playlists?
-            if (_showingPlaylists)
+            if (showingPlaylists)
             {
                 if ((string)PlaylistContainer.SelectedItem == null)
                     return;
@@ -192,14 +217,14 @@ namespace BardMusicPlayer.Ui.Classic
                 return;
             }
 
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 return;
 
-            _showingPlaylists = true;
-            BmpCoffer.Instance.DeletePlaylist(_currentPlaylist);
+            showingPlaylists = true;
+            BmpCoffer.Instance.DeletePlaylist(currentPlaylist);
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
             Playlist_Header.Header = "Playlists";
-            _currentPlaylist = null;
+            currentPlaylist = null;
         }
         #endregion
 
@@ -214,10 +239,10 @@ namespace BardMusicPlayer.Ui.Classic
             var columnHeader = sender as System.Windows.Controls.Primitives.DataGridColumnHeader;
             if (columnHeader != null)
             {
-                _showingPlaylists = true;
+                showingPlaylists = true;
                 PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
                 Playlist_Header.Header = "Playlists";
-                _currentPlaylist = null;
+                currentPlaylist = null;
             }
         }
 
@@ -231,36 +256,33 @@ namespace BardMusicPlayer.Ui.Classic
             if ((string)PlaylistContainer.SelectedItem == null)
                 return;
 
-            if (_showingPlaylists)
+            if (showingPlaylists)
             {
                 if ((string)PlaylistContainer.SelectedItem == "..")
                     return;
 
-                _currentPlaylist = BmpCoffer.Instance.GetPlaylist((string)PlaylistContainer.SelectedItem);
-                _showingPlaylists = false;
-                PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
-                Playlist_Header.Header = _currentPlaylist.GetName().PadRight(75- _currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(_currentPlaylist).Ticks).ToString("HH:mm:ss");
+                currentPlaylist = BmpCoffer.Instance.GetPlaylist((string)PlaylistContainer.SelectedItem);
+                showingPlaylists = false;
+                refreshPlaylistSongsAndTimes();
                 return;
             }
             else
             {
-                if((string)PlaylistContainer.SelectedItem == (string)"..")
+                if ((string)PlaylistContainer.SelectedItem == (string)"..")
                 {
-                    _showingPlaylists = true;
+                    showingPlaylists = true;
                     PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
                     Playlist_Header.Header = "Playlists";
-                    _currentPlaylist = null;
+                    currentPlaylist = null;
                     return;
                 }
             }
 
             //If no playlist is active assume we are in the song selection
-            if (_currentPlaylist == null)
-                PlaybackFunctions.LoadSongFromPlaylist(BmpCoffer.Instance.GetSong((string)PlaylistContainer.SelectedItem));
+            if (currentPlaylist == null)
+                OnLoadSongFromPlaylist?.Invoke(this, BmpCoffer.Instance.GetSong((string)PlaylistContainer.SelectedItem));
             else
-                PlaybackFunctions.LoadSongFromPlaylist(PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, (string)PlaylistContainer.SelectedItem));
-            this.InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
-            _directLoaded = false;
+                OnLoadSongFromPlaylist?.Invoke(this, PlaylistFunctions.GetSongFromPlaylist(currentPlaylist, (string)PlaylistContainer.SelectedItem));
             return;
         }
 
@@ -269,7 +291,7 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void PlaylistContainer_MouseMove(object sender, MouseEventArgs e)
         {
-            if (sender is TextBlock celltext && e.LeftButton == MouseButtonState.Pressed && !_showingPlaylists)
+            if (sender is TextBlock celltext && e.LeftButton == MouseButtonState.Pressed && !showingPlaylists)
                 DragDrop.DoDragDrop(PlaylistContainer, celltext, DragDropEffects.Move);
         }
 
@@ -278,7 +300,7 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void Playlist_Drop(object sender, DragEventArgs e)
         {
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 return;
 
             TextBlock droppedDataTB = e.Data.GetData(typeof(TextBlock)) as TextBlock;
@@ -294,9 +316,9 @@ namespace BardMusicPlayer.Ui.Classic
 
             if (removedIdx < targetIdx)
             {
-                _currentPlaylist.Move(removedIdx-1, targetIdx-1);
-                BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
-                PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+                currentPlaylist.Move(removedIdx - 1, targetIdx - 1);
+                BmpCoffer.Instance.SavePlaylist(currentPlaylist);
+                PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(currentPlaylist, true);
 
             }
             else if (removedIdx == targetIdx)
@@ -308,9 +330,9 @@ namespace BardMusicPlayer.Ui.Classic
                 int remIdx = removedIdx + 1;
                 if (PlaylistContainer.Items.Count + 1 > remIdx)
                 {
-                    _currentPlaylist.Move(removedIdx-1, targetIdx-1);
-                    BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
-                    PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+                    currentPlaylist.Move(removedIdx - 1, targetIdx - 1);
+                    BmpCoffer.Instance.SavePlaylist(currentPlaylist);
+                    PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(currentPlaylist, true);
                 }
             }
         }
@@ -325,8 +347,8 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void PlaylistRepeat_Button_Click(object sender, RoutedEventArgs e)
         {
-            _playlistRepeat = !_playlistRepeat;
-            this.PlaylistRepeat_Button.Opacity = _playlistRepeat ? 1 : 0.5f;
+            playlistRepeat = !playlistRepeat;
+            this.PlaylistRepeat_Button.Opacity = playlistRepeat ? 1 : 0.5f;
         }
 
         /// <summary>
@@ -336,8 +358,8 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void PlaylistShuffle_Button_Click(object sender, RoutedEventArgs e)
         {
-            _playlistShuffle = !_playlistShuffle;
-            this.PlaylistShuffle_Button.Opacity = _playlistShuffle ? 1 : 0.5f;
+            playlistShuffle = !playlistShuffle;
+            this.PlaylistShuffle_Button.Opacity = playlistShuffle ? 1 : 0.5f;
         }
 
         /// <summary>
@@ -347,14 +369,14 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void SkipSong_Button_Click(object sender, RoutedEventArgs e)
         {
-            playNextSong();
+            PlayNextSong();
 
             if (!BmpPigeonhole.Instance.PlaylistAutoPlay)
                 return;
 
             Random rnd = new Random();
             PlaybackFunctions.PlaySong(rnd.Next(15, 35) * 100);
-            Play_Button_State(true);
+            OnSetPlaybuttonState?.Invoke(this, true);
         }
 
         /// <summary>
@@ -383,16 +405,16 @@ namespace BardMusicPlayer.Ui.Classic
                 try
                 {
                     //Showing all songs
-                    if (_currentPlaylist == null && !_showingPlaylists)
+                    if (currentPlaylist == null && !showingPlaylists)
                     {
-                        _currentPlaylist = null;
-                        _showingPlaylists = false;
+                        currentPlaylist = null;
+                        showingPlaylists = false;
                         PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetSongTitles().Where(x => x.ToLower().Contains(inputbox.ResponseText.ToLower())).ToList();
                         Playlist_Header.Header = "Search result";
                     }
                     else
                     {
-                        var song = _currentPlaylist.Where(x => x.Title.ToLower().Contains(inputbox.ResponseText.ToLower())).First();
+                        var song = currentPlaylist.Where(x => x.Title.ToLower().Contains(inputbox.ResponseText.ToLower())).First();
                         PlaylistContainer.SelectedIndex = PlaylistContainer.Items.IndexOf(song.Title);
                         PlaylistContainer.ScrollIntoView(PlaylistContainer.Items[PlaylistContainer.SelectedIndex]);
                         PlaylistContainer.UpdateLayout();
@@ -416,7 +438,7 @@ namespace BardMusicPlayer.Ui.Classic
             {
                 Filter = Globals.Globals.MusicCatalogFilters
             };
-            openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\"+ Globals.Globals.DataPath;
+            openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\" + Globals.Globals.DataPath;
 
             if (openFileDialog.ShowDialog() != true)
                 return;
@@ -424,7 +446,7 @@ namespace BardMusicPlayer.Ui.Classic
             BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
             BmpPigeonhole.Instance.LastLoadedCatalog = openFileDialog.FileName;
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
-            _showingPlaylists = true;
+            showingPlaylists = true;
         }
 
         /// <summary>
@@ -448,9 +470,9 @@ namespace BardMusicPlayer.Ui.Classic
                 return;
 
             BmpCoffer.Instance.LoadNew(openFileDialog.FileName);
-            Pigeonhole.BmpPigeonhole.Instance.LastLoadedCatalog = openFileDialog.FileName;
+            BmpPigeonhole.Instance.LastLoadedCatalog = openFileDialog.FileName;
             PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
-            _showingPlaylists = true;
+            showingPlaylists = true;
         }
 
         /// <summary>
@@ -496,22 +518,22 @@ namespace BardMusicPlayer.Ui.Classic
             if (!openFileDialog.FileName.ToLower().EndsWith(".plz"))
                 return;
 
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 Playlist_New_Button_Click(null, null);
 
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 return;
-            
+
             var list = JsonPlaylist.Load(openFileDialog.FileName);
             foreach (var rawdata in list)
             {
                 var song = BmpSong.ImportMidiFromByte(rawdata.Data, "dummy").Result;
                 song.Title = rawdata.Name;
-                _currentPlaylist.Add(song);
+                currentPlaylist.Add(song);
                 BmpCoffer.Instance.SaveSong(song);
             }
-            BmpCoffer.Instance.SavePlaylist(_currentPlaylist);
-            PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(_currentPlaylist, true);
+            BmpCoffer.Instance.SavePlaylist(currentPlaylist);
+            PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(currentPlaylist, true);
         }
 
         /// <summary>
@@ -519,7 +541,7 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void Playlist_Export_JSon_Button(object sender, RoutedEventArgs e)
         {
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 return;
 
             var openFileDialog = new SaveFileDialog
@@ -531,7 +553,7 @@ namespace BardMusicPlayer.Ui.Classic
                 return;
 
             System.Collections.Generic.List<SongContainer> songs = new System.Collections.Generic.List<SongContainer>();
-            foreach (var song in _currentPlaylist)
+            foreach (var song in currentPlaylist)
             {
                 SongContainer sc = new SongContainer();
                 sc.Name = song.Title;
@@ -543,8 +565,8 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Playlist_ShowSongs_Click(object sender, RoutedEventArgs e)
         {
-            _currentPlaylist = null;
-            _showingPlaylists = false;
+            currentPlaylist = null;
+            showingPlaylists = false;
             PlaylistContainer.ItemsSource = PlaylistFunctions.GeAllSongsInDB(true);
             Playlist_Header.Header = "All Songs";
         }
@@ -572,23 +594,15 @@ namespace BardMusicPlayer.Ui.Classic
                 return;
 
             BmpSong song;
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 song = BmpCoffer.Instance.GetSong(iName);
             else
-                song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, iName);
+                song = PlaylistFunctions.GetSongFromPlaylist(currentPlaylist, iName);
 
             if (song == null)
                 return;
 
-            _ = BmpSiren.Instance.Load(song);
-
-            //Fill the lyrics editor
-            lyricsData.Clear();
-            foreach (var line in song.LyricsContainer)
-                lyricsData.Add(new LyricsContainer(line.Key, line.Value));
-            Siren_Lyrics.DataContext = lyricsData;
-            Siren_Lyrics.Items.Refresh();
-
+            OnLoadSongFromPlaylistToPreview?.Invoke(this, song);
         }
 
         /// <summary>
@@ -606,15 +620,23 @@ namespace BardMusicPlayer.Ui.Classic
                 return;
 
             BmpSong song;
-            if (_currentPlaylist == null)
+            if (currentPlaylist == null)
                 song = BmpCoffer.Instance.GetSong(iName);
             else
-                song = PlaylistFunctions.GetSongFromPlaylist(_currentPlaylist, iName);
+                song = PlaylistFunctions.GetSongFromPlaylist(currentPlaylist, iName);
 
             if (song == null)
                 return;
 
             SongEditWindow sew = new SongEditWindow(song);
         }
+
+        #region common routines
+        private void refreshPlaylistSongsAndTimes()
+        {
+            PlaylistContainer.ItemsSource = PlaylistFunctions.GetCurrentPlaylistItems(currentPlaylist, true);
+            Playlist_Header.Header = currentPlaylist.GetName().PadRight(75 - currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(currentPlaylist).Ticks).ToString("HH:mm:ss");
+        }
+        #endregion
     }
 }
