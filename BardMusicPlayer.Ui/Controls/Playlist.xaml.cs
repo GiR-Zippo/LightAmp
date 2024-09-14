@@ -32,6 +32,7 @@ namespace BardMusicPlayer.Ui.Controls
         public EventHandler<BmpSong> OnLoadSongFromPlaylist;
         public EventHandler<bool> OnSetPlaybuttonState;
         public EventHandler<BmpSong> OnLoadSongFromPlaylistToPreview;
+        public EventHandler<bool> OnHeaderLabelDoubleClick;
 
         public Playlist()
         {
@@ -104,6 +105,12 @@ namespace BardMusicPlayer.Ui.Controls
         }
 
         #region upper playlist button functions
+
+        private void PlaylistLabel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            OnHeaderLabelDoubleClick?.Invoke(this, true);
+        }
+
         /// <summary>
         /// Create a new playlist but don't save it
         /// </summary>
@@ -638,5 +645,6 @@ namespace BardMusicPlayer.Ui.Controls
             Playlist_Header.Header = currentPlaylist.GetName().PadRight(75 - currentPlaylist.GetName().Length, ' ') + new DateTime(PlaylistFunctions.GetTotalTime(currentPlaylist).Ticks).ToString("HH:mm:ss");
         }
         #endregion
+
     }
 }

@@ -21,7 +21,7 @@
             <ColumnDefinition MaxWidth="20"/>
             <ColumnDefinition MaxWidth="20"/>
         </Grid.ColumnDefinitions>
-        <Label Content="PLAYLIST" Height="25" FontSize="14" Grid.Column="0"/>
+        <Label Content="PLAYLIST" Height="25" FontSize="14" Grid.Column="0" MouseDoubleClick="PlaylistLabel_MouseDoubleClick"/>
         <Button x:Name="Playlist_New_Button"    Click="Playlist_New_Button_Click"             Content="New"  Height="20" Width="40" Grid.Column="1"                                                              ToolTip="{x:Static Locale:Language.Playlist_New}" />
         <Button x:Name="Playlist_Add_Button"    Click="Playlist_Add_Button_Click"             Content="+"    Height="20" Width="20" Grid.Column="2" PreviewMouseRightButtonDown="Playlist_Add_Button_RightClick" ToolTip="{x:Static Locale:Language.Playlist_Add}"/>
         <Button x:Name="Playlist_Remove_Button" Click="Playlist_Remove_Button_Click"          Content="-"    Height="20" Width="20" Grid.Column="3"                                                              ToolTip="{x:Static Locale:Language.Playlist_Remove_Songs}"/>

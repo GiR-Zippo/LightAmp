@@ -52,15 +52,17 @@ namespace BardMusicPlayer.Ui.Classic
             BmpSiren.Instance.SynthTimePositionChanged  += Instance_SynthTimePositionChanged;
             BmpSiren.Instance.SongLoaded                += Instance_SongLoaded;
 
-            Playlist.OnLoadSongFromPlaylist             += Instance_PlaylistLoadSong;
-            Playlist.OnSetPlaybuttonState               += Instance_SetPlaybuttonState;
-            Playlist.OnLoadSongFromPlaylistToPreview    += Instance_PlaylistLoadSongToPreview;
+            PlaylistCtl.OnLoadSongFromPlaylist          += Instance_PlaylistLoadSong;
+            PlaylistCtl.OnSetPlaybuttonState            += Instance_SetPlaybuttonState;
+            PlaylistCtl.OnLoadSongFromPlaylistToPreview += Instance_PlaylistLoadSongToPreview;
+            PlaylistCtl.OnHeaderLabelDoubleClick        += Instance_SwitchPlaylistAndHistory;
+
+            PlayedHistoryCtl.OnLoadSongFromHistory      += Instance_PlaylistLoadSong;
+            PlayedHistoryCtl.OnHeaderLabelDoubleClick   += Instance_SwitchPlaylistAndHistory;
 
             SongBrowser.OnLoadSongFromBrowser           += Instance_SongBrowserLoadedSong;
             SongBrowser.OnAddSongFromBrowser            += Instance_SongBrowserAddSongToPlaylist;
             SongBrowser.OnLoadSongFromBrowserToPreview  += Instance_SongBrowserLoadSongToPreview;
-
-            PlayedHistoryCtl.OnLoadSongFromHistory      += Instance_SongBrowserLoadedSong;
 
             BmpSeer.Instance.MidibardPlaylistEvent      += Instance_MidibardPlaylistEvent;
 
@@ -133,6 +135,10 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void Instance_PlaylistLoadSong(object sender, BmpSong song)
         {
+            //Inform the PlayedHistory
+            if (BmpPigeonhole.Instance.EnableSongHistory)
+                PlayedHistory.SongHistory.Add(song);
+
             PlaybackFunctions.LoadSongFromPlaylist(song);
             InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
             _directLoaded = false;
@@ -155,12 +161,39 @@ namespace BardMusicPlayer.Ui.Classic
         }
 
         /// <summary>
+        /// triggered by the playlist when a song will be previewed
+        /// </summary>
+        private void Instance_SwitchPlaylistAndHistory(object sender, bool unused)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => 
+            {
+                if (PlaylistGrid.Visibility == Visibility.Visible)
+                {
+                    PlaylistGrid.Visibility = Visibility.Hidden;
+                    HistoryGrid.Visibility = Visibility.Visible;
+                    return;
+                }
+
+                if (HistoryGrid.Visibility == Visibility.Visible)
+                {
+                    HistoryGrid.Visibility = Visibility.Hidden;
+                    PlaylistGrid.Visibility = Visibility.Visible;
+                    return;
+                }
+            }));
+        }
+
+        /// <summary>
         /// triggered by the songbrowser or history if a file should be loaded
         /// </summary>
         private void Instance_SongBrowserLoadedSong(object sender, string filename)
         {
             if (PlaybackFunctions.LoadSong(filename))
             {
+                //Inform the PlayedHistory
+                if (BmpPigeonhole.Instance.EnableSongHistory)
+                    PlayedHistory.SongHistory.Add(PlaybackFunctions.CurrentSong);
+
                 InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
                 _directLoaded = true;
             }
@@ -171,7 +204,7 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void Instance_SongBrowserAddSongToPlaylist(object sender, string filename)
         {
-            Playlist.AddSongToPlaylist(filename);
+            PlaylistCtl.AddSongToPlaylist(filename);
         }
 
         private void Instance_SongBrowserLoadSongToPreview(object sender, string filename)
@@ -181,7 +214,7 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Instance_MidibardPlaylistEvent(Seer.Events.MidibardPlaylistEvent seerEvent)
         {
-            this.Dispatcher.BeginInvoke(new Action(() => Playlist.SelectSongByIndex(seerEvent.Song)));
+            this.Dispatcher.BeginInvoke(new Action(() => PlaylistCtl.SelectSongByIndex(seerEvent.Song)));
         }
 
         private void Instance_SynthTimePositionChanged(string songTitle, double currentTime, double endTime, int activeVoices)
@@ -245,7 +278,7 @@ namespace BardMusicPlayer.Ui.Classic
 
             if (BmpPigeonhole.Instance.PlaylistAutoPlay)
             {
-                Playlist.PlayNextSong();
+                PlaylistCtl.PlayNextSong();
                 Random rnd = new Random();
                 PlaybackFunctions.PlaySong(rnd.Next(15, 35)*100);
                 Play_Button_State(true);

@@ -12,6 +12,7 @@ using BardMusicPlayer.Ui.Functions;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using System.Threading.Tasks;
+using BardMusicPlayer.Ui.Controls;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -66,6 +67,9 @@ namespace BardMusicPlayer.Ui.Classic
             {
                 if (PlaybackFunctions.LoadSong())
                 {
+                    //Inform the PlayedHistory
+                    if (BmpPigeonhole.Instance.EnableSongHistory)
+                        PlayedHistory.SongHistory.Add(PlaybackFunctions.CurrentSong);
                     InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
                     _directLoaded = true;
                 }

@@ -34,27 +34,13 @@
             </Grid.ColumnDefinitions>
 
             <!-- Playlist -->
-            <Grid x:Name="PlaylistGrid" Grid.Row="0" Grid.Column="0" Visibility="Visible">
-                <Grid Background="WhiteSmoke" Grid.Row="1">
-                    <control:Playlist x:Name="Playlist"/>
-                </Grid>
+            <Grid x:Name="PlaylistGrid" Grid.Row="0" Grid.Column="0" Background="WhiteSmoke" Visibility="Visible">
+                <control:Playlist x:Name="PlaylistCtl"/>
             </Grid>
 
             <!-- History -->
-            <Grid x:Name="HistoryGrid" Grid.Row="0" Grid.Column="0" Visibility="Hidden">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="28"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="300"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="History" FontSize="14" Grid.Row="0" MouseDoubleClick="Playlist_MouseDoubleClick"/>
-                    <Grid Background="WhiteSmoke" Grid.Row="1">
-                        <control:PlayedHistory x:Name="PlayedHistoryCtl"/>
-                    </Grid>
-                </Grid>
+            <Grid x:Name="HistoryGrid" Grid.Row="0" Grid.Column="0" Background="WhiteSmoke" Visibility="Hidden">
+                <control:PlayedHistory x:Name="PlayedHistoryCtl"/>
             </Grid>
 
             <!-- Combobox for Chat, Settings and so on -->
