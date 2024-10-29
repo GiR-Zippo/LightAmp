@@ -165,6 +165,9 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void Instance_SwitchPlaylistAndHistory(object sender, bool unused)
         {
+            if (!BmpPigeonhole.Instance.EnableSongHistory)
+                return;
+
             this.Dispatcher.BeginInvoke(new Action(() => 
             {
                 if (PlaylistGrid.Visibility == Visibility.Visible)

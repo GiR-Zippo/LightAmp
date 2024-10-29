@@ -4,11 +4,6 @@
  */
 
 using System;
-/*
- * Copyright(c) 2024 GiR-Zippo
- * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
- */
-
 using System.Linq;
 using System.Text;
 using BardMusicPlayer.Seer.Events;
@@ -45,7 +40,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
             catch (Exception ex)
             {
                 _machinaReader.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,
-                    new BmpSeerMachinaException("Exception in Packet.Size88 (ensemble action): " + ex.Message)));
+                    new BmpSeerMachinaException("Exception in Packet.Size104 (party invite): " + ex.Message)));
             }
         }
     }
