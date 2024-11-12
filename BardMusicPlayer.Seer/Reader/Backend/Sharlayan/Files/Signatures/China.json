@@ -2,50 +2,42 @@
     // Upstream
     {
         "Key": "CHATLOG",
-        "Value": "488941104488492C4C8949244C89491C4584C07412488B4210488905********48890D",
+        "Value": "488941104488492C4C8949244C89491C4584C07412488B4218488905********48890D",
         "ASMSignature": true,
-        "PointerPath": [
-            0,
-            0,
-            64,
-            908
-        ]
+        "PointerPath": [ 0, 0, 64, 908 ]
     },
     {
-        "ASMSignature": true,
         "Key": "CHARMAP",
-        "Value": "488b420848c1e8033da701000077**8bc0488d0d",
+        "Value": "48c1ea0381fa????0000****8bc2488d0d",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 0 ]
+    },
+    {
+        "Key": "PARTYMAP",
+        "Value": "5EC348895C2430488d0d",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 784 ]
+    },
+    {
+        "Key": "PARTYCOUNT",
+        "Value": "5EC348895C2430488d0d",
+        "ASMSignature": true,
         "PointerPath": [
             0,
-            0
+            26044
         ]
     },
     {
+        "Key": "PARTYLEAD",
+        "Value": "5EC348895C2430488d0d",
         "ASMSignature": true,
-        "Key": "PARTYMAP",
-        "PointerPath": [
-            0,
-            384
-        ],
-        "Value": "488D7C242066660F1F840000000000488B17488D0D"
+        "PointerPath": [ 0, 26040 ]
     },
     {
-        "ASMSignature": true,
-        "Key": "PARTYCOUNT",
-        "PointerPath": [
-            0,
-            -26920
-        ],
-        "Value": "488D7C242066660F1F840000000000488B17488D0D"
-    },
-    {
-        "ASMSignature": true,
         "Key": "PLAYERINFO",
-        "PointerPath": [
-            0,
-            0
-        ],
-        "Value": "83f9ff7412448b048e8bd3488d0d"
+        "Value": "83f9ff7412448b048e8bd3488d0d",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 0 ]
     },
     // End Upstream
 
@@ -57,16 +49,16 @@
             0,
             0
         ],
-        "Value": "84C00F84????????488BD3488D0D"
+        "Value": "897B60488B5C2430488B7424384883C4205FC385C0783133D2488D0D"
     },
     {
         "ASMSignature": true,
-        "Key": "CHARID", // Known as ConfigId in Seer. Used for DatReader.
+        "Key": "CHARID",
         "PointerPath": [
             0,
             0
         ],
-        "Value": "4C8BCF4C8D05????????BA04010000488D0D"
+        "Value": "41807D00000F85????????4889B424????????488D0D"
     },
     {
         "ASMSignature": true,
@@ -76,17 +68,17 @@
             0,
             56
         ],
-        "Value": "e8********85c0740e488b0d********33D2E8********488b0d"
+        "Value": "33D2E8????????488b0d"
     },
     {
+        //Fallback
         "ASMSignature": true,
         "Key": "WORLD",
         "PointerPath": [
-            -13,
             0,
-            -78
+            5499988
         ],
-        "Value": "40534883EC40488B05********488BD98B401485C00F"
+        "Value": "FFC08983????????83F8020F84????????4C8D35"
     }
     // END BMP
 ]
