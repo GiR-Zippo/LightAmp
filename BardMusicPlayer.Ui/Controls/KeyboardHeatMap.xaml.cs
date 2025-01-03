@@ -161,6 +161,7 @@ namespace BardMusicPlayer.Ui.Controls
                 Rectangle r = wantedNode as Rectangle;
                 r.Fill = NoteFill(noteInfo[n.Key].black_key, n.Value);
             }
+            noteCountDict.Clear();
         }
 
         private void ResetFill()
