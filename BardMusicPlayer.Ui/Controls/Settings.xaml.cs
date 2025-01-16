@@ -7,6 +7,7 @@ using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BardMusicPlayer.Ui.Resources;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,14 +15,25 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace BardMusicPlayer.Ui.Classic
+
+namespace BardMusicPlayer.Ui.Controls
 {
-    public sealed partial class Classic_MainView : UserControl
+    /// <summary>
+    /// Interaktionslogik für ConfigView.xaml
+    /// </summary>
+    public partial class Settings : UserControl
     {
+        public Settings()
+        {
+            InitializeComponent();
+            if (!BmpPigeonhole.Instance.UsePluginForKeyOutput)
+                this.KeyDown += Classic_MainView_KeyDown;
+        }
+
         /// <summary>
         /// load the settings
         /// </summary>
-        private void LoadConfig(bool reload = false)
+        public void LoadConfig(bool reload = false)
         {
             //Orchestra
             LocalOrchestraBox.IsChecked = BmpPigeonhole.Instance.LocalOrchestra;
@@ -44,10 +56,6 @@ namespace BardMusicPlayer.Ui.Classic
             }
             LiveMidiDelay.IsChecked = BmpPigeonhole.Instance.LiveMidiPlayDelay;
             NoteOffsetBox.IsChecked = BmpPigeonhole.Instance.UseNoteOffset;
-            octave_txtNum.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
-            octave_cmdUp.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
-            octave_cmdDown.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
-
 
             //Misc
             AMPInFrontBox.IsChecked = BmpPigeonhole.Instance.BringBMPtoFront;
@@ -149,9 +157,6 @@ namespace BardMusicPlayer.Ui.Classic
         private void NoteOffsetBox_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.UseNoteOffset = (NoteOffsetBox.IsChecked ?? false);
-            octave_txtNum.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
-            octave_cmdUp.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
-            octave_cmdDown.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
             Globals.Globals.ReloadConfig();
         }
         #endregion
@@ -206,7 +211,7 @@ namespace BardMusicPlayer.Ui.Classic
                 if (openFileDialog.ResultPath == "")
                     return;
 
-                BmpPigeonhole.Instance.LastSkin = openFileDialog.ResultPath+ "\\Skin.dll";
+                BmpPigeonhole.Instance.LastSkin = openFileDialog.ResultPath + "\\Skin.dll";
             }
             BmpPigeonhole.Instance.ClassicUi = !(SkinUiBox.IsChecked ?? true);
         }

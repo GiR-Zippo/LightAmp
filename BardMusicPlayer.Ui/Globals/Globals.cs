@@ -25,6 +25,5 @@ namespace BardMusicPlayer.Ui.Globals
         {
             OnConfigReload?.Invoke(null, null);
         }
-
     }
 }

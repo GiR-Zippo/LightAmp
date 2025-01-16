@@ -67,16 +67,16 @@ namespace BardMusicPlayer.Ui.Classic
             BmpSeer.Instance.MidibardPlaylistEvent      += Instance_MidibardPlaylistEvent;
 
             Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
-
-            if (!BmpPigeonhole.Instance.UsePluginForKeyOutput)
-                this.KeyDown                            += Classic_MainView_KeyDown;
-
-            LoadConfig();
+            SettingsControl.LoadConfig();
         }
 
         private void Globals_OnConfigReload(object sender, EventArgs e)
         {
-            LoadConfig(true);
+            SettingsControl.LoadConfig(true);
+            //Enable / Disable buttons when UseNoteOffset
+            octave_txtNum.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
+            octave_cmdUp.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
+            octave_cmdDown.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
