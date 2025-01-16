@@ -5,7 +5,7 @@
 
 using System.Windows;
 
-namespace BardMusicPlayer.Ui
+namespace BardMusicPlayer.Ui.Windows
 {
     /// <summary>
     /// Interaktionslogik für InfoBox.xaml

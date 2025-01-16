@@ -5,6 +5,7 @@
 
 using BardMusicPlayer.Siren;
 using BardMusicPlayer.Transmogrify.Song;
+using BardMusicPlayer.Ui.Windows;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;

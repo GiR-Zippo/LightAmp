@@ -307,7 +307,7 @@
     <Compile Include="Controls\TrackNumericUpDown.xaml.cs">
       <DependentUpon>TrackNumericUpDown.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\VoiceMap.xaml.cs">
+    <Compile Include="Windows\VoiceMap.xaml.cs">
       <DependentUpon>VoiceMap.xaml</DependentUpon>
     </Compile>
     <Compile Include="Functions\HelperFunctions.cs" />
@@ -317,7 +317,7 @@
     <Compile Include="Controls\KeyboardHeatMap.xaml.cs">
       <DependentUpon>KeyboardHeatMap.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Globals\InfoBox.xaml.cs">
+    <Compile Include="Windows\InfoBox.xaml.cs">
       <DependentUpon>InfoBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Locales\Language.Designer.cs">
@@ -390,11 +390,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\VoiceMap.xaml">
+    <Page Include="Windows\VoiceMap.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Globals\InfoBox.xaml">
+    <Page Include="Windows\InfoBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
