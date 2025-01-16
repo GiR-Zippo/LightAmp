@@ -5,7 +5,6 @@
 
 using BardMusicPlayer.Siren;
 using BardMusicPlayer.Transmogrify.Song;
-using BardMusicPlayer.Ui.Controls;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -18,7 +17,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
-namespace BardMusicPlayer.Ui.Classic
+namespace BardMusicPlayer.Ui.Controls
 {
     public sealed class LyricsContainer
     {
@@ -28,12 +27,60 @@ namespace BardMusicPlayer.Ui.Classic
     }
 
     /// <summary>
-    /// Interaktionslogik für Classic_MainView.xaml
+    /// Interaktionslogik für Siren.xaml
     /// </summary>
-    public sealed partial class Classic_MainView : UserControl
+    public partial class SirenPreview : UserControl
     {
+        ObservableCollection<LyricsContainer> lyricsData { get; set; } = new ObservableCollection<LyricsContainer>();
+        private bool _Siren_Playbar_dragStarted { get; set; } = false;
 
-        ObservableCollection<LyricsContainer> lyricsData = new ObservableCollection<LyricsContainer>();
+        public SirenPreview()
+        {
+            InitializeComponent();
+
+            Siren_Volume.Value = BmpSiren.Instance.GetVolume();
+            BmpSiren.Instance.SynthTimePositionChanged  += Instance_SynthTimePositionChanged;
+            BmpSiren.Instance.SongLoaded                += Instance_SongLoaded;
+        }
+
+        #region EventHandler
+        private void Instance_SynthTimePositionChanged(string songTitle, double currentTime, double endTime, int activeVoices)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => this.Siren_PlaybackTimeChanged(currentTime, endTime, activeVoices)));
+        }
+
+        private void Instance_SongLoaded(string songTitle)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => this.Siren_SongName.Content = songTitle));
+        }
+        #endregion
+
+        /// <summary>
+        /// Loads a song
+        /// </summary>
+        /// <param name="song"></param>
+        public void SirenLoadSong(BmpSong song)
+        {
+            if (BmpSiren.Instance.IsReadyForPlayback)
+                BmpSiren.Instance.Stop();
+
+            _ = BmpSiren.Instance.Load(song);
+
+            //Fill the lyrics editor
+            lyricsData.Clear();
+            DateTime lastTime = new DateTime();
+            foreach (var line in song.LyricsContainer)
+            {
+                var f = line.Key - lastTime;
+                if (f.TotalMilliseconds < 1000 && f.TotalMilliseconds != 0)
+                    lyricsData.Add(new LyricsContainer(line.Key, "[!] > " + line.Value));
+                else
+                    lyricsData.Add(new LyricsContainer(line.Key, line.Value));
+                lastTime = line.Key;
+            }
+            Siren_Lyrics.DataContext = lyricsData;
+            Siren_Lyrics.Items.Refresh();
+        }
 
         /// <summary>
         /// load button
@@ -48,22 +95,7 @@ namespace BardMusicPlayer.Ui.Classic
             if (CurrentSong == null)
                 return;
 
-            _ = BmpSiren.Instance.Load(CurrentSong);
-
-            //Fill the lyrics editor
-            lyricsData.Clear();
-            DateTime lastTime = new DateTime();
-            foreach (var line in CurrentSong.LyricsContainer)
-            {
-                var f = line.Key - lastTime;
-                if (f.TotalMilliseconds < 1000 && f.TotalMilliseconds != 0)
-                    lyricsData.Add(new LyricsContainer(line.Key, "[!] > " + line.Value));
-                else
-                    lyricsData.Add(new LyricsContainer(line.Key, line.Value));
-                lastTime = line.Key;
-            }
-            Siren_Lyrics.DataContext = lyricsData;
-            Siren_Lyrics.Items.Refresh();
+            SirenLoadSong(CurrentSong);
         }
 
         /// <summary>
@@ -73,7 +105,7 @@ namespace BardMusicPlayer.Ui.Classic
         /// <param name="e"></param>
         private void Siren_Play_Click(object sender, RoutedEventArgs e)
         {
-            if(BmpSiren.Instance.IsReadyForPlayback)
+            if (BmpSiren.Instance.IsReadyForPlayback)
                 BmpSiren.Instance.Play();
         }
 
@@ -91,7 +123,7 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Siren_Pause_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.ChangedButton == MouseButton.Right)
+            if (e.ChangedButton == MouseButton.Right)
             {
                 var curr = new DateTime(1, 1, 1).AddMilliseconds(Siren_Position.Value);
                 if (Siren_Lyrics.SelectedIndex == -1)
@@ -163,7 +195,7 @@ namespace BardMusicPlayer.Ui.Classic
 
             return BmpSong.OpenFile(openFileDialog.FileName).Result;
         }
-        
+
         /// <summary>
         /// Control, if user changed the volume
         /// </summary>
@@ -202,7 +234,7 @@ namespace BardMusicPlayer.Ui.Classic
                 Siren_Position.Value = currentTime;
 
             //Set the lyrics progress
-            if (Siren_Lyrics.Items.Count >0)
+            if (Siren_Lyrics.Items.Count > 0)
             {
                 List<LyricsContainer> ret = Siren_Lyrics.Items.Cast<LyricsContainer>().ToList();
                 int idx = -1;

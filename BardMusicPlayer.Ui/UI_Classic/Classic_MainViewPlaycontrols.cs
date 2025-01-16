@@ -23,7 +23,6 @@ namespace BardMusicPlayer.Ui.Classic
     {
         private bool _alltracks = false;
         private bool _Playbar_dragStarted = false;
-        private bool _Siren_Playbar_dragStarted = false;
 
         /* Playbuttonstate */
         private void Play_Button_State(bool playing = false)

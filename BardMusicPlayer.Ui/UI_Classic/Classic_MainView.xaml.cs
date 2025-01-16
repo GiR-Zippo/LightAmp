@@ -10,7 +10,6 @@ using System.Windows.Controls;
 using BardMusicPlayer.Ui.Functions;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
-using BardMusicPlayer.Siren;
 using BardMusicPlayer.Quotidian;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Controls;
@@ -47,10 +46,6 @@ namespace BardMusicPlayer.Ui.Classic
             BmpMaestro.Instance.OnSpeedChanged          += Instance_OnSpeedChange;
 
             BmpSeer.Instance.ChatLog                    += Instance_ChatLog;
-
-            Siren_Volume.Value = BmpSiren.Instance.GetVolume();
-            BmpSiren.Instance.SynthTimePositionChanged  += Instance_SynthTimePositionChanged;
-            BmpSiren.Instance.SongLoaded                += Instance_SongLoaded;
 
             PlaylistCtl.OnLoadSongFromPlaylist          += Instance_PlaylistLoadSong;
             PlaylistCtl.OnSetPlaybuttonState            += Instance_SetPlaybuttonState;
@@ -157,7 +152,7 @@ namespace BardMusicPlayer.Ui.Classic
         /// </summary>
         private void Instance_PlaylistLoadSongToPreview(object sender, BmpSong song)
         {
-            loadSongToPreview(song);
+            SirenPreview.SirenLoadSong(song);
         }
 
         /// <summary>
@@ -212,22 +207,12 @@ namespace BardMusicPlayer.Ui.Classic
 
         private void Instance_SongBrowserLoadSongToPreview(object sender, string filename)
         {
-            loadSongToPreview(BmpSong.OpenFile(filename).Result);
+            SirenPreview.SirenLoadSong(BmpSong.OpenFile(filename).Result);
         }
 
         private void Instance_MidibardPlaylistEvent(Seer.Events.MidibardPlaylistEvent seerEvent)
         {
             this.Dispatcher.BeginInvoke(new Action(() => PlaylistCtl.SelectSongByIndex(seerEvent.Song)));
-        }
-
-        private void Instance_SynthTimePositionChanged(string songTitle, double currentTime, double endTime, int activeVoices)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() => this.Siren_PlaybackTimeChanged(currentTime, endTime, activeVoices)));
-        }
-
-        private void Instance_SongLoaded(string songTitle)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() => this.Siren_SongName.Content = songTitle));
         }
 
         private void PlaybackTimeChanged(Maestro.Events.CurrentPlayPositionEvent e)

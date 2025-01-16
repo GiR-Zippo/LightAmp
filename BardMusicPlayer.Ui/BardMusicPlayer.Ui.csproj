@@ -271,10 +271,12 @@
     <Compile Include="Controls\Playlist.xaml.cs">
       <DependentUpon>Playlist.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\SirenPreview.xaml.cs">
+      <DependentUpon>SirenPreview.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Resources\ProgressBar.xaml.cs">
       <DependentUpon>ProgressBar.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI_Classic\Classic_Common.cs" />
     <Compile Include="Windows\BardExtSettingsWindow.xaml.cs">
       <DependentUpon>BardExtSettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -325,8 +327,6 @@
       <CustomToolNamespace>BardMusicPlayer.Ui.Locales</CustomToolNamespace>
     </Compile>
     <Compile Include="Resources\FolderPicker.cs" />
-    <Compile Include="UI_Classic\Classic_Settings.cs" />
-    <Compile Include="UI_Classic\Classic_Siren.cs" />
     <Compile Include="UI_Classic\Classic_Statistics.cs" />
     <Compile Include="Windows\MacroLaunchpad.xaml.cs">
       <DependentUpon>MacroLaunchpad.xaml</DependentUpon>
@@ -343,6 +343,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\Playlist.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SirenPreview.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
