@@ -45,8 +45,8 @@ namespace BardMusicPlayer.Ui.Classic
             }
         }
 
-
-        private void Play_Button_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        /* Autoequip and play */
+        private void Play_Button_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
                 return;
@@ -81,10 +81,10 @@ namespace BardMusicPlayer.Ui.Classic
         /* All tracks */
         private void all_tracks_button_Click(object sender, RoutedEventArgs e)
         {
-            _alltracks = !_alltracks;
+            _alltracks              = !_alltracks;
             track_cmdDown.IsEnabled = !_alltracks;
-            track_cmdUp.IsEnabled = !_alltracks;
-            track_txtNum.IsEnabled = !_alltracks;
+            track_cmdUp.IsEnabled   = !_alltracks;
+            track_txtNum.IsEnabled  = !_alltracks;
 
             if (_alltracks)
             {
