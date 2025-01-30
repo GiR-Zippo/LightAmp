@@ -62,8 +62,7 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="song"></param>
         public void SirenLoadSong(BmpSong song)
         {
-            if (BmpSiren.Instance.IsReadyForPlayback)
-                BmpSiren.Instance.Stop();
+            BmpSiren.Instance.Stop();
 
             _ = BmpSiren.Instance.Load(song);
 
@@ -106,8 +105,7 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void Siren_Play_Click(object sender, RoutedEventArgs e)
         {
-            if (BmpSiren.Instance.IsReadyForPlayback)
-                BmpSiren.Instance.Play();
+            BmpSiren.Instance.Play();
         }
 
         /// <summary>
@@ -117,8 +115,6 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void Siren_Pause_Click(object sender, RoutedEventArgs e)
         {
-            if (!BmpSiren.Instance.IsReadyForPlayback)
-                return;
             BmpSiren.Instance.Pause();
         }
 
@@ -148,8 +144,6 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void Siren_Stop_Click(object sender, RoutedEventArgs e)
         {
-            if (!BmpSiren.Instance.IsReadyForPlayback)
-                return;
             BmpSiren.Instance.Stop();
         }
 

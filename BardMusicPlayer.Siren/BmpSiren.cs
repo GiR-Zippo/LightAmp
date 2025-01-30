@@ -213,7 +213,7 @@ namespace BardMusicPlayer.Siren
         /// <returns>This BmpSiren</returns>
         public BmpSiren Play()
         {
-            if (!IsReadyForPlayback) throw new BmpException("Siren not loaded with a song.");
+            if (!IsReadyForPlayback) return this; //throw new BmpException("Siren not loaded with a song.");
 
             _player.Play();
             return this;
@@ -225,7 +225,7 @@ namespace BardMusicPlayer.Siren
         /// <returns>This BmpSiren</returns>
         public BmpSiren Pause()
         {
-            if (!IsReadyForPlayback) throw new BmpException("Siren not loaded with a song.");
+            if (!IsReadyForPlayback) return this; //throw new BmpException("Siren not loaded with a song.");
 
             _player.Pause();
             return this;
@@ -237,7 +237,7 @@ namespace BardMusicPlayer.Siren
         /// <returns>This BmpSiren</returns>
         public BmpSiren Stop()
         {
-            if (!IsReadyForPlayback) throw new BmpException("Siren not loaded with a song.");
+            if (!IsReadyForPlayback) return this; //throw new BmpException("Siren not loaded with a song.");
 
             _player.Stop();
             _lyricIndex = 0;
