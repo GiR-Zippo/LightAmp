@@ -377,7 +377,7 @@ namespace BardMusicPlayer.Transmogrify.Song
                     #endregion Tracknaming and octave shifting
 
                     //Create Progchange Event if no IgnoreProgChange is set
-                    if (!BmpPigeonhole.Instance.IgnoreProgChange || o_trackName.Contains("Program:ElectricGuitar"))
+                    if (!BmpPigeonhole.Instance.IgnoreProgChange || o_trackName.ToLower().Equals("program:electricguitar"))
                         newChunk.AddObjects(Extensions.AddProgramChangeEvents(originalChunk, tempoMap, firstNote).Result.GetTimedEvents());
 
                     //Add the lyrics

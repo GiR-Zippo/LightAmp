@@ -169,10 +169,18 @@ namespace BardMusicPlayer.Transmogrify.Song.Utilities
                         else
                             continue; // Invalid Instrument name.
                     }
-                        
-                    if (instrumentAndOctaveRange.Groups[1].Success)
-                        classicConfig.Instrument = Instrument.Parse(instrumentAndOctaveRange.Groups[1].Value);
 
+                    if (instrumentAndOctaveRange.Groups[1].Success)
+                    {
+                        if (instrumentAndOctaveRange.Groups[1].Value.ToLower().Equals("program:electricguitar")) //if we have this use first progEvent
+                        {
+                            TimedEvent tEvent = trackChunk.GetTimedEvents().FirstOrDefault(n => n.Event.EventType == MidiEventType.ProgramChange);
+                            if (tEvent != null && tEvent.Event is ProgramChangeEvent)
+                                classicConfig.Instrument = Instrument.ParseByProgramChange((tEvent.Event as ProgramChangeEvent).ProgramNumber);
+                        }
+                        else
+                            classicConfig.Instrument = Instrument.Parse(instrumentAndOctaveRange.Groups[1].Value);
+                    }
                     //Check instrument name string
                     if (classicConfig.Instrument.Equals(Instrument.None))
                     {
