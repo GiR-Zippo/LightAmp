@@ -35,7 +35,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan
                         if (item.Value == string.Empty)
                             Locations[item.Key] = item;
                         else
-                            item.Value = item.Value.Replace("*", "?");
+                            item.Value = item.Value.Replace("*", "?").Replace(" ","");
 
                     list.RemoveAll(a => Locations.ContainsKey(a.Key));
                     FindExtendedSignatures(list);
