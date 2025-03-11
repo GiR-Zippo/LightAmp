@@ -240,6 +240,9 @@ Override By Track: The track name defines the guitar to use</value>
   <data name="Settings_Dalamud_KeyOut" xml:space="preserve">
     <value>Uses the Hypnotoad to play the notes and switches</value>
   </data>
+  <data name="Settings_EnableSynthLimit" xml:space="preserve">
+    <value>Enables / Disables the limitation to 16 voices in the song preview</value>
+  </data>
   <data name="Settings_Force_Playback" xml:space="preserve">
     <value>Ignore verything and plays the song</value>
   </data>

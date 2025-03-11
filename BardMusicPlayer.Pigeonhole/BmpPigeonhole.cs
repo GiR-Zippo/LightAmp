@@ -136,7 +136,7 @@ namespace BardMusicPlayer.Pigeonhole
         /// <summary>
         /// Enable the 16 voice limit in Synthesizer
         /// </summary>
-        public virtual bool EnableSynthVoiceLimiter { get; set; } = true;
+        public virtual bool EnableSynthVoiceLimiter { get; set; } = false;
 
         /// <summary>
         /// milliseconds till ready check confirmation.

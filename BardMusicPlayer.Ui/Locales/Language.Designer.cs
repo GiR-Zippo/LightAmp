@@ -412,6 +412,15 @@ namespace BardMusicPlayer.Ui.Locales {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enables / Disables the limitation to 16 voices in the song preview ähnelt.
+        /// </summary>
+        public static string Settings_EnableSynthLimit {
+            get {
+                return ResourceManager.GetString("Settings_EnableSynthLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Ignore verything and plays the song ähnelt.
         /// </summary>
         public static string Settings_Force_Playback {

@@ -146,14 +146,6 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Synthesis
                 return;
             }
 
-            if (BmpPigeonhole.Instance.EnableSynthVoiceLimiter && ActiveVoiceCount >= 16)
-            {
-                var voice = _voices.First(a =>
-                    a.Counter == _voices.Where(static b => b.PlayingPreset != -1).Min(static b => b.Counter));
-                voice.EndQuick(OutSampleRate);
-                voice.Stopped = true;
-            }
-
             // Play all matching regions.
             var voicePlayIndex = _voicePlayIndex++;
             foreach (var region in Presets[presetIndex].Regions)
@@ -628,6 +620,24 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Synthesis
         public void ChannelNoteOn(int channel, int key, float vel)
         {
             if (_channels == null || channel > _channels.ChannelList.Count) return;
+
+            // Add voice limiting here before playing new notes
+            if (BmpPigeonhole.Instance.EnableSynthVoiceLimiter && ActiveVoiceCount >= 16)
+            {
+                // Get all active voices sorted by age (counter)
+                var activeVoices = _voices.Where(v => v.PlayingPreset != -1 && !v.Stopped)
+                    .OrderBy(v => v.Counter)
+                    .ToList();
+
+                // Stop the oldest voices until we're under the limit
+                while (activeVoices.Count >= 16)
+                {
+                    var oldestVoice = activeVoices[0];
+                    oldestVoice.EndQuick(OutSampleRate);
+                    oldestVoice.Stopped = true;
+                    activeVoices.RemoveAt(0);
+                }
+            }
 
             _channels.ActiveChannel = channel;
             NoteOn(_channels.ChannelList[channel].PresetIndex, key, vel);

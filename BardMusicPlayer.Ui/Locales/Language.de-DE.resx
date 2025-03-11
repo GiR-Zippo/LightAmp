@@ -239,6 +239,9 @@ Override By Track: Der Trackname gibt die Gitarre vor, die Switches werden gelö
   <data name="Settings_Dalamud_KeyOut" xml:space="preserve">
     <value>Die Hypnotoad drückt nun die Tasten zum spielen</value>
   </data>
+  <data name="Settings_EnableSynthLimit" xml:space="preserve">
+    <value>Limitiert die maximale Stimmenanzahl im Preview auf 16 Stimmen</value>
+  </data>
   <data name="Settings_Force_Playback" xml:space="preserve">
     <value>Spielt das Lied, komme was wolle</value>
   </data>

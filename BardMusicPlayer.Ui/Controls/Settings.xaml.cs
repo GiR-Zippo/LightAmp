@@ -62,6 +62,8 @@ namespace BardMusicPlayer.Ui.Controls
             MultiBox_Box.IsChecked = BmpPigeonhole.Instance.EnableMultibox;
             AutoequipDalamud.IsChecked = BmpPigeonhole.Instance.UsePluginForInstrumentOpen;
             AutoAcceptInvite.IsChecked = BmpPigeonhole.Instance.AutoAcceptPartyInvite;
+            EnableSynthLimit.IsChecked = BmpPigeonhole.Instance.EnableSynthVoiceLimiter;
+
 
             MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
             SongHistoryBox.IsChecked = BmpPigeonhole.Instance.EnableSongHistory;
@@ -188,6 +190,11 @@ namespace BardMusicPlayer.Ui.Controls
         private void AutoAcceptInvite_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.AutoAcceptPartyInvite = AutoAcceptInvite.IsChecked ?? false;
+        }
+
+        private void EnableSynthLimit_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.EnableSynthVoiceLimiter = EnableSynthLimit.IsChecked ?? false;
         }
 
         private void MidiBard_Checked(object sender, RoutedEventArgs e)
