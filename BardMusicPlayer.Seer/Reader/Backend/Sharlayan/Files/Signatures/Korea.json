@@ -1,93 +1,93 @@
 [
-    // Upstream
+    // Patch 7.1
     {
+        //Client::System::Input::TextService_ctor
         "Key": "CHATLOG",
-        "Value": "48894110448841184584C07412488B4210488905********48890D",
+        "Value": "48 89 41 10 44 88 49 2C 4C 89 49 24 4C 89 49 1C 45 84 C0 74 12 48 8B 42 18 48 89 05 ?? ?? ?? ?? 48 89 0D",
         "ASMSignature": true,
-        "PointerPath": [
-            0,
-            0,
-            64,
-            908
-        ]
+        "PointerPath": [ 0, 0, 64, 908 ]
     },
     {
-        "ASMSignature": true,
+        //g_Client::Game::Object::GameObjectManager_Instance
         "Key": "CHARMAP",
-        "Value": "488b420848c1e8033da701000077**8bc0488d0d",
+        "Value": "48 C1 EA 03 81 FA ?? ?? 00 00 ?? ?? 8B C2 48 8D 0D",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 0 ]
+    },
+    {
+        //g_Client::Game::Group::GroupManager_Instance
+        "Key": "PARTYMAP",
+        "Value": "5E C3 48 89 5C 24 30 48 8D 0D",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 784 ]
+    },
+    {
+        //g_Client::Game::Group::GroupManager_Instance
+        "Key": "PARTYCOUNT",
+        "Value": "5E C3 48 89 5C 24 30 48 8D 0D",
+        "ASMSignature": true,
         "PointerPath": [
             0,
-            0
+            26044
         ]
     },
     {
+        //g_Client::Game::Group::GroupManager_Instance
+        "Key": "PARTYLEAD",
+        "Value": "5E C3 48 89 5C 24 30 48 8D 0D",
         "ASMSignature": true,
-        "Key": "PARTYMAP",
-        "PointerPath": [
-            0,
-            384
-        ],
-        "Value": "488D7C242066660F1F840000000000488B17488D0D"
+        "PointerPath": [ 0, 26040 ]
     },
     {
-        "ASMSignature": true,
-        "Key": "PARTYCOUNT",
-        "PointerPath": [
-            0,
-            -26920
-        ],
-        "Value": "488D7C242066660F1F840000000000488B17488D0D"
-    },
-    {
-        "ASMSignature": true,
+        //g_Client::Game::UI::UIState_Instance.PlayerState
         "Key": "PLAYERINFO",
-        "PointerPath": [
-            0,
-            0
-        ],
-        "Value": "83f9ff7412448b048e8bd3488d0d"
+        "Value": "83 F9 FF 74 12 44 8B 04 8E 8B D3 48 8D 0D",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 0 ]
     },
     // End Upstream
 
     // BMP
     {
+        //g_Client::Game::GameMain_Instance.field_B38
         "ASMSignature": true,
         "Key": "PERFSTATUS",
         "PointerPath": [
             0,
             0
         ],
-        "Value": "84C00F84????????488BD3488D0D"
+        "Value": "89 7B 60 48 8B 5C 24 30 48 8B 74 24 38 48 83 C4 20 5F C3 85 C0 78 31 33 D2 48 8D 0D"
     },
     {
+        //aFfxivChr016llx - FFXIV_CHR%016llX
         "ASMSignature": true,
-        "Key": "CHARID", // Known as ConfigId in Seer. Used for DatReader.
+        "Key": "CHARID",
         "PointerPath": [
             0,
             0
         ],
-        "Value": "4C8BCF4C8D05????????BA04010000488D0D"
+        "Value": "0F 85 ?? ?? ?? ?? 4C 89 64 24 50 48 8D 0D"
     },
     {
+        //Client::System::Input::TextService_vf10
         "ASMSignature": true,
         "Key": "CHATINPUT",
         "PointerPath": [
             0,
             0,
-            40
+            56
         ],
-        "Value": "e8********85c0740e488b0d********33D2E8********488b0d"
+        "Value": "33 D2 E8 ?? ?? ?? ?? 48 8B 0D"
     },
     {
+        //Fallback
         "ASMSignature": true,
         "Key": "WORLD",
         "PointerPath": [
-            -13,
             0,
-            -112,
-            0
+            5499988
         ],
-        "Value": "40534883EC40488B05********488BD98B401485C00F"
+        "Value": "FFC08983????????83F8020F84????????4C8D35"
     }
     // END BMP
 ]

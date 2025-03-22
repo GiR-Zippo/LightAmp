@@ -1,4 +1,5 @@
-﻿{
+﻿//Patch 7.1
+{
     "ChatLogPointers": {
         "OffsetArrayStart": 52,
         "OffsetArrayPos": 60,
@@ -8,26 +9,26 @@
         "LogEnd": 92
     },
     "CurrentPlayer": {
-        "SourceSize": 650,
-        "JobID": 106,
+        "SourceSize": 250,
+        "JobID": 126,
         // BMP
-        "ID": 84,
+        "ID": 100,
         "Name": 1
         // END BMP
     },
     "PartyMember": {
-        "SourceSize": 560,
-        "ID": 424,
-        "Name": 452
+        "SourceSize": 928,
+        "ID": 32,
+        "Name": 60
     },
     // BMP
     "PerformanceInfo": {
-        "SourceSize": 12,
-        "Status": 8,
-        "Instrument": 9
+        "SourceSize": 28,
+        "Status": 19,
+        "Instrument": 20
     },
     "World": {
-        "SourceSize": 16,
+        "SourceSize": 255,
         "Offset": 0
     },
     "CharacterId": { // Known as ConfigId in Seer. Used for DatReader.
