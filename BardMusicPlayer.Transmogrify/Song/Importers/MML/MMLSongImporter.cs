@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,7 +14,7 @@ using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 
-namespace BardMusicPlayer.Transmogrify.Song.Importers
+namespace BardMusicPlayer.Transmogrify.Song.Importers.MML
 {
     public enum Chap
     {
@@ -31,20 +32,9 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
         private static readonly string mmlPatterns =
             @"[tT]\d{1,3}|[lL](16|2|4|8|1|32|64)\.?|[vV]\d+|[oO]\d|<|>|[a-gA-G](\+|#|-)?(16|2|4|8|1|32|64)?\.?|[rR](16|2|4|8|1|32|64)?\.?|[nN]\d+\.?|&";
 
-        private static readonly Dictionary<string, int> noteNumbers = new()
-        {
-            { "c", 0 }, { "c.", 1 }, { "d", 2 }, { "d.", 3 }, { "e", 4 }, { "f", 5 }, { "f.", 6 }, { "g", 7 },
-            { "g.", 8 }, { "a", 9 }, { "a.", 10 }, { "b", 11 }, { "b.", 12 }
-        };
-
         private static Chap _chap { get; set; } = Chap.NULL;
 
         private static string Title { get; set; } = "None";
-        private static int _Tempo { get; set; } = 120 + 16; //Tempo + 33/2
-        private static double _Length { get; set; } = 4; //length of a note
-        private static int _Octave { get; set; } = 60; //The octave in midi notes
-
-
         private static int CurrentChannel { get; set; }
 
         /// <summary>
@@ -138,16 +128,33 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
         private static MidiFile CreateMidi()
         {
             var midiFile = new MidiFile();
+            int CurrentTempo = 120;
+
+            foreach (var t in musicData)
+            {
+                var m = t.Value.FirstOrDefault(n => n.Type == MMLCommandType.Tempo);
+                if (m.Args != null)
+                {
+                    midiFile.ReplaceTempoMap(TempoMap.Create(Tempo.FromBeatsPerMinute(Convert.ToInt32(m.Args[0]))));
+                    CurrentTempo = Convert.ToInt32(m.Args[0]);
+                    break;
+                }
+            }
             foreach (var t in musicData)
             {
                 double duration = 0;
 
-                _Octave = 60;
-                _Length = 0;
+                int CurrentLength = 4;
+                bool CurrentLengthDotted = false;
+                int CurrentOctave = 4;
+                int CurrentNote = -1;
+                bool inTie = false;
+
                 musicInstrument.TryGetValue(t.Key, out var instrument);
                 instrument ??= "Piano";
 
                 var thisTrack = new TrackChunk(new SequenceTrackNameEvent(instrument));
+
                 var result = Instrument.Parse(instrument);
                 for (var i = 0; i < t.Value.Count;)
                 {
@@ -155,83 +162,101 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                     switch (cmd.Type)
                     {
                         case MMLCommandType.Tempo:
-                            _Tempo = Convert.ToInt32(cmd.Args[0]);
-                            if (_Length == 0) _Length = GetLength("4");
-
+                            CurrentTempo = Convert.ToInt32(cmd.Args[0]);
                             break;
                         case MMLCommandType.Octave:
-                            _Octave = Convert.ToInt32(cmd.Args[0]) * 12 + 12;
+                            CurrentOctave = Convert.ToInt32(cmd.Args[0]);
                             break;
                         case MMLCommandType.OctaveDown:
-                            _Octave -= 12;
+                            CurrentOctave--;
                             break;
                         case MMLCommandType.OctaveUp:
-                            _Octave += 12;
+                            CurrentOctave++;
                             break;
                         case MMLCommandType.Tie:
+                            inTie = true;
                             break;
                         case MMLCommandType.Length:
-                            _Length = GetLength(cmd.Args[0], cmd.Args[1] == ".");
+                            CurrentLength = Convert.ToInt32(cmd.Args[0]);
+                            CurrentLengthDotted = cmd.Args[1] == ".";
                             break;
                         case MMLCommandType.Rest:
-                            duration += GetLength(cmd.Args[0], cmd.Args[1] == ".");
+                            if (CurrentNote != -1)
+                            {
+                                SetNoteOff(thisTrack, duration, (SevenBitNumber)CurrentNote);
+                                CurrentNote = -1;
+                            }
+                            duration += GetLength(CurrentTempo, CurrentLength, CurrentLengthDotted, cmd.Args[0], cmd.Args[1]);
                             break;
                         case MMLCommandType.NoteNumber:
-                            var number = Convert.ToInt32(cmd.Args[0]);
-                            if (number == 0)
+                            //Did we had a tie
+                            if (i != 0)
                             {
-                                duration += GetLength("", cmd.Args[1] == ".");
-                                break;
-                            }
-
-                            SetNoteOn(thisTrack, duration, (SevenBitNumber)(number + 12));
-                            duration += GetLength("", cmd.Args[1] == ".");
-
-                            if (i + 1 != t.Value.Count)
-                            {
-                                var nextcmd = t.Value[i + 1];
-                                if (nextcmd.Type == MMLCommandType.Tie)
+                                if (t.Value[i - 1].Type == MMLCommandType.Tie && CurrentNote != -1)
+                                {
+                                    duration += GetLength(CurrentTempo, CurrentLength, CurrentLengthDotted);
                                     break;
+                                }
                             }
 
-                            SetNoteOff(thisTrack, duration, (SevenBitNumber)(number + 12));
+                            if (CurrentNote != -1)
+                            {
+                                SetNoteOff(thisTrack, duration, (SevenBitNumber)CurrentNote);
+                                CurrentNote = -1;
+                            }
 
+                            CurrentNote = Convert.ToInt32(cmd.Args[0]);
+                            SetNoteOn(thisTrack, duration, (SevenBitNumber)CurrentNote);
+                            duration += GetLength(CurrentTempo, CurrentLength, CurrentLengthDotted);
                             break;
                         case MMLCommandType.Note:
-                            var nnumber = GetNote(cmd);
-                            SetNoteOn(thisTrack, duration, (SevenBitNumber)nnumber);
-                            duration += GetLength(cmd.Args[2], cmd.Args[3] == ".");
 
-                            if (i + 1 != t.Value.Count)
+                            //Did we had a tie
+                            if (i != 0)
                             {
-                                var nextcmd = t.Value[i + 1];
-                                if (nextcmd.Type == MMLCommandType.Tie)
+                                if (t.Value[i - 1].Type == MMLCommandType.Tie && CurrentNote != -1)
+                                {
+                                    duration += GetLength(CurrentTempo, CurrentLength, CurrentLengthDotted, cmd.Args[2], cmd.Args[3]);
                                     break;
+                                }
                             }
 
-                            SetNoteOff(thisTrack, duration, (SevenBitNumber)nnumber);
+                            if (CurrentNote != -1)
+                            {
+                                SetNoteOff(thisTrack, duration, (SevenBitNumber)CurrentNote);
+                                CurrentNote = -1;
+                            }
+
+                            CurrentNote = GetNote(cmd, CurrentOctave);
+                            SetNoteOn(thisTrack, duration, (SevenBitNumber)CurrentNote);
+                            duration += GetLength(CurrentTempo, CurrentLength, CurrentLengthDotted, cmd.Args[2], cmd.Args[3]);
                             break;
                     }
-
                     i++;
                 }
-
                 midiFile.Chunks.Add(thisTrack);
             }
 
-            midiFile.TimeDivision = new TicksPerQuarterNoteTimeDivision((short)(60000 / _Tempo));
-            midiFile.ReplaceTempoMap(TempoMap.Create(Tempo.FromBeatsPerMinute(_Tempo)));
+            //midiFile.TimeDivision = new TicksPerQuarterNoteTimeDivision((short)(60000 / _Tempo));
+            //midiFile.ReplaceTempoMap(TempoMap.Create(Tempo.FromBeatsPerMinute(_Tempo)));
 
             musicData.Clear();
             return midiFile;
         }
 
-        private static double GetLength(string multiplier, bool dottet = false)
+        private static double GetLength(int CurrentTempo, int CurrentLength, bool CurrentDot, string ParamLength="", string ParamDot="")
         {
-            double length = Tempo.FromBeatsPerMinute(_Tempo).MicrosecondsPerQuarterNote;
+            if (ParamLength != "")
+                return new MMLLength(Convert.ToInt32(ParamLength), ParamDot == ".").ToTimeSpan(Tempo.FromBeatsPerMinute(CurrentTempo).MicrosecondsPerQuarterNote / 1000).TotalMilliseconds;
+
+            return new MMLLength(CurrentLength, ParamDot == "." || CurrentDot).ToTimeSpan(Tempo.FromBeatsPerMinute(CurrentTempo).MicrosecondsPerQuarterNote / 1000).TotalMilliseconds;
+        }
+        private static double GetLengthB(int tempo, double globLength, string multiplier, bool dottet = false)
+        {
+            double length = Tempo.FromBeatsPerMinute(tempo).MicrosecondsPerQuarterNote;
             if (multiplier == "")
             {
-                length = _Length;
+                length = globLength;
                 if (dottet)
                     return length * 1.5;
 
@@ -240,32 +265,37 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
 
             var length_multiplier = Convert.ToInt32(multiplier);
             if (dottet)
-                return length / length_multiplier * 1.5;
+                return (length / length_multiplier) * 1.5;
 
             return length / length_multiplier;
         }
 
-        private static int GetNote(MMLCommand cmd)
+        /// <summary>
+        /// Returns the NoteNumber
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="octave"></param>
+        /// <returns></returns>
+        private static SevenBitNumber GetNote(MMLCommand cmd, int octave)
         {
             var noteType = cmd.Args[0].ToLower();
-            var noteNum = 0;
             switch (cmd.Args[1])
             {
                 case "#":
                 case "+":
-                    noteNum = noteNumbers[noteType + "."];
-                    break;
+                    return Melanchall.DryWetMidi.MusicTheory.Note.Parse(noteType + "#" + octave.ToString()).NoteNumber;
                 case "-":
-                    noteNum = noteNumbers[noteType];
-                    break;
                 default:
-                    noteNum = noteNumbers[noteType];
-                    break;
+                    return Melanchall.DryWetMidi.MusicTheory.Note.Parse(noteType + octave.ToString()).NoteNumber;
             }
-
-            return noteNum + _Octave;
         }
 
+        /// <summary>
+        /// Sets a note on
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="duration"></param>
+        /// <param name="noteNumber"></param>
         private static void SetNoteOn(TrackChunk track, double duration, SevenBitNumber noteNumber)
         {
             using (var manager = new TimedObjectsManager<TimedEvent>(track.Events))
@@ -276,6 +306,12 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             }
         }
 
+        /// <summary>
+        /// Sets a note off
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="duration"></param>
+        /// <param name="noteNumber"></param>
         private static void SetNoteOff(TrackChunk track, double duration, SevenBitNumber noteNumber)
         {
             using (var manager = new TimedObjectsManager<TimedEvent>(track.Events))

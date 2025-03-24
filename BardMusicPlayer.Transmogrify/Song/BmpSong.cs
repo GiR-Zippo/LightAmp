@@ -86,7 +86,7 @@ namespace BardMusicPlayer.Transmogrify.Song
             if (Path.GetExtension(path).Equals(".mmsong"))
                 song = CovertMidiToSong(MMSongImporter.OpenMMSongFile(path), path);
             else if (Path.GetExtension(path).Equals(".mml"))
-                song = CovertMidiToSong(MMLSongImporter.OpenMMLSongFile(path), path);
+                song = CovertMidiToSong(Importers.MML.MMLSongImporter.OpenMMLSongFile(path), path);
             else if (Path.GetExtension(path).Contains(".gp"))
                 song = CovertMidiToSong(Importers.GuitarPro.ImportGuitarPro.OpenGTPSongFile(path), path);
             else

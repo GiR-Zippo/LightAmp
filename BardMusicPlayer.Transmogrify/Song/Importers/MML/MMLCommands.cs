@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace BardMusicPlayer.Transmogrify.Song.Importers
+namespace BardMusicPlayer.Transmogrify.Song.Importers.MML
 {
     public enum MMLCommandType
     {
@@ -58,26 +58,26 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             switch (token.ToLowerInvariant()[0])
             {
                 case 't':
-                    t = MMLCommandType.Tempo;
+                    t = MMLCommandType.Tempo;                       //impl
                     AddPart(args, token, @"\d{1,3}");
                     break;
-                case 'l':
+                case 'l':                                           //impl - partially
                     t = MMLCommandType.Length;
                     AddPart(args, token, @"(16|2|4|8|1|32|64)");
                     AddPart(args, token, @"\.");
                     break;
-                case 'v':
+                case 'v':                                           //impl
                     t = MMLCommandType.Volume;
                     AddPart(args, token, @"\d+");
                     break;
                 case 'o':
-                    t = MMLCommandType.Octave;
+                    t = MMLCommandType.Octave;                      //impl
                     AddPart(args, token, @"\d");
                     break;
-                case '<':
+                case '<':                                           //impl
                     t = MMLCommandType.OctaveDown;
                     break;
-                case '>':
+                case '>':                                           //impl
                     t = MMLCommandType.OctaveUp;
                     break;
                 case 'a':
@@ -138,7 +138,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
 
         public readonly TimeSpan ToTimeSpan(double secondsPerMeasure)
         {
-            double length = 1.0 / (double)Length;
+            double length = 1.0 / Length;
             if (Dotted)
                 length *= 1.5;
 

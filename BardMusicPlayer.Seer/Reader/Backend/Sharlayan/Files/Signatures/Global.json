@@ -8,7 +8,7 @@
         "PointerPath": [ 0, 0, 64, 908 ]
     },
     {
-        //g_Client::Game::Object::GameObjectManager_Instance
+        //g_Client::Game::Object::GameObjectManager_Instance.Objects
         "Key": "CHARMAP",
         "Value": "48 C1 EA 03 81 FA ?? ?? 00 00 ?? ?? 8B C2 48 8D 0D",
         "ASMSignature": true,
