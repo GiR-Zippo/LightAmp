@@ -24,9 +24,12 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
             {
                 if (otherActorId != myActorId) return;
 
+                if (BitConverter.ToUInt32(message, 0x48) == 0 && 
+                    BitConverter.ToUInt32(message, 0x4C) == 0)
+                    return;
+
                 var homeWorldId = BitConverter.ToUInt16(message, 114);
                 var playerName = Encoding.UTF8.GetString(message, 116, 32).Trim((char)0);
-
                 if (World.Ids.ContainsKey(homeWorldId))
                     _machinaReader.Game.PublishEvent(new HomeWorldChanged(EventSource.Machina,
                         World.Ids[homeWorldId]));
