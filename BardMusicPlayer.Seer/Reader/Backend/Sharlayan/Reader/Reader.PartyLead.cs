@@ -21,7 +21,6 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
             var partyInfoMap = (IntPtr)Scanner.Locations[Signatures.PartyMapKey];
             var partyLeadMap = (IntPtr)Scanner.Locations[Signatures.PartyLeadKey];
             var partyCountMap = (IntPtr)Scanner.Locations[Signatures.PartyCountKey];
-
             try
             {
                 var partyCount = MemoryHandler.GetByte(partyCountMap);
