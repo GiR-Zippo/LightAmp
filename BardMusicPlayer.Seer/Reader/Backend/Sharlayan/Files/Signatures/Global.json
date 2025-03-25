@@ -28,7 +28,7 @@
         "ASMSignature": true,
         "PointerPath": [
             0,
-            26044
+            32764
         ]
     },
     {
@@ -36,7 +36,7 @@
         "Key": "PARTYLEAD",
         "Value": "5E C3 48 89 5C 24 30 48 8D 0D",
         "ASMSignature": true,
-        "PointerPath": [ 0, 26040 ]
+        "PointerPath": [ 0, 32760 ]
     },
     {
         //g_Client::Game::UI::UIState_Instance.PlayerState

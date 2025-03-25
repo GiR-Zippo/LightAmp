@@ -36,7 +36,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                 for (var i = 0; i <= 3136; i += 456)
                 {
                     //Check for empty column
-                    var actorId = BitConverter.ToUInt32(message, 88 + i);
+                    var actorId = (UInt32)BitConverter.ToUInt16(message, 88 + i) - message[92 + i] + (BitConverter.ToUInt32(message, 90 + i) * 0x10000 ); //What the...
+                    // OLD: BitConverter.ToUInt32(message, 88 + i);
                     if (actorId == 0)
                         continue;
 

@@ -16,9 +16,9 @@
         // END BMP
     },
     "PartyMember": {
-        "SourceSize": 928,
-        "ID": 32,
-        "Name": 60
+        "SourceSize": 1168,
+        "ID": 272,
+        "Name": 300
     },
     // BMP
     "PerformanceInfo": {
