@@ -595,13 +595,29 @@ namespace BardMusicPlayer.Seer
             output += "\n\n";
 
             //content
-            output += hexString + "\n";
-            foreach (byte b in message)
-            {
-                if (b > 32 && b < 127)
-                    output += Convert.ToChar(b) + " -";
+            for (var i = 0; i != message.Length; i++)
+                if (i > 0xFF)
+                    output += $"{message[i]:X2}" + " -";
                 else
-                    output += $"{b:X2}" + "-";
+                    output += $"{message[i]:X2}" + "-";
+                
+            output += "\n";
+            for (var i = 0; i != message.Length; i++)
+            {
+                if (i > 0xFF)
+                {
+                    if (message[i] > 32 && message[i] < 127)
+                        output += Convert.ToChar(message[i]) + "  -";
+                    else
+                        output += $"{message[i]:X2}" + " -";
+                }
+                else
+                {
+                    if (message[i] > 32 && message[i] < 127)
+                        output += Convert.ToChar(message[i]) + " -";
+                    else
+                        output += $"{message[i]:X2}" + "-";
+                }
             }
             output += "\n";
 
