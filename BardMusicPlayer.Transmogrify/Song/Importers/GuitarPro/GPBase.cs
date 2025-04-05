@@ -1133,6 +1133,8 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.GuitarPro
                     value = arg0i % 12;
 
                     str = _notes_sharp[Math.Max(value, 0)];
+                    if (value == -1)
+                        value = 0;
                     if (intonation.Equals("flat")) str = _notes_flat[value];
                 }
 
