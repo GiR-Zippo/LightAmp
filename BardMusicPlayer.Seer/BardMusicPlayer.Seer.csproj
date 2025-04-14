@@ -59,6 +59,12 @@
       </ContentWithTargetPath>
   </ItemGroup>
   <ItemGroup>
+    <ContentWithTargetPath Include="Lib\Machina\\deucalion-1.2.0.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>deucalion-1.2.0.dll</TargetPath>
+    </ContentWithTargetPath>
+  </ItemGroup>
+  <ItemGroup>
     <ContentWithTargetPath Include="Lib\Machina\\oo2net_9_win64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>oo2net_9_win64.dll</TargetPath>
@@ -91,6 +97,9 @@
 
   <ItemGroup>
     <None Update="Lib\Machina\deucalion-1.1.0.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Lib\Machina\deucalion-1.2.0.dll">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="Lib\Machina\oo2net_9_win64.dll">

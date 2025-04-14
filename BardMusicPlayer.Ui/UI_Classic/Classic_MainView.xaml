@@ -35,7 +35,7 @@
 
             <!-- Playlist -->
             <Grid x:Name="PlaylistGrid" Grid.Row="0" Grid.Column="0" Background="WhiteSmoke" Visibility="Visible">
-                <control:Playlist x:Name="PlaylistCtl"/>
+                <control:Playlist x:Name="PlaylistCtl" Background="WhiteSmoke"/>
             </Grid>
 
             <!-- History -->
