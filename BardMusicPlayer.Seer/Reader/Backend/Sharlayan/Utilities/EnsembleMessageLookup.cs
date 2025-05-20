@@ -15,21 +15,21 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Utilities
                 "Bereitschaftsanfrage für die Aufführung wird gestartet." => EnsembleFlag.Request,
                 "Lancement de l'appel de préparation." => EnsembleFlag.Request,
                 "合奏レディチェックを開始します。" => EnsembleFlag.Request,
-                // need kr
+                "합주 준비 확인을 시작합니다" => EnsembleFlag.Request,
                 // need cn
 
                 "All party members are ready.The count-in will now commence." => EnsembleFlag.Start,
                 "Alle Gruppenmitglieder bereit.Das Anzählen beginnt." => EnsembleFlag.Start,
                 "L'orchestre est prêt. Début du décompte." => EnsembleFlag.Start,
                 "合奏レディチェックが完了しました。カウントを開始します。" => EnsembleFlag.Start,
-                // need kr
+                "박자를 세기 시작합니다." => EnsembleFlag.Start,
                 // need cn
 
                 "Ensemble mode has ended." => EnsembleFlag.Stop,
                 "Der Ensemblemodus wurde beendet." => EnsembleFlag.Stop,
                 "Le mode orchestral a pris fin." => EnsembleFlag.Stop,
                 "合奏モードが終了しました。" => EnsembleFlag.Stop,
-                // need kr
+                "합주 모드를 종료했습니다." => EnsembleFlag.Stop,
                 // need cn
 
                 "Not all party members are ready.The ensemble mode ready check will be canceled." =>

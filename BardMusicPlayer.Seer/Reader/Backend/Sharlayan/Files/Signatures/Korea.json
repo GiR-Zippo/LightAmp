@@ -3,7 +3,7 @@
     {
         //Client::System::Input::TextService_ctor
         "Key": "CHATLOG",
-        "Value": "48 89 41 10 44 88 49 2C 4C 89 49 24 4C 89 49 1C 45 84 C0 74 12 48 8B 42 18 48 89 05 ?? ?? ?? ?? 48 89 0D",
+        "Value": "48 89 41 10 ?? ?? ?? ?? 45 84 C0 74 12 48 8B 42 18 48 89 05 ?? ?? ?? ?? 48 89 0D",
         "ASMSignature": true,
         "PointerPath": [ 0, 0, 64, 908 ]
     },
