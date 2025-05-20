@@ -21,7 +21,7 @@ namespace BardMusicPlayer.Ui
         public MainWindow()
         {
             InitializeComponent();
-            this.Title = "LightAmp Ver:" + Assembly.GetExecutingAssembly().GetName().Version + " - Ami Tsuruga";
+            this.Title = "LightAmp Ver:" + Assembly.GetExecutingAssembly().GetName().Version + " - Filo";
             if (BmpPigeonhole.Instance.ClassicUi)
                 SwitchClassicStyle();
             else
@@ -86,7 +86,10 @@ namespace BardMusicPlayer.Ui
         {
             for (int intCounter = App.Current.Windows.Count - 1; intCounter >= 0; intCounter--)
             {
-                try { App.Current.Windows[intCounter].Close(); }
+                try
+                {
+                    App.Current.Windows[intCounter].Close();
+                }
                 catch { }
             }
             base.OnClosing(e);

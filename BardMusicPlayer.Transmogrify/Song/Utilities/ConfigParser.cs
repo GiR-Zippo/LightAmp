@@ -174,9 +174,20 @@ namespace BardMusicPlayer.Transmogrify.Song.Utilities
                     {
                         if (instrumentAndOctaveRange.Groups[1].Value.ToLower().Equals("program:electricguitar")) //if we have this use first progEvent
                         {
-                            TimedEvent tEvent = trackChunk.GetTimedEvents().FirstOrDefault(n => n.Event.EventType == MidiEventType.ProgramChange);
-                            if (tEvent != null && tEvent.Event is ProgramChangeEvent)
-                                classicConfig.Instrument = Instrument.ParseByProgramChange((tEvent.Event as ProgramChangeEvent).ProgramNumber);
+                            foreach (var timedEvent in trackChunk.GetTimedEvents())
+                            {
+                                if (timedEvent.Event is not ProgramChangeEvent programChangeEvent)
+                                    continue;
+
+                                //Skip all except guitar
+                                if (programChangeEvent.ProgramNumber < 27 || programChangeEvent.ProgramNumber > 31)
+                                    continue;
+
+                                classicConfig.Instrument = Instrument.ParseByProgramChange((timedEvent.Event as ProgramChangeEvent).ProgramNumber);
+                            }
+                            //    TimedEvent tEvent = trackChunk.GetTimedEvents().FirstOrDefault(n => n.Event.EventType == MidiEventType.ProgramChange);
+                            //if (tEvent != null && tEvent.Event is ProgramChangeEvent)
+                            //    classicConfig.Instrument = Instrument.ParseByProgramChange((tEvent.Event as ProgramChangeEvent).ProgramNumber);
                         }
                         else
                             classicConfig.Instrument = Instrument.Parse(instrumentAndOctaveRange.Groups[1].Value);
