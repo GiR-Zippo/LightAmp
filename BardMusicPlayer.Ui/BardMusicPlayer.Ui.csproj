@@ -274,6 +274,9 @@
     <Compile Include="Controls\SirenPreview.xaml.cs">
       <DependentUpon>SirenPreview.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\XIVMidiBrowser.xaml.cs">
+      <DependentUpon>XIVMidiBrowser.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Resources\ProgressBar.xaml.cs">
       <DependentUpon>ProgressBar.xaml</DependentUpon>
     </Compile>
@@ -347,6 +350,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\SirenPreview.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\XIVMidiBrowser.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -526,6 +533,10 @@
     <ProjectReference Include="..\BardMusicPlayer.Transmogrify\BardMusicPlayer.Transmogrify.csproj">
       <Project>{afb55e52-c439-481e-99f4-0b56c42a6d4b}</Project>
       <Name>BardMusicPlayer.Transmogrify</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BardMusicPlayer.XIVMIDI\BardMusicPlayer.XIVMIDI.csproj">
+      <Project>{850d6b1b-d612-c1f0-9ccf-2f0cb1c28f02}</Project>
+      <Name>BardMusicPlayer.XIVMIDI</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sanford.Multimedia.Midi\Source\Sanford.Multimedia.Midi.csproj">
       <Project>{4269C72A-8D3A-4737-8F89-72EAA33EA9E1}</Project>

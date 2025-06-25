@@ -59,6 +59,10 @@ namespace BardMusicPlayer.Ui.Classic
             SongBrowser.OnAddSongFromBrowser            += Instance_SongBrowserAddSongToPlaylist;
             SongBrowser.OnLoadSongFromBrowserToPreview  += Instance_SongBrowserLoadSongToPreview;
 
+            XIVBrowser.OnLoadSongFromBrowser            += Instance_SongBrowserLoadedSong;
+            XIVBrowser.OnAddSongFromBrowser             += Instance_SongBrowserAddSongToPlaylist;
+            XIVBrowser.OnLoadSongFromBrowserToPreview   += Instance_SongBrowserLoadSongToPreview;
+
             BmpSeer.Instance.MidibardPlaylistEvent      += Instance_MidibardPlaylistEvent;
 
             Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
@@ -301,21 +305,6 @@ namespace BardMusicPlayer.Ui.Classic
                 BmpChatParser.AppendText(ChatBox, ev);
                 this.ChatBox.ScrollToEnd();
             }
-
-            if (ev.ChatLogCode == "0039")
-            {
-                if (ev.ChatLogLine.Contains(@"Anzählen beginnt") ||
-                    ev.ChatLogLine.Contains("The count-in will now commence.") ||
-                    ev.ChatLogLine.Contains("orchestre est pr"))
-                {
-                    if (BmpPigeonhole.Instance.AutostartMethod != (int)Globals.Globals.Autostart_Types.VIA_CHAT)
-                        return;
-                    if (PlaybackFunctions.PlaybackState == PlaybackFunctions.PlaybackState_Enum.PLAYBACK_STATE_PLAYING)
-                        return;
-                    PlaybackFunctions.PlaySong(3000);
-                    Play_Button_State(true);
-                }
-            }
         }
         #endregion
 
@@ -494,6 +483,32 @@ namespace BardMusicPlayer.Ui.Classic
                 PlaylistGrid.Visibility = Visibility.Hidden;
                 HistoryGrid.Visibility = Visibility.Visible;
             }
+        }
+
+        private void SongBrowser_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Tab)
+                return;
+
+            if (!SongBrowserGrid.IsMouseOver)
+                return;
+
+
+            e.Handled = true;
+
+            if (SongBrowser.Visibility == Visibility.Hidden)
+            {
+                XIVBrowser.Visibility = Visibility.Hidden;
+                SongBrowser.Visibility = Visibility.Visible;
+                SongBrowser.SongPath.Focus();
+            }
+            else
+            {
+                XIVBrowser.Visibility = Visibility.Visible;
+                XIVBrowser.RefreshButton.Focus();
+                SongBrowser.Visibility = Visibility.Hidden;
+            }
+            
         }
     }
 }

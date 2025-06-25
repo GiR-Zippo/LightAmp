@@ -131,9 +131,10 @@
                             <control:SirenPreview x:Name="SirenPreview"/>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="SongBrowser">
-                        <Grid Background="WhiteSmoke">
+                    <TabItem Header="SongBrowser" x:Name="SongBrowserGrid">
+                        <Grid Background="WhiteSmoke" KeyDown="SongBrowser_KeyDown">
                             <control:SongBrowser x:Name="SongBrowser"/>
+                            <control:XIVMidiBrowser x:Name="XIVBrowser" Visibility="Hidden"/>
                         </Grid>
                     </TabItem>
                 </TabControl>

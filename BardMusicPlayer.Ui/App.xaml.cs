@@ -12,6 +12,7 @@ using System.Diagnostics;
 using BardMusicPlayer.Siren;
 using BardMusicPlayer.Jamboree;
 using BardMusicPlayer.Script;
+using BardMusicPlayer.XIVMIDI;
 using System.Globalization;
 using System;
 
@@ -22,6 +23,7 @@ namespace BardMusicPlayer.Ui
     /// </summary>
     public sealed partial class App : Application
     {
+        public static string TempPath { get; } = System.IO.Path.GetTempPath() + "LightAmp\\";
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -55,12 +57,14 @@ namespace BardMusicPlayer.Ui
             BmpScript.Instance.Start();
 
             BmpSiren.Instance.Setup();
+            XIVMIDI.XIVMIDI.Instance.Start();
             //BmpJamboree.Instance.Start();
             ConfigureLanguage(System.Threading.Thread.CurrentThread.CurrentUICulture.ToString());
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
+            XIVMIDI.XIVMIDI.Instance.Stop();
             //LogManager.Shutdown();
             BmpJamboree.Instance.Stop();
             if (BmpSiren.Instance.IsReadyForPlayback)
