@@ -41,11 +41,11 @@
             </ComboBox>
         </Grid>
 
-        <ScrollViewer Name="AppScene" VerticalScrollBarVisibility="Auto"
+        <ScrollViewer Name="AppScene" VerticalScrollBarVisibility="Auto" 
             HorizontalAlignment="Stretch" 
             VerticalAlignment="Stretch" 
             Grid.Row="0" Grid.Column="1">
-            <Grid Name="TracksPanel" 
+            <Grid Name="TracksPanel"
                 HorizontalAlignment="Stretch" 
                 VerticalAlignment="Stretch" 
                 Grid.Row="0" 

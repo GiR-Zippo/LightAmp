@@ -67,7 +67,7 @@
             <GridSplitter/> -->
 
             <!-- TrackBody -->
-			<ScrollViewer VerticalAlignment="Stretch" Name="BodyScroll" Grid.Column="1" Background="White" Margin="0" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
+			<ScrollViewer VerticalAlignment="Stretch" Name="BodyScroll" Grid.Column="1" Background="Black" Margin="0" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
 				<DockPanel>
                     <Grid
                         x:Name="theGrid"

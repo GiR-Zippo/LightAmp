@@ -70,7 +70,7 @@
 			<GridSplitter></GridSplitter>
 
 			<!-- TrackBody -->
-			<ScrollViewer VerticalAlignment="Stretch" Name="BodyScroll" Grid.Column="1" Background="White" Margin="0" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden">
+			<ScrollViewer VerticalAlignment="Stretch" Name="BodyScroll" Grid.Column="1" Background="Black" Margin="0" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden">
 				<DockPanel>
                     <Canvas Name="TrackNotes" Width="15" Background="white"/>
                         <Canvas Name="TrackBody"  Height="640"

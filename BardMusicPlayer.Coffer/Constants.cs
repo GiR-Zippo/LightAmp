@@ -17,5 +17,6 @@ namespace BardMusicPlayer.Coffer
 
         // Schema Document ID
         internal const int SCHEMA_DOCUMENT_ID = 1;
+
     }
 }
