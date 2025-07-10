@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Controls
@@ -31,7 +31,6 @@ namespace BardMusicPlayer.Ui.Controls
         public XIVMidiBrowser()
         {
             InitializeComponent();
-            RefreshContainer();
 
             XIVMIDI.XIVMIDI.Instance.OnRequestFinished += Instance_RequestFinished;
 
@@ -62,13 +61,14 @@ namespace BardMusicPlayer.Ui.Controls
                     {
                         if (file.website_file_path == null)
                             continue;
-                        list.Add(file.website_file_path, (file.artist ?? "") + " - " + file.title ?? "");
+                        list.Add(file.website_file_path, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.editor?? ""));
                     }
                     catch { }
                 }
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     SongbrowserContainer.ItemsSource = list;
+                    SongbrowserContainer.Items.Filter = RefreshContainer;
                 }));
             }
             else if (e is XIVMIDI.IO.ResponseContainer.MidiFile)
@@ -96,9 +96,12 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
-        private void RefreshContainer()
+        private bool RefreshContainer(object item)
         {
-            
+            if (String.IsNullOrEmpty(SongSearch.Text))
+                return true;
+            else
+                return ((KeyValuePair<string, string>) item).Value.IndexOf(SongSearch.Text, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         /// <summary>
@@ -129,17 +132,7 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void SongSearch_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            RefreshContainer();
-        }
-
-        /// <summary>
-        /// Sets the songs folder path by typing
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SongPath_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            RefreshContainer();
+            CollectionViewSource.GetDefaultView(SongbrowserContainer.ItemsSource).Refresh();
         }
 
         /// <summary>
@@ -203,27 +196,6 @@ namespace BardMusicPlayer.Ui.Controls
                 Accept = "audio/midi",
                 Requester = XIVMIDI.IO.Requester.DOWNLOAD
             });
-        }
-
-        /// <summary>
-        /// Get the filename from the sender
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <returns></returns>
-        private string GetFilenameFromSender(object sender)
-        {
-            var filename = "";
-            if (sender is ListViewItem)
-            {
-                KeyValuePair<string, string> f = (KeyValuePair<string, string>)(sender as ListViewItem).Content;
-                filename = f.Key;
-            }
-            _Sender = null; //set the sender to null
-
-            if (filename == "")
-                filename = GetFilenameFromSelection();
-
-            return filename;
         }
 
         /// <summary>
