@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using BardMusicPlayer.Transmogrify.Song;
 
-namespace BardMusicPlayer.Coffer
+namespace BardMusicPlayer.Coffer.Interfaces
 {
     public interface IPlaylist : IEnumerable<BmpSong>
     {

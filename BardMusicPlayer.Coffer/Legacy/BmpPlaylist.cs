@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using BardMusicPlayer.Transmogrify.Song;
 using LiteDB;
 
-namespace BardMusicPlayer.Coffer
+namespace BardMusicPlayer.Coffer.Legacy
 {
     public sealed class BmpPlaylist
     {

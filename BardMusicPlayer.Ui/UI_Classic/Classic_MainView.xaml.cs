@@ -59,9 +59,9 @@ namespace BardMusicPlayer.Ui.Classic
             SongBrowser.OnAddSongFromBrowser            += Instance_SongBrowserAddSongToPlaylist;
             SongBrowser.OnLoadSongFromBrowserToPreview  += Instance_SongBrowserLoadSongToPreview;
 
-            XIVBrowser.OnLoadSongFromBrowser            += Instance_SongBrowserLoadedSong;
-            XIVBrowser.OnAddSongFromBrowser             += Instance_SongBrowserAddSongToPlaylist;
-            XIVBrowser.OnLoadSongFromBrowserToPreview   += Instance_SongBrowserLoadSongToPreview;
+            XIVBrowser.OnLoadSongFromBrowser            += Instance_BMLBrowserLoadedSong;
+            XIVBrowser.OnAddSongFromBrowser             += Instance_BMLBrowserAddSongToPlaylist;
+            XIVBrowser.OnLoadSongFromBrowserToPreview   += Instance_BMLBrowserLoadSongToPreview;
 
             BmpSeer.Instance.MidibardPlaylistEvent      += Instance_MidibardPlaylistEvent;
 
@@ -213,6 +213,39 @@ namespace BardMusicPlayer.Ui.Classic
         {
             SirenPreview.SirenLoadSong(BmpSong.OpenFile(filename).Result);
         }
+
+        /// <summary>
+        /// triggered by the BMLBrowser if a song should be loaded
+        /// </summary>
+        private void Instance_BMLBrowserLoadedSong(object sender, BmpSong song)
+        {
+            //Inform the PlayedHistory
+            if (BmpPigeonhole.Instance.EnableSongHistory)
+                PlayedHistory.SongHistory.Add(song);
+
+            PlaybackFunctions.LoadSongFromPlaylist(song);
+            InstrumentInfo.Content = PlaybackFunctions.GetInstrumentNameForHostPlayer();
+            _directLoaded = true;
+        }
+
+        /// <summary>
+        /// triggered by the BMLBrowser if a song should be added to the playlist
+        /// </summary>
+        private void Instance_BMLBrowserAddSongToPlaylist(object sender, BmpSong song)
+        {
+            PlaylistCtl.AddSongToPlaylist(song);
+        }
+
+        /// <summary>
+        /// Triggered by the BMLBrowser when a song should be previewed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="song"></param>
+        private void Instance_BMLBrowserLoadSongToPreview(object sender, BmpSong song)
+        {
+            SirenPreview.SirenLoadSong(song);
+        }
+
 
         private void Instance_MidibardPlaylistEvent(Seer.Events.MidibardPlaylistEvent seerEvent)
         {

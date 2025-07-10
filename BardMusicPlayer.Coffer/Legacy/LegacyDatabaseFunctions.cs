@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.Coffer.Interfaces;
 using BardMusicPlayer.Transmogrify.Song;
 using LiteDB;
 using Melanchall.DryWetMidi.Interaction;
@@ -11,25 +12,20 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace BardMusicPlayer.Coffer.DatabaseFunctions
+namespace BardMusicPlayer.Coffer.Legacy
 {
     internal class LegacyDatabaseFunctions : IDatabaseFunctions
     {
         private LiteDatabase dbi = null;
         public void SetDatabase(LiteDatabase database)
         {
-            this.dbi = database;
+            dbi = database;
         }
 
         #region Playlist
         public IPlaylist CreatePlaylistFromTag(string tag)
         {
-            if (tag == null)
-            {
-                throw new ArgumentNullException();
-            }
-
-            var songCol = this.GetSongCollection();
+            var songCol = GetSongCollection();
 
             // TODO: This is brute force and not memory efficient; there has to be a better
             // way to do this, but my knowledge of LINQ and BsonExpressions isn't there yet.
@@ -51,11 +47,6 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
 
         public IPlaylist CreatePlaylist(string name)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException();
-            }
-
             var dbList = new BmpPlaylist()
             {
                 Songs = new List<BmpSong>(),
@@ -68,12 +59,7 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
 
         public IPlaylist GetPlaylist(string name)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException();
-            }
-
-            var playlists = this.GetPlaylistCollection();
+            var playlists = GetPlaylistCollection();
 
             // We guarantee uniqueness in index and code, therefore
             // there should be one and only one list.
@@ -82,27 +68,22 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
                 .Where(x => x.Name == name)
                 .Single();
 
-            return (dbList != null) ? new BmpPlaylistDecorator(dbList) : null;
+            return dbList != null ? new BmpPlaylistDecorator(dbList) : null;
         }
 
         public IList<string> GetPlaylistNames()
         {
-            var playlists = this.GetPlaylistCollection();
+            var playlists = GetPlaylistCollection();
 
             // Want to ensure we don't pull in the trackchunk data.
             return playlists.Query()
-                .Select<string>(static x => x.Name)
+                .Select(static x => x.Name)
                 .ToList();
         }
 
         public void SavePlaylist(IPlaylist songList)
         {
-            if (songList.GetType() != typeof(BmpPlaylistDecorator))
-            {
-                throw new Exception("Unsupported implementation of IPlaylist");
-            }
-
-            var playlists = this.GetPlaylistCollection();
+            var playlists = GetPlaylistCollection();
 
             var dbList = ((BmpPlaylistDecorator)songList).GetBmpPlaylist();
 
@@ -126,12 +107,7 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
 
         public void DeletePlaylist(IPlaylist songList)
         {
-            if (songList.GetType() != typeof(BmpPlaylistDecorator))
-            {
-                throw new Exception("Unsupported implementation of IPlaylist");
-            }
-
-            var playlists = this.GetPlaylistCollection();
+            var playlists = GetPlaylistCollection();
 
             var dbList = ((BmpPlaylistDecorator)songList).GetBmpPlaylist();
 
@@ -154,33 +130,22 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
         #region Songs
         public BmpSong GetSong(string title)
         {
-            if (title == null)
-            {
-                throw new ArgumentNullException();
-            }
-
-            var songCol = this.GetSongCollection();
-
+            var songCol = GetSongCollection();
             return songCol.FindOne(x => x.Title == title);
         }
 
         public IList<string> GetSongTitles()
         {
-            var songCol = this.GetSongCollection();
+            var songCol = GetSongCollection();
 
             return songCol.Query()
-                .Select<string>(x => x.Title)
+                .Select(x => x.Title)
                 .ToList();
         }
 
         public bool IsSongInDatabase(BmpSong song, bool strict = true)
         {
-            if (song == null)
-            {
-                throw new ArgumentNullException();
-            }
-
-            var songCol = this.GetSongCollection();
+            var songCol = GetSongCollection();
             IEnumerable<BmpSong> sList = null;
             if (strict)
                 sList = songCol.Find(x => x.Title == song.Title);
@@ -209,12 +174,7 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
 
         public void SaveSong(BmpSong song)
         {
-            if (song == null)
-            {
-                throw new ArgumentNullException();
-            }
-
-            var songCol = this.GetSongCollection();
+            var songCol = GetSongCollection();
             try
             {
                 if (song.Id == null)
@@ -243,17 +203,15 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
 
         public void DeleteSong(BmpSong song)
         {
-            if (song == null) throw new ArgumentNullException();
-
             //Check if the song is in use in other playlists
-            if ((from x in this.GetPlaylistCollection().Query().ToArray()
+            if ((from x in GetPlaylistCollection().Query().ToArray()
                  from y in x.Songs
                  where y.Id.Equals(song.Id)
                  select y.Id).Count() > 1)
                 return;
 
             //if not, remove it
-            var songCol = this.GetSongCollection();
+            var songCol = GetSongCollection();
             try
             {
                 if (song.Id == null)
@@ -277,18 +235,18 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
             try
             {
                 //Check if we have songs without a playlist
-                List<ObjectId> differenceQuery = this.GetSongCollection().Query().Select(x => x.Id).ToList()
-                                                 .Except(from x in this.GetPlaylistCollection().Query().ToArray()
+                List<ObjectId> differenceQuery = GetSongCollection().Query().Select(x => x.Id).ToList()
+                                                 .Except(from x in GetPlaylistCollection().Query().ToArray()
                                                          from y in x.Songs
                                                          select y.Id).ToList();
                 //and remove them
                 foreach (var id in differenceQuery)
-                    this.GetSongCollection().Delete(id);
+                    GetSongCollection().Delete(id);
 
                 differenceQuery.Clear();
 
-                this.dbi.Checkpoint();
-                this.dbi.Rebuild();
+                dbi.Checkpoint();
+                dbi.Rebuild();
             }
             catch { }
         }
@@ -296,10 +254,10 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
         public void Export(string filename)
         {
             var t = new LiteDatabase(filename);
-            var names = this.dbi.GetCollectionNames();
+            var names = dbi.GetCollectionNames();
             foreach (var name in names)
             {
-                var col2 = this.dbi.GetCollection(name);
+                var col2 = dbi.GetCollection(name);
                 var col = t.GetCollection(name);
                 try
                 {
@@ -316,7 +274,7 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
         /// <returns></returns>
         private ILiteCollection<BmpPlaylist> GetPlaylistCollection()
         {
-            return this.dbi.GetCollection<BmpPlaylist>(Constants.PLAYLIST_COL_NAME);
+            return dbi.GetCollection<BmpPlaylist>(Constants.PLAYLIST_COL_NAME);
         }
 
         /// <summary>
@@ -325,7 +283,7 @@ namespace BardMusicPlayer.Coffer.DatabaseFunctions
         /// <returns></returns>
         private ILiteCollection<BmpSong> GetSongCollection()
         {
-            return this.dbi.GetCollection<BmpSong>(Constants.SONG_COL_NAME);
+            return dbi.GetCollection<BmpSong>(Constants.SONG_COL_NAME);
         }
 
         /// <summary>

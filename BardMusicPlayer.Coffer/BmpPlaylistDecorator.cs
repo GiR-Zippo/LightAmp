@@ -6,6 +6,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using BardMusicPlayer.Coffer.Interfaces;
+using BardMusicPlayer.Coffer.Legacy;
 using BardMusicPlayer.Transmogrify.Song;
 
 namespace BardMusicPlayer.Coffer

@@ -4,6 +4,7 @@
  */
 
 using BardMusicPlayer.Coffer;
+using BardMusicPlayer.Coffer.Interfaces;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Functions;
@@ -152,6 +153,17 @@ namespace BardMusicPlayer.Ui.Controls
                 return;
 
             if (PlaylistFunctions.AddFilesToPlaylist(currentPlaylist, filename))
+                refreshPlaylistSongsAndTimes();
+
+            return;
+        }
+
+        public void AddSongToPlaylist(BmpSong song)
+        {
+            if (currentPlaylist == null)
+                return;
+
+            if (PlaylistFunctions.AddSongToPlaylist(currentPlaylist, song))
                 refreshPlaylistSongsAndTimes();
 
             return;

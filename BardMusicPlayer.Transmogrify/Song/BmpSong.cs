@@ -126,8 +126,10 @@ namespace BardMusicPlayer.Transmogrify.Song
                             events.Remove(tevent);
                 }
             }
+            BmpSong song = CovertMidiToSong(midiFile, name);
+            song.PrepareCachedSequencerMidi();
 
-            return Task.FromResult(CovertMidiToSong(midiFile, name));
+            return Task.FromResult(song);
         }
 
         /// <summary>

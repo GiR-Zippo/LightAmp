@@ -7,7 +7,7 @@ using BardMusicPlayer.Transmogrify.Song;
 using LiteDB;
 using System.Collections.Generic;
 
-namespace BardMusicPlayer.Coffer.DatabaseFunctions;
+namespace BardMusicPlayer.Coffer.Interfaces;
 
 public interface IDatabaseFunctions
 {
@@ -103,6 +103,7 @@ public interface IDatabaseFunctions
     /// </summary>
     /// <param name="filename"></param>
     public void Export(string filename);
+
     #endregion
 
 }

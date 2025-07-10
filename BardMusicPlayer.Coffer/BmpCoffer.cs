@@ -4,6 +4,8 @@
  */
 
 using BardMusicPlayer.Coffer.DatabaseFunctions;
+using BardMusicPlayer.Coffer.Interfaces;
+using BardMusicPlayer.Coffer.Legacy;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Transmogrify.Song;
 using LiteDB;
@@ -51,12 +53,16 @@ namespace BardMusicPlayer.Coffer
         /// Internal constructor; this object is constructed with a factory pattern.
         /// </summary>
         /// <param name="dbi"></param>
-        private BmpCoffer(LiteDatabase dbi)
+        private BmpCoffer(LiteDatabase dbi, int version)
         {
             this.dbi = dbi;
             this.disposedValue = false;
 
-            DatabaseFunctions = new LegacyDatabaseFunctions();
+            if (version == 1)
+                DatabaseFunctions = new LegacyDatabaseFunctions();
+            else
+                DatabaseFunctions = new NewFormatDatabaseFunctions();
+
             DatabaseFunctions.SetDatabase(this.dbi);
         }
 
@@ -81,12 +87,25 @@ namespace BardMusicPlayer.Coffer
         /// </summary>
         /// <param name="dbPath"></param>
         /// <returns> <see cref="BmpCoffer"/> </returns>
-        internal static BmpCoffer CreateInstance(string dbPath)
+        internal static BmpCoffer CreateInstance(string dbPath, int version = Constants.SCHEMA_VERSION)
         {
             var dbi = new LiteDatabase(@"filename=" + dbPath + "; journal = false", GenerateMapper());
-            MigrateDatabase(dbi);
+            if (!dbi.CollectionExists(Constants.SCHEMA_COL_NAME))
+            {
+                if (version == Constants.SCHEMA_VERSION)
+                    CreateDatabase(dbi);
+            }
 
-            return new BmpCoffer(dbi);
+            var schemaData = dbi.GetCollection<LiteDBSchema>(Constants.SCHEMA_COL_NAME);
+            var result = schemaData.FindOne(static x => true);
+
+            //Set indicies
+            if (result.Id == 1)
+                SetIndicies(dbi);
+
+            //MigrateDatabase(dbi);
+
+            return new BmpCoffer(dbi, result.Id);
         }
 
         /// <summary>
@@ -97,9 +116,17 @@ namespace BardMusicPlayer.Coffer
         {
             this.dbi.Dispose();
             var dbi = new LiteDatabase(@"filename=" + file + "; journal = false", GenerateMapper()); //turn journal off, for big containers
-            MigrateDatabase(dbi);
+            //MigrateDatabase(dbi);
+            
+            //Check for version
+            var schemaData = dbi.GetCollection<LiteDBSchema>(Constants.SCHEMA_COL_NAME);
+            var result = schemaData.FindOne(static x => true);
 
-            _instance = new BmpCoffer(dbi);
+            //Set indicies
+            if (result.Id == 1)
+                SetIndicies(dbi);
+
+            _instance = new BmpCoffer(dbi, result.Id);
             return;
         }
 
@@ -196,6 +223,8 @@ namespace BardMusicPlayer.Coffer
         /// <returns><see cref="IPlaylist"/></returns>
         public IPlaylist CreatePlaylistFromTag(string tag)
         {
+            if (tag == null)
+                throw new ArgumentNullException();
             return DatabaseFunctions.CreatePlaylistFromTag(tag);
         }
 
@@ -206,6 +235,8 @@ namespace BardMusicPlayer.Coffer
         /// <returns><see cref="IPlaylist"/></returns>
         public IPlaylist CreatePlaylist(string name)
         {
+            if (name == null)
+                throw new ArgumentNullException();
             return DatabaseFunctions.CreatePlaylist(name);
         }
 
@@ -216,6 +247,8 @@ namespace BardMusicPlayer.Coffer
         /// <returns>The playlist if found or null if no matching playlist exists.</returns>
         public IPlaylist GetPlaylist(string name)
         {
+            if (name == null)
+                throw new ArgumentNullException();
             return DatabaseFunctions.GetPlaylist(name);
         }
 
@@ -235,6 +268,8 @@ namespace BardMusicPlayer.Coffer
         /// <exception cref="BmpCofferException">This is thrown if a name conflict occurs on save.</exception>
         public void SavePlaylist(IPlaylist songList)
         {
+            if (songList.GetType() != typeof(BmpPlaylistDecorator))
+                throw new Exception("Unsupported implementation of IPlaylist");
             DatabaseFunctions.SavePlaylist(songList);
         }
 
@@ -244,6 +279,8 @@ namespace BardMusicPlayer.Coffer
         /// <param name="songList"></param>
         public void DeletePlaylist(IPlaylist songList)
         {
+            if (songList.GetType() != typeof(BmpPlaylistDecorator))
+                throw new Exception("Unsupported implementation of IPlaylist");
             DatabaseFunctions.DeletePlaylist(songList);
         }
         #endregion
@@ -256,6 +293,8 @@ namespace BardMusicPlayer.Coffer
         /// <returns>The song if found or null if no matching song exists.</returns>
         public BmpSong GetSong(string title)
         {
+            if (title == null)
+                throw new ArgumentNullException();
             return DatabaseFunctions.GetSong(title);
         }
 
@@ -274,6 +313,8 @@ namespace BardMusicPlayer.Coffer
         /// <returns></returns>
         public bool IsSongInDatabase(BmpSong song, bool strict = true)
         {
+            if (song == null)
+                throw new ArgumentNullException();
             return DatabaseFunctions.IsSongInDatabase(song, strict);
         }
 
@@ -284,6 +325,8 @@ namespace BardMusicPlayer.Coffer
         /// <exception cref="BmpCofferException">This is thrown if a title conflict occurs on save.</exception>
         public void SaveSong(BmpSong song)
         {
+            if (song == null)
+                throw new ArgumentNullException();
             DatabaseFunctions.SaveSong(song);
         }
 
@@ -294,6 +337,7 @@ namespace BardMusicPlayer.Coffer
         /// <exception cref="BmpCofferException">This is thrown if a name conflict occurs on save.</exception>
         public void DeleteSong(BmpSong song)
         {
+            if (song == null) throw new ArgumentNullException();
             DatabaseFunctions.DeleteSong(song);
         }
         #endregion
@@ -318,6 +362,39 @@ namespace BardMusicPlayer.Coffer
             if (disposing) dbi.Dispose();
             disposedValue = true;
         }
+
+        /// <summary>
+        /// Database creation/migration method.
+        /// </summary>
+        /// <param name="dbi"></param>
+        internal static void CreateDatabase(LiteDatabase dbi)
+        {
+            var schemaData = dbi.GetCollection<LiteDBSchema>(Constants.SCHEMA_COL_NAME);
+            var schema = new LiteDBSchema();
+            schemaData.Insert(schema);
+
+            // Create the song collection and add indicies
+            var songs = dbi.GetCollection<BmpSong>(Constants.SONG_COL_NAME);
+            songs.EnsureIndex(static x => x.Title);
+            songs.EnsureIndex(static x => x.Tags);
+
+            // Create the custom playlist collection and add indicies
+            var playlists = dbi.GetCollection<BmpPlaylist>(Constants.PLAYLIST_COL_NAME);
+            playlists.EnsureIndex(static x => x.Name, unique: true);
+        }
+
+        internal static void SetIndicies(LiteDatabase dbi)
+        {
+            // Create the song collection and add indicies
+            var songs = dbi.GetCollection<BmpSong>(Constants.SONG_COL_NAME);
+            songs.EnsureIndex(static x => x.Title);
+            songs.EnsureIndex(static x => x.Tags);
+
+            // Create the custom playlist collection and add indicies
+            var playlists = dbi.GetCollection<BmpPlaylist>(Constants.PLAYLIST_COL_NAME);
+            playlists.EnsureIndex(static x => x.Name, unique: true);
+        }
+
 
         /// <summary>
         /// Database creation/migration method.

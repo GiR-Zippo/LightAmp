@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.Transmogrify.Song;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,9 +20,9 @@ namespace BardMusicPlayer.Ui.Controls
     /// </summary>
     public sealed partial class XIVMidiBrowser : UserControl
     {
-        public EventHandler<string> OnLoadSongFromBrowser;
-        public EventHandler<string> OnLoadSongFromBrowserToPreview;
-        public EventHandler<string> OnAddSongFromBrowser;
+        public EventHandler<BmpSong> OnLoadSongFromBrowser;
+        public EventHandler<BmpSong> OnLoadSongFromBrowserToPreview;
+        public EventHandler<BmpSong> OnAddSongFromBrowser;
         private static string DownloadUrl { get; } = "https://xivmidi.com";
         public string DownloadOption { get; set; } = "";
 
@@ -83,12 +84,14 @@ namespace BardMusicPlayer.Ui.Controls
 
                     if (File.Exists(filename))
                     {
+                        BmpSong song = new BmpSong();
+                        
                         if (this.DownloadOption.Equals("OnLoadSongFromBrowser"))
-                            OnLoadSongFromBrowser?.Invoke(this, filename);
+                            OnLoadSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
                         else if (this.DownloadOption.Equals("OnAddSongFromBrowser"))
-                            OnAddSongFromBrowser?.Invoke(this, filename);
+                            OnAddSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
                         else if (this.DownloadOption.Equals("OnLoadSongFromBrowserToPreview"))
-                            OnLoadSongFromBrowserToPreview?.Invoke(this, filename);
+                            OnLoadSongFromBrowserToPreview?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
                     }
                     DownloadOption = "";
                 }));

@@ -4,6 +4,7 @@
  */
 
 using BardMusicPlayer.Coffer;
+using BardMusicPlayer.Coffer.Interfaces;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Resources;
 using Microsoft.Win32;
@@ -43,6 +44,30 @@ namespace BardMusicPlayer.Ui.Functions
                 }*/
                 BmpCoffer.Instance.SaveSong(song);
             }
+            BmpCoffer.Instance.SavePlaylist(currentPlaylist);
+            return true;
+        }
+
+        /// <summary>
+        /// Add file to the playlist
+        /// </summary>
+        /// <param name="currentPlaylist"></param>
+        /// <param name="filename"></param>
+        /// <returns>true if success</returns>
+        public static bool AddSongToPlaylist(IPlaylist currentPlaylist, BmpSong song)
+        {
+            if (currentPlaylist.SingleOrDefault(x => x.Title.Equals(song.Title)) == null)
+                currentPlaylist.Add(song);
+                /*else
+                {
+                    if (BmpCoffer.Instance.IsSongInDatabase(song))
+                    {
+                        var sList = BmpCoffer.Instance.GetSongTitles().Where(x => x.StartsWith(song.Title)).ToList();
+                        song.Title = song.Title + "(" + sList.Count() + ")";
+                        currentPlaylist.Add(song);
+                    }
+                }*/
+            BmpCoffer.Instance.SaveSong(song);
             BmpCoffer.Instance.SavePlaylist(currentPlaylist);
             return true;
         }
