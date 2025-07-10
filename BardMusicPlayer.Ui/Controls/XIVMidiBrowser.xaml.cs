@@ -77,25 +77,14 @@ namespace BardMusicPlayer.Ui.Controls
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     var data = e as XIVMIDI.IO.ResponseContainer.MidiFile;
-                    if (!Directory.Exists(App.TempPath))
-                        Directory.CreateDirectory(App.TempPath);
-                    string filename = Path.GetDirectoryName(App.TempPath) + "\\" + data.Filename;
-                    File.WriteAllBytes(filename, data.data);
-
-                    if (File.Exists(filename))
-                    {
-                        BmpSong song = new BmpSong();
-                        
-                        if (this.DownloadOption.Equals("OnLoadSongFromBrowser"))
-                            OnLoadSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
-                        else if (this.DownloadOption.Equals("OnAddSongFromBrowser"))
-                            OnAddSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
-                        else if (this.DownloadOption.Equals("OnLoadSongFromBrowserToPreview"))
-                            OnLoadSongFromBrowserToPreview?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
-                    }
+                    if (this.DownloadOption.Equals("OnLoadSongFromBrowser"))
+                        OnLoadSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
+                    else if (this.DownloadOption.Equals("OnAddSongFromBrowser"))
+                        OnAddSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
+                    else if (this.DownloadOption.Equals("OnLoadSongFromBrowserToPreview"))
+                        OnLoadSongFromBrowserToPreview?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
                     DownloadOption = "";
                 }));
-
             }
         }
 
