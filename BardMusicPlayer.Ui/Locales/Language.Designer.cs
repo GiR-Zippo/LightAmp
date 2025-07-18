@@ -319,6 +319,15 @@ namespace BardMusicPlayer.Ui.Locales {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Removes stacked notes of the same type ähnelt.
+        /// </summary>
+        public static string QEdit_AntiStack {
+            get {
+                return ResourceManager.GetString("QEdit_AntiStack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Sets the guitar switching of the Midi
         ///Standard: Use the program changes in the Midi
         ///Simple: No switching

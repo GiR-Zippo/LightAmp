@@ -56,13 +56,20 @@
                 </Menu.ItemsPanel>
                 <MenuItem Header="------- Options ------" IsEnabled="False"/>
                 <CheckBox x:Name="AlignToFirstNote_CheckBox" Content="Align to first note" IsChecked="True" Checked="AlignToFirstNote_CheckBox_Checked" Unchecked="AlignToFirstNote_CheckBox_Checked" ToolTip="{x:Static Locale:Language.QEdit_Align_Zero}"/>
-                <CheckBox x:Name="AlignProgramChanges_CheckBox" Content="Align Guitar Switches" IsChecked="True"/>
+                <CheckBox x:Name="AlignProgramChanges_CheckBox" Content="Align Guitar Switch" IsChecked="True"/>
                 <Label Content="Guitar-Mode" IsEnabled="False"/>
                 <ComboBox x:Name="GuitarModeSelector" SelectionChanged ="GuitarModeSelector_Selected" Width="120" ToolTip="{x:Static Locale:Language.QEdit_GuitarMode}" >
                     <ComboBoxItem Content="None"/>
                     <ComboBoxItem Content="Standard"/>
                     <ComboBoxItem Content="Simple"/>
                     <ComboBoxItem Content="Override By Track"/>
+                </ComboBox>
+                <Label Content="Clean Stacked Notes" IsEnabled="False"/>
+                <ComboBox x:Name="AntiStackedNotes" SelectedIndex="0" Width="120" ToolTip="{x:Static Locale:Language.QEdit_AntiStack}" >
+                    <ComboBoxItem Content="None"/>
+                    <ComboBoxItem Content="Keep First"/>
+                    <ComboBoxItem Content="Keep Shortest"/>
+                    <ComboBoxItem Content="Keep Longest"/>
                 </ComboBox>
                 <Label Content="Song-Speed" IsEnabled="False"/>
                 <control:NumericUpDown Grid.Column="1" x:Name="SongSpeed_Percent" PreviewMouseUp="SongSpeed_Percent_PreviewMouseUp" Value="100"/>

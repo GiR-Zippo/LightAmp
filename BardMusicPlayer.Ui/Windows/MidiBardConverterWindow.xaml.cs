@@ -445,9 +445,12 @@ namespace BardMusicPlayer.Ui.Windows
                                 });
                 }
             }
-            
+
             MemoryStream myStream = new MemoryStream();
             MidiFile outputMidi = MidiBardImporter.Convert(_midifile.Clone(), tracks).Result;
+
+            if (AntiStackedNotes.SelectedIndex > 0)
+                outputMidi = RemoveStackedNotes(outputMidi, AntiStackedNotes.SelectedIndex);
 
             if ((bool)AlignProgramChanges_CheckBox.IsChecked)
                 outputMidi = RealignProgrmChanges(outputMidi);
@@ -598,6 +601,20 @@ namespace BardMusicPlayer.Ui.Windows
         private void AlignToFirstNote_CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             _AlignMidiToFirstNote = (bool)AlignToFirstNote_CheckBox.IsChecked;
+        }
+
+        private void SongSpeed_Percent_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (currentNumericControl == null)
+            {
+                currentNumericControl = sender as NumericUpDown;
+                currentNumericControl.OnValueChanged += SongSpeed_Percent_OnValueChanged;
+            }
+        }
+
+        private void SongSpeed_Percent_OnValueChanged(object sender, int s)
+        {
+            SongSpeed_Percent.Value = s.ToString();
         }
 
         private void VoiceMap_Click(object sender, RoutedEventArgs e)
@@ -1009,18 +1026,49 @@ namespace BardMusicPlayer.Ui.Windows
             }
         }
 
-        private void SongSpeed_Percent_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        /// <summary>
+        /// Removes stacked notes
+        /// Tpes:
+        /// 1 - FIFO
+        /// 2 - Keep short
+        /// 3 - Keep long
+        /// </summary>
+        /// <param name="outputMidi"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private MidiFile RemoveStackedNotes(MidiFile outputMidi, int type)
         {
-            if (currentNumericControl == null)
+            Parallel.ForEach(outputMidi.GetTrackChunks().Where(static x => x.GetNotes().Any()), (originalChunk) =>
             {
-                currentNumericControl = sender as NumericUpDown;
-                currentNumericControl.OnValueChanged += SongSpeed_Percent_OnValueChanged;
-            }
-        }
-
-        private void SongSpeed_Percent_OnValueChanged(object sender, int s)
-        {
-            SongSpeed_Percent.Value = s.ToString();
+                Dictionary<KeyValuePair<long, SevenBitNumber>, Note> notes = new Dictionary<KeyValuePair<long, SevenBitNumber>, Note>();
+                Note cnote = new Note((SevenBitNumber)0);
+                foreach (Note note in originalChunk.GetNotes())
+                {
+                    if (type == 1)
+                    {
+                        if (!notes.ContainsKey(new KeyValuePair<long, SevenBitNumber>(note.Time, note.NoteNumber)))
+                            notes.Add(new KeyValuePair<long, SevenBitNumber>(note.Time, note.NoteNumber), note);
+                    }
+                    else
+                    {
+                        if (!notes.ContainsKey(new KeyValuePair<long, SevenBitNumber>(note.Time, note.NoteNumber)))
+                            notes.Add(new KeyValuePair<long, SevenBitNumber>(note.Time, note.NoteNumber), note);
+                        else
+                        {
+                            var found = notes.First(n => (n.Value.Time == note.Time) && (n.Value.NoteNumber == note.NoteNumber));
+                            if (((note.Length < found.Value.Length) && (type == 2)) || //keep shortest
+                                ((note.Length > found.Value.Length) && (type == 3)))
+                            {
+                                notes.Remove(found.Key);
+                                notes.Add(new KeyValuePair<long, SevenBitNumber>(note.Time, note.NoteNumber), note);
+                            }
+                        }
+                    }
+                }
+                originalChunk.RemoveNotes(n => n != null);
+                originalChunk.AddObjects(notes.Values.ToArray<Note>());
+            });
+            return outputMidi;
         }
     }
 }

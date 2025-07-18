@@ -207,6 +207,9 @@ Right click to add a folder</value>
   <data name="QEdit_Align_Zero" xml:space="preserve">
     <value>Removes spaces at the beginning fo the Midi</value>
   </data>
+  <data name="QEdit_AntiStack" xml:space="preserve">
+    <value>Removes stacked notes of the same type</value>
+  </data>
   <data name="QEdit_GuitarMode" xml:space="preserve">
     <value>Sets the guitar switching of the Midi
 Standard: Use the program changes in the Midi

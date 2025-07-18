@@ -206,6 +206,9 @@ Rechtsklick: Fügt einen kompletten Ordner hinzu</value>
   <data name="QEdit_Align_Zero" xml:space="preserve">
     <value>Löscht die Pausen am anfang eines Lieds</value>
   </data>
+  <data name="QEdit_AntiStack" xml:space="preserve">
+    <value>Löst die überlagernden Noten des selben Typs</value>
+  </data>
   <data name="QEdit_GuitarMode" xml:space="preserve">
     <value>Bestimmt den Gitarrenmodus der Midi
 Standard: Alle programchanges werden genutzt
