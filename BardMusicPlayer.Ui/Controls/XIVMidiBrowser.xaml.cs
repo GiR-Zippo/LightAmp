@@ -6,7 +6,6 @@
 using BardMusicPlayer.Transmogrify.Song;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -56,13 +55,13 @@ namespace BardMusicPlayer.Ui.Controls
             {
                 var data = e as XIVMIDI.IO.ResponseContainer.ApiResponse;
                 Dictionary<string, string> list = new Dictionary<string, string>();
-                foreach (var file in data.files)
+                foreach (var file in data.data.files)
                 {
                     try
                     {
-                        if (file.website_file_path == null)
+                        if (!file.websitePublished)
                             continue;
-                        list.Add(file.website_file_path, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.editor?? ""));
+                        list.Add(file.websiteFilePath, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.editor?? ""));
                     }
                     catch { }
                 }
@@ -216,7 +215,7 @@ namespace BardMusicPlayer.Ui.Controls
         {
             XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
             {
-                Url = new XIVMIDI.IO.RequestBuilder() { Performers = PerformerSize_box.SelectedIndex }.BuildRequest(),
+                Url = new XIVMIDI.IO.RequestBuilder() { bandSize = PerformerSize_box.SelectedIndex }.BuildRequest(),
                 Host = "xivmidi.com",
                 Requester = XIVMIDI.IO.Requester.JSON
             });

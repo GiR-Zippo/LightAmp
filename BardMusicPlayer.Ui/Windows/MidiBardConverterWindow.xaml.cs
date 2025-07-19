@@ -426,6 +426,11 @@ namespace BardMusicPlayer.Ui.Windows
             return true;
         }
 
+
+        /// <summary>
+        /// Prepares the MIDI for export
+        /// </summary>
+        /// <returns></returns>
         private MemoryStream PrepareMidi()
         {
             List<MidiBardImporter.MidiTrack> tracks = CloneTracks();
@@ -452,11 +457,11 @@ namespace BardMusicPlayer.Ui.Windows
             if (AntiStackedNotes.SelectedIndex > 0)
                 outputMidi = RemoveStackedNotes(outputMidi, AntiStackedNotes.SelectedIndex);
 
-            if ((bool)AlignProgramChanges_CheckBox.IsChecked)
-                outputMidi = RealignProgrmChanges(outputMidi);
-
             if (_AlignMidiToFirstNote)
                 outputMidi = RealignMidiFile(outputMidi);
+
+            if ((bool)AlignProgramChanges_CheckBox.IsChecked)
+                outputMidi = RealignProgrmChanges(outputMidi);
 
             if(Convert.ToInt16(SongSpeed_Percent.Value) != 100)
             {
@@ -1038,6 +1043,9 @@ namespace BardMusicPlayer.Ui.Windows
         /// <returns></returns>
         private MidiFile RemoveStackedNotes(MidiFile outputMidi, int type)
         {
+            if (type == 0)
+                return outputMidi;
+
             Parallel.ForEach(outputMidi.GetTrackChunks().Where(static x => x.GetNotes().Any()), (originalChunk) =>
             {
                 Dictionary<KeyValuePair<long, SevenBitNumber>, Note> notes = new Dictionary<KeyValuePair<long, SevenBitNumber>, Note>();
