@@ -770,6 +770,18 @@ namespace BardMusicPlayer.Ui.Windows
         {
         }
 
+        private void TrackListItems_RemoveSameNotes_Click(object sender, RoutedEventArgs e)
+        {
+            var f = TrackList.SelectedItems;
+            if (f.Count != 2)
+            {
+                MessageBox.Show("Please select only two tracks", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            RemoveSameNotes(((MidiBardImporter.MidiTrack)f[0]).trackChunk, ((MidiBardImporter.MidiTrack)f[1]).trackChunk);
+
+        }
+
         private void TrackListItem_Delete_Click(object sender, RoutedEventArgs e)
         {
             if (_Sender is ListViewItem)
@@ -1077,6 +1089,99 @@ namespace BardMusicPlayer.Ui.Windows
                 originalChunk.AddObjects(notes.Values.ToArray<Note>());
             });
             return outputMidi;
+        }
+
+        private void RemoveSameNotes(TrackChunk primary, TrackChunk secondary)
+        {
+            Dictionary<long, int> instruments = new Dictionary<long, int>();
+            Dictionary<Note, int> primary_notes_collection = new Dictionary<Note, int>();
+            Dictionary<Note, int> secondary_notes_collection = new Dictionary<Note, int>();
+
+            //The primary track
+            //Get all instrument swiches
+            foreach (var ev in primary.GetTimedEvents())
+            {
+                if (ev.Event.EventType == MidiEventType.SequenceTrackName)
+                {
+                    Instrument instrument = null;
+                    if (Instrument.TryParse(((SequenceTrackNameEvent)ev.Event).Text, out instrument))
+                        instruments.Add(ev.Time, instrument.MidiProgramChangeCode);
+                }
+                
+                if (ev.Event.EventType == MidiEventType.ProgramChange)
+                    instruments.Add(ev.Time, ((ProgramChangeEvent)ev.Event).ProgramNumber);
+            }
+
+            //Get all notes and set the used instrument
+            int idx = 0;
+            int instr = -1;
+            foreach (var note in primary.GetNotes())
+            {
+                if (idx == 0 && instr == -1)
+                    instr = instruments.ElementAt(idx).Value;
+
+                if ((idx + 1) != instruments.Count())
+                {
+                    if (note.Time >= instruments.ElementAt(idx + 1).Key)
+                    {
+                        idx++;
+                        instr = instr = instruments.ElementAt(idx).Value;
+                    }
+                }
+                primary_notes_collection.Add(note, instr);
+            }
+
+            //The secondary track
+            instruments.Clear();
+            foreach (var ev in secondary.GetTimedEvents())
+            {
+                if (ev.Event.EventType == MidiEventType.SequenceTrackName)
+                {
+                    Instrument instrument = null;
+                    if (Instrument.TryParse(((SequenceTrackNameEvent)ev.Event).Text, out instrument))
+                        instruments.Add(ev.Time, instrument.MidiProgramChangeCode);
+                }
+
+                if (ev.Event.EventType == MidiEventType.ProgramChange)
+                    instruments.Add(ev.Time, ((ProgramChangeEvent)ev.Event).ProgramNumber);
+            }
+
+            idx = 0;
+            instr = -1;
+            foreach (var note in secondary.GetNotes())
+            {
+                if (idx == 0 && instr == -1)
+                    instr = instruments.ElementAt(idx).Value;
+
+                if ((idx + 1) != instruments.Count())
+                {
+                    if (note.Time >= instruments.ElementAt(idx + 1).Key)
+                    {
+                        idx++;
+                        instr = instr = instruments.ElementAt(idx).Value;
+                    }
+                }
+                secondary_notes_collection.Add(note, instr);
+            }
+
+            //select the origin and target by length (kann man sich auch sparen, sieht aber besser aus)
+            var originDict = primary_notes_collection.Count() < secondary_notes_collection.Count() ? primary_notes_collection : secondary_notes_collection;
+            var targetDict = primary_notes_collection.Count() < secondary_notes_collection.Count() ? secondary_notes_collection : primary_notes_collection;
+
+            //create a dictionary of the double notes
+            var dict3 = originDict.Where(entry =>
+                targetDict.Where(n => (n.Key.Time == entry.Key.Time) && (n.Key.NoteNumber == entry.Key.NoteNumber) && (n.Value == entry.Value)).Count() != 0
+                ).ToDictionary(x => x.Key, x => x.Value);
+
+            foreach (var data in dict3)
+                secondary.RemoveNotes(n => (n.Time == data.Key.Time) && (n.NoteNumber == data.Key.NoteNumber));
+
+            MessageBox.Show("Removed " + dict3.Count().ToString() + " Notes", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            primary_notes_collection.Clear();
+            secondary_notes_collection.Clear();
+            dict3.Clear();
+            instruments.Clear();
         }
     }
 }

@@ -103,7 +103,7 @@
                         <MenuItem Header="8th"  IsCheckable="True" x:Name="Quant8" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
                         <MenuItem Header="4th"  IsCheckable="True" x:Name="Quant4" Checked="QuantCheck_Checked" Unchecked="QuantCheck_UnChecked"/>
                     </MenuItem>
-
+                    <MenuItem Header="Remove Same Notes" Click="TrackListItems_RemoveSameNotes_Click"/>
                     <MenuItem Header="Delete Track" Click="TrackListItem_Delete_Click"/>
                 </ContextMenu>
             </ListView.ContextMenu>
