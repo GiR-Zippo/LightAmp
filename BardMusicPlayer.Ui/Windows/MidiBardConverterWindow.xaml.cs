@@ -962,7 +962,6 @@ namespace BardMusicPlayer.Ui.Windows
             return Task.FromResult(originalChunk);
         }
 
-
         private struct PitchData
         {
             public int Pitch;
@@ -1091,6 +1090,11 @@ namespace BardMusicPlayer.Ui.Windows
             return outputMidi;
         }
 
+        /// <summary>
+        /// Compare two tracks and remove double notes (Helpful for guitar tracks)
+        /// </summary>
+        /// <param name="primary"></param>
+        /// <param name="secondary"></param>
         private void RemoveSameNotes(TrackChunk primary, TrackChunk secondary)
         {
             Dictionary<long, int> instruments = new Dictionary<long, int>();
