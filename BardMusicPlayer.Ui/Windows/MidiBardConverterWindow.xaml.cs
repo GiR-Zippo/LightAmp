@@ -67,6 +67,7 @@ namespace BardMusicPlayer.Ui.Windows
         MidiFile _midifile { get; set; } = null;
         bool _AlignMidiToFirstNote { get; set; } = false;
         object _Sender { get; set; } = null;
+        int ArpSpacing { get; set; } = 16;
 
         NumericUpDown currentNumericControl { get; set; } = null;
 
@@ -782,6 +783,71 @@ namespace BardMusicPlayer.Ui.Windows
 
         }
 
+        private void TrackListItems_Arpeggiate_Up_Click(object sender, RoutedEventArgs e)
+        {
+            var f = TrackList.SelectedItems;
+            if (f.Count != 1)
+            {
+                MessageBox.Show("Please select a track", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            Arpeggiate(((MidiBardImporter.MidiTrack)f[0]).trackChunk, ArpSpacing, Convert.ToInt32(ArpJitter.Text), true);
+        }
+
+        private void TrackListItems_Arpeggiate_Down_Click(object sender, RoutedEventArgs e)
+        {
+            var f = TrackList.SelectedItems;
+            if (f.Count != 1)
+            {
+                MessageBox.Show("Please select a track", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            Arpeggiate(((MidiBardImporter.MidiTrack)f[0]).trackChunk, ArpSpacing, Convert.ToInt32(ArpJitter.Text), false);
+        }
+
+        private void ArpCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            MenuItem[] array = new MenuItem[] { Arp64, Arp32, Arp16, Arp8, Arp4, Arp2, Arp1 };
+
+            //get/reset the checked items
+            if (e.Source is MenuItem)
+            {
+                var x = e.Source as MenuItem;
+                foreach (MenuItem p in array)
+                {
+                    if (p.Name == x.Name)
+                        continue;
+                    p.IsChecked = false;
+                }
+
+                switch (x.Name)
+                {
+                    case "Arp64":
+                        ArpSpacing = 64;
+                        break;
+                    case "Arp32":
+                        ArpSpacing = 32;
+                        break;
+                    case "Arp16":
+                        ArpSpacing = 16;
+                        break;
+                    case "Arp8":
+                        ArpSpacing = 8;
+                        break;
+                    case "Arp4":
+                        ArpSpacing = 4;
+                        break;
+                    case "Arp2":
+                        ArpSpacing = 2;
+                        break;
+                    case "Arp1":
+                        ArpSpacing = 1;
+                        break;
+                }
+            }
+
+        }
+
         private void TrackListItem_Delete_Click(object sender, RoutedEventArgs e)
         {
             if (_Sender is ListViewItem)
@@ -1044,7 +1110,8 @@ namespace BardMusicPlayer.Ui.Windows
 
         /// <summary>
         /// Removes stacked notes
-        /// Tpes:
+        /// Types:
+        /// 0 - do nothing
         /// 1 - FIFO
         /// 2 - Keep short
         /// 3 - Keep long
@@ -1186,6 +1253,88 @@ namespace BardMusicPlayer.Ui.Windows
             secondary_notes_collection.Clear();
             dict3.Clear();
             instruments.Clear();
+        }
+
+        private void Arpeggiate(TrackChunk target, int spacing, int jitterTick, bool up=true)
+        {
+            var backup = target.Clone();
+            Dictionary<Note, long> note_collection = new Dictionary<Note, long>();
+
+            foreach (Note note in target.GetNotes())
+                note_collection.Add(note, note.Time);
+
+            var sortedDict = from entry in note_collection orderby entry.Value ascending select entry;
+            var dict3 = note_collection.Where(entry =>
+                            sortedDict.Where(n => (entry.Key.Time - jitterTick <= n.Key.Time && n.Key.Time <= entry.Key.Time + jitterTick)).Count() > 1
+                            ).ToDictionary(x => x.Key, x => x.Value);
+            note_collection = dict3;
+
+            for (int i = 0; i != note_collection.Count;)
+            {
+                //get the notes to arp
+                var f = note_collection.ElementAt(i);
+                var data = note_collection.Where(n=> (f.Key.Time - jitterTick <= n.Key.Time && n.Key.Time <= f.Key.Time + jitterTick));
+                //set the counter
+                i += data.Count();
+
+                //order by note number
+                if (up)
+                    data = from entry in data orderby entry.Key.NoteNumber ascending select entry;
+                else
+                    data = from entry in data orderby entry.Key.NoteNumber descending select entry;
+
+                //and do the arp
+                Note lastnote = null;
+                long arplen = 0;
+                foreach (var note in data)
+                {
+                    //Calc the spacing
+                    MusicalTimeSpan musicalTimeFromTicks = TimeConverter.ConvertTo<MusicalTimeSpan>(note.Key.Time, _midifile.GetTempoMap());
+                    long beatlen = (long)_midifile.GetTempoMap().GetTempoAtTime((MusicalTimeSpan)musicalTimeFromTicks).MicrosecondsPerQuarterNote*4;
+                    beatlen = beatlen / spacing; //arp spacing
+                    long ticksFromMetricLength = TimeConverter.ConvertFrom(new MetricTimeSpan(beatlen), _midifile.GetTempoMap());
+
+                    //not the last note change length
+                    if (!note.Key.Equals(data.Last().Key))
+                        note.Key.Length = ticksFromMetricLength;
+
+                    //First note, just set the length
+                    if (note.Key.NoteNumber == data.First().Key.NoteNumber)
+                    {
+                        lastnote = note.Key;
+                        target.RemoveNotes(n => (n.Time == note.Value) && (n.NoteNumber == note.Key.NoteNumber));
+                        target.AddObjects(new List<Note> { note.Key }.ToArray());
+                        continue;
+                    }
+
+                    //Get the total length of the Arp
+                    arplen += ticksFromMetricLength;
+                    //Check if we have the last note
+                    if (note.Key.Equals(data.Last().Key))
+                    {
+                        if (note.Key.Length - arplen <= 0)
+                        {
+                            var Result = MessageBox.Show("Arp exceeds chords length. Revert? ", "Warning!", MessageBoxButton.YesNo);
+                            if (Result == MessageBoxResult.Yes)
+                            {
+                                target.RemoveNotes();
+                                target.AddObjects(((TrackChunk)backup).GetNotes());
+                                return;
+                            }
+                            note.Key.Length -= ticksFromMetricLength;
+                        }
+                        else
+                            note.Key.Length -= arplen;
+                    }
+                    //Move the note by spacing
+                    note.Key.Time = lastnote.Time + ticksFromMetricLength;
+
+                    //Remove old note add new one
+                    target.RemoveNotes(n=> (n.Time == note.Value) && (n.NoteNumber == note.Key.NoteNumber));
+                    target.AddObjects(new List<Note> { note.Key }.ToArray());
+                    lastnote = note.Key;
+                }
+            }
         }
     }
 }
