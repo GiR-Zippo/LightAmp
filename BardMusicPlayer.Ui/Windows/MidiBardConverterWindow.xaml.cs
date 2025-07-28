@@ -1179,7 +1179,7 @@ namespace BardMusicPlayer.Ui.Windows
                         instruments.Add(ev.Time, instrument.MidiProgramChangeCode);
                 }
                 
-                if (ev.Event.EventType == MidiEventType.ProgramChange)
+                if (ev.Event.EventType == MidiEventType.ProgramChange && !instruments.ContainsKey(ev.Time))
                     instruments.Add(ev.Time, ((ProgramChangeEvent)ev.Event).ProgramNumber);
             }
 
@@ -1213,7 +1213,7 @@ namespace BardMusicPlayer.Ui.Windows
                         instruments.Add(ev.Time, instrument.MidiProgramChangeCode);
                 }
 
-                if (ev.Event.EventType == MidiEventType.ProgramChange)
+                if (ev.Event.EventType == MidiEventType.ProgramChange && !instruments.ContainsKey(ev.Time))
                     instruments.Add(ev.Time, ((ProgramChangeEvent)ev.Event).ProgramNumber);
             }
 
