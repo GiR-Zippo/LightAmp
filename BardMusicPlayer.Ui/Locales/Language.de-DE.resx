@@ -239,6 +239,10 @@ Override By Track: Der Trackname gibt die Gitarre vor, die Switches werden gelö
   <data name="Settings_Autohost" xml:space="preserve">
     <value>Der Gruppenlead wird zum Hostbarde</value>
   </data>
+  <data name="Settings_AutoloadPerformers" xml:space="preserve">
+    <value>Läd automatisch die letzten Performereinstellungen
+Wenn aus, dann muss die Performereinstellungen neu geladen werden</value>
+  </data>
   <data name="Settings_Dalamud_KeyOut" xml:space="preserve">
     <value>Die Hypnotoad drückt nun die Tasten zum spielen</value>
   </data>

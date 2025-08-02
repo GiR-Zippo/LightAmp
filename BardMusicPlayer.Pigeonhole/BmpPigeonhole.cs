@@ -204,6 +204,16 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual bool UseNoteOffset { get; set; } = false;
 
         /// <summary>
+        /// Loads the perfomer settings automatically
+        /// </summary>
+        public virtual bool AutoLoadPerformers { get; set; } = false;
+
+        /// <summary>
+        /// The last loaded perfomer profile
+        /// </summary>
+        public virtual string LastLoadedPerformerProfile { get; set; } = "";
+
+        /// <summary>
         /// Use the LyricsOffset to keep lyrics in sync with the ensemble
         /// </summary>
         public virtual bool UseLyricsOffset { get; set; } = false;

@@ -240,6 +240,10 @@ Override By Track: The track name defines the guitar to use</value>
   <data name="Settings_Autohost" xml:space="preserve">
     <value>Automatically sets the host bard via the in game group rooster</value>
   </data>
+  <data name="Settings_AutoloadPerformers" xml:space="preserve">
+    <value>automatically loads the last performer settings
+if unchecked it'll clear the performer config variable</value>
+  </data>
   <data name="Settings_Dalamud_KeyOut" xml:space="preserve">
     <value>Uses the Hypnotoad to play the notes and switches</value>
   </data>

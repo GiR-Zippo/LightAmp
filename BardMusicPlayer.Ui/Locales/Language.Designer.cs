@@ -412,6 +412,16 @@ namespace BardMusicPlayer.Ui.Locales {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die automatically loads the last performer settings
+        ///if unchecked it&apos;ll clear the performer config variable ähnelt.
+        /// </summary>
+        public static string Settings_AutoloadPerformers {
+            get {
+                return ResourceManager.GetString("Settings_AutoloadPerformers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Uses the Hypnotoad to play the notes and switches ähnelt.
         /// </summary>
         public static string Settings_Dalamud_KeyOut {

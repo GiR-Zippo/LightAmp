@@ -42,8 +42,8 @@ namespace BardMusicPlayer.Ui.Controls
         {
             InitializeComponent();
             StartDelay_CheckBox.IsChecked = BmpPigeonhole.Instance.EnsemblePlayDelay;
-
-            this.DataContext = this;
+            
+           this.DataContext = this;
 
             BmpMaestro.Instance.OnPerformerChanged      += OnPerfomerChanged;
             BmpMaestro.Instance.OnTrackNumberChanged    += OnTrackNumberChanged;
@@ -90,7 +90,9 @@ namespace BardMusicPlayer.Ui.Controls
         private void OnTrackNumberChanged(object sender, TrackNumberChangedEvent e) { UpdateView(); }
         private void OnOctaveShiftChanged(object sender, OctaveShiftChangedEvent e) { UpdateView(); }
         private void OnSongLoaded(object sender, SongLoadedEvent e)
-        { 
+        {
+            //Load the last perf config, if needed
+            LoadLastPerformerSettings();
             UpdateView();
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -127,6 +129,20 @@ namespace BardMusicPlayer.Ui.Controls
                 ));
             }
                 
+        }
+
+        /// <summary>
+        /// Loads the last used performer settings
+        /// </summary>
+        private void LoadLastPerformerSettings()
+        {
+            if (!BmpPigeonhole.Instance.AutoLoadPerformers)
+                return;
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (File.Exists(BmpPigeonhole.Instance.LastLoadedPerformerProfile))
+                    this.Load_Performer_Settings(BmpPigeonhole.Instance.LastLoadedPerformerProfile);
+            }));
         }
 
         /// <summary>
@@ -368,8 +384,20 @@ namespace BardMusicPlayer.Ui.Controls
             if (openFileDialog.ShowDialog() != true)
                 return;
 
+            if (BmpPigeonhole.Instance.AutoLoadPerformers)
+                BmpPigeonhole.Instance.LastLoadedPerformerProfile = openFileDialog.FileName;
+            
+            Load_Performer_Settings(openFileDialog.FileName);
+        }
+
+        /// <summary>
+        /// Load the perfomer setting from file
+        /// </summary>
+        /// <param name="filename"></param>
+        private void Load_Performer_Settings(string filename)
+        { 
             MemoryStream memoryStream = new MemoryStream();
-            FileStream fileStream = File.Open(openFileDialog.FileName, FileMode.Open);
+            FileStream fileStream = File.Open(filename, FileMode.Open);
             fileStream.CopyTo(memoryStream);
             fileStream.Close();
 

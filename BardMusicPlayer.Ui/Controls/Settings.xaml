@@ -26,6 +26,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="1" x:Name="LocalOrchestraBox"       Content="Local Orchestra enabled"          Unchecked="LocalOrchestraBox_Checked"     Checked="LocalOrchestraBox_Checked"     ToolTip="{x:Static Locale:Language.Settings_Local_Orchestra}"/>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="2" x:Name="KeepTrackSettingsBox"    Content="Thymms I know what I'm doing box" Unchecked="KeepTrackSettingsBox_Checked"  Checked="KeepTrackSettingsBox_Checked"  ToolTip="{x:Static Locale:Language.Settings_Keep_Tracks}"/>
@@ -41,8 +42,9 @@
                         <Label Margin="0,0,0,0"     Grid.Row="7" Content="Advanced:"/>
                         <CheckBox Margin="10,0,0,0" Grid.Row="8" x:Name="AutoEquipBox"              Content="Debras Auto Equip Bards"          Unchecked="AutoEquipBox_Checked"          Checked="AutoEquipBox_Checked"          ToolTip="{x:Static Locale:Language.Settings_Autoequip}"/>
                         <CheckBox Margin="10,0,0,0" Grid.Row="9" x:Name="AutoselectHostBox"         Content="Autoselect Host"                  Unchecked="AutoselectHost_Checked"        Checked="AutoselectHost_Checked"        ToolTip="{x:Static Locale:Language.Settings_Autohost}"/>
-                        <CheckBox Margin="10,0,0,0" Grid.Row="10" x:Name="LyricsLatencyBox"         Content="Sync lyrics to ensemble"          Unchecked="LyricsLatency_Checked"         Checked="LyricsLatency_Checked"         ToolTip="{x:Static Locale:Language.Settings_Sync_Lyrics}"/>
-                        <CheckBox Margin="10,0,0,0" Grid.Row="11" x:Name="StartBardIndividuallyBox" Content="Individual start"                 Unchecked="StartBardIndividually_Checked" Checked="StartBardIndividually_Checked" ToolTip="{x:Static Locale:Language.Settings_Individual_Start}"/>
+                        <CheckBox Margin="10,0,0,0" Grid.Row="10" x:Name="AutoLoadPerformersBox"    Content="Auto load performer settings"     Unchecked="AutoLoadPerformers_Checked"    Checked="AutoLoadPerformers_Checked"    ToolTip="{x:Static Locale:Language.Settings_AutoloadPerformers}"/>
+                        <CheckBox Margin="10,0,0,0" Grid.Row="11" x:Name="LyricsLatencyBox"         Content="Sync lyrics to ensemble"          Unchecked="LyricsLatency_Checked"         Checked="LyricsLatency_Checked"         ToolTip="{x:Static Locale:Language.Settings_Sync_Lyrics}"/>
+                        <CheckBox Margin="10,0,0,0" Grid.Row="12" x:Name="StartBardIndividuallyBox" Content="Individual start"                 Unchecked="StartBardIndividually_Checked" Checked="StartBardIndividually_Checked" ToolTip="{x:Static Locale:Language.Settings_Individual_Start}"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Playback">
