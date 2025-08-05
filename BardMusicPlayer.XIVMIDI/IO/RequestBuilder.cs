@@ -27,7 +27,7 @@ public class RequestBuilder
     /// <summary>
     /// Set the performer size
     /// </summary>
-    public int Performers { get; set; } = 0;
+    public int bandSize { get; set; } = 0;
 
     /// <summary>
     /// Set the Tags
@@ -42,16 +42,14 @@ public class RequestBuilder
 
     public string BuildRequest()
     {
-        var request = ApiBaseUrl + "/files?";
+        var request = ApiBaseUrl + "/public/files?";
         request += md5 == "" ? "" : "md5=" + md5 + "&";
         request += Editor == "" ? "" : "editor=" + Editor + "&";
         request += Artist == "" ? "" : "artist=" + Artist + "&";
         request += Title == "" ? "" : "title=" + Title + "&";
-        request += Performers <= 0 || Performers > 8 ? "" : "performer=" + Misc.PerformerSize[Performers] + "&";
+        request += bandSize <= 0 || bandSize > 8 ? "" : "bandSize=" + Misc.PerformerSize[bandSize] + "&";
         request += Tags == "" ? "" : "tags=" + Tags + "&";
-        request += Instrument == "" ? "" : "instrument=" + Instrument + "&";
-        request += limit == -1 ? "" : "limit=" + limit.ToString() + "&";
-        request += "website=true";
+        request += Instrument == "" ? "" : "instrument=" + Instrument;
         return request;
     }
 }

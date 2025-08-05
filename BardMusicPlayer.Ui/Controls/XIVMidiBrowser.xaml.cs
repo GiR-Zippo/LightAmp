@@ -59,7 +59,7 @@ namespace BardMusicPlayer.Ui.Controls
                 {
                     try
                     {
-                        if (!file.websitePublished)
+                        if (file.websiteFilePath.Length <= 2)
                             continue;
                         list.Add(file.websiteFilePath, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.editor?? ""));
                     }
