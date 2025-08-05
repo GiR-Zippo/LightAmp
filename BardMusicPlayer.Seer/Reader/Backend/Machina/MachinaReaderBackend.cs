@@ -60,31 +60,31 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                         switch (message.Length)
                         {
                             case 48:
-                                _packet.Size48(timeStamp, otherActorId, myActorId, message); //[7.2]Handles Ensemble Clear
+                                _packet.Size48(timeStamp, otherActorId, myActorId, message); //[7.3]Handles Ensemble Clear
                                 break;
                             case 56:
-                                _packet.Size56(timeStamp, otherActorId, myActorId, message); //[7.2]Handles Ensemble Request, Ensemble Reject, and Instrument Equip/De-Equip.
+                                _packet.Size56(timeStamp, otherActorId, myActorId, message); //[7.3]Handles Ensemble Request, Ensemble Reject, and Instrument Equip/De-Equip.
                                 break;
                             case 88:
-                                _packet.Size88(timeStamp, otherActorId, myActorId, message); //[7.2]Handles EnsembleStart --DALAMUD
+                                _packet.Size88(timeStamp, otherActorId, myActorId, message); //[7.3]Handles EnsembleStart --DALAMUD
                                 break;
                             case 104:
-                                _packet.Size104(timeStamp, otherActorId, myActorId, message); //[7.2]Handles Party Invite
+                                _packet.Size104(timeStamp, otherActorId, myActorId, message); //[7.3]Handles Party Invite
                                 break;
                             case 688:
                                 _packet.Size688(timeStamp, otherActorId, myActorId, message); //[7.15]Handles Homeworld and Playername --DALAMUD
                                 break;
                             case 696:
-                                _packet.Size696(timeStamp, otherActorId, myActorId, message); //[7.2]Handles Homeworld and Playername
+                                _packet.Size696(timeStamp, otherActorId, myActorId, message); //[7.3]Handles Homeworld and Playername
                                 break;
                             case 1064:
-                                _packet.Size1064(timeStamp, otherActorId, myActorId, message); //[7.2]Handles Ensemble play data
+                                _packet.Size1064(timeStamp, otherActorId, myActorId, message); //[7.3]Handles Ensemble play data
                                 break;
                             case 1168:
-                                _packet.Size1168(timeStamp, otherActorId, myActorId, message); //[7.2]Handles Homeworld and Playername at login
+                                _packet.Size1168(timeStamp, otherActorId, myActorId, message); //[7.3]Handles Homeworld and Playername at login
                                 break;
                             case 3704:
-                                _packet.Size3704(timeStamp, otherActorId, myActorId, message); //[7.2]Handles group data
+                                _packet.Size3704(timeStamp, otherActorId, myActorId, message); //[7.3]Handles group data
                                 break;
                             default:
                                 ReaderHandler.Game.PublishEvent(new BackendExceptionEvent(EventSource.Machina,
