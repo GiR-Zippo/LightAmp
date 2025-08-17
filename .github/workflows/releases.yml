@@ -1,22 +1,20 @@
-name: Release LightAmp
+name: Release LightAmp (x64)
 
 on:
   push:
     tags:
-      - '*'   # build only when a tag is pushed
+      - '*'   # Only build on tag pushes
 
 jobs:
-  release-stable:
-    name: Stable release
-    # Treat anything not starting with 'Beta'/'beta' as a stable tag like 1.0.7.3
+  stable:
+    name: Stable release (x64)
     if: ${{ !startsWith(github.ref_name, 'Beta') && !startsWith(github.ref_name, 'beta') }}
     runs-on: windows-latest
-
+    permissions:
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # MSBuild/NuGet cover both .NET Framework and SDK-style projects
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
       - name: Setup NuGet
@@ -25,32 +23,29 @@ jobs:
       - name: Restore
         run: nuget restore LightAmp.sln
 
-      - name: Build (Release)
-        run: msbuild LightAmp.sln /t:Rebuild /p:Configuration=Release
+      - name: Build Release|x64
+        run: >
+          msbuild LightAmp.sln /m /t:Rebuild
+          /p:Configuration=Release
+          /p:Platform=x64
+          /p:PlatformTarget=x64
+          /p:PreferredToolArchitecture=x64
 
-      - name: Locate app output folder
-        id: findout
+      - name: Verify output + set OUTDIR
         shell: pwsh
         run: |
-          # Prefer the UI exe; fall back to newest exe under bin\Release
-          $candidates = Get-ChildItem -Recurse -File -Include *.exe |
-            Where-Object { $_.FullName -match '\\bin\\Release' }
-          $prefer = $candidates | Where-Object {
-            $_.Name -match 'LightAmp|BardMusicPlayer\.Ui'
-          } | Sort-Object LastWriteTime -Descending
-          if (-not $prefer) { $prefer = $candidates | Sort-Object LastWriteTime -Descending }
-          if (-not $prefer) { throw "No built EXE found under bin\\Release." }
-          $outdir = $prefer[0].Directory.FullName
-          "OUTDIR=$outdir" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $out = Join-Path $PWD 'BardMusicPlayer.Ui\bin\x64\Release'
+          if (!(Test-Path $out)) { throw "Expected output not found: $out" }
+          "OUTDIR=$out" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Package (LightAmp{VERSION}.zip)
+      - name: Zip (LightAmp{VERSION}.zip)
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          $zipName = "LightAmp${{ github.ref_name }}.zip"
-          Compress-Archive -Path "$env:OUTDIR\*" -DestinationPath "dist\$zipName"
+          $zip = "LightAmp${{ github.ref_name }}.zip"
+          Compress-Archive -Path "$env:OUTDIR\*" -DestinationPath "dist/$zip"
 
-      - name: Create Release (stable)
+      - name: Create GitHub Release (stable)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
@@ -62,14 +57,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  release-beta:
-    name: Beta prerelease
+  beta:
+    name: Beta prerelease (x64)
     if: ${{ startsWith(github.ref_name, 'Beta') || startsWith(github.ref_name, 'beta') }}
     runs-on: windows-latest
-
+    permissions:
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -79,29 +74,26 @@ jobs:
       - name: Restore
         run: nuget restore LightAmp.sln
 
-      - name: Build (Release)
-        run: msbuild LightAmp.sln /t:Rebuild /p:Configuration=Release
+      - name: Build Release|x64
+        run: >
+          msbuild LightAmp.sln /m /t:Rebuild
+          /p:Configuration=Release
+          /p:Platform=x64
+          /p:PlatformTarget=x64
+          /p:PreferredToolArchitecture=x64
 
-      - name: Locate app output folder
-        id: findout
+      - name: Verify output + set OUTDIR
         shell: pwsh
         run: |
-          $candidates = Get-ChildItem -Recurse -File -Include *.exe |
-            Where-Object { $_.FullName -match '\\bin\\Release' }
-          $prefer = $candidates | Where-Object {
-            $_.Name -match 'LightAmp|BardMusicPlayer\.Ui'
-          } | Sort-Object LastWriteTime -Descending
-          if (-not $prefer) { $prefer = $candidates | Sort-Object LastWriteTime -Descending }
-          if (-not $prefer) { throw "No built EXE found under bin\\Release." }
-          $outdir = $prefer[0].Directory.FullName
-          "OUTDIR=$outdir" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $out = Join-Path $PWD 'BardMusicPlayer.Ui\bin\x64\Release'
+          if (!(Test-Path $out)) { throw "Expected output not found: $out" }
+          "OUTDIR=$out" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Try to detect nextSemVer from project files
-        id: detectver
+      - name: Detect nextSemVer (optional)
+        id: detect
         shell: pwsh
         run: |
           $next = $null
-          # Prefer <Version> or <AssemblyVersion> in any .csproj
           $m = Get-ChildItem -Recurse -Filter *.csproj |
             Select-String -Pattern '<Version>([^<]+)</Version>|<AssemblyVersion>([^<]+)</AssemblyVersion>' -AllMatches |
             ForEach-Object { $_.Matches } |
@@ -109,36 +101,35 @@ jobs:
               if ($_.Groups[1].Value) { $_.Groups[1].Value }
               elseif ($_.Groups[2].Value) { $_.Groups[2].Value }
             } | Select-Object -First 1
-          if ($m) { $next = $m }
-          if (-not $next) {
+          if (-not $m) {
             $m = Get-ChildItem -Recurse -Filter AssemblyInfo.cs |
-              Select-String -Pattern 'AssemblyVersion\("([^"]+)"\)' |
-              Select-Object -First 1
-            if ($m) { $next = $m.Matches[0].Groups[1].Value }
+                 Select-String -Pattern 'AssemblyVersion\("([^"]+)"\)' |
+                 Select-Object -First 1
+            if ($m) { $m = $m.Matches[0].Groups[1].Value }
           }
-          if ($next) { "NEXT_SEMVER=$next" | Out-File -FilePath $env:GITHUB_ENV -Append }
+          if ($m) { "NEXT_SEMVER=$m" | Out-File -FilePath $env:GITHUB_ENV -Append }
 
-      - name: Package beta zips
+      - name: Zip beta assets
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           $beta = "${{ github.ref_name }}"
           $zip1 = "LightAmp-$beta.zip"
-          Compress-Archive -Path "$env:OUTDIR\*" -DestinationPath "dist\$zip1"
+          Compress-Archive -Path "$env:OUTDIR\*" -DestinationPath "dist/$zip1"
           if ($env:NEXT_SEMVER) {
             $zip2 = "LightAmp$($env:NEXT_SEMVER)-$beta.zip"
-            # duplicate the package with the nextSemVer-prefixed name
-            Copy-Item "dist\$zip1" "dist\$zip2"
+            Copy-Item "dist/$zip1" "dist/$zip2"
           }
 
-      - name: Create Beta Release (prerelease)
+      - name: Create GitHub Release (beta, prerelease)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: Beta ${{ github.ref_name }}
           files: |
             dist/LightAmp-${{ github.ref_name }}.zip
-            dist/LightAmp*.zip
+            dist/LightAmp${{ env.NEXT_SEMVER }}-${{ github.ref_name }}.zip
+          fail_on_unmatched_files: false
           prerelease: true
           make_latest: false
           generate_release_notes: true
