@@ -17,6 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Melanchall.DryWetMidi" Version="7.2.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
 

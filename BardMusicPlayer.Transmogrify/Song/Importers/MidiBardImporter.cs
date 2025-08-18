@@ -79,7 +79,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                 if (chunk.GetNotes().Count < 1)
                     continue;
 
-                int cid = (int)pdatalist.Tracks[idx].AssignedCids[0];
+                int cid = (int)pdatalist.Tracks[idx].AssignedCids.Count() == 0 ? -1 : (int)pdatalist.Tracks[idx].AssignedCids[0];
                 if (cids.ContainsKey(cid))
                     cid = cids[cid];
                 else

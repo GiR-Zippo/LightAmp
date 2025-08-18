@@ -53,15 +53,15 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-      <ContentWithTargetPath Include="Lib\Machina\\deucalion-1.1.0.dll">
+      <ContentWithTargetPath Include="Lib\Machina\\deucalion-1.2.1.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <TargetPath>deucalion-1.1.0.dll</TargetPath>
+          <TargetPath>deucalion-1.2.1.dll</TargetPath>
       </ContentWithTargetPath>
   </ItemGroup>
   <ItemGroup>
-    <ContentWithTargetPath Include="Lib\Machina\\deucalion-1.2.0.dll">
+    <ContentWithTargetPath Include="Lib\Machina\\deucalion-1.3.2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>deucalion-1.2.0.dll</TargetPath>
+      <TargetPath>deucalion-1.3.2.dll</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
   <ItemGroup>
