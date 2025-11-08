@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.Quotidian.Structs;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Transmogrify.Song.Manipulation
@@ -61,6 +63,10 @@ namespace BardMusicPlayer.Transmogrify.Song.Manipulation
                         pe.Channel = (FourBitNumber)channelNumber;
                     if (midiEvent.Event is ControlChangeEvent ce)
                         ce.Channel = (FourBitNumber)channelNumber;
+                    if (midiEvent.Event is ChannelAftertouchEvent ca)
+                        ca.Channel = (FourBitNumber)channelNumber;
+                    if (midiEvent.Event is NoteAftertouchEvent na)
+                        na.Channel = (FourBitNumber)channelNumber;
                     if (midiEvent.Event is PitchBendEvent pbe)
                         pbe.Channel = (FourBitNumber)channelNumber;
                 });
@@ -82,6 +88,40 @@ namespace BardMusicPlayer.Transmogrify.Song.Manipulation
             if (ev != null)
                 return (ev as ProgramChangeEvent).ProgramNumber;
             return 1; //return a "None" instrument cuz we don't have all midi instrument in XIV
+        }
+
+        /// <summary>
+        /// Get the program number of the <see cref="TrackChunk"/> by <see cref="SequenceTrackNameEvent"/> 
+        /// </summary>
+        /// <param name="track"></param>
+        /// <returns>The <see cref="int"/> representation of the instrument</returns>
+        public static int GetInstrumentBySeqName(TrackChunk track)
+        {
+            var trackName = TrackManipulations.GetTrackName(track);
+            int progNum = -1;
+
+            Regex rex = new Regex(@"^([A-Za-z _:]+)([-+]\d)?");
+            if (rex.Match(trackName) is Match match)
+            {
+                if (!string.IsNullOrEmpty(match.Groups[1].Value))
+                {
+                    if (match.Groups[1].Value == "Program:ElectricGuitar")
+                    {
+                        TimedEvent noteEvent = track.GetTimedEvents().FirstOrDefault(n => n.Event.EventType == MidiEventType.NoteOn);
+                        if (noteEvent != default)
+                        {
+                            TimedEvent progEvent = track.GetTimedEvents().LastOrDefault(n => n.Event.EventType == MidiEventType.ProgramChange && n.Time <= noteEvent.Time);
+                            if (progEvent != default)
+                                progNum = (progEvent.Event as ProgramChangeEvent).ProgramNumber;
+                        }
+                    }
+                    else
+                    {
+                        progNum = Instrument.Parse(match.Groups[1].Value).MidiProgramChangeCode;
+                    }
+                }
+            }
+            return progNum;
         }
 
         /// <summary>
@@ -125,6 +165,24 @@ namespace BardMusicPlayer.Transmogrify.Song.Manipulation
             var trackName = track.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text;
             if (trackName != null)
                 return trackName;
+            return "No Name";
+        }
+
+        /// <summary>
+        /// Get the name of the <see cref="TrackChunk"/>
+        /// </summary>
+        /// <param name="track">TrackChunk</param>
+        /// <returns>The track-name as <see cref="string"/></returns>
+        public static string GetTrackNameByFirstProgram(TrackChunk track)
+        {
+            var progNum = track.Events.OfType<ProgramChangeEvent>().FirstOrDefault()?.ProgramNumber;
+            if (progNum != null)
+            {
+                Instrument instrumentName;
+                if (Instrument.TryParseByProgramChange((int)progNum, out instrumentName))
+                    return instrumentName.Name;
+
+            }
             return "No Name";
         }
 
@@ -244,7 +302,111 @@ namespace BardMusicPlayer.Transmogrify.Song.Manipulation
             drumlist.Clear();
             return drumTracks;
         }
-        #endregion
 
+        /// <summary>
+        /// Merge <see cref="TrackChunk"/> into a new <see cref="TrackChunk"/> and appends or inserts it
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// mode 0 - just merge everything and use the SequenceTrackName from the first <see cref="TrackChunk"/> 
+        /// </para>
+        /// <para>
+        /// mode 1 - just merge the <see cref="Note"/> and insert <see cref="ProgramChangeEvent"/> according to <see cref="SequenceTrackNameEvent"/>
+        /// </para>
+        /// <para>
+        /// position - the position to insert the new track in the <see cref="MidiFile"/>, counting at the first <see cref="TrackChunk"/> with <see cref="NoteOnEvent"/> 
+        /// </para>
+        /// </remarks>
+        /// <param name="tracks"></param>
+        /// <param name="midiFile"></param>
+        /// <param name="mode"></param>
+        /// <param name="position"></param>
+        public static void MergeTracks(List<TrackChunk> tracks, MidiFile midiFile, byte mode =0, int position = -1)
+        {
+            TrackChunk trackChunk = null;
+            string TrackName = "";
+            //Normal merge
+            if (mode == 0)
+            {
+                trackChunk = Melanchall.DryWetMidi.Core.TrackChunkUtilities.Merge(tracks);
+                TrackName = GetTrackName(tracks[0]);
+                trackChunk.RemoveTimedEvents(e => e.Event.EventType == MidiEventType.SequenceTrackName);
+            }
+            //MidiBard2 GuitarTrackMerge
+            else if (mode == 1)
+            {
+                trackChunk = new TrackChunk();
+
+                //Get prog changes
+                Dictionary<int, SevenBitNumber> programs = new Dictionary<int, SevenBitNumber>();
+                List<TimedEvent> newProgEvents = new List<TimedEvent>();
+                for (int i = 0; i < tracks.Count; i++)
+                {
+                    programs.Add(i, new SevenBitNumber((byte)TrackManipulations.GetInstrumentBySeqName(tracks[i])));
+                    TrackManipulations.SetChanNumber(tracks[i], i);
+                }
+                
+                //Merge notes only
+                foreach (var track in tracks)
+                {
+                    var Notes = track.GetNotes();
+                    using (var noteMgr = trackChunk.ManageNotes())
+                    {
+                        noteMgr.Objects.Add(Notes);
+                        noteMgr.SaveChanges();
+                    }
+                }
+
+                //Build progList
+                int currProg = -1;
+                using (var tObject = trackChunk.ManageTimedEvents())
+                {
+                    foreach (var noteOnEvent in tObject.Objects.Where(e => e.Event.EventType == MidiEventType.NoteOn))
+                    {
+                        NoteOnEvent noteOn = noteOnEvent.Event as NoteOnEvent;
+                        if (programs[noteOn.Channel] != currProg)
+                        {
+                            TimedEvent tEvent = new TimedEvent(new ProgramChangeEvent(programs[noteOn.Channel]), noteOnEvent.Time);
+                            var ti = (tEvent.TimeAs<MetricTimeSpan>(midiFile.GetTempoMap()).TotalMilliseconds - 30);
+                            if (ti > 0)
+                                tEvent.Time = TimeConverter.ConvertFrom(new MetricTimeSpan((long)ti * 1000), midiFile.GetTempoMap());
+                            else
+                                tEvent.Time = 0;
+                            newProgEvents.Add(tEvent);
+                            currProg = programs[noteOn.Channel];
+                        }
+                    }
+                    tObject.Objects.Add(newProgEvents);
+                    tObject.SaveChanges();
+                }
+                //Set TrackName
+                TrackName = GetTrackNameByFirstProgram(trackChunk);
+            }
+
+            //Set TrackName
+            SequenceTrackNameEvent name = new SequenceTrackNameEvent(TrackName);
+            trackChunk.Events.Insert(0, name);
+
+            //cleanup
+            TrackManipulations.SetChanNumber(trackChunk, position);
+            foreach (var track in tracks)
+                midiFile.Chunks.Remove(track);
+
+            //Get first track with note events
+            int idx = 0;
+            foreach (TrackChunk chunk in midiFile.Chunks)
+            {
+                var s = chunk.Events.FirstOrDefault(e => e.EventType == MidiEventType.NoteOn);
+                if (s != null)
+                    break;
+                idx++;
+            }
+            position += idx;
+            if (position == -1)
+                midiFile.Chunks.Add(trackChunk);
+            else
+                midiFile.Chunks.Insert(position, trackChunk);
+        }
+        #endregion
     }
 }

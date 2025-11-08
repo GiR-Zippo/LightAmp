@@ -148,7 +148,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                             midiTrackList.First().MaxNote = item;
                     };
                     var transpose = getMaxTranspose(midiTrackList.First(), midiTrackList.First().Transpose);
-                    int chanNum = midiTrackList.First().Index; // TrackNum - 1;
+                    int chanNum = midiTrackList.First().Index -1; // TrackNum - 1;
 
                     PrepareGuitarTrack(midiTrackList.First().trackChunk, midiTrackList.First().ToneMode, Instrument.Parse(midiTrackList.First().trackInstrument + 1).MidiProgramChangeCode);
                     TrackManipulations.SetTrackName(midiTrackList.First().trackChunk, Instrument.Parse(midiTrackList.First().trackInstrument + 1).Name);
@@ -173,7 +173,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                             midiTrackList.First().MaxNote = item;
                     };
                     var transpose = getMaxTranspose(midiTrackList.First(), midiTrackList.First().Transpose);
-                    int chanNum = midiTrackList.First().Index; // TrackNum - 1;
+                    int chanNum = midiTrackList.First().Index -1; // TrackNum - 1;
 
                     //Do the octave shift and push them into a list
                     List<KeyValuePair<long, KeyValuePair<int, TimedEvent>>> tis = new List<KeyValuePair<long, KeyValuePair<int, TimedEvent>>>();

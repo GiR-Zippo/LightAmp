@@ -155,7 +155,7 @@ namespace BardMusicPlayer.Ui.Windows
                 }
 
                 MidiBardImporter.MidiTrack midiTrack = new MidiBardImporter.MidiTrack();
-                midiTrack.Index = pdatalist.Tracks[idx].Index;
+                midiTrack.Index = pdatalist.Tracks[idx].Index+1;
                 midiTrack.TrackNumber = cid;
                 midiTrack.trackInstrument = pdatalist.Tracks[idx].Instrument - 1;
                 midiTrack.Transpose = pdatalist.Tracks[idx].Transpose / 12;
@@ -202,9 +202,20 @@ namespace BardMusicPlayer.Ui.Windows
             ReadMidiData();
         }
 
-        private void ReadMidiData()
+        private void ReadMidiData(bool reload = false)
         {
-            this.GuitarModeSelector.SelectedIndex = 3;
+            if (!reload)
+            {
+                if (CheckForAllTracks(_midifile))
+                {
+                    var Result = MessageBox.Show("Looks like this midi contains an \"All Tracks\"\r\nNormailize it?\r\n", "Warning!", MessageBoxButton.YesNo);
+                    if (Result == MessageBoxResult.Yes)
+                        CorrectAllTracks(_midifile);
+                }
+                this.GuitarModeSelector.SelectedIndex = 3;
+            }
+            else
+                _tracks.Clear();
 
             int idx = 0;
             foreach (TrackChunk chunk in _midifile.GetTrackChunks())
@@ -477,7 +488,7 @@ namespace BardMusicPlayer.Ui.Windows
                 }
             }
 
-            outputMidi.Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings { TextEncoding = Encoding.UTF8 });
+            outputMidi.Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings { TextEncoding = Encoding.UTF8});
 
             tracks.Clear();
             myStream.Rewind();
@@ -630,31 +641,7 @@ namespace BardMusicPlayer.Ui.Windows
         }
         #endregion
 
-        #region Context Menu
-        private void TrackListItem_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            _Sender = sender;
-            e.Handled = true;
-        }
-
-        private void TrackListItem_Duplicate_Click(object sender, RoutedEventArgs e)
-        {
-            if (_Sender is ListViewItem)
-            {
-                var t = (_Sender as ListViewItem).Content as MidiBardImporter.MidiTrack;
-                MidiBardImporter.MidiTrack ntrack = new MidiBardImporter.MidiTrack();
-                ntrack.Index = t.Index+1;
-                ntrack.TrackNumber = t.TrackNumber+1;
-                ntrack.trackInstrument = t.trackInstrument;
-                ntrack.Transpose = t.Transpose;
-                ntrack.ToneMode = t.ToneMode;
-                ntrack.trackChunk = (TrackChunk)t.trackChunk.Clone();
-                _tracks.Insert(t.Index, ntrack);
-                AnalyzeTrack(ntrack);
-                RenumberTracks();
-            }
-        }
-
+        #region TopMenu
         private void TrackListItem_Autotranspose_Click(object sender, RoutedEventArgs e)
         {
             if (_Sender is ListViewItem)
@@ -662,13 +649,13 @@ namespace BardMusicPlayer.Ui.Windows
                 int highOctave = -1;
                 int lowOctave = -1;
                 var t = (_Sender as ListViewItem).Content as MidiBardImporter.MidiTrack;
-                
+
 
                 if (t.MinNote.Octave < 3)
                     lowOctave = t.MinNote.Octave;
 
                 if (t.MaxNote.NoteNumber > 84)
-                    highOctave =t.MaxNote.Octave;
+                    highOctave = t.MaxNote.Octave;
 
 
                 if (highOctave != -1 && lowOctave != -1)
@@ -676,7 +663,7 @@ namespace BardMusicPlayer.Ui.Windows
 
                 if (lowOctave != -1)
                 {
-                    int newOctave = 3-lowOctave;
+                    int newOctave = 3 - lowOctave;
                     if (newOctave != t.Transpose)
                         t.Transpose = newOctave;
                 }
@@ -688,22 +675,6 @@ namespace BardMusicPlayer.Ui.Windows
                         t.Transpose = -newOctave;
                 }
                 TrackList.Items.Refresh();
-            }
-        }
-
-        private void TrackListItem_DrumMap_Click(object sender, RoutedEventArgs e)
-        {
-            if (_Sender is ListViewItem)
-            {
-                var t = (_Sender as ListViewItem).Content as MidiBardImporter.MidiTrack;
-                Drummapping(t.trackChunk);
-
-                var Result = MessageBox.Show("Delete old drum-track?\r\n", "Warning!", MessageBoxButton.YesNo);
-                if (Result == MessageBoxResult.No)
-                    return;
-
-                _tracks.Remove(t);
-                RenumberTracks();
             }
         }
 
@@ -719,7 +690,7 @@ namespace BardMusicPlayer.Ui.Windows
         private void QuantCheck_Checked(object sender, RoutedEventArgs e)
         {
             MenuItem[] array = new MenuItem[] { Quant64, Quant32, Quant16, Quant8, Quant4, Quant0 };
-            MusicalTimeSpan qu = null; 
+            MusicalTimeSpan qu = null;
 
             //get/reset the checked items
             if (e.Source is MenuItem)
@@ -732,7 +703,7 @@ namespace BardMusicPlayer.Ui.Windows
                     p.IsChecked = false;
                 }
 
-                switch(x.Name)
+                switch (x.Name)
                 {
                     case "Quant64":
                         qu = MusicalTimeSpan.SixtyFourth;
@@ -769,18 +740,6 @@ namespace BardMusicPlayer.Ui.Windows
 
         private void QuantCheck_UnChecked(object sender, RoutedEventArgs e)
         {
-        }
-
-        private void TrackListItems_RemoveSameNotes_Click(object sender, RoutedEventArgs e)
-        {
-            var f = TrackList.SelectedItems;
-            if (f.Count != 2)
-            {
-                MessageBox.Show("Please select only two tracks", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            RemoveSameNotes(((MidiBardImporter.MidiTrack)f[0]).trackChunk, ((MidiBardImporter.MidiTrack)f[1]).trackChunk);
-
         }
 
         private void TrackListItems_Arpeggiate_Up_Click(object sender, RoutedEventArgs e)
@@ -846,6 +805,94 @@ namespace BardMusicPlayer.Ui.Windows
                 }
             }
 
+        }
+
+        private void TrackListItems_RemoveSameNotes_Click(object sender, RoutedEventArgs e)
+        {
+            var f = TrackList.SelectedItems;
+            if (f.Count != 2)
+            {
+                MessageBox.Show("Please select only two tracks", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            RemoveSameNotes(((MidiBardImporter.MidiTrack)f[0]).trackChunk, ((MidiBardImporter.MidiTrack)f[1]).trackChunk);
+
+        }
+
+        private void MergeTracksNormal_Click(object sender, RoutedEventArgs e)
+        {
+            var f = TrackList.SelectedItems;
+            if (f.Count < 2)
+            {
+                MessageBox.Show("Please select two or more tracks", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            List<TrackChunk> tclist = new List<TrackChunk>();
+            for (int i = 0; i < f.Count; i++)
+                tclist.Add(((MidiBardImporter.MidiTrack)f[i]).trackChunk);
+
+            TrackManipulations.MergeTracks(tclist, _midifile, 0, ((MidiBardImporter.MidiTrack)f[0]).Index-1);
+            ReadMidiData(true);
+        }
+
+        private void MergeTracksMBGuitar_Click(object sender, RoutedEventArgs e)
+        {
+            var f = TrackList.SelectedItems;
+            if (f.Count < 2)
+            {
+                MessageBox.Show("Please select two or more tracks", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            List<TrackChunk> tclist = new List<TrackChunk>();
+            for (int i = 0; i < f.Count; i++)
+                tclist.Add(((MidiBardImporter.MidiTrack)f[i]).trackChunk);
+
+            TrackManipulations.MergeTracks(tclist, _midifile, 1, ((MidiBardImporter.MidiTrack)f[0]).Index-1);
+            ReadMidiData(true);
+        }
+        #endregion
+
+        #region Context Menu
+        private void TrackListItem_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _Sender = sender;
+            e.Handled = true;
+        }
+
+        private void TrackListItem_Duplicate_Click(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                var t = (_Sender as ListViewItem).Content as MidiBardImporter.MidiTrack;
+                MidiBardImporter.MidiTrack ntrack = new MidiBardImporter.MidiTrack();
+                ntrack.Index = t.Index+1;
+                ntrack.TrackNumber = t.TrackNumber+1;
+                ntrack.trackInstrument = t.trackInstrument;
+                ntrack.Transpose = t.Transpose;
+                ntrack.ToneMode = t.ToneMode;
+                ntrack.trackChunk = (TrackChunk)t.trackChunk.Clone();
+                _tracks.Insert(t.Index, ntrack);
+                AnalyzeTrack(ntrack);
+                RenumberTracks();
+            }
+        }
+
+        private void TrackListItem_DrumMap_Click(object sender, RoutedEventArgs e)
+        {
+            if (_Sender is ListViewItem)
+            {
+                var t = (_Sender as ListViewItem).Content as MidiBardImporter.MidiTrack;
+                Drummapping(t.trackChunk);
+
+                var Result = MessageBox.Show("Delete old drum-track?\r\n", "Warning!", MessageBoxButton.YesNo);
+                if (Result == MessageBoxResult.No)
+                    return;
+
+                _tracks.Remove(t);
+                RenumberTracks();
+            }
         }
 
         private void TrackListItem_Delete_Click(object sender, RoutedEventArgs e)
@@ -1335,6 +1382,98 @@ namespace BardMusicPlayer.Ui.Windows
                     lastnote = note.Key;
                 }
             }
+        }
+
+        /// <summary>
+        /// Check if this midi uses "all tracks"
+        /// </summary>
+        /// <param name="midiFile"></param>
+        /// <returns></returns>
+        private bool CheckForAllTracks(MidiFile midiFile)
+        {
+            bool allTracks = false;
+            Parallel.ForEach(midiFile.GetTrackChunks(), (originalChunk, loopState) =>
+            {
+                using (var timedEventsManager = new TimedObjectsManager<TimedEvent>(originalChunk.Events))
+                {
+                    TimedObjectsCollection<TimedEvent> events = timedEventsManager.Objects;
+                    List<TimedEvent> prefixList = events.Where(static e => e.Event is NoteOnEvent).ToList();
+                    int chan = -1;
+                    foreach (TimedEvent tevent in prefixList)
+                    {
+                        if (tevent.Event is NoteOnEvent)
+                        {
+                            if ((tevent.Event as NoteOnEvent).Channel != chan)
+                            {
+                                if (allTracks)
+                                    break;
+                                if (chan == -1)
+                                    chan = (tevent.Event as NoteOnEvent).Channel;
+                                else
+                                {
+                                    allTracks = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            return allTracks;
+        }
+
+        private void CorrectAllTracks(MidiFile midiFile)
+        {
+            int TrackNum = 0;
+            TrackChunk ctlChunk = new TrackChunk();
+
+            //Parallel.ForEach(midiFile.GetTrackChunks(), (originalChunk, loopState) =>
+            foreach (var originalChunk in midiFile.GetTrackChunks())
+            {
+                using (var events = originalChunk.ManageTimedEvents())
+                {
+                    //The proglist
+                    List<TimedEvent> progEvents = events.Objects.Where(e => e.Event.EventType == MidiEventType.ProgramChange).ToList();
+                    //new Progs
+                    List<TimedEvent> newProgEvents = new List<TimedEvent>();
+
+                    int currProg = -1;
+                    using (var note = originalChunk.ManageNotes())
+                    {
+                        foreach (var noteon in note.Objects)
+                        {
+                            var prog = progEvents.FirstOrDefault(e => (e.Event as ProgramChangeEvent).Channel == noteon.Channel);
+                            if (prog != default)
+                            { 
+                                var newProg = prog.Clone() as TimedEvent;
+                                newProg.Time = noteon.Time;
+
+                                var ti = (newProg.TimeAs<MetricTimeSpan>(midiFile.GetTempoMap()).TotalMilliseconds -30);
+                                if (ti > 0)
+                                {
+                                    long ticksFromMetricLength = TimeConverter.ConvertFrom(new MetricTimeSpan((long)ti * 1000), midiFile.GetTempoMap());
+                                    newProg.Time = ticksFromMetricLength;
+                                }
+                                else
+                                    newProg.Time = 0;
+
+                                if ((newProg.Event as ProgramChangeEvent).ProgramNumber != currProg)
+                                {
+                                    currProg = (newProg.Event as ProgramChangeEvent).ProgramNumber;
+                                    newProgEvents.Add(newProg);
+                                }
+                            }
+                        }
+                        note.SaveChanges();
+                        events.Objects.Remove(progEvents);
+                        events.Objects.Add(newProgEvents);
+                        events.SaveChanges();
+                    }
+                }
+                TrackManipulations.SetChanNumber(originalChunk, TrackNum);
+                TrackNum++;
+            }
+            Console.WriteLine("");
         }
     }
 }
