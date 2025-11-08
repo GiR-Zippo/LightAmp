@@ -57,6 +57,7 @@ namespace BardMusicPlayer.Ui.Controls
             }
             LiveMidiDelay.IsChecked = BmpPigeonhole.Instance.LiveMidiPlayDelay;
             NoteOffsetBox.IsChecked = BmpPigeonhole.Instance.UseNoteOffset;
+            ChannelToProg.IsChecked = BmpPigeonhole.Instance.ChannelToProgram;
 
             //Misc
             AMPInFrontBox.IsChecked = BmpPigeonhole.Instance.BringBMPtoFront;
@@ -235,6 +236,11 @@ namespace BardMusicPlayer.Ui.Controls
         private void Sp_DalamudKeyOut_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.UsePluginForKeyOutput = (Sp_DalamudKeyOut.IsChecked ?? true);
+        }
+
+        private void ChannelToProg_Checked(object sender, RoutedEventArgs e)
+        {
+            BmpPigeonhole.Instance.ChannelToProgram = (ChannelToProg.IsChecked ?? true);
         }
 
         private static readonly Key[] KonamiCode = { Key.Up, Key.Up, Key.Down, Key.Down, Key.Left, Key.Right, Key.Left, Key.Right, Key.B, Key.A };

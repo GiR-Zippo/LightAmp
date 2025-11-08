@@ -209,6 +209,11 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual bool AutoLoadPerformers { get; set; } = false;
 
         /// <summary>
+        /// Enable channel to prog events
+        /// </summary>
+        public virtual bool ChannelToProgram { get; set; } = false;
+
+        /// <summary>
         /// The last loaded perfomer profile
         /// </summary>
         public virtual string LastLoadedPerformerProfile { get; set; } = "";

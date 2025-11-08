@@ -206,17 +206,17 @@ namespace BardMusicPlayer.Ui.Windows
         {
             if (!reload)
             {
-                if (CheckForAllTracks(_midifile))
+                if (TrackManipulations.HasAllTracks(_midifile))
                 {
                     var Result = MessageBox.Show("Looks like this midi contains an \"All Tracks\"\r\nNormailize it?\r\n", "Warning!", MessageBoxButton.YesNo);
                     if (Result == MessageBoxResult.Yes)
-                        CorrectAllTracks(_midifile);
+                        TrackManipulations.ChannelsToPrograms(_midifile);
                 }
-                this.GuitarModeSelector.SelectedIndex = 3;
             }
             else
                 _tracks.Clear();
 
+            this.GuitarModeSelector.SelectedIndex = 3;
             int idx = 0;
             foreach (TrackChunk chunk in _midifile.GetTrackChunks())
             {
@@ -1382,98 +1382,6 @@ namespace BardMusicPlayer.Ui.Windows
                     lastnote = note.Key;
                 }
             }
-        }
-
-        /// <summary>
-        /// Check if this midi uses "all tracks"
-        /// </summary>
-        /// <param name="midiFile"></param>
-        /// <returns></returns>
-        private bool CheckForAllTracks(MidiFile midiFile)
-        {
-            bool allTracks = false;
-            Parallel.ForEach(midiFile.GetTrackChunks(), (originalChunk, loopState) =>
-            {
-                using (var timedEventsManager = new TimedObjectsManager<TimedEvent>(originalChunk.Events))
-                {
-                    TimedObjectsCollection<TimedEvent> events = timedEventsManager.Objects;
-                    List<TimedEvent> prefixList = events.Where(static e => e.Event is NoteOnEvent).ToList();
-                    int chan = -1;
-                    foreach (TimedEvent tevent in prefixList)
-                    {
-                        if (tevent.Event is NoteOnEvent)
-                        {
-                            if ((tevent.Event as NoteOnEvent).Channel != chan)
-                            {
-                                if (allTracks)
-                                    break;
-                                if (chan == -1)
-                                    chan = (tevent.Event as NoteOnEvent).Channel;
-                                else
-                                {
-                                    allTracks = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            return allTracks;
-        }
-
-        private void CorrectAllTracks(MidiFile midiFile)
-        {
-            int TrackNum = 0;
-            TrackChunk ctlChunk = new TrackChunk();
-
-            //Parallel.ForEach(midiFile.GetTrackChunks(), (originalChunk, loopState) =>
-            foreach (var originalChunk in midiFile.GetTrackChunks())
-            {
-                using (var events = originalChunk.ManageTimedEvents())
-                {
-                    //The proglist
-                    List<TimedEvent> progEvents = events.Objects.Where(e => e.Event.EventType == MidiEventType.ProgramChange).ToList();
-                    //new Progs
-                    List<TimedEvent> newProgEvents = new List<TimedEvent>();
-
-                    int currProg = -1;
-                    using (var note = originalChunk.ManageNotes())
-                    {
-                        foreach (var noteon in note.Objects)
-                        {
-                            var prog = progEvents.FirstOrDefault(e => (e.Event as ProgramChangeEvent).Channel == noteon.Channel);
-                            if (prog != default)
-                            { 
-                                var newProg = prog.Clone() as TimedEvent;
-                                newProg.Time = noteon.Time;
-
-                                var ti = (newProg.TimeAs<MetricTimeSpan>(midiFile.GetTempoMap()).TotalMilliseconds -30);
-                                if (ti > 0)
-                                {
-                                    long ticksFromMetricLength = TimeConverter.ConvertFrom(new MetricTimeSpan((long)ti * 1000), midiFile.GetTempoMap());
-                                    newProg.Time = ticksFromMetricLength;
-                                }
-                                else
-                                    newProg.Time = 0;
-
-                                if ((newProg.Event as ProgramChangeEvent).ProgramNumber != currProg)
-                                {
-                                    currProg = (newProg.Event as ProgramChangeEvent).ProgramNumber;
-                                    newProgEvents.Add(newProg);
-                                }
-                            }
-                        }
-                        note.SaveChanges();
-                        events.Objects.Remove(progEvents);
-                        events.Objects.Add(newProgEvents);
-                        events.SaveChanges();
-                    }
-                }
-                TrackManipulations.SetChanNumber(originalChunk, TrackNum);
-                TrackNum++;
-            }
-            Console.WriteLine("");
         }
     }
 }

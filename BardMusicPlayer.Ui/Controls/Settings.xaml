@@ -68,12 +68,14 @@
                         </ComboBox>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="4" x:Name="LiveMidiDelay" Content="Enable note delay for live playing" Unchecked="LiveMidiDelay_Checked" Checked="LiveMidiDelay_Checked"             ToolTip="{x:Static Locale:Language.Settings_Live_Play}"/>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="5" x:Name="NoteOffsetBox" Content="Enable note offset"                 Unchecked="NoteOffsetBox_Checked" Checked="NoteOffsetBox_Checked"             ToolTip="{x:Static Locale:Language.Settings_Note_Offset}"/>
+                        <CheckBox Margin="10,0,0,0"  Grid.Row="6" x:Name="ChannelToProg" Content="Convert Channnels to Program"       Unchecked="ChannelToProg_Checked" Checked="ChannelToProg_Checked"             ToolTip="BETA"                                                />
                     </Grid>
                 </TabItem>
                 <TabItem Header="Misc">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -99,8 +101,8 @@
                         <Label Margin="0,0,0,0"      Grid.Row="9" Content="Advanced:"/>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="10" x:Name="MidiBardComp"      Content="Enable MidiBard Compat."         Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"           ToolTip="{x:Static Locale:Language.Settings_MidiBard}"/>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="11" x:Name="SongHistoryBox"    Content="Enable Song History"             Unchecked="SongHistoryBox_Checked"    Checked="SongHistoryBox_Checked"  />
-                        <CheckBox Margin="10,0,0,0"  Grid.Row="12" x:Name="SkinUiBox"         Content="Use skinned Ui"                   Click="SkinUiBox_Checked"                                                  ToolTip="{x:Static Locale:Language.Settings_Use_Skin}"          Visibility="Hidden"/>
-                        <CheckBox Margin="10,0,0,0"  Grid.Row="13" x:Name="Sp_DalamudKeyOut"  Content="Use Dalamud Key out"              Unchecked="Sp_DalamudKeyOut_Checked"  Checked="Sp_DalamudKeyOut_Checked"   ToolTip="{x:Static Locale:Language.Settings_Dalamud_KeyOut}"    Visibility="Hidden"/>
+                        <CheckBox Margin="10,0,0,0"  Grid.Row="12" x:Name="SkinUiBox"         Content="Use skinned Ui"                  Click="SkinUiBox_Checked"                                                  ToolTip="{x:Static Locale:Language.Settings_Use_Skin}"          Visibility="Hidden"/>
+                        <CheckBox Margin="10,0,0,0"  Grid.Row="13" x:Name="Sp_DalamudKeyOut"  Content="Use Dalamud Key out"             Unchecked="Sp_DalamudKeyOut_Checked"  Checked="Sp_DalamudKeyOut_Checked"   ToolTip="{x:Static Locale:Language.Settings_Dalamud_KeyOut}"    Visibility="Hidden"/>
                     </Grid>
                 </TabItem>
             </TabControl>

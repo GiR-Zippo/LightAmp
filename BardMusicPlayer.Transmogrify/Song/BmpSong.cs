@@ -17,6 +17,7 @@ using BardMusicPlayer.Transmogrify.Processor.Utilities;
 using BardMusicPlayer.Transmogrify.Song.Config;
 using BardMusicPlayer.Transmogrify.Song.Importers;
 using BardMusicPlayer.Transmogrify.Song.Importers.LrcParser;
+using BardMusicPlayer.Transmogrify.Song.Manipulation;
 using BardMusicPlayer.Transmogrify.Song.Utilities;
 using LiteDB;
 using Melanchall.DryWetMidi.Common;
@@ -171,6 +172,10 @@ namespace BardMusicPlayer.Transmogrify.Song
         /// <returns></returns>
         private static BmpSong CovertMidiToSong(MidiFile midiFile, string path)
         {
+            if (BmpPigeonhole.Instance.ChannelToProgram)
+                if (TrackManipulations.HasAllTracks(midiFile))
+                    TrackManipulations.ChannelsToPrograms(midiFile);
+
             TempoMap tempoMap = midiFile.GetTempoMap();
             TimeSpan midiFileDuration = midiFile.GetTimedEvents().LastOrDefault(static e => e.Event is NoteOffEvent)?.TimeAs<MetricTimeSpan>(tempoMap) ?? new MetricTimeSpan();
 
