@@ -1,14 +1,14 @@
 [
-    // Patch 7.1
+    // Upstream
     {
         //Client::System::Input::TextService_ctor
         "Key": "CHATLOG",
-        "Value": "48 89 41 10 ?? ?? ?? ?? 45 84 C0 74 12 48 8B 42 18 48 89 05 ?? ?? ?? ?? 48 89 0D",
+        "Value": "48 89 41 10 44 88 49 2C 4C 89 49 24 4C 89 49 1C 45 84 C0 74 12 48 8B 42 18 48 89 05 ?? ?? ?? ?? 48 89 0D",
         "ASMSignature": true,
         "PointerPath": [ 0, 0, 64, 908 ]
     },
     {
-        //g_Client::Game::Object::GameObjectManager_Instance
+        //g_Client::Game::Object::GameObjectManager_Instance.Objects
         "Key": "CHARMAP",
         "Value": "48 C1 EA 03 81 FA ?? ?? 00 00 ?? ?? 8B C2 48 8D 0D",
         "ASMSignature": true,
@@ -28,7 +28,7 @@
         "ASMSignature": true,
         "PointerPath": [
             0,
-            26044
+            32764
         ]
     },
     {
@@ -36,7 +36,7 @@
         "Key": "PARTYLEAD",
         "Value": "5E C3 48 89 5C 24 30 48 8D 0D",
         "ASMSignature": true,
-        "PointerPath": [ 0, 26040 ]
+        "PointerPath": [ 0, 32760 ]
     },
     {
         //g_Client::Game::UI::UIState_Instance.PlayerState
@@ -66,18 +66,16 @@
             0,
             0
         ],
-        "Value": "0F 85 ?? ?? ?? ?? 4C 89 64 24 50 48 8D 0D"
+        "Value": "0F 85 ?? 00 00 00 BA 0E 00 00 00 C7 46 04 06 00 00 00 48 8D 0D"
     },
     {
         //Client::System::Input::TextService_vf10
         "ASMSignature": true,
         "Key": "CHATINPUT",
         "PointerPath": [
-            0,
-            0,
-            56
+            0
         ],
-        "Value": "33 D2 E8 ?? ?? ?? ?? 48 8B 0D"
+        "Value": "48 8B  0D 5B 51 6A 02 48 89 7C 24 20 E8 7D 29 69 00 85 C0 75 0F 48 8B 0D 46 51 6A 02 8D"
     },
     {
         //Fallback

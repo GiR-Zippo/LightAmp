@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Diagnostics;
 
 namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
 {
@@ -17,10 +18,18 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Reader
         public bool IsChatInputOpen()
         {
             if (!CanGetChatInput() || !MemoryHandler.IsAttached) return false;
-
+            return false;
             try
             {
                 var chatInputMap = (IntPtr)Scanner.Locations[Signatures.ChatInputKey];
+                /*var partyCount = MemoryHandler.GetByteArray(chatInputMap, 800);
+                for (int i = 0; i != 800; i++)
+                {
+                    Debug.Write(partyCount[i]);
+                    Debug.Write(" ");
+                }
+                Debug.WriteLine("");
+                */
                 var pointer = (IntPtr)MemoryHandler.GetInt32(chatInputMap) != IntPtr.Zero;
                 return pointer;
             }
