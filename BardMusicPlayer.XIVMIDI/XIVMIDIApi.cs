@@ -1,16 +1,16 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
-using Newtonsoft.Json;
-using System.Collections.Concurrent;
-using System.Net;
-using System.Threading;
+﻿using System;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
+
+using Newtonsoft.Json;
+
 using BardMusicPlayer.XIVMIDI.IO;
 
 namespace BardMusicPlayer.XIVMIDI;
-
 
 /*
 The Api stuff to access the XIVMIDI
@@ -90,8 +90,15 @@ public sealed partial class XIVMIDI
     private void StopWorkerThread()
     {
         cancelTokenSource.Cancel();
-        while (downloadQueue.TryDequeue(out _))
-        { }
+        while (downloadQueue.TryDequeue(out _)) { }
+    }
+
+    private void CancelDownloadQueue()
+    {
+        StopWorkerThread();
+        httpClient.CancelPendingRequests();
+        StartWorkerThread();
+        IsRequestRunning = false;
     }
 
     /// <summary>
@@ -99,19 +106,20 @@ public sealed partial class XIVMIDI
     /// </summary>
     /// <param name="token"></param>
     /// <returns></returns>
-    private async Task RunEventsHandler(CancellationToken token)
+    private async Task RunEventsHandler(CancellationToken cancelationToken)
     {
-        while (!token.IsCancellationRequested)
+        while (!cancelationToken.IsCancellationRequested)
         {
             while (downloadQueue.TryDequeue(out var request))
             {
-                if (token.IsCancellationRequested)
+                if (cancelationToken.IsCancellationRequested)
                     break;
 
                 if (request is GetRequest)
-                    _ = GetAsync(request as GetRequest);
+                    _ = GetAsync(request as GetRequest, cancelationToken);
             }
-            await Task.Delay(100, token).ContinueWith(tsk => { });
+
+            await Task.Delay(100, cancelationToken).ContinueWith(tsk => { });
         }
     }
 
@@ -120,8 +128,9 @@ public sealed partial class XIVMIDI
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    private async Task GetAsync(GetRequest request)
+    private async Task GetAsync(GetRequest request, CancellationToken cancelationToken)
     {
+        IsRequestRunning = true;
         foreach (Cookie co in httpClientHandler.CookieContainer.GetCookies(new Uri(request.Url)))
         {
             co.Expires = DateTime.Now.Subtract(TimeSpan.FromDays(1));
@@ -133,7 +142,7 @@ public sealed partial class XIVMIDI
 
         try
         {
-            HttpResponseMessage response = await httpClient.GetAsync(request.Url);
+            HttpResponseMessage response = await httpClient.GetAsync(request.Url, cancelationToken);
             request.ResponseBody = response.Content;
             request.Host = new Uri(request.Url).DnsSafeHost;
             request.ResponseCode = response.StatusCode;
@@ -141,12 +150,14 @@ public sealed partial class XIVMIDI
         }
         catch (HttpRequestException e)
         {
+            IsRequestRunning = false;
             request.ResponseCode = HttpStatusCode.ServiceUnavailable;
             request.ResponseMsg = e.InnerException.Message;
         }
 
         if (request.ResponseCode != HttpStatusCode.OK)
         {
+            IsRequestRunning = false;
             OnRequestFinished(this, request);
             return;
         }
@@ -155,6 +166,11 @@ public sealed partial class XIVMIDI
             GetJSon(request);
         else if (request.Requester == Requester.DOWNLOAD)
             GetMidi(request);
+
+        IsRequestRunning = false;
+
+        if (downloadQueue.IsEmpty)
+            IsRequestRunning = false;
     }
 
     private void GetJSon(GetRequest request)
