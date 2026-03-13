@@ -276,8 +276,10 @@ namespace BardMusicPlayer.Seer
 
                 if (File.Exists(GamePath + @"boot\locales\ko.pak"))
                     gameRegion = GameRegion.Korea;
-                else if (Directory.Exists(GamePath + @"sdo")) gameRegion = GameRegion.China;
-
+                else if (Directory.Exists(GamePath + @"sdo")) 
+                    gameRegion = GameRegion.China;
+                else if (File.Exists(GamePath + @"boot\FfxivUpdaterTC.exe"))
+                    gameRegion = GameRegion.ChinaTwo;
                 return gameRegion;
             }
             catch (Exception ex)

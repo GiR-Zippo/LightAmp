@@ -9,6 +9,7 @@ namespace BardMusicPlayer.Quotidian.Enums
     {
         Global,
         China,
-        Korea
+        Korea,
+        ChinaTwo
     }
 }

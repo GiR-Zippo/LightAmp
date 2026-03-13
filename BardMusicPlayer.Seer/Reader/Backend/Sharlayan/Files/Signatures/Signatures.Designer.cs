@@ -73,6 +73,16 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Sharlayan.Files.Signatures {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
+        internal static byte[] ChinaII {
+            get {
+                object obj = ResourceManager.GetObject("ChinaII", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
         internal static byte[] Global {
             get {
                 object obj = ResourceManager.GetObject("Global", resourceCulture);

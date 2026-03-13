@@ -1,0 +1,91 @@
+[
+    // Upstream
+    {
+        //Client::System::Input::TextService_ctor
+        "Key": "CHATLOG",
+        "Value": "C0 74 12 48 8B 42 18 48 89 05 ?? ?? ?? ?? 48 89 0D",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 0, 64, 908 ]
+    },
+    {
+        //g_Client::Game::Object::GameObjectManager_Instance.Objects
+        "Key": "CHARMAP",
+        "Value": "48 C1 EA 03 81 FA ?? ?? 00 00 ?? ?? 8B C2 48 8D 0D",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 0 ]
+    },
+    {
+        //g_Client::Game::Group::GroupManager_Instance
+        "Key": "PARTYMAP",
+        "Value": "5E C3 48 89 5C 24 30 48 8D 0D",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 784 ]
+    },
+    {
+        //g_Client::Game::Group::GroupManager_Instance
+        "Key": "PARTYCOUNT",
+        "Value": "5E C3 48 89 5C 24 30 48 8D 0D",
+        "ASMSignature": true,
+        "PointerPath": [
+            0,
+            32764
+        ]
+    },
+    {
+        //g_Client::Game::Group::GroupManager_Instance
+        "Key": "PARTYLEAD",
+        "Value": "5E C3 48 89 5C 24 30 48 8D 0D",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 32760 ]
+    },
+    {
+        //g_Client::Game::UI::UIState_Instance.PlayerState
+        "Key": "PLAYERINFO",
+        "Value": "83 F9 FF 74 12 44 8B 04 8E 8B D3 48 8D 0D",
+        "ASMSignature": true,
+        "PointerPath": [ 0, 0 ]
+    },
+    // End Upstream
+
+    // BMP
+    {
+        //g_Client::Game::GameMain_Instance.field_B38
+        "ASMSignature": true,
+        "Key": "PERFSTATUS",
+        "PointerPath": [
+            0,
+            0
+        ],
+        "Value": "89 7B 60 48 8B 5C 24 30 48 8B 74 24 38 48 83 C4 20 5F C3 85 C0 78 31 33 D2 48 8D 0D"
+    },
+    {
+        //aFfxivChr016llx - FFXIV_CHR%016llX
+        "ASMSignature": true,
+        "Key": "CHARID",
+        "PointerPath": [
+            0,
+            0
+        ],
+        "Value": "0F 85 ?? 02 00 00 4C 89 64 24 50 48 8D 0D"
+    },
+    {
+        //Client::System::Input::TextService_vf10
+        "ASMSignature": true,
+        "Key": "CHATINPUT",
+        "PointerPath": [
+            0
+        ],
+        "Value": "48 8B  0D 5B 51 6A 02 48 89 7C 24 20 E8 7D 29 69 00 85 C0 75 0F 48 8B 0D 46 51 6A 02 8D"
+    },
+    {
+        //Fallback
+        "ASMSignature": true,
+        "Key": "WORLD",
+        "PointerPath": [
+            0,
+            5499988
+        ],
+        "Value": "FFC08983????????83F8020F84????????4C8D35"
+    }
+    // END BMP
+]
