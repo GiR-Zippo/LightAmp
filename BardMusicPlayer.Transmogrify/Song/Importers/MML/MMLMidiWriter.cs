@@ -19,7 +19,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.MML
                 TimeDivision = new TicksPerQuarterNoteTimeDivision((short)ppq)
             };
 
-            // Spur 0: Tempo
+            // Track 0: Tempo
             var tempoTrack = new TrackChunk();
             long tempoUsed = 0;
             foreach (var e in events.Where(e => e.Type == MidiEventType.Tempo).OrderBy(e => e.Tick))
@@ -29,7 +29,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.MML
             }
             midiFile.Chunks.Add(tempoTrack);
 
-            // Je Kanal eine Spur
+            // One channel per track
             foreach (var group in events
                 .Where(e => e.Type != MidiEventType.Tempo)
                 .GroupBy(e => e.Channel)

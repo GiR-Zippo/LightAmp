@@ -31,14 +31,14 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.MML
         public int Octave = 4;
         public int DefaultLen = 4;  // Quarter
         public bool DefaultDot = false;
-        public int Volume = 100;    // 0-127 für MIDI-Velocity
+        public int Volume = 100;    // 0-127 MIDI-Velocity
         public int Pan = 64;        // 0-127
         public int Program = 0;     // GM-Instrument
         public long Tick = 0;       // current tick
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  Parser – wandelt Token-Strom in MIDI-Events
+    //  Parser – converts Token-Stream to MIDI-Events
     // ═══════════════════════════════════════════════════════════════════════
     public class MMLParser
     {

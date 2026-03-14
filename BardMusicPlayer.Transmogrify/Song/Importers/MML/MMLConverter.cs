@@ -4,6 +4,7 @@
  */
 
 using Melanchall.DryWetMidi.Core;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -16,12 +17,14 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.MML
         public static MidiFile OpenMMLSongFile(string path)
         {
             string content = File.ReadAllText(path, Encoding.UTF8);
-            return ConvertAuto(content);
+            MMLDialect dialect = path.EndsWith(".ms2mml", StringComparison.OrdinalIgnoreCase)
+                     ? MMLDialect.MapleStory2
+                     : MMLDialect.Auto;
+                 return ConvertAuto(content, dialect);
         }
 
         // ── MML-String-API ────────────────────────────────────────────────
-
-        public static MidiFile ConvertMml(string mml)
+        public static MidiFile ConvertMML(string mml)
         {
             var result = ParseMml(mml);
             return MMLMidiWriter.BuildMidiFile(result.Key, result.Value);
@@ -29,7 +32,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.MML
 
         // ── Internal core ─────────────────────────────────────────────────
 
-        private static MidiFile ConvertAuto(string content)
+        private static MidiFile ConvertAuto(string content, MMLDialect dialect = MMLDialect.Auto)
         {
             string trimmed = content.TrimStart();
 
@@ -45,11 +48,11 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.MML
 
             if (isProjectFile)
             {
-                var project = ThreeMleParser.Parse(content);
-                return ConvertMml(BuildCombinedMml(project));
+                var project = ThreeMleParser.Parse(content, dialect);
+                return ConvertMML(BuildCombinedMml(project));
             }
 
-            return ConvertMml(content);
+            return ConvertMML(content);
         }
 
         private static KeyValuePair<List<MidiEvent>, int> ParseMml(string mml)
@@ -67,7 +70,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.MML
             {
                 int ch = track.Channel > 0 ? track.Channel : 1;
                 // Remove t-commands from the tracks — tempo is set globally at the start
-                string mml = Regex.Replace(track.Mml, @"(?i)\bt\d+\s*", "").Trim();
+                string mml = Regex.Replace(track.MML, @"(?i)\bt\d+\s*", "").Trim();
                 if (!string.IsNullOrWhiteSpace(mml))
                     sb.Append("CH" + ch + " " + mml + " ");
             }
