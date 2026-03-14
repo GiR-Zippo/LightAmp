@@ -1,5 +1,5 @@
 /*
- * Copyright(c) 2026 GiR-Zippo, 2021 MoogleTroupe
+ * Copyright(c) 2025 GiR-Zippo, 2021 MoogleTroupe
  * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
  */
 
@@ -87,7 +87,7 @@ namespace BardMusicPlayer.Transmogrify.Song
             if (Path.GetExtension(path).Equals(".mmsong"))
                 song = CovertMidiToSong(MMSongImporter.OpenMMSongFile(path), path);
             else if (Path.GetExtension(path).Equals(".mml"))
-                song = CovertMidiToSong(Importers.MML.MMLSongImporter.OpenMMLSongFile(path), path);
+                song = CovertMidiToSong(Importers.MML.MMLConverter.OpenMMLSongFile(path), path);
             else if (Path.GetExtension(path).Contains(".gp"))
                 song = CovertMidiToSong(Importers.GuitarPro.ImportGuitarPro.OpenGTPSongFile(path), path);
             else
