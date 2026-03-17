@@ -18,7 +18,7 @@
 
         <!-- TOOLBAR -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#2D2D2D">
-            <Button Content="Speichern" Click="SaveTrack_Click" Margin="5" Padding="15,0" Background="#3E3E3E" Foreground="White"/>
+            <Button Content="Save" Click="SaveTrack_Click" Margin="5" Padding="15,0" Background="#3E3E3E" Foreground="White"/>
             <Separator Margin="10,5" Background="#444"/>
             <TextBlock Text="Snap:" VerticalAlignment="Center" Margin="10,0,5,0" Foreground="#AAA"/>
             <ComboBox Name="SnapComboBox" Width="80" Height="25" SelectionChanged="SnapComboBox_SelectionChanged">
@@ -63,9 +63,9 @@
                         <Canvas Name="NotesCanvas" Background="Transparent">
                             <Canvas.ContextMenu>
                                 <ContextMenu Background="#2D2D2D" Foreground="White">
-                                    <MenuItem Header="Auswahl (S)" Click="SetTool_Click" Tag="Select"/>
-                                    <MenuItem Header="Stift (D)" Click="SetTool_Click" Tag="Draw"/>
-                                    <MenuItem Header="Radierer (E)" Click="SetTool_Click" Tag="Erase"/>
+                                    <MenuItem Header="Select (S)" Click="SetTool_Click" Tag="Select"/>
+                                    <MenuItem Header="Draw (D)" Click="SetTool_Click" Tag="Draw"/>
+                                    <MenuItem Header="Erase (E)" Click="SetTool_Click" Tag="Erase"/>
                                 </ContextMenu>
                             </Canvas.ContextMenu>
                             <Rectangle Name="SelectionRect" Stroke="Cyan" StrokeThickness="1" Fill="#3300FFFF" Visibility="Collapsed" IsHitTestVisible="False"/>
@@ -95,7 +95,7 @@
         <StatusBar Grid.Row="3" Background="#2D2D2D">
             <StatusBarItem HorizontalAlignment="Right">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Zoom:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="Zoom:" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="White"/>
                     <Slider Name="ZoomSlider" Width="150" Minimum="0.01" Maximum="1.0" Value="0.1" ValueChanged="ZoomSlider_ValueChanged"/>
                 </StackPanel>
             </StatusBarItem>

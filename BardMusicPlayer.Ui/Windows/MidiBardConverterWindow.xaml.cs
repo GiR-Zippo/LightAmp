@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright(c) 2025 GiR-Zippo
+ * Copyright(c) 2026 GiR-Zippo
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
@@ -860,8 +860,12 @@ namespace BardMusicPlayer.Ui.Windows
             if (sender is ListViewItem)
             {
                 var t = (sender as ListViewItem).Content as MidiBardImporter.MidiTrack;
-                var f = new MidiBardConverterTrackWindow(_midifile, t.trackChunk);
-                f.Visibility = Visibility.Visible;
+                var editor = new MidiBardConverterTrackWindow(_midifile, t.trackChunk);
+                if (editor.ShowDialog() == true)
+                {
+                    t.trackChunk = editor.ResultTrackChunk;
+                    TrackList.Items.Refresh();
+                }
             }
 
             e.Handled = true;
