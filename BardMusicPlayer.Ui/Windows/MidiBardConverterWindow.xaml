@@ -125,6 +125,7 @@
                 <Style TargetType="{x:Type ListViewItem}">
                     <EventSetter Event="MouseMove" Handler="TrackListItem_MouseMove"/>
                     <EventSetter Event="Drop" Handler="TrackListItem_Drop"/>
+                    <EventSetter Event="PreviewMouseDoubleClick" Handler="TrackListItem_Doubleclick"/>
                     <EventSetter Event="PreviewMouseRightButtonDown" Handler="TrackListItem_PreviewMouseRightButtonDown"/>
                 </Style>
             </ListView.ItemContainerStyle>

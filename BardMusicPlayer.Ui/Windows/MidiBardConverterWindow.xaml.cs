@@ -855,6 +855,18 @@ namespace BardMusicPlayer.Ui.Windows
         #endregion
 
         #region Context Menu
+        private void TrackListItem_Doubleclick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is ListViewItem)
+            {
+                var t = (sender as ListViewItem).Content as MidiBardImporter.MidiTrack;
+                var f = new MidiBardConverterTrackWindow(_midifile, t.trackChunk);
+                f.Visibility = Visibility.Visible;
+            }
+
+            e.Handled = true;
+        }
+
         private void TrackListItem_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             _Sender = sender;

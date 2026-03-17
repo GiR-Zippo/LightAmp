@@ -286,6 +286,9 @@
     <Compile Include="Windows\MacroEditWindow.xaml.cs">
       <DependentUpon>MacroEditWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\MidiBardConverterTrackWindow.xaml.cs">
+      <DependentUpon>MidiBardConverterTrackWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\MidiBardConverterWindow.xaml.cs">
       <DependentUpon>MidiBardConverterWindow.xaml</DependentUpon>
     </Compile>
@@ -366,6 +369,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\MacroEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\MidiBardConverterTrackWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
