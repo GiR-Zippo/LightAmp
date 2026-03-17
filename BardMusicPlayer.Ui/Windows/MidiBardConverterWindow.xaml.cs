@@ -855,7 +855,7 @@ namespace BardMusicPlayer.Ui.Windows
         #endregion
 
         #region Context Menu
-        private void TrackListItem_Doubleclick(object sender, MouseButtonEventArgs e)
+        private async void TrackListItem_Doubleclick(object sender, MouseButtonEventArgs e)
         {
             if (sender is ListViewItem)
             {

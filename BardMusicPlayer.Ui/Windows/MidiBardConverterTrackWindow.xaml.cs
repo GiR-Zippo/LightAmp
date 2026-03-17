@@ -75,6 +75,11 @@ namespace BardMusicPlayer.Ui.Windows
         private Stack<UndoAction> _redoStack = new Stack<UndoAction>();
         private List<(Border Border, int Pitch, long Start, long Duration)> _dragStartSnapshots;
 
+        //LowerWindow
+        private bool _isDraggingAutomation;
+        private FrameworkElement _activeAutomationPoint;
+        private AutomationPoint _automationStartSnapshot;
+
         public MidiBardConverterTrackWindow(MidiFile midiFile, TrackChunk track)
         {
             InitializeComponent();
@@ -106,7 +111,12 @@ namespace BardMusicPlayer.Ui.Windows
             _programChanges = track.Events.OfType<ProgramChangeEvent>().Select(e => new AutomationPoint { Tick = e.DeltaTime, Value = e.ProgramNumber }).OrderBy(p => p.Tick).ToList();
         }
 
-        private void SwitchTool(EditorTool tool) { _currentTool = tool; UpdateToolUI(); ClearSelection(); }
+        private void SwitchTool(EditorTool tool) 
+        {   
+            _currentTool = tool;
+            UpdateToolUI();
+            ClearSelection(); 
+        }
 
         private void UpdateToolUI()
         {
@@ -330,7 +340,7 @@ namespace BardMusicPlayer.Ui.Windows
                 var createdNote = _newNoteBeingCreated;
                 var data = (NoteData)createdNote.Tag;
 
-                int p = data.Pitch; 
+                int p = data.Pitch;
                 long s = data.Start;
                 long d = data.Duration;
 
@@ -493,24 +503,14 @@ namespace BardMusicPlayer.Ui.Windows
             //Undo
             if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                if (_undoStack.Any())
-                {
-                    var action = _undoStack.Pop();
-                    action.ApplyUndo();
-                    _redoStack.Push(action);
-                }
+                Undo_Click(null, null);
                 e.Handled = true;
             }
 
             //Redo
             if (e.Key == Key.Y && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                if (_redoStack.Any())
-                {
-                    var action = _redoStack.Pop();
-                    action.ApplyRedo();
-                    _undoStack.Push(action);
-                }
+                Redo_Click(null, null);
                 e.Handled = true;
             }
 
@@ -607,7 +607,10 @@ namespace BardMusicPlayer.Ui.Windows
             EditorGrid.Width = w; EditorGrid.Height = 128 * _noteHeight;
             GridCanvas.Width = w; GridCanvas.Height = EditorGrid.Height;
             RulerCanvas.Width = w; AutomationCanvas.Width = w; MarkersCanvas.Width = w;
-            DrawGrid(); DrawRuler(); DrawMarkers(); DrawAutomation();
+            DrawGrid();
+            DrawRuler();
+            DrawMarkers();
+            DrawAutomation();
         }
 
         private void DrawGrid()
@@ -646,32 +649,6 @@ namespace BardMusicPlayer.Ui.Windows
             }
         }
 
-        private void DrawAutomation()
-        {
-            AutomationCanvas.Children.Clear();
-            if (!_programChanges.Any()) return;
-            Polyline line = new Polyline { Stroke = Brushes.Orange, StrokeThickness = 2 };
-            double h = AutomationCanvas.ActualHeight > 0 ? AutomationCanvas.ActualHeight : 80;
-            foreach (var pt in _programChanges.OrderBy(p => p.Tick))
-            {
-                double x = pt.Tick * _tickPixelScale; double y = h - (pt.Value / 127.0 * h);
-                if (line.Points.Any()) line.Points.Add(new Point(x, line.Points.Last().Y));
-                line.Points.Add(new Point(x, y));
-                AutomationCanvas.Children.Add(new Ellipse { Width = 4, Height = 4, Fill = Brushes.Orange, Margin = new Thickness(x - 2, y - 2, 0, 0) });
-            }
-            if (line.Points.Any()) line.Points.Add(new Point(AutomationCanvas.Width, line.Points.Last().Y));
-            AutomationCanvas.Children.Add(line);
-        }
-
-        private void AutomationCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Point p = e.GetPosition(AutomationCanvas);
-            long tick = Snap((long)(p.X / _tickPixelScale));
-            int val = (int)((1 - (p.Y / AutomationCanvas.ActualHeight)) * 127);
-            _programChanges.RemoveAll(x => x.Tick == tick); _programChanges.Add(new AutomationPoint { Tick = tick, Value = val });
-            DrawAutomation();
-        }
-
         private void BuildPianoKeys()
         {
             PianoKeysStack.Children.Clear(); int[] blacks = { 1, 3, 6, 8, 10 };
@@ -682,6 +659,201 @@ namespace BardMusicPlayer.Ui.Windows
                 PianoKeysStack.Children.Add(b);
             }
         }
+
+        #region LowerWindow
+        private void DrawAutomation()
+        {
+            AutomationCanvas.Children.Clear();
+
+            if (!_programChanges.Any())
+                return;
+
+            Polyline line = new Polyline { Stroke = Brushes.Orange, StrokeThickness = 2, IsHitTestVisible = false };
+            double h = AutomationCanvas.ActualHeight > 0 ? AutomationCanvas.ActualHeight : 80;
+
+            foreach (var pt in _programChanges.OrderBy(p => p.Tick))
+            {
+                double x = pt.Tick * _tickPixelScale;
+                double y = h - (pt.Value / 127.0 * h);
+
+                if (line.Points.Any())
+                    line.Points.Add(new Point(x, line.Points.Last().Y));
+
+                line.Points.Add(new Point(x, y));
+                Ellipse point = new Ellipse
+                {
+                    Width = 6,
+                    Height = 6,
+                    Fill = Brushes.Orange,
+                    Tag = pt,
+                    Cursor = Cursors.Hand,
+                    Opacity = 0.8 // Standard-Deckkraft
+                };
+
+                // --- SCHICKES HOVER-LABEL (POPUP) ---
+                point.MouseEnter += (s, e) => {
+                    // Visuelles Feedback
+                    ((Ellipse)s).Opacity = 1.0;
+                    ((Ellipse)s).Width = 8;
+                    ((Ellipse)s).Height = 8;
+                    Canvas.SetLeft(((Ellipse)s), x - 4);
+                    Canvas.SetTop(((Ellipse)s), y - 4);
+
+                    ValuePopupText.Text = (pt.Value+1).ToString();
+                    ValuePopup.IsOpen = true;
+                };
+
+                point.MouseLeave += (s, e) => {
+                    // Visuelles Feedback zurücksetzen
+                    ((Ellipse)s).Opacity = 0.8;
+                    ((Ellipse)s).Width = 6;
+                    ((Ellipse)s).Height = 6;
+                    Canvas.SetLeft(((Ellipse)s), x - 3); // Re-zentrieren
+                    Canvas.SetTop(((Ellipse)s), y - 3);
+
+                    // Popup verstecken
+                    ValuePopup.IsOpen = false;
+                };
+                // ------------------------------------
+
+                point.MouseLeftButtonDown += AutomationPoint_MouseDown;
+                Canvas.SetLeft(point, x - 3);
+                Canvas.SetTop(point, y - 3);
+                AutomationCanvas.Children.Add(point);
+            }
+
+            if (line.Points.Any())
+                line.Points.Add(new Point(AutomationCanvas.ActualWidth, line.Points.Last().Y));
+
+            AutomationCanvas.Children.Insert(0, line);
+        }
+
+        private void AutomationCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource is Ellipse)
+                return;
+
+            if (e.ClickCount == 2)
+            {
+                Point pos = e.GetPosition(AutomationCanvas);
+                long ticks = Snap(XToTicks(pos.X));
+                int val = (int)((1.0 - (pos.Y / AutomationCanvas.ActualHeight)) * 127);
+                val = Math.Max(0, Math.Min(val, 127));
+
+                var newPoint = new AutomationPoint { Tick = ticks, Value = val };
+                _programChanges.Add(newPoint);
+
+                DrawAutomation();
+            }
+        }
+
+        private void AutomationCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_isDraggingAutomation || _activeAutomationPoint == null) return;
+
+            Point mousePos = e.GetPosition(AutomationCanvas);
+            var data = (AutomationPoint)_activeAutomationPoint.Tag;
+
+            data.Tick = Math.Max(0, Snap(XToTicks(mousePos.X)));
+            double height = AutomationCanvas.ActualHeight;
+            if (height > 0)
+            {
+                double normalized = 1.0 - (mousePos.Y / height);
+                data.Value = Math.Max(0, Math.Min((int)(normalized * 127), 127));
+            }
+
+            ValuePopupText.Text = (data.Value+1).ToString();
+            AutomationValueLabel.Text = (data.Value+1).ToString();
+
+            UpdateAutomationPointPosition(_activeAutomationPoint);
+        }
+
+        private void AutomationPoint_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Ellipse point && point.Tag is AutomationPoint data)
+            {
+                _activeAutomationPoint = point;
+                _isDraggingAutomation = true;
+                _automationStartSnapshot = new AutomationPoint
+                {
+                    Tick = data.Tick,
+                    Value = data.Value
+                };
+
+                point.CaptureMouse();
+                e.Handled = true;
+            }
+        }
+
+        private void AutomationCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_isDraggingAutomation && _activeAutomationPoint != null)
+            {
+                var element = _activeAutomationPoint;
+                var data = (AutomationPoint)element.Tag;
+
+                if (_automationStartSnapshot != null &&
+                   (data.Value != _automationStartSnapshot.Value || data.Tick != _automationStartSnapshot.Tick))
+                {
+                    int oldVal = _automationStartSnapshot.Value;
+                    long oldTick = _automationStartSnapshot.Tick;
+                    int newVal = data.Value;
+                    long newTick = data.Tick;
+
+                    ExecuteAndRegisterUndo("Move Automation",
+                        undoAction: () => {
+                            data.Value = oldVal; data.Tick = oldTick;
+                            DrawAutomation();
+                        },
+                        redoAction: () => {
+                            data.Value = newVal; data.Tick = newTick;
+                            DrawAutomation();
+                        }
+                    );
+                }
+
+                if (element.IsMouseCaptured)
+                    element.ReleaseMouseCapture();
+            }
+            ValuePopup.IsOpen = false;
+            _isDraggingAutomation = false;
+            _activeAutomationPoint = null;
+            _automationStartSnapshot = null;
+            DrawAutomation();
+        }
+
+        private void UpdateAutomationPointPosition(FrameworkElement element)
+        {
+            if (element == null || !(element.Tag is AutomationPoint data)) return;
+
+            double x = TicksToX(data.Tick);
+            double height = AutomationCanvas.ActualHeight;
+            double y = height * (1.0 - (data.Value / 127.0));
+            Canvas.SetLeft(element, x - (element.ActualWidth / 2));
+            Canvas.SetTop(element, y - (element.ActualHeight / 2));
+        }
+
+        private void AutomationCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (e.NewSize.Height > 0)
+            {
+                DrawAutomation();
+            }
+        }
+
+        private double _zoomX = 0.1;
+
+        private double TicksToX(long ticks)
+        {
+            return ticks * _zoomX;
+        }
+
+        private long XToTicks(double x)
+        {
+            if (_zoomX <= 0) return 0;
+            return (long)(x / _zoomX);
+        }
+        #endregion
 
         private long Snap(long ticks) => (long)(Math.Round((double)ticks / _gridSnapTicks) * _gridSnapTicks);
         private void SetTool_Click(object sender, RoutedEventArgs e) => SwitchTool((EditorTool)Enum.Parse(typeof(EditorTool), (string)((MenuItem)sender).Tag));
@@ -749,7 +921,24 @@ namespace BardMusicPlayer.Ui.Windows
                 rawEvents.Add((note.Start + note.Duration, new NoteOffEvent((SevenBitNumber)note.Pitch, (SevenBitNumber)0)));
             }
 
-            var sorted = rawEvents.OrderBy(x => x.AbsoluteTick).ThenBy(x => x.Event is NoteOnEvent ? 1 : 0);
+            if (_programChanges != null)
+            {
+                foreach (var pt in _programChanges)
+                {
+                    var pcEvent = new ProgramChangeEvent((SevenBitNumber)pt.Value);
+                    rawEvents.Add((pt.Tick, pcEvent));
+                }
+            }
+
+            var sorted = rawEvents
+                .OrderBy(x => x.AbsoluteTick)
+                .ThenBy(x => {
+                    if (x.Event is ProgramChangeEvent) return 0;
+                    if (x.Event is NoteOnEvent) return 1;
+                    return 2;
+                })
+                .ToList();
+
             long lastTick = 0;
             foreach (var item in sorted)
             {
@@ -761,6 +950,114 @@ namespace BardMusicPlayer.Ui.Windows
             this.ResultTrackChunk = trackChunk;
             this.DialogResult = true;
             this.Close();
+        }
+        #endregion
+
+        #region MenuStuff
+        private void AutoTranspose_Click(object sender, RoutedEventArgs e)
+        {
+            var targets = _selectedNoteBorders.Any()
+                ? _selectedNoteBorders.ToList()
+                : NotesCanvas.Children.OfType<Border>().Where(b => b.Tag is NoteData).ToList();
+
+            if (!targets.Any())
+                return;
+
+            double averagePitch = targets.Average(b => ((NoteData)b.Tag).Pitch);
+            int targetCenter = 66;
+            int octaveShift = (int)Math.Round((targetCenter - averagePitch) / 12.0) * 12;
+
+            if (octaveShift == 0)
+                return;
+
+            var startStates = targets.Select(b =>
+            {
+                var d = (NoteData)b.Tag;
+                return (Border: b, OldPitch: d.Pitch);
+            }).ToList();
+
+            ExecuteAndRegisterUndo($"Auto-Transpose ({octaveShift})",
+                undoAction: () =>
+                {
+                    foreach (var s in startStates)
+                    {
+                        var d = (NoteData)s.Border.Tag;
+                        d.Pitch = s.OldPitch;
+                        UpdateNotePosition(s.Border);
+                    }
+                },
+                redoAction: () =>
+                {
+                    foreach (var s in startStates)
+                    {
+                        var d = (NoteData)s.Border.Tag;
+                        d.Pitch += octaveShift;
+                        UpdateNotePosition(s.Border);
+                    }
+                }
+            );
+            RefreshLayout();
+        }
+
+        private void Quantize_Click(object sender, RoutedEventArgs e)
+        {
+            var targets = _selectedNoteBorders.Any()
+                ? _selectedNoteBorders.ToList()
+                : NotesCanvas.Children.OfType<Border>().Where(b => b.Tag is NoteData).ToList();
+
+            if (!targets.Any()) return;
+
+            var snapshots = targets.Select(b => {
+                var d = (NoteData)b.Tag;
+                return new
+                {
+                    Border = b,
+                    Data = d,
+                    OldStart = d.Start,
+                    OldDuration = d.Duration
+                };
+            }).ToList();
+
+            ExecuteAndRegisterUndo("Quantize",
+                undoAction: () => {
+                    foreach (var s in snapshots)
+                    {
+                        s.Data.Start = s.OldStart;
+                        s.Data.Duration = s.OldDuration;
+                        UpdateNotePosition(s.Border);
+                    }
+                },
+                redoAction: () => {
+                    foreach (var s in snapshots)
+                    {
+                        s.Data.Start = Snap(s.Data.Start);
+                        s.Data.Duration = Math.Max(_gridSnapTicks, Snap(s.Data.Duration));
+                        UpdateNotePosition(s.Border);
+                    }
+                }
+            );
+
+            RefreshLayout();
+        }
+
+        private void Undo_Click(object sender, RoutedEventArgs e)
+        {
+            if (_undoStack.Any())
+            {
+                var action = _undoStack.Pop();
+                action.ApplyUndo();
+                _redoStack.Push(action);
+            }
+        }
+
+        private void Redo_Click(object sender, RoutedEventArgs e)
+        {
+            if (_redoStack.Any())
+            {
+                var action = _redoStack.Pop();
+                action.ApplyRedo();
+                _undoStack.Push(action);
+            }
         }
         #endregion
     }
