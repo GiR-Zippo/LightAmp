@@ -286,10 +286,11 @@
     <Compile Include="Windows\MacroEditWindow.xaml.cs">
       <DependentUpon>MacroEditWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\MidiBardConverterTrackWindow.xaml.cs">
+    <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindow.xaml.cs">
       <DependentUpon>MidiBardConverterTrackWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\MidiBardConverterWindow.xaml.cs">
+    <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindowNoteSelect.cs" />
+    <Compile Include="Windows\MidiBardConverter\MidiBardConverterWindow.xaml.cs">
       <DependentUpon>MidiBardConverterWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\NetworkWindow.xaml.cs">
@@ -372,11 +373,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\MidiBardConverterTrackWindow.xaml">
+    <Page Include="Windows\MidiBardConverter\MidiBardConverterTrackWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\MidiBardConverterWindow.xaml">
+    <Page Include="Windows\MidiBardConverter\MidiBardConverterWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

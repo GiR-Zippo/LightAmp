@@ -74,6 +74,7 @@ namespace BardMusicPlayer.Ui.Windows
         private Stack<UndoAction> _undoStack = new Stack<UndoAction>();
         private Stack<UndoAction> _redoStack = new Stack<UndoAction>();
         private List<(Border Border, int Pitch, long Start, long Duration)> _dragStartSnapshots;
+        private List<Border> _selectedBordersAtStartOfSelection = new List<Border>();
 
         //LowerWindow
         private bool _isDraggingAutomation;
@@ -111,11 +112,11 @@ namespace BardMusicPlayer.Ui.Windows
             _programChanges = track.Events.OfType<ProgramChangeEvent>().Select(e => new AutomationPoint { Tick = e.DeltaTime, Value = e.ProgramNumber }).OrderBy(p => p.Tick).ToList();
         }
 
-        private void SwitchTool(EditorTool tool) 
-        {   
+        private void SwitchTool(EditorTool tool)
+        {
             _currentTool = tool;
             UpdateToolUI();
-            ClearSelection(); 
+            ClearSelection();
         }
 
         private void UpdateToolUI()
@@ -126,7 +127,8 @@ namespace BardMusicPlayer.Ui.Windows
 
         private void ClearSelection()
         {
-            foreach (var b in _selectedNoteBorders) UpdateNoteVisuals(b, false);
+            foreach (var b in _selectedNoteBorders)
+                UpdateNoteVisuals(b, false);
             _selectedNoteBorders.Clear();
         }
 
@@ -146,51 +148,15 @@ namespace BardMusicPlayer.Ui.Windows
             if (_currentTool == EditorTool.Erase)
             {
                 DependencyObject dep = e.OriginalSource as DependencyObject;
-                while (dep != null && !(dep is Border && ((Border)dep).Tag is NoteData)) dep = VisualTreeHelper.GetParent(dep);
-                if (dep is Border b) NotesCanvas.Children.Remove(b);
+                while (dep != null && !(dep is Border && ((Border)dep).Tag is NoteData)) 
+                    dep = VisualTreeHelper.GetParent(dep);
+                if (dep is Border b) 
+                    NotesCanvas.Children.Remove(b);
                 return;
             }
 
             if (_currentTool == EditorTool.Select)
-            {
-                DependencyObject dep = e.OriginalSource as DependencyObject;
-                while (dep != null && !(dep is Border && ((Border)dep).Tag is NoteData)) dep = VisualTreeHelper.GetParent(dep);
-                Border hitNote = dep as Border;
-
-                if (hitNote != null)
-                {
-                    double mouseX = e.GetPosition(hitNote).X;
-                    if (mouseX < 7.0 || mouseX > hitNote.ActualWidth - 7.0)
-                    {
-                        _isResizing = true;
-                        _isResizingLeft = mouseX < 7.0;
-                    }
-                    else
-                        _isDragging = true;
-
-                    _dragStartSnapshots = _selectedNoteBorders.Select(b =>
-                    {
-                        var d = (NoteData)b.Tag;
-                        return (b, d.Pitch, d.Start, d.Duration);
-                    }).ToList();
-
-                    if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !_selectedNoteBorders.Contains(hitNote)) ClearSelection();
-                    if (!_selectedNoteBorders.Contains(hitNote)) { _selectedNoteBorders.Add(hitNote); UpdateNoteVisuals(hitNote, true); }
-
-                    NotesCanvas.CaptureMouse();
-                    e.Handled = true;
-                    return;
-                }
-
-                _isSelecting = true;
-                _isDragging = false;
-                _selectionStartPoint = _lastMousePos;
-                if (!Keyboard.IsKeyDown(Key.LeftCtrl)) ClearSelection();
-                SelectionRect.Visibility = Visibility.Visible;
-                Canvas.SetLeft(SelectionRect, _lastMousePos.X); Canvas.SetTop(SelectionRect, _lastMousePos.Y);
-                SelectionRect.Width = 0; SelectionRect.Height = 0;
-                NotesCanvas.CaptureMouse();
-            }
+                NotesCanvas_SelectTool_MouseLeftButtonDown(sender, e);
 
             if (_currentTool == EditorTool.Draw && e.Source == NotesCanvas)
             {
@@ -209,14 +175,16 @@ namespace BardMusicPlayer.Ui.Windows
             if (!_isDragging && !_isResizing && !_isSelecting && _currentTool == EditorTool.Select)
             {
                 DependencyObject dep = e.OriginalSource as DependencyObject;
-                while (dep != null && !(dep is Border && ((Border)dep).Tag is NoteData)) dep = VisualTreeHelper.GetParent(dep);
+                while (dep != null && !(dep is Border && ((Border)dep).Tag is NoteData)) 
+                    dep = VisualTreeHelper.GetParent(dep);
 
                 if (dep is Border b)
                 {
                     double mouseX = e.GetPosition(b).X;
                     NotesCanvas.Cursor = (mouseX < 7.0 || mouseX > b.ActualWidth - 7.0) ? Cursors.SizeWE : Cursors.Hand;
                 }
-                else NotesCanvas.Cursor = Cursors.Arrow;
+                else 
+                    NotesCanvas.Cursor = Cursors.Arrow;
 
                 _lastMousePos = cur;
             }
@@ -273,19 +241,7 @@ namespace BardMusicPlayer.Ui.Windows
             }
 
             if (_isSelecting)
-            {
-                double x = Math.Min(_selectionStartPoint.X, cur.X); double y = Math.Min(_selectionStartPoint.Y, cur.Y);
-                double w = Math.Abs(_selectionStartPoint.X - cur.X); double h = Math.Abs(_selectionStartPoint.Y - cur.Y);
-                Canvas.SetLeft(SelectionRect, x); Canvas.SetTop(SelectionRect, y);
-                SelectionRect.Width = w; SelectionRect.Height = h;
-                Rect sel = new Rect(x, y, w, h);
-                foreach (var b in NotesCanvas.Children.OfType<Border>().Where(x => x.Tag is NoteData))
-                {
-                    bool hit = sel.IntersectsWith(new Rect(Canvas.GetLeft(b), Canvas.GetTop(b), b.ActualWidth, b.ActualHeight));
-                    if (hit && !_selectedNoteBorders.Contains(b)) { _selectedNoteBorders.Add(b); UpdateNoteVisuals(b, true); }
-                    else if (!hit && _selectedNoteBorders.Contains(b) && !Keyboard.IsKeyDown(Key.LeftCtrl)) { _selectedNoteBorders.Remove(b); UpdateNoteVisuals(b, false); }
-                }
-            }
+                NotesCanvas_SelectTool_MouseMove(sender, e, cur);
 
             if (_newNoteBeingCreated != null)
             {
@@ -691,7 +647,8 @@ namespace BardMusicPlayer.Ui.Windows
                 };
 
                 // --- SCHICKES HOVER-LABEL (POPUP) ---
-                point.MouseEnter += (s, e) => {
+                point.MouseEnter += (s, e) =>
+                {
                     // Visuelles Feedback
                     ((Ellipse)s).Opacity = 1.0;
                     ((Ellipse)s).Width = 8;
@@ -699,11 +656,12 @@ namespace BardMusicPlayer.Ui.Windows
                     Canvas.SetLeft(((Ellipse)s), x - 4);
                     Canvas.SetTop(((Ellipse)s), y - 4);
 
-                    ValuePopupText.Text = (pt.Value+1).ToString();
+                    ValuePopupText.Text = (pt.Value + 1).ToString();
                     ValuePopup.IsOpen = true;
                 };
 
-                point.MouseLeave += (s, e) => {
+                point.MouseLeave += (s, e) =>
+                {
                     // Visuelles Feedback zurücksetzen
                     ((Ellipse)s).Opacity = 0.8;
                     ((Ellipse)s).Width = 6;
@@ -762,8 +720,8 @@ namespace BardMusicPlayer.Ui.Windows
                 data.Value = Math.Max(0, Math.Min((int)(normalized * 127), 127));
             }
 
-            ValuePopupText.Text = (data.Value+1).ToString();
-            AutomationValueLabel.Text = (data.Value+1).ToString();
+            ValuePopupText.Text = (data.Value + 1).ToString();
+            AutomationValueLabel.Text = (data.Value + 1).ToString();
 
             UpdateAutomationPointPosition(_activeAutomationPoint);
         }
@@ -801,11 +759,13 @@ namespace BardMusicPlayer.Ui.Windows
                     long newTick = data.Tick;
 
                     ExecuteAndRegisterUndo("Move Automation",
-                        undoAction: () => {
+                        undoAction: () =>
+                        {
                             data.Value = oldVal; data.Tick = oldTick;
                             DrawAutomation();
                         },
-                        redoAction: () => {
+                        redoAction: () =>
+                        {
                             data.Value = newVal; data.Tick = newTick;
                             DrawAutomation();
                         }
@@ -873,7 +833,7 @@ namespace BardMusicPlayer.Ui.Windows
             _undoStack.Push(new UndoAction { Name = name, ApplyUndo = undoAction, ApplyRedo = redoAction });
             _redoStack.Clear();
 
-            // Max. 50 Schritte im Speicher behalten
+            // Max. 50 Steps
             if (_undoStack.Count > 50)
             {
                 var temp = _undoStack.Reverse().Skip(1).Reverse();
@@ -932,7 +892,8 @@ namespace BardMusicPlayer.Ui.Windows
 
             var sorted = rawEvents
                 .OrderBy(x => x.AbsoluteTick)
-                .ThenBy(x => {
+                .ThenBy(x =>
+                {
                     if (x.Event is ProgramChangeEvent) return 0;
                     if (x.Event is NoteOnEvent) return 1;
                     return 2;
@@ -1007,7 +968,8 @@ namespace BardMusicPlayer.Ui.Windows
 
             if (!targets.Any()) return;
 
-            var snapshots = targets.Select(b => {
+            var snapshots = targets.Select(b =>
+            {
                 var d = (NoteData)b.Tag;
                 return new
                 {
@@ -1019,7 +981,8 @@ namespace BardMusicPlayer.Ui.Windows
             }).ToList();
 
             ExecuteAndRegisterUndo("Quantize",
-                undoAction: () => {
+                undoAction: () =>
+                {
                     foreach (var s in snapshots)
                     {
                         s.Data.Start = s.OldStart;
@@ -1027,7 +990,8 @@ namespace BardMusicPlayer.Ui.Windows
                         UpdateNotePosition(s.Border);
                     }
                 },
-                redoAction: () => {
+                redoAction: () =>
+                {
                     foreach (var s in snapshots)
                     {
                         s.Data.Start = Snap(s.Data.Start);
