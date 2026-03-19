@@ -53,28 +53,30 @@ namespace BardMusicPlayer.Ui.Windows.MidiBardConverter
     public partial class MidiBardConverterTrackWindow : Window
     {
         //Undo / Redo stack
-        private Stack<UndoAction> _undoStack = new Stack<UndoAction>();
-        private Stack<UndoAction> _redoStack = new Stack<UndoAction>();
+        private Stack<UndoAction> _undoStack { get; set; } = new Stack<UndoAction>();
+        private Stack<UndoAction> _redoStack { get; set; } = new Stack<UndoAction>();
 
-        private double _noteHeight = 20;
-        private double _tickPixelScale = 0.1;
-        private long _gridSnapTicks = 120;
-        private short _ticksPerQuarterNote = 480;
-        private long _maxTick = 4800;
-        private EditorTool _currentTool = EditorTool.Select;
-        private TempoMap _tempoMap;
+        private TrackChunk _activeTrack { get; set; }
 
-        private Point _lastMousePos;
-        private bool _isDragging = false;
-        private bool _isResizing = false;
-        private bool _isResizingLeft = false;
-        private Point _selectionStartPoint;
-        private bool _isSelecting = false;
-        private List<Border> _selectedNoteBorders = new List<Border>();
-        private Border _newNoteBeingCreated = null;
-        private List<NoteData> _clipboard = new List<NoteData>();
-        private List<(Border Border, int Pitch, long Start, long Duration)> _dragStartSnapshots;
-        private List<Border> _selectedBordersAtStartOfSelection = new List<Border>();
+        private double _noteHeight { get; set; } = 20;
+        private double _tickPixelScale { get; set; } = 0.1;
+        private long _gridSnapTicks { get; set; } = 120;
+        private short _ticksPerQuarterNote { get; set; } = 480;
+        private long _maxTick { get; set; } = 4800;
+        private EditorTool _currentTool { get; set; } = EditorTool.Select;
+        private TempoMap _tempoMap { get; set; }
+
+        private Point _lastMousePos { get; set; }
+        private bool _isDragging { get; set; } = false;
+        private bool _isResizing { get; set; } = false;
+        private bool _isResizingLeft { get; set; } = false;
+        private Point _selectionStartPoint { get; set; }
+        private bool _isSelecting { get; set; } = false;
+        private List<Border> _selectedNoteBorders { get; set; } = new List<Border>();
+        private Border _newNoteBeingCreated { get; set; } = null;
+        private List<NoteData> _clipboard { get; set; } = new List<NoteData>();
+        private List<(Border Border, int Pitch, long Start, long Duration)> _dragStartSnapshots { get; set; }
+        private List<Border> _selectedBordersAtStartOfSelection { get; set; } = new List<Border>();
 
         public MidiBardConverterTrackWindow(MidiFile midiFile, TrackChunk track)
         {

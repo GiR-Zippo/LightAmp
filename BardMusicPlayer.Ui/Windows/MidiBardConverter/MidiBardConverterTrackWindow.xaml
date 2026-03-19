@@ -140,20 +140,15 @@
                   Name="ControllerScroll" 
                   HorizontalScrollBarVisibility="Hidden" 
                   VerticalScrollBarVisibility="Disabled">
-                    <!-- Ein Grid als Container, um Canvas-Ebenen zu stapeln -->
                     <Grid Name="AutomationContainer">
-                        <!-- Ebene 1: Das Hintergrund-Grid -->
                         <Canvas Name="AutomationGridCanvas" Background="#121212" IsHitTestVisible="False"/>
-
-                        <!-- Ebene 2: Die interaktive Fläche für Punkte und Linien -->
-                        <Canvas Name="AutomationCanvas" 
-                    Background="Transparent" 
-                    ClipToBounds="True"
-                    MouseLeftButtonDown="AutomationCanvas_MouseLeftButtonDown"
-                    MouseMove="AutomationCanvas_MouseMove" 
-                    MouseLeftButtonUp="AutomationCanvas_MouseLeftButtonUp"
-                    SizeChanged="AutomationCanvas_SizeChanged">
-                            <!-- Die statischen horizontalen Linien können hier bleiben oder im Code gezeichnet werden -->
+                        <Canvas Name="AutomationCanvas"
+                            Background="Transparent" 
+                            ClipToBounds="True"
+                            MouseLeftButtonDown="AutomationCanvas_MouseLeftButtonDown"
+                            MouseMove="AutomationCanvas_MouseMove" 
+                            MouseLeftButtonUp="AutomationCanvas_MouseLeftButtonUp"
+                            SizeChanged="AutomationCanvas_SizeChanged">
                         </Canvas>
                     </Grid>
                 </ScrollViewer>
