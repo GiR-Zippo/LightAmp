@@ -38,8 +38,7 @@ namespace BardMusicPlayer.Ui.Windows.MidiBardConverter
 
             foreach (var pt in sorted)
             {
-                // Identisch zu UpdateNotePosition: Start-Tick * Scale
-                double x = pt.Tick * _tickPixelScale;
+                double x = Snap(pt.Tick) * _tickPixelScale;
                 double y = h - (pt.Value / 127.0 * h);
 
                 if (line.Points.Any())
@@ -65,8 +64,8 @@ namespace BardMusicPlayer.Ui.Windows.MidiBardConverter
                     ((Ellipse)s).Height = 8;
 
                     // Zentrierung: Wir ziehen die halbe Breite (4) ab, damit die MITTE auf x liegt
-                    Canvas.SetLeft(((Ellipse)s), (pt.Tick * _tickPixelScale) - 4);
-                    Canvas.SetTop(((Ellipse)s), (h - (pt.Value / 127.0 * h)) - 4);
+                    Canvas.SetLeft(((Ellipse)s), x - 4);
+                    Canvas.SetTop(((Ellipse)s), y - 4);
 
                     ValuePopupText.Text = (pt.Value + 1).ToString();
                     ValuePopup.IsOpen = true;
@@ -79,8 +78,8 @@ namespace BardMusicPlayer.Ui.Windows.MidiBardConverter
                     ((Ellipse)s).Height = 6;
 
                     // Zentrierung: halbe Breite (3) abziehen
-                    Canvas.SetLeft(((Ellipse)s), (pt.Tick * _tickPixelScale) - 3);
-                    Canvas.SetTop(((Ellipse)s), (h - (pt.Value / 127.0 * h)) - 3);
+                    Canvas.SetLeft(((Ellipse)s), x - 3);
+                    Canvas.SetTop(((Ellipse)s), y - 3);
 
                     ValuePopup.IsOpen = false;
                 };

@@ -105,7 +105,12 @@ namespace BardMusicPlayer.Ui.Windows.MidiBardConverter
         {
             var notes = track.GetNotes();
             if (notes.Any()) _maxTick = Math.Max(4800, notes.Max(n => n.Time + n.Length) + 1000);
-            _programChanges = track.Events.OfType<ProgramChangeEvent>().Select(e => new AutomationPoint { Tick = e.DeltaTime, Value = e.ProgramNumber }).OrderBy(p => p.Tick).ToList();
+
+            _programChanges = track.GetTimedEvents()
+                                   .Where(te => te.Event.EventType == MidiEventType.ProgramChange)
+                                   .Select(te => new AutomationPoint { Tick = te.Time, Value = ((ProgramChangeEvent)te.Event).ProgramNumber })
+                                   .OrderBy(p => p.Tick)
+                                   .ToList();
         }
 
         private void SwitchTool(EditorTool tool)
