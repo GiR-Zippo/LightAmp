@@ -11,6 +11,7 @@ using BardMusicPlayer.Transmogrify.Song.Importers;
 using BardMusicPlayer.Transmogrify.Song.Manipulation;
 using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
+using BardMusicPlayer.Ui.Windows.MidiBardConverter;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;

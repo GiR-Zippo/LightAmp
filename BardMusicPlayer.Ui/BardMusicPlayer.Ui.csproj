@@ -289,7 +289,9 @@
     <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindow.xaml.cs">
       <DependentUpon>MidiBardConverterTrackWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindowNoteSelect.cs" />
+    <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindowLayout.cs" />
+    <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindowLower.cs" />
+    <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindowUpper.cs" />
     <Compile Include="Windows\MidiBardConverter\MidiBardConverterWindow.xaml.cs">
       <DependentUpon>MidiBardConverterWindow.xaml</DependentUpon>
     </Compile>
