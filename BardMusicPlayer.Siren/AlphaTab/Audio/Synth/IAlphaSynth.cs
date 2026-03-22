@@ -153,6 +153,26 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
         void SetChannelProgram(int channel, byte program);
 
         /// <summary>
+        ///     Immediately note playback
+        /// </summary>
+        /// <param name="channel">The channel number</param>
+        /// <param name="key">Notenumber</param>
+        /// <param name="velocity">velocity</param>
+        void NoteOn(int channel, int key, float velocity);
+
+        /// <summary>
+        ///     Stops a note that is currently playing using a release envelope.
+        /// </summary>
+        /// <param name="channel">The channel number</param>
+        /// <param name="key">Notenumber</param>
+        void NoteOff(int channel, int key);
+
+        /// <summary>
+        ///     Stop all notes currently playing on all channels immediately (Panic).
+        /// </summary>
+        void AllNotesOff();
+
+        /// <summary>
         ///     This event is fired when the player is ready to be interacted with.
         /// </summary>
         event Action Ready;

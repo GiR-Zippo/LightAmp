@@ -200,19 +200,26 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
 
         private bool FillMidiEventQueueLimited(double maxMilliseconds)
         {
+            if (_synthData == null) return false;
+
             var millisecondsPerBuffer = TinySoundFont.MicroBufferSize / (double)_synthesizer.OutSampleRate * 1000 *
                                         PlaybackSpeed;
             if (maxMilliseconds > 0 && maxMilliseconds < millisecondsPerBuffer) millisecondsPerBuffer = maxMilliseconds;
 
             var anyEventsDispatched = false;
             var endTime = InternalEndTime;
+            var count = _synthData.Count;
+
             for (var i = 0; i < TinySoundFont.MicroBufferCount; i++)
             {
                 _currentTime += millisecondsPerBuffer;
-                while (_eventIndex < _synthData.Count && _synthData[_eventIndex].Time < _currentTime &&
-                       _currentTime < endTime)
+                while (_eventIndex < count)
                 {
-                    _synthesizer.DispatchEvent(i, _synthData[_eventIndex]);
+                    if (_eventIndex >= count) break;
+                    var ev = _synthData[_eventIndex];
+                    if (ev.Time >= _currentTime || _currentTime >= endTime) break;
+
+                    _synthesizer.DispatchEvent(i, ev);
                     _eventIndex++;
                     anyEventsDispatched = true;
                 }
@@ -285,6 +292,7 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
 
         public void CheckForStop()
         {
+            if (_synthData == null) return;
             if (!(_currentTime >= InternalEndTime)) return;
 
             _synthesizer.NoteOffAll(true);

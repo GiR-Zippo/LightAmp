@@ -142,6 +142,21 @@ namespace BardMusicPlayer.Siren.AlphaTab
             DispatchOnWorkerThread(() => { Player.SetChannelProgram(channel, program); });
         }
 
+        public void NoteOn(int channel, int key, float velocity)
+        {
+            DispatchOnWorkerThread(() => { Player.NoteOn(channel, key, velocity); });
+        }
+
+        public void NoteOff(int channel, int key)
+        {
+            DispatchOnWorkerThread(() => { Player.NoteOff(channel, key); });
+        }
+
+        public void AllNotesOff()
+        {
+            DispatchOnWorkerThread(() => { Player.AllNotesOff(); });
+        }
+
         public event Action Ready;
         public event Action ReadyForPlayback;
         public event Action Finished;

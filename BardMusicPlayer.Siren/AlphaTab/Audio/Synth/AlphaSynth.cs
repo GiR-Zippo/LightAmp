@@ -354,6 +354,29 @@ namespace BardMusicPlayer.Siren.AlphaTab.Audio.Synth
             _synthesizer.ChannelSetPresetNumber(channel, program);
         }
 
+        /// <inheritdoc />
+        public void NoteOn(int channel, int key, float velocity)
+        {
+            if (State != PlayerState.Playing)
+            {
+                Output.Activate();
+                Output.Play();
+            }
+            _synthesizer.ChannelNoteOn(channel, key, velocity);
+        }
+
+        /// <inheritdoc />
+        public void NoteOff(int channel, int key)
+        {
+            _synthesizer.ChannelNoteOff(channel, key);
+        }
+
+        /// <inheritdoc />
+        public void AllNotesOff()
+        {
+            _synthesizer.NoteOffAll(true);
+        }
+
         private void CheckReadyForPlayback()
         {
             if (IsReadyForPlayback) OnReadyForPlayback();

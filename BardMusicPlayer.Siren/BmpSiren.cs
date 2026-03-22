@@ -265,15 +265,76 @@ namespace BardMusicPlayer.Siren
             return this;
         }
 
+        // ══════════════════════════════════════════════════════════════
+        // REALTIME-SYNTHESIZER API
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        ///     Plays a note immediately via the synthesiser.
+        ///     No need to load a MIDI file – works straight after Setup().
+        /// </summary>
+        /// <param name="channel">MIDI channel 0–15 (default: 0)</param>
+        /// <param name="key">Note number 0–127 (60 = middle C)</param>
+        /// <param name="velocity">Velocity 0.0–1.0 (default: 1.0)</param>
+        public BmpSiren NoteOn(int channel, int key, float velocity = 1.0f)
+        {
+            if (!IsReady) return this;
+            channel = Math.Max(0, Math.Min(15, channel));
+            key = Math.Max(0, Math.Min(127, key));
+            velocity = Math.Max(0f, Math.Min(1f, velocity));
+            _player.NoteOn(channel, key, velocity);
+            return this;
+        }
+
+        /// <summary>
+        ///     Stops a playing note (with a release envelope).
+        /// </summary>
+        /// <param name="channel">MIDI channel 0–15</param>
+        /// <param name="key">Note number 0–127</param>
+        public BmpSiren NoteOff(int channel, int key)
+        {
+            if (!IsReady) return this;
+            channel = Math.Max(0, Math.Min(15, channel));
+            key = Math.Max(0, Math.Min(127, key));
+            _player.NoteOff(channel, key);
+            return this;
+        }
+
+        /// <summary>
+        ///     Stops all currently playing notes immediately (MIDI Panic).
+        /// </summary>
+        public BmpSiren AllNotesOff()
+        {
+            if (!IsReady) return this;
+            _player.AllNotesOff();
+            return this;
+        }
+
+        /// <summary>
+        ///     Sets the instrument (MIDI programme) for a channel.
+        ///     Must be called before NoteOn if an instrument other than piano is required.
+        /// </summary>
+        /// <param name="channel">MIDI channel 0–15</param>
+        /// <param name="program">MIDI programme number 0–127</param>
+        public BmpSiren SetProgram(int channel, byte program)
+        {
+            if (!IsReady) return this;
+            channel = Math.Max(0, Math.Min(15, channel));
+            _player.SetChannelProgram(channel, program);
+            return this;
+        }
+
         internal void NotifyTimePosition(PositionChangedEventArgs obj)
         {
             SynthTimePositionChanged?.Invoke(CurrentSongTitle, obj.CurrentTime, obj.EndTime, obj.ActiveVoices);
-            for (var singer = 0; singer < _lyrics.Count; singer++)
+            if (_lyrics != null)
             {
-                var line = _lyrics[singer].FirstOrDefault(x => x.Key > _lyricIndex && x.Key < obj.CurrentTime).Value;
-                if (!string.IsNullOrWhiteSpace(line)) LyricTrigger?.Invoke(singer, line);
+                for (var singer = 0; singer < _lyrics.Count; singer++)
+                {
+                    var line = _lyrics[singer].FirstOrDefault(x => x.Key > _lyricIndex && x.Key < obj.CurrentTime).Value;
+                    if (!string.IsNullOrWhiteSpace(line)) LyricTrigger?.Invoke(singer, line);
+                }
             }
-
             _lyricIndex = obj.CurrentTime;
         }
     }
