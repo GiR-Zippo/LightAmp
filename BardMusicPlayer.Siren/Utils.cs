@@ -3,17 +3,19 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Siren.AlphaTab.Audio.Generator;
 using BardMusicPlayer.Siren.AlphaTab.Model;
 using BardMusicPlayer.Transmogrify.Song;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using MidiFile = BardMusicPlayer.Siren.AlphaTab.Audio.Synth.Midi.MidiFile;
+using MidiFile_Melanchall = Melanchall.DryWetMidi.Core.MidiFile;
 
 namespace BardMusicPlayer.Siren
 {
@@ -115,6 +117,111 @@ namespace BardMusicPlayer.Siren
             trackChunks.Clear();
             events.FinishTrack(byte.MaxValue, (byte)veryLast);
             return (file, lyrics);
+        }
+
+        /// <summary>
+        /// Converts Melanchall track chunks
+        /// Uses the same normalized format as the BmpSong converter:
+        ///   Division=375, Tempo=160 BPM → 1 tick ≈ 1 ms
+        ///   All times are relative to the first note (firstNote alignment)
+        /// </summary>
+        internal static MidiFile ConvertToSirenMidi(List<TrackChunk> tracks, MidiFile_Melanchall sourceMidiFile)
+        {
+            var tempoMap = sourceMidiFile.GetTempoMap();
+
+            long firstNoteMs = 0;
+            var allNotes = tracks.SelectMany(t => t.GetNotes()).OrderBy(n => n.Time).FirstOrDefault();
+            if (allNotes != null)
+            {
+                firstNoteMs = (long)((MetricTimeSpan)TimeConverter
+                    .ConvertTo<MetricTimeSpan>(allNotes.Time, tempoMap)).TotalMilliseconds;
+            }
+
+            // Division=375 + Tempo=160 BPM
+            // 160 BPM und 375 ticks/quarter: 1 tick = 60000/(160*375) ≈ 1ms
+            var sirenFile = new MidiFile { Division = 375 };
+            var handler = new AlphaSynthMidiFileHandler(sirenFile);
+            handler.AddTempo(0, 160);
+
+            var trackCounter = byte.MinValue;
+            var veryLast = 0L;
+
+            foreach (var trackChunk in tracks)
+            {
+                // Instrument aus TrackName lesen
+                Instrument instr = Instrument.None;
+                int octaveShift = 0;
+
+                var trackNameEvent = trackChunk.Events
+                    .OfType<SequenceTrackNameEvent>().FirstOrDefault();
+                if (trackNameEvent != null)
+                {
+                    var rex = new Regex(@"^([A-Za-z _:]+)([-+]\d)?");
+                    if (rex.Match(trackNameEvent.Text) is Match m)
+                    {
+                        if (!string.IsNullOrEmpty(m.Groups[1].Value))
+                            instr = Instrument.Parse(m.Groups[1].Value.Replace(":", ""));
+                        if (int.TryParse(m.Groups[2].Value, out int os))
+                            octaveShift = os;
+                    }
+                }
+
+                // Guitar-ProgramChange-Wechsel verfolgen
+                var instrumentMap = new Dictionary<long, Instrument>();
+                var currentInstr = instr;
+
+                var timedEvents = trackChunk.GetTimedEvents()
+                    .OrderBy(te => te.Time)
+                    .ThenBy(te => te.Event is ProgramChangeEvent ? 0 : 1)
+                    .ToList();
+
+                foreach (var te in timedEvents)
+                {
+                    if (te.Event is ProgramChangeEvent pc)
+                    {
+                        if (currentInstr.InstrumentTone.Equals(InstrumentTone.ElectricGuitar))
+                            currentInstr = Instrument.ParseByProgramChange(pc.ProgramNumber);
+                        continue;
+                    }
+                    if (te.Event is NoteOnEvent noteOn && noteOn.Velocity > 0)
+                        instrumentMap[te.Time] = currentInstr;
+                }
+
+                // Noten konvertieren
+                foreach (var note in trackChunk.GetNotes().OrderBy(n => n.Time))
+                {
+                    var instrument = instrumentMap.TryGetValue(note.Time, out var mapped)
+                        ? mapped : instr;
+
+                    int noteNum = (int)note.NoteNumber + (12 * octaveShift);
+                    noteNum = Math.Max(0, Math.Min(127, noteNum));
+
+                    // Absolute Millisekunden via TempoMap (alle Tempo-Wechsel berücksichtigt)
+                    long startMs = (long)((MetricTimeSpan)TimeConverter.ConvertTo<MetricTimeSpan>(note.Time, tempoMap)).TotalMilliseconds;
+                    long endMs = (long)((MetricTimeSpan)TimeConverter.ConvertTo<MetricTimeSpan>(note.Time + note.Length, tempoMap)).TotalMilliseconds;
+                    long lenMs = Math.Max(1, endMs - startMs);
+
+                    // firstNote-Alignment
+                    long alignedStart = Math.Max(0, startMs - firstNoteMs);
+
+                    // MinimumLength anwenden
+                    long finalLen = MinimumLength(instrument, noteNum - 48, lenMs);
+
+                    handler.AddProgramChange(trackCounter, (int)alignedStart, trackCounter, (byte)instrument.MidiProgramChangeCode);
+                    handler.AddNote(trackCounter, (int)alignedStart, (int)finalLen, (byte)noteNum, DynamicValue.FFF, trackCounter);
+
+                    if (trackCounter == byte.MaxValue) trackCounter = byte.MinValue;
+                    else trackCounter++;
+
+                    long end = alignedStart + finalLen;
+                    if (end > veryLast) veryLast = end;
+                }
+
+                instrumentMap.Clear();
+            }
+
+            handler.FinishTrack(byte.MaxValue, (byte)Math.Min(veryLast, byte.MaxValue));
+            return sirenFile;
         }
 
         private static long MinimumLength(Instrument instrument, int note, long duration)

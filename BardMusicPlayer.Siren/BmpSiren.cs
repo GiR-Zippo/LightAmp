@@ -193,6 +193,35 @@ namespace BardMusicPlayer.Siren
         }
 
         /// <summary>
+        ///     Loads a single Melanchall track chunk directly into the synthesizer.
+        /// </summary>
+        public BmpSiren LoadTrackChunk(Melanchall.DryWetMidi.Core.TrackChunk trackChunk, Melanchall.DryWetMidi.Core.MidiFile sourceMidiFile, string title = "Preview")
+        {
+            if (!IsReady) throw new BmpException("Siren not initialized.");
+            if (trackChunk == null) throw new ArgumentNullException(nameof(trackChunk));
+            return LoadTrackChunks(new List<Melanchall.DryWetMidi.Core.TrackChunk> { trackChunk }, sourceMidiFile, title);
+        }
+
+        /// <summary>
+        ///     Loads multiple Melanchall track chunks into Sirens' sequencer.
+        /// </summary>
+        public BmpSiren LoadTrackChunks(IEnumerable<Melanchall.DryWetMidi.Core.TrackChunk> tracks, Melanchall.DryWetMidi.Core.MidiFile sourceMidiFile, string title = "Preview")
+        {
+            if (!IsReady) throw new BmpException("Siren not initialized.");
+            if (tracks == null) throw new ArgumentNullException(nameof(tracks));
+
+            if (_player.State == PlayerState.Playing) _player.Stop();
+
+            var sirenFile = Utils.ConvertToSirenMidi(tracks.ToList(), sourceMidiFile);
+            _lyrics = new Dictionary<int, Dictionary<long, string>>();
+            _lyricIndex = 0;
+            _player.LoadMidiFile(sirenFile);
+            CurrentSongTitle = title;
+            SongLoaded?.Invoke(CurrentSongTitle);
+            return this;
+        }
+
+        /// <summary>
         ///     Starts the playback if possible
         /// </summary>
         /// <returns>This BmpSiren</returns>
@@ -252,7 +281,7 @@ namespace BardMusicPlayer.Siren
         {
             if (!IsReadyForPlayback) return this; // throw new BmpException("Siren not loaded with a song.");
 
-            if (time < 0) 
+            if (time < 0)
                 time = 0;
 
             //if (time > _player.PlaybackRange.EndTick) return Stop();
