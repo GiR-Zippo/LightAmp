@@ -353,6 +353,10 @@ namespace BardMusicPlayer.Siren
             return this;
         }
 
+        /// <summary>
+        ///     Notifies if time has changed
+        /// </summary>
+        /// <param name="obj"></param>
         internal void NotifyTimePosition(PositionChangedEventArgs obj)
         {
             SynthTimePositionChanged?.Invoke(CurrentSongTitle, obj.CurrentTime, obj.EndTime, obj.ActiveVoices);

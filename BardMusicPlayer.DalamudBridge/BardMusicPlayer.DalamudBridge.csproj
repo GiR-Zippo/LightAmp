@@ -20,7 +20,7 @@
     <PackageReference Include="H.Formatters.Newtonsoft.Json" Version="15.0.0" />
     <PackageReference Include="H.Pipes" Version="15.0.0" />
     <PackageReference Include="H.Pipes.AccessControl" Version="15.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
   <ItemGroup>
