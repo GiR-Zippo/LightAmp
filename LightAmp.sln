@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32319.34
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11620.152 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BardMusicPlayer.Coffer", "BardMusicPlayer.Coffer\BardMusicPlayer.Coffer.csproj", "{82A7597F-9957-4A47-A14E-504D3E0ECAF7}"
 EndProject
@@ -32,8 +32,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BardMusicPlayer.Script", "BardMusicPlayer.Script\BardMusicPlayer.Script.csproj", "{11429258-48CD-4230-9801-E1788C318704}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BardMusicPlayer.DalamudBridge", "BardMusicPlayer.DalamudBridge\BardMusicPlayer.DalamudBridge.csproj", "{1249F5D0-0C18-4D50-B584-B03E69768211}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BardMusicPlayer.MidiUtil", "BardMusicPlayer.MidiUtil\BardMusicPlayer.MidiUtil.csproj", "{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BardMusicPlayer.XIVMIDI", "BardMusicPlayer.XIVMIDI\BardMusicPlayer.XIVMIDI.csproj", "{850D6B1B-D612-C1F0-9CCF-2F0CB1C28F02}"
 EndProject
@@ -241,22 +239,6 @@ Global
 		{1249F5D0-0C18-4D50-B584-B03E69768211}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1249F5D0-0C18-4D50-B584-B03E69768211}.Release|x64.ActiveCfg = Release|x64
 		{1249F5D0-0C18-4D50-B584-B03E69768211}.Release|x64.Build.0 = Release|x64
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Coverage|Any CPU.ActiveCfg = Debug|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Coverage|Any CPU.Build.0 = Debug|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Coverage|x64.ActiveCfg = Debug|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Coverage|x64.Build.0 = Debug|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Debug|x64.ActiveCfg = Debug|x64
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Debug|x64.Build.0 = Debug|x64
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Publish|Any CPU.ActiveCfg = Debug|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Publish|Any CPU.Build.0 = Debug|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Publish|x64.ActiveCfg = Debug|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Publish|x64.Build.0 = Debug|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Release|Any CPU.Build.0 = Release|Any CPU
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Release|x64.ActiveCfg = Release|x64
-		{692EBA77-D80C-4E74-AF9D-FB74FB8BAD78}.Release|x64.Build.0 = Release|x64
 		{850D6B1B-D612-C1F0-9CCF-2F0CB1C28F02}.Coverage|Any CPU.ActiveCfg = Debug|Any CPU
 		{850D6B1B-D612-C1F0-9CCF-2F0CB1C28F02}.Coverage|Any CPU.Build.0 = Debug|Any CPU
 		{850D6B1B-D612-C1F0-9CCF-2F0CB1C28F02}.Coverage|x64.ActiveCfg = Debug|x64

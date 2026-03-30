@@ -30,7 +30,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace BardMusicPlayer.Ui.Windows
+namespace BardMusicPlayer.Ui.Windows.QuickEdit
 {
     public class MidiBardConverter_InstrumentHelper
     {
@@ -52,8 +52,8 @@ namespace BardMusicPlayer.Ui.Windows
         public static Dictionary<int, string> TrackGroups()
         {
             Dictionary<int, string> instrumentList = new Dictionary<int, string>();
-            for (int i =1; i != 40; i++)
-                instrumentList.Add(i, Convert.ToString(i-1));
+            for (int i = 1; i != 40; i++)
+                instrumentList.Add(i, Convert.ToString(i - 1));
             return instrumentList;
         }
     }
@@ -61,7 +61,7 @@ namespace BardMusicPlayer.Ui.Windows
     /// <summary>
     /// Interaktionslogik für MidiBardConverterWindow.xaml
     /// </summary>
-    public partial class MidiBardConverterWindow : Window
+    public partial class QuickEdit : Window
     {
         List<MidiBardImporter.MidiTrack> _tracks = null;
         string _midiName { get; set; } = "Unknown";
@@ -74,14 +74,14 @@ namespace BardMusicPlayer.Ui.Windows
 
         NumericUpDown NumericUpDown { get; set; } = null;
 
-        public MidiBardConverterWindow()
+        public QuickEdit()
         {
             _tracks = new List<MidiBardImporter.MidiTrack>();
             InitializeComponent();
             AlignToFirstNote_CheckBox.IsChecked = _AlignMidiToFirstNote;
         }
 
-        public MidiBardConverterWindow(string filename)
+        public QuickEdit(string filename)
         {
             _tracks = new List<MidiBardImporter.MidiTrack>();
             InitializeComponent();
@@ -156,7 +156,7 @@ namespace BardMusicPlayer.Ui.Windows
                 }
 
                 MidiBardImporter.MidiTrack midiTrack = new MidiBardImporter.MidiTrack();
-                midiTrack.Index = pdatalist.Tracks[idx].Index+1;
+                midiTrack.Index = pdatalist.Tracks[idx].Index + 1;
                 midiTrack.TrackNumber = cid;
                 midiTrack.trackInstrument = pdatalist.Tracks[idx].Instrument - 1;
                 midiTrack.Transpose = pdatalist.Tracks[idx].Transpose / 12;
@@ -256,7 +256,7 @@ namespace BardMusicPlayer.Ui.Windows
                 MidiBardImporter.MidiTrack midiTrack = new MidiBardImporter.MidiTrack();
                 midiTrack.Index = idx + 1;
                 midiTrack.TrackNumber = idx + 1;
-                midiTrack.trackInstrument = Instrument.ParseByProgramChange(progNum).Index-1;
+                midiTrack.trackInstrument = Instrument.ParseByProgramChange(progNum).Index - 1;
                 midiTrack.Transpose = octaveShift;
                 midiTrack.ToneMode = 3;
                 midiTrack.trackChunk = chunk;
@@ -284,7 +284,8 @@ namespace BardMusicPlayer.Ui.Windows
                     track.MinNote = item;
                 if (item.NoteNumber > track.MaxNote.NoteNumber)
                     track.MaxNote = item;
-            };
+            }
+            ;
         }
 
         #region Octave Up/Down
@@ -372,7 +373,7 @@ namespace BardMusicPlayer.Ui.Windows
                     index++;
                 }
             }
-            
+
             index = 0;
             foreach (var p in newTracks)
             {
@@ -476,9 +477,9 @@ namespace BardMusicPlayer.Ui.Windows
             if ((bool)AlignProgramChanges_CheckBox.IsChecked)
                 outputMidi = RealignProgrmChanges(outputMidi);
 
-            if(Convert.ToInt16(SongSpeed_Percent.Value) != 100)
+            if (Convert.ToInt16(SongSpeed_Percent.Value) != 100)
             {
-                double divider = (float) (120 / (120 * (double)Convert.ToInt16(SongSpeed_Percent.Value) / 100));
+                double divider = (float)(120 / (120 * (double)Convert.ToInt16(SongSpeed_Percent.Value) / 100));
                 foreach (var trackChunk in outputMidi.GetTrackChunks())
                 {
                     foreach (var setTempoEvent in trackChunk.Events.OfType<SetTempoEvent>())
@@ -489,7 +490,7 @@ namespace BardMusicPlayer.Ui.Windows
                 }
             }
 
-            outputMidi.Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings { TextEncoding = Encoding.UTF8});
+            outputMidi.Write(myStream, MidiFileFormat.MultiTrack, settings: new WritingSettings { TextEncoding = Encoding.UTF8 });
 
             tracks.Clear();
             myStream.Rewind();
@@ -510,9 +511,9 @@ namespace BardMusicPlayer.Ui.Windows
                 var track = new MidiBardImporter.TrackConfig();
                 track.Index = x.Index;
                 track.Enabled = true;
-                track.Name = Instrument.Parse(x.trackInstrument+1) + "(Bard " + Convert.ToString(x.TrackNumber)+")";
-                track.Transpose = x.Transpose*12;
-                track.Instrument = x.trackInstrument+1;
+                track.Name = Instrument.Parse(x.trackInstrument + 1) + "(Bard " + Convert.ToString(x.TrackNumber) + ")";
+                track.Transpose = x.Transpose * 12;
+                track.Instrument = x.trackInstrument + 1;
                 track.AssignedCids.Add(x.TrackNumber);
                 toneMode = x.ToneMode;
                 config.Tracks.Add(track);
@@ -833,7 +834,7 @@ namespace BardMusicPlayer.Ui.Windows
             for (int i = 0; i < f.Count; i++)
                 tclist.Add(((MidiBardImporter.MidiTrack)f[i]).trackChunk);
 
-            TrackManipulations.MergeTracks(tclist, _midifile, 0, ((MidiBardImporter.MidiTrack)f[0]).Index-1);
+            TrackManipulations.MergeTracks(tclist, _midifile, 0, ((MidiBardImporter.MidiTrack)f[0]).Index - 1);
             ReadMidiData(true);
         }
 
@@ -850,7 +851,7 @@ namespace BardMusicPlayer.Ui.Windows
             for (int i = 0; i < f.Count; i++)
                 tclist.Add(((MidiBardImporter.MidiTrack)f[i]).trackChunk);
 
-            TrackManipulations.MergeTracks(tclist, _midifile, 1, ((MidiBardImporter.MidiTrack)f[0]).Index-1);
+            TrackManipulations.MergeTracks(tclist, _midifile, 1, ((MidiBardImporter.MidiTrack)f[0]).Index - 1);
             ReadMidiData(true);
         }
         #endregion
@@ -884,8 +885,8 @@ namespace BardMusicPlayer.Ui.Windows
             {
                 var t = (_Sender as ListViewItem).Content as MidiBardImporter.MidiTrack;
                 MidiBardImporter.MidiTrack ntrack = new MidiBardImporter.MidiTrack();
-                ntrack.Index = t.Index+1;
-                ntrack.TrackNumber = t.TrackNumber+1;
+                ntrack.Index = t.Index + 1;
+                ntrack.TrackNumber = t.TrackNumber + 1;
                 ntrack.trackInstrument = t.trackInstrument;
                 ntrack.Transpose = t.Transpose;
                 ntrack.ToneMode = t.ToneMode;
@@ -1001,9 +1002,9 @@ namespace BardMusicPlayer.Ui.Windows
             foreach (var nt in drumTracks)
             {
                 MidiBardImporter.MidiTrack ntrack = new MidiBardImporter.MidiTrack();
-                ntrack.Index = lastTrack.Index+idx;
-                ntrack.TrackNumber = lastTrack.TrackNumber+idx;
-                ntrack.trackInstrument = Instrument.Parse(nt.Key).Index-1;
+                ntrack.Index = lastTrack.Index + idx;
+                ntrack.TrackNumber = lastTrack.TrackNumber + idx;
+                ntrack.trackInstrument = Instrument.Parse(nt.Key).Index - 1;
                 ntrack.Transpose = 0;
                 ntrack.ToneMode = 0;
                 ntrack.trackChunk = nt.Value;
@@ -1242,7 +1243,7 @@ namespace BardMusicPlayer.Ui.Windows
                     if (Instrument.TryParse(((SequenceTrackNameEvent)ev.Event).Text, out instrument))
                         instruments.Add(ev.Time, instrument.MidiProgramChangeCode);
                 }
-                
+
                 if (ev.Event.EventType == MidiEventType.ProgramChange && !instruments.ContainsKey(ev.Time))
                     instruments.Add(ev.Time, ((ProgramChangeEvent)ev.Event).ProgramNumber);
             }
@@ -1319,7 +1320,7 @@ namespace BardMusicPlayer.Ui.Windows
             instruments.Clear();
         }
 
-        private void Arpeggiate(TrackChunk target, int spacing, int jitterTick, bool up=true)
+        private void Arpeggiate(TrackChunk target, int spacing, int jitterTick, bool up = true)
         {
             var backup = target.Clone();
             Dictionary<Note, long> note_collection = new Dictionary<Note, long>();
@@ -1337,7 +1338,7 @@ namespace BardMusicPlayer.Ui.Windows
             {
                 //get the notes to arp
                 var f = note_collection.ElementAt(i);
-                var data = note_collection.Where(n=> (f.Key.Time - jitterTick <= n.Key.Time && n.Key.Time <= f.Key.Time + jitterTick));
+                var data = note_collection.Where(n => (f.Key.Time - jitterTick <= n.Key.Time && n.Key.Time <= f.Key.Time + jitterTick));
                 //set the counter
                 i += data.Count();
 
@@ -1354,7 +1355,7 @@ namespace BardMusicPlayer.Ui.Windows
                 {
                     //Calc the spacing
                     MusicalTimeSpan musicalTimeFromTicks = TimeConverter.ConvertTo<MusicalTimeSpan>(note.Key.Time, _midifile.GetTempoMap());
-                    long beatlen = (long)_midifile.GetTempoMap().GetTempoAtTime((MusicalTimeSpan)musicalTimeFromTicks).MicrosecondsPerQuarterNote*4;
+                    long beatlen = (long)_midifile.GetTempoMap().GetTempoAtTime((MusicalTimeSpan)musicalTimeFromTicks).MicrosecondsPerQuarterNote * 4;
                     beatlen = beatlen / spacing; //arp spacing
                     long ticksFromMetricLength = TimeConverter.ConvertFrom(new MetricTimeSpan(beatlen), _midifile.GetTempoMap());
 
@@ -1394,7 +1395,7 @@ namespace BardMusicPlayer.Ui.Windows
                     note.Key.Time = lastnote.Time + ticksFromMetricLength;
 
                     //Remove old note add new one
-                    target.RemoveNotes(n=> (n.Time == note.Value) && (n.NoteNumber == note.Key.NoteNumber));
+                    target.RemoveNotes(n => (n.Time == note.Value) && (n.NoteNumber == note.Key.NoteNumber));
                     target.AddObjects(new List<Note> { note.Key }.ToArray());
                     lastnote = note.Key;
                 }

@@ -286,15 +286,14 @@
     <Compile Include="Windows\MacroEditWindow.xaml.cs">
       <DependentUpon>MacroEditWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindow.xaml.cs">
+    <Compile Include="Windows\MidiBardConverter\MidiBardConverterDrawHelper.cs" />
+    <Compile Include="Windows\MidiBardConverter\TrackWindow\MidiBardConverterTrackWindow.xaml.cs">
       <DependentUpon>MidiBardConverterTrackWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindowLayout.cs" />
-    <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindowLower.cs" />
-    <Compile Include="Windows\MidiBardConverter\MidiBardConverterTrackWindowUpper.cs" />
-    <Compile Include="Windows\MidiBardConverter\MidiBardConverterWindow.xaml.cs">
-      <DependentUpon>MidiBardConverterWindow.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Windows\MidiBardConverter\TrackWindow\MidiBardConverterTrackWindowLayout.cs" />
+    <Compile Include="Windows\MidiBardConverter\TrackWindow\MidiBardConverterTrackWindowLower.cs" />
+    <Compile Include="Windows\MidiBardConverter\TrackWindow\MidiBardConverterTrackWindowUpper.cs" />
+    <Compile Include="Windows\MidiBardConverter\MidiBardConverterUndo.cs" />
     <Compile Include="Controls\NetworkWindow.xaml.cs">
       <DependentUpon>NetworkWindow.xaml</DependentUpon>
     </Compile>
@@ -312,6 +311,9 @@
     </Compile>
     <Compile Include="Windows\MidiBardConverter\MidiTrackPlayer.cs" />
     <Compile Include="Windows\MidiBardConverter\NoteVisualHost.cs" />
+    <Compile Include="Windows\QuickEdit\QuickEdit.xaml.cs">
+      <DependentUpon>QuickEdit.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\SongEditWindow.xaml.cs">
       <DependentUpon>SongEditWindow.xaml</DependentUpon>
     </Compile>
@@ -377,11 +379,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\MidiBardConverter\MidiBardConverterTrackWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Windows\MidiBardConverter\MidiBardConverterWindow.xaml">
+    <Page Include="Windows\MidiBardConverter\TrackWindow\MidiBardConverterTrackWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -400,6 +398,10 @@
     <Page Include="Controls\OctaveNumericUpDown.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\QuickEdit\QuickEdit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\SongEditWindow.xaml">
       <SubType>Designer</SubType>
@@ -517,10 +519,6 @@
     <ProjectReference Include="..\BardMusicPlayer.Maestro\BardMusicPlayer.Maestro.csproj">
       <Project>{00bac18c-1670-4cfc-8826-ad02347ba776}</Project>
       <Name>BardMusicPlayer.Maestro</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BardMusicPlayer.MidiUtil\BardMusicPlayer.MidiUtil.csproj">
-      <Project>{692eba77-d80c-4e74-af9d-fb74fb8bad78}</Project>
-      <Name>BardMusicPlayer.MidiUtil</Name>
     </ProjectReference>
     <ProjectReference Include="..\BardMusicPlayer.Pigeonhole\BardMusicPlayer.Pigeonhole.csproj">
       <Project>{cd059bec-16c3-4bf4-aa8f-15ea9d473758}</Project>

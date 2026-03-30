@@ -202,7 +202,7 @@ namespace BardMusicPlayer.Siren
                     long lenMs = Math.Max(1, endMs - startMs);
 
                     // firstNote-Alignment
-                    long alignedStart = Math.Max(0, startMs - firstNoteMs);
+                    long alignedStart = startMs; // Math.Max(0, startMs - firstNoteMs);
 
                     // MinimumLength anwenden
                     long finalLen = MinimumLength(instrument, noteNum - 48, lenMs);

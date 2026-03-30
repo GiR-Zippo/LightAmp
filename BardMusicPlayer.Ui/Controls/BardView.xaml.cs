@@ -12,19 +12,20 @@ using BardMusicPlayer.Seer;
 using BardMusicPlayer.Seer.Events;
 using BardMusicPlayer.Ui.Functions;
 using BardMusicPlayer.Ui.Windows;
+using BardMusicPlayer.Ui.Windows.QuickEdit;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Linq;
-using System.Windows.Input;
-using System.ComponentModel;
-using System.Windows.Media;
 using System.Windows.Data;
-using System.Globalization;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -33,7 +34,7 @@ namespace BardMusicPlayer.Ui.Controls
     /// </summary>
     public sealed partial class BardView : UserControl
     {
-        MidiBardConverterWindow _QuickEdit { get; set; } = null;
+        QuickEdit _QuickEdit { get; set; } = null;
         object _Sender { get; set; } = null;
 
         bool IsFollowing { get; set; } = false;
@@ -498,7 +499,7 @@ namespace BardMusicPlayer.Ui.Controls
         {
             if (_QuickEdit == null)
             {
-                _QuickEdit = new MidiBardConverterWindow();
+                _QuickEdit = new QuickEdit();
                 _QuickEdit.Closing += new CancelEventHandler(QuickEditWindow_Closing);
 
             }

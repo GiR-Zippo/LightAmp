@@ -3,9 +3,8 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
-using BardMusicPlayer.MidiUtil.Managers;
 using BardMusicPlayer.Ui.Functions;
-using BardMusicPlayer.Ui.Windows;
+using BardMusicPlayer.Ui.Windows.QuickEdit;
 using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Windows;
@@ -68,16 +67,26 @@ namespace BardMusicPlayer.Ui.Classic
             if (!openFileDialog.CheckFileExists)
                 return;
 
-            MidiBardConverterWindow conv = new MidiBardConverterWindow(openFileDialog.FileName);
+            QuickEdit conv = new QuickEdit(openFileDialog.FileName);
             conv.Visibility = Visibility.Visible;
         }
 
         private void MidiProcessing_Click(object sender, RoutedEventArgs e)
         {
-            MidiUtil.MidiUtil.Instance.Start();
-            //UiManager.Instance.mainWindow = new MidiEditWindow();
-            if (PlaybackFunctions.CurrentSong != null)
-                MidiManager.Instance.OpenFile(PlaybackFunctions.CurrentSong.GetExportMidi());
+            /*var openFileDialog = new OpenFileDialog
+            {
+                Filter = Globals.Globals.FileFilters,
+                Multiselect = true
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            if (!openFileDialog.CheckFileExists)
+                return;
+
+            MidiBardConverterWindow conv = new MidiBardConverterWindow(openFileDialog.FileName);
+            conv.Visibility = Visibility.Visible;*/
         }
         
     }
