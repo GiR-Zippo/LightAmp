@@ -1,9 +1,32 @@
 ﻿namespace BardMusicPlayer.XIVMIDI.IO;
 
 /// <summary>
-/// Build the API request string
+/// Build the BMP API request string
 /// </summary>
-public class RequestBuilder
+public class BMPAPIRequestBuilder
+{
+    private readonly string ApiBaseUrl = "https://bardmusicplayer.com/api";
+
+    /// <summary>
+    /// Set the performer size
+    /// </summary>
+    public int bandSize { get; set; } = 0;
+
+    public string BuildRequest()
+    {
+        var request = ApiBaseUrl + "/midis?where";
+
+        
+        request += bandSize <= 0 || bandSize > 8 ? "" : "[ensembleSize][equals]=" + (bandSize == 2 ? "duo" : Misc.PerformerSize[bandSize].ToLower());
+        request += "&limit=0";
+        return request;
+    }
+}
+
+/// <summary>
+/// Build the XIVMIDI API request string
+/// </summary>
+public class XIVMIDIRequestBuilder
 {
     private readonly string ApiBaseUrl = "https://api.xivmidi.com";
 

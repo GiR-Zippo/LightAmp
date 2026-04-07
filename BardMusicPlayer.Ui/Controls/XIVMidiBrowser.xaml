@@ -12,10 +12,19 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="25" />
             <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-
         <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Source:" HorizontalAlignment="Right"/>
+            <ComboBox x:Name="Source_box" Grid.Column="1" Text="Midi Source" SelectionChanged="Source_box_SelectionChanged" VerticalAlignment="Center"></ComboBox>
+        </Grid>
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="*"/>
@@ -25,7 +34,7 @@
             <ComboBox x:Name="PerformerSize_box" Grid.Column="1" Text="Perfomer size" SelectionChanged="PerformerSize_box_SelectionChanged" VerticalAlignment="Center"></ComboBox>
             <Button x:Name="RefreshButton" Grid.Column="2" Content="⟳" Click="Button_Click" Height="18"/>
         </Grid>
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="*"/>
@@ -34,7 +43,7 @@
             <Label Grid.Column="0" Content="Search here ->" HorizontalAlignment="Right"/>
             <TextBox Grid.Column="1" Text="" x:Name="SongSearch" VerticalAlignment="Center" PreviewTextInput="SongSearch_PreviewTextInput"></TextBox>
         </Grid>
-        <ListView Grid.Row="2" x:Name="SongbrowserContainer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" 
+        <ListView Grid.Row="3" x:Name="SongbrowserContainer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" 
                     ScrollViewer.HorizontalScrollBarVisibility="Visible"
                          ScrollViewer.VerticalScrollBarVisibility="Visible"
                          ScrollViewer.CanContentScroll="True">

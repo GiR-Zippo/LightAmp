@@ -4,9 +4,84 @@ using System.Collections.Generic;
 namespace BardMusicPlayer.XIVMIDI.IO
 {
     /// <summary>
-    /// The api responses
+    /// The BMP API responses
     /// </summary>
-    public static class ResponseContainer
+    public static class BMPResponseContainer
+    {
+        public class Root
+        {
+            public List<Doc> docs { get; set; }
+            public bool hasNextPage { get; set; }
+            public bool hasPrevPage { get; set; }
+            public int limit { get; set; }
+            public int? nextPage { get; set; }
+            public int page { get; set; }
+            public int pagingCounter { get; set; }
+            public int? prevPage { get; set; }
+            public int totalDocs { get; set; }
+            public int totalPages { get; set; }
+        }
+
+        public class Doc
+        {
+            public int id { get; set; }
+            public string title { get; set; }
+            public string titleSort { get; set; }
+            public string artist { get; set; }
+            public string source { get; set; }
+            public string arranger { get; set; }
+            public List<Tag> tags { get; set; }
+            public string ensembleSize { get; set; }
+            public int trackCount { get; set; }
+            public string duration { get; set; }
+            public string notes { get; set; }
+            public int downloads { get; set; }
+            public string originalSourceUrl { get; set; }
+            public string importedFrom { get; set; }
+            public int uploadedBy { get; set; }
+            public string originalEditorDiscordId { get; set; }
+            public string md5 { get; set; }
+            public long songDurationMs { get; set; }
+            public List<Track> tracks { get; set; }
+            public List<string> discord_choice { get; set; }
+            public string uploadedFrom { get; set; }
+            public object discordLinks { get; set; }
+            public DateTime? originalCreatedAt { get; set; }
+            public DateTime updatedAt { get; set; }
+            public DateTime createdAt { get; set; }
+            public string url { get; set; }
+            public string thumbnailURL { get; set; }
+            public string filename { get; set; }
+            public string mimeType { get; set; }
+            public long filesize { get; set; }
+            public int? width { get; set; }
+            public int? height { get; set; }
+            public double? focalX { get; set; }
+            public double? focalY { get; set; }
+        }
+
+        public class Tag
+        {
+            public int id { get; set; }
+            public string name { get; set; }
+            public DateTime updatedAt { get; set; }
+            public DateTime createdAt { get; set; }
+        }
+
+        public class Track
+        {
+            public string name { get; set; }
+            public int order { get; set; }
+            public string modifier { get; set; }
+            public string instrument { get; set; }
+        }
+
+    }
+
+    /// <summary>
+    /// The XIVMIDI API responses
+    /// </summary>
+    public static class XIVMIDIResponseContainer
     {
         /// <summary>
         /// The container for downloaded midi file

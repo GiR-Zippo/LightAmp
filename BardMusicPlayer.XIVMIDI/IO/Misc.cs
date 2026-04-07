@@ -11,6 +11,12 @@ namespace BardMusicPlayer.XIVMIDI.IO
 
     public static class Misc
     {
+        public static readonly Dictionary<int, string> Sources = new Dictionary<int, string>
+        {
+            [0] = "XIVMIDI",
+            [1] = "BMP"
+        };
+
         public static readonly Dictionary<int, string> PerformerSize = new Dictionary<int, string>
         {
             [0] = "None",
@@ -23,6 +29,5 @@ namespace BardMusicPlayer.XIVMIDI.IO
             [7] = "Septet",
             [8] = "Octet"
         };
-
     }
 }

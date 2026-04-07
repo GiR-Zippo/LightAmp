@@ -22,7 +22,6 @@ namespace BardMusicPlayer.Ui.Controls
         public EventHandler<BmpSong> OnLoadSongFromBrowser;
         public EventHandler<BmpSong> OnLoadSongFromBrowserToPreview;
         public EventHandler<BmpSong> OnAddSongFromBrowser;
-        private static string DownloadUrl { get; } = "https://xivmidi.com";
         public string DownloadOption { get; set; } = "";
 
         /// Temporary sender object
@@ -33,6 +32,9 @@ namespace BardMusicPlayer.Ui.Controls
             InitializeComponent();
 
             XIVMIDI.XIVMIDI.Instance.OnRequestFinished += Instance_RequestFinished;
+
+            Source_box.ItemsSource = XIVMIDI.IO.Misc.Sources.Values;
+            Source_box.SelectedIndex = 0;
 
             PerformerSize_box.ItemsSource = XIVMIDI.IO.Misc.PerformerSize.Values;
             PerformerSize_box.SelectedIndex = 1;
@@ -51,9 +53,9 @@ namespace BardMusicPlayer.Ui.Controls
                 }));
             }
 
-            if (e is XIVMIDI.IO.ResponseContainer.ApiResponse)
+            if (e is XIVMIDI.IO.XIVMIDIResponseContainer.ApiResponse)
             {
-                var data = e as XIVMIDI.IO.ResponseContainer.ApiResponse;
+                var data = e as XIVMIDI.IO.XIVMIDIResponseContainer.ApiResponse;
                 Dictionary<string, string> list = new Dictionary<string, string>();
                 foreach (var file in data.data.files)
                 {
@@ -71,11 +73,31 @@ namespace BardMusicPlayer.Ui.Controls
                     SongbrowserContainer.Items.Filter = RefreshContainer;
                 }));
             }
-            else if (e is XIVMIDI.IO.ResponseContainer.MidiFile)
+            else if (e is XIVMIDI.IO.BMPResponseContainer.Root)
+            {
+                var data = e as XIVMIDI.IO.BMPResponseContainer.Root;
+                Dictionary<string, string> list = new Dictionary<string, string>();
+                foreach (var file in data.docs)
+                {
+                    try
+                    {
+                        if (file.url.Length <= 2)
+                            continue;
+                        list.Add(file.url, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.arranger ?? ""));
+                    }
+                    catch { }
+                }
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    SongbrowserContainer.ItemsSource = list;
+                    SongbrowserContainer.Items.Filter = RefreshContainer;
+                }));
+            }
+            else if (e is XIVMIDI.IO.XIVMIDIResponseContainer.MidiFile)
             {
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    var data = e as XIVMIDI.IO.ResponseContainer.MidiFile;
+                    var data = e as XIVMIDI.IO.XIVMIDIResponseContainer.MidiFile;
                     if (this.DownloadOption.Equals("OnLoadSongFromBrowser"))
                         OnLoadSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
                     else if (this.DownloadOption.Equals("OnAddSongFromBrowser"))
@@ -107,13 +129,7 @@ namespace BardMusicPlayer.Ui.Controls
                 return;
 
             DownloadOption = "OnLoadSongFromBrowser";
-            XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
-            {
-                Url = DownloadUrl + Uri.EscapeUriString(filename),
-                Host = "xivmidi.com",
-                Accept = "audio/midi",
-                Requester = XIVMIDI.IO.Requester.DOWNLOAD
-            });
+            DownloadSong(filename);
         }
 
         /// <summary>
@@ -159,13 +175,7 @@ namespace BardMusicPlayer.Ui.Controls
                 return;
 
             DownloadOption = "OnAddSongFromBrowser";
-            XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
-            {
-                Url = DownloadUrl + Uri.EscapeUriString(filename),
-                Host = "xivmidi.com",
-                Accept = "audio/midi",
-                Requester = XIVMIDI.IO.Requester.DOWNLOAD
-            });
+            DownloadSong(filename);
         }
 
         /// <summary>
@@ -180,13 +190,7 @@ namespace BardMusicPlayer.Ui.Controls
                 return;
 
             DownloadOption = "OnLoadSongFromBrowserToPreview";
-            XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
-            {
-                Url = DownloadUrl + Uri.EscapeUriString(filename),
-                Host = "xivmidi.com",
-                Accept = "audio/midi",
-                Requester = XIVMIDI.IO.Requester.DOWNLOAD
-            });
+            DownloadSong(filename);
         }
 
         /// <summary>
@@ -206,6 +210,11 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
+        private void Source_box_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SendRequest();
+        }
+
         private void PerformerSize_box_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SendRequest();
@@ -213,12 +222,46 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void SendRequest()
         {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", "Loading..." } };
+            }));
+            string url = "";
+            if (Source_box.SelectedIndex == 0)
+                url = new XIVMIDI.IO.XIVMIDIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex }.BuildRequest();
+            else
+                url = new XIVMIDI.IO.BMPAPIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex }.BuildRequest();
             XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
             {
-                Url = new XIVMIDI.IO.RequestBuilder() { bandSize = PerformerSize_box.SelectedIndex }.BuildRequest(),
-                Host = "xivmidi.com",
+                Url = url,
+                Host = new Uri(url).Host,
+                RequestSource = Source_box.SelectedIndex,
                 Requester = XIVMIDI.IO.Requester.JSON
             });
+        }
+
+        private void DownloadSong(string filename)
+        {
+            if (Source_box.SelectedIndex == 0)
+            {
+                XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
+                {
+                    Url = "https://xivmidi.com" + Uri.EscapeUriString(filename),
+                    Host = "xivmidi.com",
+                    Accept = "audio/midi",
+                    Requester = XIVMIDI.IO.Requester.DOWNLOAD
+                });
+            }
+            else
+            {
+                XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
+                {
+                    Url = Uri.EscapeUriString(filename),
+                    Host = new Uri(filename).Host,
+                    Accept = "audio/midi",
+                    Requester = XIVMIDI.IO.Requester.DOWNLOAD
+                });
+            }
         }
     }
 }
