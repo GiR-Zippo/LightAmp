@@ -226,10 +226,11 @@ namespace BardMusicPlayer.Ui.Controls
             {
                 SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", "Loading..." } };
             }));
+
             string url = "";
-            if (Source_box.SelectedIndex == 0)
+            if (Source_box.SelectedIndex == 0) //XIVMIDI
                 url = new XIVMIDI.IO.XIVMIDIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex }.BuildRequest();
-            else
+            else //BMPAPI
                 url = new XIVMIDI.IO.BMPAPIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex }.BuildRequest();
             XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
             {

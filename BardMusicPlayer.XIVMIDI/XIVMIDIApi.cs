@@ -1,14 +1,12 @@
-﻿using System;
+﻿using BardMusicPlayer.XIVMIDI.IO;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
-
-using Newtonsoft.Json;
-
-using BardMusicPlayer.XIVMIDI.IO;
 
 namespace BardMusicPlayer.XIVMIDI;
 
@@ -175,16 +173,24 @@ public sealed partial class XIVMIDI
 
     private void GetJSon(GetRequest request)
     {
-        ResponseContainer.ApiResponse resp = JsonConvert.DeserializeObject<ResponseContainer.ApiResponse>(request.ResponseBody.ReadAsStringAsync().Result);
-        OnRequestFinished(this, resp);
+        if (request.RequestSource == 0)
+        {
+            XIVMIDIResponseContainer.ApiResponse resp = JsonConvert.DeserializeObject<XIVMIDIResponseContainer.ApiResponse>(request.ResponseBody.ReadAsStringAsync().Result);
+            OnRequestFinished(this, resp);
+        }
+        else
+        {
+            var resp = JsonConvert.DeserializeObject<BMPResponseContainer.Root>(request.ResponseBody.ReadAsStringAsync().Result);
+            OnRequestFinished(this, resp);
+        }
         return;
     }
 
     private void GetMidi(GetRequest request)
     {
-        var f = Uri.UnescapeDataString(request.Url);
+        var f = WebUtility.UrlDecode(Uri.UnescapeDataString(request.Url));
         f = f.Split('/').Last();
-        ResponseContainer.MidiFile midi = new()
+        XIVMIDIResponseContainer.MidiFile midi = new()
         {
             Filename = f,
             data = request.ResponseBody.ReadAsByteArrayAsync().Result

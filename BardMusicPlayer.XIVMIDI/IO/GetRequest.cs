@@ -15,6 +15,10 @@ namespace BardMusicPlayer.XIVMIDI.IO
         public HttpContent ResponseBody { get; set; } = null;
         public HttpStatusCode ResponseCode { get; set; } = HttpStatusCode.Unused;
         public string ResponseMsg { get; set; } = "";
+
+        /// <summary>
+        /// The API we are using: 0 = XIVMIDI 1 = BMP
+        /// </summary>
         public int RequestSource { get; set; } = 0;
         public string Host { get; set; } = "";
         public string Referrer { get; set; } = "";
