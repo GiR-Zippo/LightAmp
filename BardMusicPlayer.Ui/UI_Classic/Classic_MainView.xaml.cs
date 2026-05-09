@@ -67,6 +67,8 @@ namespace BardMusicPlayer.Ui.Classic
 
             Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
             SettingsControl.LoadConfig();
+
+            Songbrowser_Source_box.SelectedIndex        = 0;
         }
 
         private void Globals_OnConfigReload(object sender, EventArgs e)
@@ -531,17 +533,42 @@ namespace BardMusicPlayer.Ui.Classic
 
             if (SongBrowser.Visibility == Visibility.Hidden)
             {
+                Songbrowser_Source_box.SelectedIndex = 0;
                 XIVBrowser.Visibility = Visibility.Hidden;
                 SongBrowser.Visibility = Visibility.Visible;
                 SongBrowser.SongPath.Focus();
             }
             else
             {
+                Songbrowser_Source_box.SelectedIndex = 1;
                 XIVBrowser.Visibility = Visibility.Visible;
                 XIVBrowser.RefreshButton.Focus();
                 SongBrowser.Visibility = Visibility.Hidden;
             }
             
+        }
+
+        private void Songbrowser_Source_box_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!Songbrowser_Source_box.IsMouseOver)
+            {
+                e.Handled = true;
+                return;
+            }
+            if (Songbrowser_Source_box.SelectedIndex == 0)
+            {
+                Songbrowser_Source_box.SelectedIndex = 0;
+                XIVBrowser.Visibility = Visibility.Hidden;
+                SongBrowser.Visibility = Visibility.Visible;
+                SongBrowser.SongPath.Focus();
+            }
+            else
+            {
+                Songbrowser_Source_box.SelectedIndex = 1;
+                XIVBrowser.Visibility = Visibility.Visible;
+                XIVBrowser.RefreshButton.Focus();
+                SongBrowser.Visibility = Visibility.Hidden;
+            }
         }
     }
 }

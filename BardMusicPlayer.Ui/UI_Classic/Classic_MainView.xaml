@@ -133,8 +133,26 @@
                     </TabItem>
                     <TabItem Header="SongBrowser" x:Name="SongBrowserGrid">
                         <Grid Background="WhiteSmoke" KeyDown="SongBrowser_KeyDown">
-                            <control:SongBrowser x:Name="SongBrowser"/>
-                            <control:XIVMidiBrowser x:Name="XIVBrowser" Visibility="Hidden"/>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="23" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="20"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="Mode:" HorizontalAlignment="Left" />
+                                <ComboBox x:Name="Songbrowser_Source_box" Grid.Column="1" Text="Source" SelectionChanged="Songbrowser_Source_box_SelectionChanged" VerticalAlignment="Center">
+                                    <ComboBoxItem>Songbworser</ComboBoxItem>
+                                    <ComboBoxItem>Online browser</ComboBoxItem>
+                                </ComboBox>
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <control:SongBrowser x:Name="SongBrowser"/>
+                                <control:XIVMidiBrowser x:Name="XIVBrowser" Visibility="Hidden"/>
+                            </Grid>
                         </Grid>
                     </TabItem>
                 </TabControl>
