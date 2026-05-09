@@ -145,8 +145,8 @@
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0" Content="Mode:" HorizontalAlignment="Left" />
                                 <ComboBox x:Name="Songbrowser_Source_box" Grid.Column="1" Text="Source" SelectionChanged="Songbrowser_Source_box_SelectionChanged" VerticalAlignment="Center">
-                                    <ComboBoxItem>Songbworser</ComboBoxItem>
-                                    <ComboBoxItem>Online browser</ComboBoxItem>
+                                    <ComboBoxItem>Local</ComboBoxItem>
+                                    <ComboBoxItem>Online</ComboBoxItem>
                                 </ComboBox>
                             </Grid>
                             <Grid Grid.Row="1">
