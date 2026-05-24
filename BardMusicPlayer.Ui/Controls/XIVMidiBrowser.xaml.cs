@@ -243,11 +243,13 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void DownloadSong(string filename)
         {
+            if (filename.Contains(" "))
+                filename = Uri.EscapeUriString(filename);
             if (Source_box.SelectedIndex == 0)
             {
                 XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
                 {
-                    Url = "https://xivmidi.com" + Uri.EscapeUriString(filename),
+                    Url = "https://xivmidi.com" + filename,
                     Host = "xivmidi.com",
                     Accept = "audio/midi",
                     Requester = XIVMIDI.IO.Requester.DOWNLOAD
@@ -257,7 +259,7 @@ namespace BardMusicPlayer.Ui.Controls
             {
                 XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
                 {
-                    Url = Uri.EscapeUriString(filename),
+                    Url = filename,
                     Host = new Uri(filename).Host,
                     Accept = "audio/midi",
                     Requester = XIVMIDI.IO.Requester.DOWNLOAD
