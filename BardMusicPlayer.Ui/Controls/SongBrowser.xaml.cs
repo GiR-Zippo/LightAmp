@@ -242,7 +242,7 @@ namespace BardMusicPlayer.Ui.Controls
 
             if (response.IsSuccessStatusCode)
                 MessageBox.Show("Uploaded", "Wohoo \\o/");
-            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized || response.StatusCode == System.Net.HttpStatusCode.Forbidden)
                 MessageBox.Show("Bad or missing Api Key", "Error");
             else
                 MessageBox.Show("Something went wrong here...", "Error");
