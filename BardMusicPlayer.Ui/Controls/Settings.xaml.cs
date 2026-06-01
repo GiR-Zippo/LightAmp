@@ -66,6 +66,11 @@ namespace BardMusicPlayer.Ui.Controls
             AutoAcceptInvite.IsChecked = BmpPigeonhole.Instance.AutoAcceptPartyInvite;
             EnableSynthLimit.IsChecked = BmpPigeonhole.Instance.EnableSynthVoiceLimiter;
 
+            if (BmpPigeonhole.Instance.BMPApiKey != "")
+            {
+                ApiBtnToggleShow.IsChecked = true;
+                ApiBtnToggleShow_Checked(null, null);
+            }
 
             MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
             SongHistoryBox.IsChecked = BmpPigeonhole.Instance.EnableSongHistory;
@@ -262,6 +267,22 @@ namespace BardMusicPlayer.Ui.Controls
                 _inputKeys.Dequeue();
 
             return _inputKeys.SequenceEqual(KonamiCode);
+        }
+
+        private void BMPApiKey_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var box = sender as TextBox; 
+            if (box == null) return;
+            if (box.IsFocused)
+                BmpPigeonhole.Instance.BMPApiKey = box.Text;
+        }
+
+        private void ApiBtnToggleShow_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((bool)ApiBtnToggleShow.IsChecked)
+                BMPApiKey.Text = new string('*', BmpPigeonhole.Instance.BMPApiKey.Length);
+            else
+                BMPApiKey.Text = BmpPigeonhole.Instance.BMPApiKey;
         }
     }
 }

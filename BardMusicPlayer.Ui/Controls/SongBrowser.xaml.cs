@@ -5,6 +5,8 @@
 
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Ui.Resources;
+using BardMusicPlayer.Ui.Windows;
+using BardMusicPlayer.XIVMIDI.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -212,6 +214,38 @@ namespace BardMusicPlayer.Ui.Controls
             {
                 return "";
             }
+        }
+
+        private async void UploadToBMP_Click(object sender, RoutedEventArgs e)
+        {
+            string filename = GetFilenameFromSelection();
+            if (filename == "")
+                return;
+
+            UploadData data = new UploadData(filename);
+            BMPUploadBuilder bmpUpload = data.ShowDialog();
+            if (bmpUpload == null)
+                return;
+            if (bmpUpload.title == "" || bmpUpload.artist == "" || bmpUpload.source == "")
+            {
+                MessageBox.Show("Missing Title or Artist or Source!", "Error");
+                return;
+            }
+
+            bmpUpload.ApiKey = BmpPigeonhole.Instance.BMPApiKey;
+            var response = await XIVMIDI.XIVMIDI.Instance.UploadSongToBMP(filename, bmpUpload);
+            if (response == null)
+            {
+                MessageBox.Show("Something went wrong here...", "Error");
+                return;
+            }              
+
+            if (response.IsSuccessStatusCode)
+                MessageBox.Show("Uploaded", "Wohoo \\o/");
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                MessageBox.Show("Bad or missing Api Key", "Error");
+            else
+                MessageBox.Show("Something went wrong here...", "Error");
         }
     }
 }

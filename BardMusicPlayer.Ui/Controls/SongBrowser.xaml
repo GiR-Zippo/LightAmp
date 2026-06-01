@@ -49,6 +49,7 @@
                 <ContextMenu>
                     <MenuItem Header="Add To Playlist" Click="AddToPlaylist_Click" ToolTip="{x:Static Locale:Language.Global_Load_Song_To_Playlist}"/>
                     <MenuItem Header="Song Preview" Click="LoadSongToPreview" ToolTip="{x:Static Locale:Language.Global_Load_Song_To_Preview}"/>
+                    <MenuItem Header="Upload to BMP Midi" Click="UploadToBMP_Click" />
                     <!--<MenuItem Header="Show Information"></MenuItem>-->
                 </ContextMenu>
             </ListView.ContextMenu>

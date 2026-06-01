@@ -71,10 +71,35 @@
                         <CheckBox Margin="10,0,0,0"  Grid.Row="6" x:Name="ChannelToProg" Content="Convert Channnels to Program"       Unchecked="ChannelToProg_Checked" Checked="ChannelToProg_Checked"             ToolTip="BETA"                                                />
                     </Grid>
                 </TabItem>
+                <TabItem Header="BMP Api">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Margin="0,0,0,0"      Grid.Row="1" Content="Bard Music Players API:"/>
+                        <Grid Margin="0,0,0,0"       Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="250"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Margin="0,0,0,0"      Grid.Column="0" Content="Api Key:"/>
+                            <TextBox x:Name="BMPApiKey"  Grid.Column="1" Text="INSERT-API-KEY-HERE"  VerticalAlignment="Center" TextChanged="BMPApiKey_TextChanged"/>
+                            <ToggleButton x:Name="ApiBtnToggleShow" Grid.Column="2" Height="20" Checked="ApiBtnToggleShow_Checked" Unchecked="ApiBtnToggleShow_Checked">
+                                <TextBlock x:Name="TxtButtonContent" Text="👁"/>
+                            </ToggleButton>
+                        </Grid>
+                    </Grid>
+                </TabItem>
                 <TabItem Header="Misc">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>

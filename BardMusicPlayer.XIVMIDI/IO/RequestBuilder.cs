@@ -1,4 +1,6 @@
-﻿namespace BardMusicPlayer.XIVMIDI.IO;
+﻿using Newtonsoft.Json;
+
+namespace BardMusicPlayer.XIVMIDI.IO;
 
 /// <summary>
 /// Build the BMP API request string
@@ -15,12 +17,25 @@ public class BMPAPIRequestBuilder
     public string BuildRequest()
     {
         var request = ApiBaseUrl + "/midis?where";
-
-        
         request += bandSize <= 0 || bandSize > 8 ? "" : "[ensembleSize][equals]=" + (bandSize == 2 ? "duo" : Misc.PerformerSize[bandSize].ToLower());
         request += "&limit=0";
         return request;
     }
+}
+
+/// <summary>
+/// The upload template to BMP Midi archive
+/// </summary>
+public class BMPUploadBuilder
+{
+    [JsonIgnore]
+    public readonly string ApiBaseUrl = "https://bardmusicplayer.com/api/midis";
+    [JsonIgnore]
+    public string ApiKey { get; set; } = "";
+    public string title { get; set; } = "";
+    public string artist { get; set; } = "";
+    public string source { get; set; } = "";
+    public string originalSourceUrl { get; set; } = "";
 }
 
 /// <summary>

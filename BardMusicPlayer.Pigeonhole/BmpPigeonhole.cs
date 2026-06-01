@@ -237,5 +237,10 @@ namespace BardMusicPlayer.Pigeonhole
         /// Songhistory in use or not
         /// </summary>
         public virtual bool EnableSongHistory { get; set; } = false;
+
+        /// <summary>
+        /// The ApiKey for the BMP Upload
+        /// </summary>
+        public virtual string BMPApiKey { get; set; } = "";
     }
 }

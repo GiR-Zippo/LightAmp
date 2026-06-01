@@ -71,9 +71,9 @@ namespace BardMusicPlayer.Ui.Classic
             conv.Visibility = Visibility.Visible;
         }
 
-        private void MidiProcessing_Click(object sender, RoutedEventArgs e)
+        private async void MidiProcessing_Click(object sender, RoutedEventArgs e)
         {
-            /*var openFileDialog = new OpenFileDialog
+            var openFileDialog = new OpenFileDialog
             {
                 Filter = Globals.Globals.FileFilters,
                 Multiselect = true
@@ -85,8 +85,12 @@ namespace BardMusicPlayer.Ui.Classic
             if (!openFileDialog.CheckFileExists)
                 return;
 
-            MidiBardConverterWindow conv = new MidiBardConverterWindow(openFileDialog.FileName);
-            conv.Visibility = Visibility.Visible;*/
+
+/*
+            var m = MidiRangeCompressor.CompressMidiToBase64(openFileDialog.FileName);
+            Debug.WriteLine(m);
+            
+            MidiRangeDecompressor.DecompressBase64ToMidi(m, openFileDialog.FileName + ".mid");*/
         }
         
     }

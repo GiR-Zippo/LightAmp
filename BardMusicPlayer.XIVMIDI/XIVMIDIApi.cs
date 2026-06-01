@@ -2,9 +2,12 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -200,4 +203,43 @@ public sealed partial class XIVMIDI
         OnRequestFinished(this, midi);
         return;
     }
+
+
+
+    public async Task<HttpResponseMessage> UploadSongToBMP(string filename, BMPUploadBuilder upload)
+    {
+        string url = upload.ApiBaseUrl;
+
+        httpClient.DefaultRequestHeaders.Clear();
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(new GetRequest().UserAgent);
+
+        using (var multipartContent = new MultipartFormDataContent())
+        {
+            byte[] fileBytes = File.ReadAllBytes(filename);
+            var fileContent = new ByteArrayContent(fileBytes);
+
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("audio/mid");
+            multipartContent.Add(fileContent, "file", Path.GetFileName(filename));
+
+            string jsonString = JsonConvert.SerializeObject(upload);
+            var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+            multipartContent.Add(jsonContent, "_payload");
+            using (var request = new HttpRequestMessage(HttpMethod.Post, url))
+            {
+                request.Content = multipartContent;
+                request.Headers.Authorization = new AuthenticationHeaderValue("users", "API-Key " + upload.ApiKey);
+                try
+                {
+                    HttpResponseMessage response = await httpClient.SendAsync(request);
+                    return response;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+            }
+        }
+    }
+
 }

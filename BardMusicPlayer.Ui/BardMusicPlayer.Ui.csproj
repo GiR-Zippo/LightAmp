@@ -320,6 +320,9 @@
     <Compile Include="Controls\TrackNumericUpDown.xaml.cs">
       <DependentUpon>TrackNumericUpDown.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\UploadData.xaml.cs">
+      <DependentUpon>UploadData.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\VoiceMap.xaml.cs">
       <DependentUpon>VoiceMap.xaml</DependentUpon>
     </Compile>
@@ -408,6 +411,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TrackNumericUpDown.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\UploadData.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
