@@ -24,27 +24,13 @@
     <NoWarn>1701;1702; MSB3246</NoWarn>
   </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="LibZeroTier" Version="1.0.8" />
-      <PackageReference Include="ZeroTier.Sockets" Version="1.8.4" />
-    </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\BardMusicPlayer.Quotidian\BardMusicPlayer.Quotidian.csproj" />
     <ProjectReference Include="..\BardMusicPlayer.Pigeonhole\BardMusicPlayer.Pigeonhole.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Lib\" />
-    <Folder Include="PartyClient\ZeroTier\" />
-  </ItemGroup>
-
-  <ItemGroup>
-      <ContentWithTargetPath Include="Lib\libzt.dll">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <TargetPath>libzt.dll</TargetPath>
-      </ContentWithTargetPath>
-      <None Include="Lib\libzt.dll" />
+    <PackageReference Include="Castle.Core" Version="5.2.1" />
   </ItemGroup>
 
 </Project>
