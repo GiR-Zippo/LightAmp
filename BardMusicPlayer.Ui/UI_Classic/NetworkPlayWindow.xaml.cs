@@ -20,8 +20,8 @@ namespace BardMusicPlayer.Ui.Classic
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            e.Cancel = true;
-            this.Visibility = Visibility.Hidden;
+            //e.Cancel = true;
+            //this.Visibility = Visibility.Hidden;
         }
 
     }

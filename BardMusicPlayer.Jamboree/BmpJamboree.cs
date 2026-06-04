@@ -18,10 +18,7 @@ namespace BardMusicPlayer.Jamboree
         /// </summary>
         public bool Started { get; private set; }
 
-
-        private BmpJamboree()
-        {
-        }
+        private BmpJamboree(){}
 
         public static BmpJamboree Instance => LazyInstance.Value;
 
@@ -33,6 +30,7 @@ namespace BardMusicPlayer.Jamboree
         {
             if (Started) return;
             StartEventsHandler();
+            BMPApi.Instance.StartService();
             Started = true;
         }
 
@@ -44,6 +42,7 @@ namespace BardMusicPlayer.Jamboree
         {
             if (!Started) return;
             StopEventsHandler();
+            BMPApi.Instance.StopService();
             Started = false;
         }
 
@@ -56,12 +55,13 @@ namespace BardMusicPlayer.Jamboree
         }
 #endregion
 
-        public void JoinParty(string networkId, byte type, string name)
+        public void JoinParty()
         {
         }
 
         public void LeaveParty()
         {
+            BMPApi.Instance.LeaveParty();
         }
 
         public void SendPerformanceStart()

@@ -73,7 +73,9 @@ namespace BardMusicPlayer.Ui.Classic
 
         private async void MidiProcessing_Click(object sender, RoutedEventArgs e)
         {
-            var openFileDialog = new OpenFileDialog
+            NetworkPlayWindow m = new NetworkPlayWindow();
+            m.Show();
+            /*var openFileDialog = new OpenFileDialog
             {
                 Filter = Globals.Globals.FileFilters,
                 Multiselect = true

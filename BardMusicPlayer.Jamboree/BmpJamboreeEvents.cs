@@ -9,6 +9,12 @@ namespace BardMusicPlayer.Jamboree
     public partial class BmpJamboree
     {
         public EventHandler<PartyCreatedEvent> OnPartyCreated;
+        public EventHandler<PartyJoinedEvent> OnPartyJoined;
+        public EventHandler<PartyPlaylistSendEvent> OnPartyPlaylistSend;
+        public EventHandler<PartyPlaylistEvent> OnPartyPlaylist;
+        public EventHandler<PartyMidiEvent> OnMidiReceived;
+
+
         public EventHandler<PartyLogEvent> OnPartyLog;
         public EventHandler<PartyDebugLogEvent> OnPartyDebugLog;
         public EventHandler<PartyConnectionChangedEvent> OnPartyConnectionChanged;
@@ -36,6 +42,27 @@ namespace BardMusicPlayer.Jamboree
                                     break;
                                 OnPartyCreated(this, partyCreated);
                                 break;
+                            case PartyJoinedEvent partyJoined:
+                                if (OnPartyJoined == null)
+                                    break;
+                                OnPartyJoined(this, partyJoined);
+                                break;
+                            case PartyPlaylistSendEvent partyPlaylist:
+                                if (OnPartyPlaylistSend == null)
+                                    break;
+                                OnPartyPlaylistSend(this, partyPlaylist);
+                                break;
+                            case PartyPlaylistEvent partyPlaylist:
+                                if (OnPartyPlaylist == null)
+                                    break;
+                                OnPartyPlaylist(this, partyPlaylist);
+                                break;
+                            case PartyMidiEvent partyMidi:
+                                if (OnMidiReceived == null)
+                                    break;
+                                OnMidiReceived(this, partyMidi);
+                                break;
+
                             case PartyLogEvent partyLog:
                                 if (OnPartyLog == null)
                                     break;
@@ -89,12 +116,12 @@ namespace BardMusicPlayer.Jamboree
             }
         }
 
-        internal void PublishEvent(JamboreeEvent meastroEvent)
+        internal void PublishEvent(JamboreeEvent jamboreeEvent)
         {
             if (!_eventQueueOpen)
                 return;
 
-            _eventQueue.Enqueue(meastroEvent);
+            _eventQueue.Enqueue(jamboreeEvent);
         }
     }
 }

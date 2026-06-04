@@ -37,8 +37,9 @@
                             <TextBox Grid.Row="1" Grid.Column="2" x:Name="PartyToken_Text"/>
                             <Button Grid.Row="2" Grid.Column="1" Content="Join" Click="Join_Click" />
                             <Button Grid.Row="2" Grid.Column="2" Content="Leave" Click="Leave_Click" Width="60" HorizontalAlignment="Left" FontSize="12"/>
-                            <Button Grid.Row="2" Grid.Column="2" Content="Force" Click="ForcePlay_Click" Width="60" HorizontalAlignment="Left" Margin="60,0,0,0" FontSize="12"/>
-                            <TextBox Grid.Row="3"  Grid.ColumnSpan="2" Grid.Column="1" x:Name="PartyMessage_Text" VerticalScrollBarVisibility="Visible"/>
+                            <Button Grid.Row="2" Grid.Column="2" Content="Download" Click="ForcePlay_Click" Width="60" HorizontalAlignment="Left" Margin="60,0,0,0" FontSize="12"/>
+                            <Button Grid.Row="2" Grid.Column="2" Content="Upload" Click="Upload_Click" Width="60" HorizontalAlignment="Left" Margin="120,0,0,0" FontSize="12"/>
+                    <TextBox Grid.Row="3"  Grid.ColumnSpan="2" Grid.Column="1" x:Name="PartyMessage_Text" VerticalScrollBarVisibility="Visible"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="Debug" >

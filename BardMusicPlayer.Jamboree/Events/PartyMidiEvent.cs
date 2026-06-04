@@ -1,14 +1,14 @@
 ﻿namespace BardMusicPlayer.Jamboree.Events
 {
-    public sealed class PartyCreatedEvent : JamboreeEvent
+    public sealed class PartyMidiEvent : JamboreeEvent
     {
-        internal PartyCreatedEvent(SessionCreated data) : base(0, false)
+        internal PartyMidiEvent(byte[] data) : base(0, false)
         {
             EventType = GetType();
             Data = data;
         }
 
-        public SessionCreated Data { get; }
+        public byte[] Data { get; }
 
         public override bool IsValid() => true;
     }
