@@ -147,11 +147,13 @@
                                 <ComboBox x:Name="Songbrowser_Source_box" Grid.Column="1" Text="Source" SelectionChanged="Songbrowser_Source_box_SelectionChanged" VerticalAlignment="Center">
                                     <ComboBoxItem>Local</ComboBoxItem>
                                     <ComboBoxItem>Online</ComboBoxItem>
+                                    <ComboBoxItem>Party</ComboBoxItem>
                                 </ComboBox>
                             </Grid>
                             <Grid Grid.Row="1">
                                 <control:SongBrowser x:Name="SongBrowser"/>
                                 <control:XIVMidiBrowser x:Name="XIVBrowser" Visibility="Hidden"/>
+                                <control:NetworkControl x:Name="NetworkCtl" Visibility="Hidden"/>
                             </Grid>
                         </Grid>
                     </TabItem>

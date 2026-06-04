@@ -333,7 +333,9 @@ namespace BardMusicPlayer.Jamboree
             }
         }
 
-
+        /// <summary>
+        /// Leave the party and clean up
+        /// </summary>
         public void LeaveParty()
         {
             if (clientData != null)
@@ -349,6 +351,11 @@ namespace BardMusicPlayer.Jamboree
             BmpJamboree.Instance.PublishEvent(new PartyLogEvent("Party left..."));
         }
 
+        /// <summary>
+        /// Are we connected?
+        /// </summary>
+        /// <returns></returns>
+        public bool IsConnected() {  return clientData != null || hostData != null;  }
 
         // Build POSIX-Ustar-Header (512 Bytes)
         private byte[] CreateTarHeader(string fileName, long fileSize)

@@ -559,15 +559,24 @@ namespace BardMusicPlayer.Ui.Classic
             {
                 Songbrowser_Source_box.SelectedIndex = 0;
                 XIVBrowser.Visibility = Visibility.Hidden;
+                NetworkCtl.Visibility = Visibility.Hidden;
                 SongBrowser.Visibility = Visibility.Visible;
                 SongBrowser.SongPath.Focus();
             }
-            else
+            else if (Songbrowser_Source_box.SelectedIndex == 1)
             {
                 Songbrowser_Source_box.SelectedIndex = 1;
                 XIVBrowser.Visibility = Visibility.Visible;
                 XIVBrowser.RefreshButton.Focus();
                 SongBrowser.Visibility = Visibility.Hidden;
+                NetworkCtl.Visibility = Visibility.Hidden;
+            }
+            else if (Songbrowser_Source_box.SelectedIndex == 2)
+            {
+                Songbrowser_Source_box.SelectedIndex = 2;
+                NetworkCtl.Visibility = Visibility.Visible;
+                SongBrowser.Visibility = Visibility.Hidden;
+                XIVBrowser.Visibility = Visibility.Hidden;
             }
         }
     }

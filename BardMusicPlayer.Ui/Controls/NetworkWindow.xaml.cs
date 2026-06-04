@@ -5,14 +5,15 @@
 
 using BardMusicPlayer.Jamboree;
 using BardMusicPlayer.Jamboree.Events;
+using BardMusicPlayer.Transmogrify.Song;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -21,6 +22,9 @@ namespace BardMusicPlayer.Ui.Controls
     /// </summary>
     public partial class NetworkControl : UserControl
     {
+        private object _Sender { get; set; } = null;
+        Dictionary<BmpSong, string> list = new Dictionary<BmpSong, string>();
+
         public NetworkControl()
         {
             InitializeComponent();
@@ -32,6 +36,7 @@ namespace BardMusicPlayer.Ui.Controls
 
             BmpJamboree.Instance.OnPartyLog += Instance_PartyLog;
             BmpJamboree.Instance.OnPartyDebugLog += Instance_PartyDebugLog;
+            UpdateSongList();
         }
 
 
@@ -43,12 +48,13 @@ namespace BardMusicPlayer.Ui.Controls
             this.Dispatcher.BeginInvoke(new Action(() => this.PartyLog_Text.Text = this.PartyLog_Text.Text + "Session ID: " + e.Data.sessionId + "\r\n"));
             this.Dispatcher.BeginInvoke(new Action(() => this.PartyLog_Text.Text = this.PartyLog_Text.Text + "Hosttoken: " + e.Data.hostToken + "\r\n"));
             this.Dispatcher.BeginInvoke(new Action(() => this.PartyLog_Text.Text = this.PartyLog_Text.Text + "Expires: " + e.Data.expiresAt + "\r\n"));
+            this.Dispatcher.BeginInvoke(new Action(() => Create_Join_Btn.Content = "Leave"));
         }
 
         private void Instance_PartyJoined(object sender, PartyJoinedEvent e)
         { 
             var t = e.Data;
-            Console.WriteLine("");
+            this.Dispatcher.BeginInvoke(new Action(() => Create_Join_Btn.Content = "Leave"));
         }
 
         private async void Instance_PartyPlaylist(object sender, PartyPlaylistEvent e)
@@ -82,8 +88,18 @@ namespace BardMusicPlayer.Ui.Controls
             this.Dispatcher.BeginInvoke(new Action(() => this.PartyLog_Text.Text = this.PartyLog_Text.Text + logtext));
         }
 
-        private async void Join_Click(object sender, RoutedEventArgs e)
+        private async void Create_Join_Click(object sender, RoutedEventArgs e)
         {
+            if (Create_Join_Btn.Content.ToString() == "Leave")
+            {
+                BMPApi.Instance.LeaveParty();
+                Create_Join_Btn.Content = "Create";
+                PartyToken_Text.Text = "";
+                return;
+            }
+            if (BMPApi.Instance.IsConnected())
+                return;
+
             string token = PartyToken_Text.Text;
             if (token == "")
             {
@@ -134,6 +150,31 @@ namespace BardMusicPlayer.Ui.Controls
             await BMPApi.Instance.SendPlaylist(openFileDialog.FileNames.ToList());*/
         }
 
+        private void PartyToken_Text_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!PartyToken_Text.IsFocused)
+                return;
+            if (BMPApi.Instance.IsConnected())
+                return;
+            if (PartyToken_Text.Text == "")
+                Create_Join_Btn.Content = "Create";
+            else
+                Create_Join_Btn.Content = "Join";
+        }
 
+        private void SongContainer_PreviewMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+        }
+
+        private void OnListViewItemPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _Sender = sender; //set the sender to the item we hovered over
+            e.Handled = true;
+        }
+
+        private void UpdateSongList()
+        {
+            SongContainer.ItemsSource = list;
+        }
     }
 }
