@@ -1,24 +1,30 @@
 ﻿/*
- * Copyright(c) 2021 MoogleTroupe
- * Licensed under the GPL v3 license. See https://github.com/BardMusicPlayer/BardMusicPlayer/blob/develop/LICENSE for full license information.
+ * Copyright(c) 2026 GiR-Zippo, 2021 MoogleTroupe
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Jamboree
 {
     public partial class BmpJamboree : IDisposable
     {
 
-#region Instance Constructor/Destructor
+        #region Instance Constructor/Destructor
         private static readonly Lazy<BmpJamboree> LazyInstance = new(() => new BmpJamboree());
+        private BMPApi _Api { get; set; } = null;
 
         /// <summary>
         /// 
         /// </summary>
         public bool Started { get; private set; }
 
-        private BmpJamboree(){}
+        private BmpJamboree()
+        {
+            _Api = new BMPApi();
+        }
 
         public static BmpJamboree Instance => LazyInstance.Value;
 
@@ -30,7 +36,7 @@ namespace BardMusicPlayer.Jamboree
         {
             if (Started) return;
             StartEventsHandler();
-            BMPApi.Instance.StartService();
+            _Api.StartService();
             Started = true;
         }
 
@@ -42,7 +48,7 @@ namespace BardMusicPlayer.Jamboree
         {
             if (!Started) return;
             StopEventsHandler();
-            BMPApi.Instance.StopService();
+            _Api.StopService();
             Started = false;
         }
 
@@ -50,42 +56,76 @@ namespace BardMusicPlayer.Jamboree
 
         public void Dispose()
         {
+            _Api.Dispose();
             Stop();
             GC.SuppressFinalize(this);
         }
-#endregion
+        #endregion
 
-        public void JoinParty()
-        {
-        }
+        #region Accessors
 
-        public void LeaveParty()
-        {
-            BMPApi.Instance.LeaveParty();
-        }
+        /// <summary>
+        /// Create a party
+        /// </summary>
+        public async void CreateParty() { await _Api.CreateSession(); }
 
-        public void SendPerformanceStart()
+        /// <summary>
+        /// Join a party by code and playername
+        /// </summary>
+        /// <param name="code">Shared token</param>
+        /// <param name="name">Player name</param>
+        public async void JoinParty(string code, string name) { await _Api.JoinParty(code, name); }
+
+        /// <summary>
+        /// Leave the party and clean up
+        /// </summary>
+        public void LeaveParty() => _Api.LeaveParty();
+
+        /// <summary>
+        /// Sends a song as playlist
+        /// </summary>
+        /// <param name="files"></param>
+        public async void SendPlaylist(string file)
         {
+            List<string> files = new();
+            files.Add(file);
+            await _Api.SendPlaylist(files);
         }
 
         /// <summary>
-        /// Send we joined the party
-        /// | type 0 = bard
-        /// | type 1 = dancer
+        /// Send a list of songs as a playlist
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="performer_name"></param>
-        public void SendPerformerJoin(byte type, string performer_name)
-        {
-        }
+        /// <param name="files"></param>
+        public async void SendPlaylist(List<string> files) { await _Api.SendPlaylist(files); }
 
-        public void SendClientPacket(byte[] packet)
-        {
-        }
+        /// <summary>
+        /// Download Midi
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <returns></returns>
+        public async Task GetMidiFile(string itemId) => await _Api.GetMidiFile(itemId);
 
-        public void SendServerPacket(byte [] packet)
-        {
-        }
+        /// <summary>
+        /// Are we connected?
+        /// </summary>
+        /// <returns></returns>
+        public bool IsConnected() => _Api.IsConnected();
 
+        /// <summary>
+        /// Get the memberlist
+        /// </summary>
+        /// <returns></returns>
+        public List<SessionMembers> GetCurrentPartyMembers() => _Api.GetCurrentParty().GetMembers();
+
+        public List<PlaylistItem> GetPlaylist() => _Api.GetPlaylist();
+
+        #endregion
+
+        /// <summary>
+        /// Sets the Track for Member
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <param name="trackNumber"></param>
+        public void SetTrack(string memberId, int trackNumber) => _Api.SetTrackNumber(memberId, trackNumber);
     }
 }

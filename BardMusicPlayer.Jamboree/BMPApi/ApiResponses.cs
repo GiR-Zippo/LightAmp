@@ -1,4 +1,9 @@
-﻿using System.Collections.Generic;
+﻿/*
+ * Copyright(c) 2026 GiR-Zippo, 
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using System.Collections.Generic;
 
 namespace BardMusicPlayer.Jamboree
 {
@@ -18,9 +23,9 @@ namespace BardMusicPlayer.Jamboree
         public string code { get; set; } = "";
         public string memberId { get; set; } = "";
         public string memberToken { get; set; } = "";
-        public int stateVersion { get; set; } = 0;
-        public int playlistVersion { get; set; } = 0;
-        public string? nowPlaying { get; set; } = "";
+        public int? stateVersion { get; set; } = 0;
+        public int? playlistVersion { get; set; } = 0;
+        public string nowPlaying { get; set; } = "";
         public string playbackState { get; set; } = "";
         public TrackAssignment assignment { get; set; } = null;
     }
@@ -28,32 +33,45 @@ namespace BardMusicPlayer.Jamboree
     public record TrackAssignment
     {
         public int? trackNumber { get; set; } = 0;
-        public string? instrument { get; set; } = "";
+        public string instrument { get; set; } = "";
     }
     #endregion
 
 
-    #region Playlist
-    public record PlaylistResponse
+    #region SessionManifest
+    public record SessionManifest
     {
-        public int playlistVersion { get; set; } = 0;
-        public List<PlaylistItem> items { get; set; } = new();
-    }
-
-    public record PlaylistManifest
-    { 
         public string status { get; set; } = string.Empty;
         public int stateVersion { get; set; } = 0;
         public int playlistVersion { get; set; } = 0;
         public string nowPlaying { get; set; } = string.Empty;
         public string playbackState { get; set; } = string.Empty;
         public List<PlaylistItem> items { get; set; } = new();
+        public List<SessionMembers> members { get; set; } = new();
+    }
+
+    public record SessionMembers
+    {
+        public string memberId { get; set; } = "";
+        public string displayName { get; set; } = "";
+        public int? trackNumber { get; set; } = 0;
+        public string instrument { get; set; } = "";
+        public bool? idle { get; set; } = true;
+    }
+
+    #endregion
+
+    #region Playlist
+    public record PlaylistResponse
+    {
+        public int playlistVersion { get; set; } = 0;
+        public List<PlaylistItem>? items { get; set; } = new();
     }
 
     public record PlaylistItem
     {
         public string itemId { get; set; } = "";
-        public int position { get; set; } = 0;
+        public int? position { get; set; } = 0;
         public string filename { get; set; } = "";
         public string md5 { get; set; } = "";
         public long size { get; set; } = 0;

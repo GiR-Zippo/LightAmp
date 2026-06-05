@@ -58,6 +58,8 @@ namespace BardMusicPlayer.Ui.Classic
             SongBrowser.OnLoadSongFromBrowser           += Instance_SongBrowserLoadedSong;
             SongBrowser.OnAddSongFromBrowser            += Instance_SongBrowserAddSongToPlaylist;
             SongBrowser.OnLoadSongFromBrowserToPreview  += Instance_SongBrowserLoadSongToPreview;
+            SongBrowser.OnUploadToPartyFromSongBrowser  += Instance_SongBrowserUploadToParty;
+
 
             XIVBrowser.OnLoadSongFromBrowser            += Instance_BMLBrowserLoadedSong;
             XIVBrowser.OnAddSongFromBrowser             += Instance_BMLBrowserAddSongToPlaylist;
@@ -211,9 +213,20 @@ namespace BardMusicPlayer.Ui.Classic
             PlaylistCtl.AddSongToPlaylist(filename);
         }
 
+        /// <summary>
+        /// triggered by the songbrowser if a file should be load into siren
+        /// </summary>
         private void Instance_SongBrowserLoadSongToPreview(object sender, string filename)
         {
             SirenPreview.SirenLoadSong(BmpSong.OpenFile(filename).Result);
+        }
+
+        /// <summary>
+        /// triggered by the songbrowser if a file should be uploaded to party
+        /// </summary>
+        private void Instance_SongBrowserUploadToParty(object sender, string filename)
+        {
+            NetworkCtl.UploadSong(filename);
         }
 
         /// <summary>

@@ -1,4 +1,9 @@
-﻿using BardMusicPlayer.Jamboree.Events;
+﻿/*
+ * Copyright(c) 2026 GiR-Zippo, 2021 MoogleTroupe
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.Jamboree.Events;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -11,7 +16,7 @@ namespace BardMusicPlayer.Jamboree
         public EventHandler<PartyCreatedEvent> OnPartyCreated;
         public EventHandler<PartyJoinedEvent> OnPartyJoined;
         public EventHandler<PartyPlaylistSendEvent> OnPartyPlaylistSend;
-        public EventHandler<PartyPlaylistEvent> OnPartyPlaylist;
+        public EventHandler<SessionManifestEvent> OnPartyManifest;
         public EventHandler<PartyMidiEvent> OnMidiReceived;
 
 
@@ -52,10 +57,10 @@ namespace BardMusicPlayer.Jamboree
                                     break;
                                 OnPartyPlaylistSend(this, partyPlaylist);
                                 break;
-                            case PartyPlaylistEvent partyPlaylist:
-                                if (OnPartyPlaylist == null)
+                            case SessionManifestEvent ev:
+                                if (OnPartyManifest == null)
                                     break;
-                                OnPartyPlaylist(this, partyPlaylist);
+                                OnPartyManifest(this, ev);
                                 break;
                             case PartyMidiEvent partyMidi:
                                 if (OnMidiReceived == null)
