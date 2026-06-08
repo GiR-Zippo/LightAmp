@@ -6,17 +6,15 @@
 using BardMusicPlayer.Jamboree;
 using BardMusicPlayer.Jamboree.Events;
 using BardMusicPlayer.Quotidian.Structs;
+using BardMusicPlayer.Transmogrify.Song;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using BardMusicPlayer.Maestro;
-using BardMusicPlayer.Transmogrify.Song;
 
 namespace BardMusicPlayer.Ui.Controls
 {
