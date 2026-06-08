@@ -13,17 +13,15 @@ namespace BardMusicPlayer.Jamboree
 {
     public partial class BmpJamboree
     {
-        public EventHandler<PartyCreatedEvent> OnPartyCreated;
-        public EventHandler<PartyJoinedEvent> OnPartyJoined;
-        public EventHandler<PartyPlaylistSendEvent> OnPartyPlaylistSend;
-        public EventHandler<SessionManifestEvent> OnPartyManifest;
-        public EventHandler<PartyMidiEvent> OnMidiReceived;
-
-
-        public EventHandler<PartyLogEvent> OnPartyLog;
-        public EventHandler<PartyDebugLogEvent> OnPartyDebugLog;
-        public EventHandler<PartyConnectionChangedEvent> OnPartyConnectionChanged;
         public EventHandler<PartyChangedEvent> OnPartyChanged;
+        public EventHandler<PartyCreatedEvent> OnPartyCreated;
+        public EventHandler<PartyDebugLogEvent> OnPartyDebugLog;
+        public EventHandler<PartyJoinedEvent> OnPartyJoined;
+        public EventHandler<PartyLogEvent> OnPartyLog;
+        public EventHandler<PartyPlaylistChangeEvent> OnPlaylistChangedEvent;
+        public EventHandler<PartyPlaylistSendEvent> OnPartyPlaylistSend;
+        public EventHandler<PartySelectSongEvent> OnPartySelectSong;
+
         public EventHandler<PerformanceStartEvent> OnPerformanceStart;
 
         private ConcurrentQueue<JamboreeEvent> _eventQueue;
@@ -42,52 +40,47 @@ namespace BardMusicPlayer.Jamboree
                     {
                         switch (meastroEvent)
                         {
+                            case PartyChangedEvent partyChanged:
+                                if (OnPartyChanged == null)
+                                    break;
+                                OnPartyChanged(this, partyChanged);
+                                break;
                             case PartyCreatedEvent partyCreated:
                                 if (OnPartyCreated == null)
                                     break;
                                 OnPartyCreated(this, partyCreated);
-                                break;
-                            case PartyJoinedEvent partyJoined:
-                                if (OnPartyJoined == null)
-                                    break;
-                                OnPartyJoined(this, partyJoined);
-                                break;
-                            case PartyPlaylistSendEvent partyPlaylist:
-                                if (OnPartyPlaylistSend == null)
-                                    break;
-                                OnPartyPlaylistSend(this, partyPlaylist);
-                                break;
-                            case SessionManifestEvent ev:
-                                if (OnPartyManifest == null)
-                                    break;
-                                OnPartyManifest(this, ev);
-                                break;
-                            case PartyMidiEvent partyMidi:
-                                if (OnMidiReceived == null)
-                                    break;
-                                OnMidiReceived(this, partyMidi);
-                                break;
-
-                            case PartyLogEvent partyLog:
-                                if (OnPartyLog == null)
-                                    break;
-                                OnPartyLog(this, partyLog);
                                 break;
                             case PartyDebugLogEvent partyDebugLog:
                                 if (OnPartyDebugLog == null)
                                     break;
                                 OnPartyDebugLog(this, partyDebugLog);
                                 break;
-                            case PartyConnectionChangedEvent connectionChanged:
-                                if (OnPartyConnectionChanged == null)
+                            case PartyJoinedEvent partyJoined:
+                                if (OnPartyJoined == null)
                                     break;
-                                OnPartyConnectionChanged(this, connectionChanged);
+                                OnPartyJoined(this, partyJoined);
                                 break;
-                            case PartyChangedEvent partyChanged:
-                                if (OnPartyChanged == null)
+                            case PartyLogEvent partyLog:
+                                if (OnPartyLog == null)
                                     break;
-                                OnPartyChanged(this, partyChanged);
+                                OnPartyLog(this, partyLog);
                                 break;
+                            case PartyPlaylistChangeEvent ev:
+                                if (OnPlaylistChangedEvent == null)
+                                    break;
+                                OnPlaylistChangedEvent(this, ev);
+                                break;
+                            case PartyPlaylistSendEvent partyPlaylist:
+                                if (OnPartyPlaylistSend == null)
+                                    break;
+                                OnPartyPlaylistSend(this, partyPlaylist);
+                                break;
+                            case PartySelectSongEvent ev:
+                                if (OnPartySelectSong == null)
+                                    break;
+                                OnPartySelectSong(this, ev);
+                                break;
+
                             case PerformanceStartEvent performanceStart:
                                 if (OnPerformanceStart == null)
                                     break;

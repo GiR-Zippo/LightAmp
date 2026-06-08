@@ -29,14 +29,7 @@ namespace BardMusicPlayer.Jamboree
         public string playbackState { get; set; } = "";
         public TrackAssignment assignment { get; set; } = null;
     }
-
-    public record TrackAssignment
-    {
-        public int? trackNumber { get; set; } = 0;
-        public string instrument { get; set; } = "";
-    }
     #endregion
-
 
     #region SessionManifest
     public record SessionManifest
@@ -82,6 +75,21 @@ namespace BardMusicPlayer.Jamboree
     }
     #endregion
 
+    #region NowPlaying
+    public record NowPlayingRequest
+    {
+        public string itemId { get; set; } = "";
+        public string playbackState { get; set; } = "";
+    }
+
+    public record NowPlayingResponse
+    {
+        public string nowPlaying { get; set; } = "";
+        public string playbackState { get; set; } = "";
+        public int stateVersion { get; set; } = 0;
+    }
+    #endregion
+
     #region Heartbeat
     public record Heartbeat
     {
@@ -100,5 +108,20 @@ namespace BardMusicPlayer.Jamboree
         public string playbackState { get; set; } = "stopped";
         public TrackAssignment assignment { get; set; } = null;
     }
+    #endregion
+
+    #region Shared
+    public record TrackAssignment
+    {
+        public int? trackNumber { get; set; } = 0;
+        public string instrument { get; set; } = "";
+    }
+
+    public record TrackAssignmentResponse
+    {
+        public bool ok { get; set; } = true;
+        public int? trackNumber { get; set; } = 0;
+        public string? instrument { get; set; } = "";
+}
     #endregion
 }

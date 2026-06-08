@@ -2,7 +2,9 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:control="clr-namespace:BardMusicPlayer.Ui.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:control="clr-namespace:BardMusicPlayer.Ui.Controls"
+             xmlns:quotidian="clr-namespace:BardMusicPlayer.Quotidian.Structs;assembly=BardMusicPlayer.Quotidian"
              mc:Ignorable="d" 
              Background="WhiteSmoke"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -74,7 +76,8 @@
                     <TextBlock Text="Session Members Management" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
 
                     <DataGrid Grid.Row="1" 
-                        ItemsSource="{Binding Members}" 
+                        x:Name="PartyList"
+                        VirtualizingPanel.IsVirtualizing="False"
                         AutoGenerateColumns="False" 
                         CanUserAddRows="False" 
                         GridLinesVisibility="Horizontal"
@@ -84,45 +87,36 @@
                             <DataGridTemplateColumn Header="Track Nr." Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding trackNumber}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="5,0"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-
-                                <DataGridTemplateColumn.CellEditingTemplate>
-                                    <DataTemplate>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-
-                                            <Button Grid.Column="0" 
-                                                Content="▼" 
-                                                Width="20" 
-                                                Padding="0"
-                                                Click="TrackMinus_Click"
-                                                Focusable="False"/>
-
-                                            <TextBox Grid.Column="1" 
-                                                 Text="{Binding trackNumber, UpdateSourceTrigger=PropertyChanged}" 
-                                                 TextAlignment="Center"
-                                                 VerticalContentAlignment="Center"
-                                                 PreviewTextInput="NumericTextBox_PreviewTextInput"
-                                                 PreviewMouseWheel="NumericTextBox_PreviewMouseWheel"
-                                                 GotFocus="NumericTextBox_GotFocus"/>
-
-                                            <Button Grid.Column="2" 
-                                                Content="▲" 
-                                                Width="20" 
-                                                Padding="0"
-                                                Click="TrackPlus_Click"
-                                                Focusable="False"/>
+                                            <Button Grid.Column="0" Content="▼" Width="20" Padding="0" Click="TrackMinus_Click" Focusable="False"/>
+                                            <TextBox Grid.Column="1" x:Name="TrackBox"
+                                               Text="{Binding trackNumber, UpdateSourceTrigger=PropertyChanged}"
+                                                PreviewTextInput="NumericTextBox_PreviewTextInput"
+                                               TextAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                            <Button Grid.Column="2" Content="▲" Width="20" Padding="0" Click="TrackPlus_Click" Focusable="False"/>
                                         </Grid>
                                     </DataTemplate>
-                                </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Instrument" Binding="{Binding instrument, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                            <DataGridTemplateColumn Header="Instrument" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{x:Static quotidian:Instrument.All}"
+                                          SelectedValuePath="Name"
+                                          SelectionChanged="InstrumentComboBox_SelectionChanged"
+                                          DisplayMemberPath="Name" 
+                                          BorderThickness="0"
+                                          Background="Transparent"
+                                          VerticalContentAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridCheckBoxColumn Header="Idle" Binding="{Binding idle}" IsReadOnly="True" Width="60"/>
                         </DataGrid.Columns>
                     </DataGrid>

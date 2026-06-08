@@ -60,10 +60,11 @@ namespace BardMusicPlayer.Ui.Classic
             SongBrowser.OnLoadSongFromBrowserToPreview  += Instance_SongBrowserLoadSongToPreview;
             SongBrowser.OnUploadToPartyFromSongBrowser  += Instance_SongBrowserUploadToParty;
 
-
             XIVBrowser.OnLoadSongFromBrowser            += Instance_BMLBrowserLoadedSong;
             XIVBrowser.OnAddSongFromBrowser             += Instance_BMLBrowserAddSongToPlaylist;
             XIVBrowser.OnLoadSongFromBrowserToPreview   += Instance_BMLBrowserLoadSongToPreview;
+
+            NetworkCtl.OnLoadSongFromNetwork            += Instance_NetworkLoadedSong;            
 
             BmpSeer.Instance.MidibardPlaylistEvent      += Instance_MidibardPlaylistEvent;
 
@@ -261,6 +262,10 @@ namespace BardMusicPlayer.Ui.Classic
             SirenPreview.SirenLoadSong(song);
         }
 
+        private void Instance_NetworkLoadedSong(object sender, BmpSong song)
+        {
+            PlaybackFunctions.LoadSongFromPlaylist(song);
+        }
 
         private void Instance_MidibardPlaylistEvent(Seer.Events.MidibardPlaylistEvent seerEvent)
         {

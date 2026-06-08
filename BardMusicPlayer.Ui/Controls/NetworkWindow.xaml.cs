@@ -5,15 +5,18 @@
 
 using BardMusicPlayer.Jamboree;
 using BardMusicPlayer.Jamboree.Events;
-using Microsoft.Win32;
+using BardMusicPlayer.Quotidian.Structs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using BardMusicPlayer.Maestro;
+using BardMusicPlayer.Transmogrify.Song;
 
 namespace BardMusicPlayer.Ui.Controls
 {
@@ -22,149 +25,163 @@ namespace BardMusicPlayer.Ui.Controls
     /// </summary>
     public partial class NetworkControl : UserControl
     {
+        public EventHandler<BmpSong> OnLoadSongFromNetwork;
+
         private object _Sender { get; set; } = null;
-        public ObservableCollection<SessionMembers> Members { get; set; } = new ObservableCollection<SessionMembers>();
+        private ObservableCollection<SessionMembers> Members { get; set; } = new ObservableCollection<SessionMembers>();
 
         public NetworkControl()
         {
             InitializeComponent();
 
+            //Party events
             BmpJamboree.Instance.OnPartyCreated += Instance_PartyCreated;
             BmpJamboree.Instance.OnPartyJoined += Instance_PartyJoined;
-            BmpJamboree.Instance.OnPartyManifest += Instance_PartyManifest;
-            BmpJamboree.Instance.OnMidiReceived += Instance_MidiReceived;
+            BmpJamboree.Instance.OnPartyChanged += Instance_PartyChanged;
+
+            //playlist and playback events
+            BmpJamboree.Instance.OnPlaylistChangedEvent += Instance_PlaylistChanged;
+            BmpJamboree.Instance.OnPartySelectSong += Instance_PartySelectSong;
 
             BmpJamboree.Instance.OnPartyLog += Instance_PartyLog;
             BmpJamboree.Instance.OnPartyDebugLog += Instance_PartyDebugLog;
 
             this.DataContext = this;
+            PartyList.ItemsSource = Members;
             UpdateSongList();
         }
 
+        #region EventHandlers
 
+        /// <summary>
+        /// Triggered when a party was created, contains the party code
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Instance_PartyCreated(object sender, PartyCreatedEvent e)
         {
-            string token = e.Data.code;
-            this.Dispatcher.BeginInvoke(new Action(() => PartyToken_Text.Text = token));
-            this.Dispatcher.BeginInvoke(new Action(() => this.PartyLog_Text.Text = this.PartyLog_Text.Text + "Code: " + e.Data.code+"\r\n"));
-            this.Dispatcher.BeginInvoke(new Action(() => this.PartyLog_Text.Text = this.PartyLog_Text.Text + "Session ID: " + e.Data.sessionId + "\r\n"));
-            this.Dispatcher.BeginInvoke(new Action(() => this.PartyLog_Text.Text = this.PartyLog_Text.Text + "Hosttoken: " + e.Data.hostToken + "\r\n"));
-            this.Dispatcher.BeginInvoke(new Action(() => this.PartyLog_Text.Text = this.PartyLog_Text.Text + "Expires: " + e.Data.expiresAt + "\r\n"));
-            this.Dispatcher.BeginInvoke(new Action(() => Create_Join_Btn.Content = "Leave"));
+            if (!e.Connected)
+                return;
+
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                PartyToken_Text.Text = e.Code;
+                Create_Join_Btn.Content = "Leave";
+            }));
         }
 
+        /// <summary>
+        /// Triggered when a party was joined
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Instance_PartyJoined(object sender, PartyJoinedEvent e)
         { 
-            var t = e.Data;
-            this.Dispatcher.BeginInvoke(new Action(() => Create_Join_Btn.Content = "Leave"));
+            if (e.Connected)
+                this.Dispatcher.BeginInvoke(new Action(() => Create_Join_Btn.Content = "Leave"));
         }
 
-        private async void Instance_PartyManifest (object sender, SessionManifestEvent e)
+        /// <summary>
+        /// Triggered when the party was changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="ev"></param>
+        private async void Instance_PartyChanged(object sender, PartyChangedEvent ev)
         {
-            if (e.Data == null)
-                return;
-
-            if (e.Data.members != null)
+            var current = BmpJamboree.Instance.GetCurrentPartyMembers();
+            await this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                await this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    Members.Clear();
-                    foreach (var member in BmpJamboree.Instance.GetCurrentPartyMembers())
-                        Members.Add(member);
-                }));
-            }
-
-            if (e.Data.items == null)
-                return;
-
-            foreach (var item in e.Data.items)
-            {
-                await BmpJamboree.Instance.GetMidiFile(item.itemId);
-            }
-        }
-
-        private async void Instance_MidiReceived(object sender, PartyMidiEvent e)
-        {
-            if (e.Data == null)
-                return;
-            var playlist = BmpJamboree.Instance.GetPlaylist();
-            if (playlist == null)
-                return;
-
-            var item = playlist.Where(n => n.itemId == e.fileId).FirstOrDefault();
-            if (item == default)
-                return;
+                Members.Clear();
+                foreach (var m in current)
+                    Members.Add(m);
+            }));
 
             await this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                Dictionary<byte[], string> list = new Dictionary<byte[], string>();
-                list.Add(e.Data, item.filename);
+                foreach (var member in Members)
+                {
+                    var row = PartyList.ItemContainerGenerator.ContainerFromItem(member) as DataGridRow;
+                    if (row == null) continue;
+
+                    var combo = FindVisualChild<ComboBox>(row);
+                    if (combo == null) continue;
+
+                    if (Instrument.TryParse(member.instrument, out Instrument instr))
+                        combo.SelectedIndex = instr.Index - 1;
+                }
+            }), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
+        /// <summary>
+        /// Triggered if playlist has changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="ev"></param>
+        private async void Instance_PlaylistChanged(object sender, PartyPlaylistChangeEvent ev)
+        {
+            await this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                Dictionary<string, string> list = new Dictionary<string, string>();
+                foreach (var data in ev.Playlist)
+                    list.Add(data.itemId, data.filename);
                 SongContainer.ItemsSource = list;
             }));
         }
 
+        /// <summary>
+        /// The song selection
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="ev"></param>
+        public async void Instance_PartySelectSong(object sender, PartySelectSongEvent ev)
+        {
+            await this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                var foundItem = SongContainer.Items
+                        .Cast<KeyValuePair<string, string>>()
+                        .FirstOrDefault(item => item.Key.SequenceEqual(ev.SongId));
+                int index = SongContainer.Items.IndexOf(foundItem);
+                SongContainer.SelectedIndex = index;
+                var data = BmpJamboree.Instance.GetMidiData(foundItem.Key);
+                var song = BmpSong.ImportMidiFromByte(data, foundItem.Value).Result;
+                OnLoadSongFromNetwork?.Invoke(this, song);
+            }));
+        }
+
+        /// <summary>
+        /// Party log function
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Instance_PartyLog(object sender, PartyLogEvent e)
         {
             string logtext = e.LogString;
             this.Dispatcher.BeginInvoke(new Action(() => this.PartyMessage_Text.Text = this.PartyMessage_Text.Text + logtext + "\r\n"));
         }
 
+        /// <summary>
+        /// Debug log function
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Instance_PartyDebugLog(object sender, PartyDebugLogEvent e)
         {
             string logtext = e.LogString;
             this.Dispatcher.BeginInvoke(new Action(() => this.PartyLog_Text.Text = this.PartyLog_Text.Text + logtext));
         }
 
+        #endregion
 
-
-        private void Leave_Click(object sender, RoutedEventArgs e)
-        {
-            BmpJamboree.Instance.LeaveParty();
-        }
-
-        private async void Upload_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = Globals.Globals.FileFilters,
-                Multiselect = true
-            };
-
-            if (openFileDialog.ShowDialog() != true)
-                return;
-
-            if (!openFileDialog.CheckFileExists)
-                return;
-
-            BmpJamboree.Instance.SendPlaylist(openFileDialog.FileNames.ToList());
-        }
-
+        /// <summary>
+        /// Upload a song to party
+        /// </summary>
+        /// <param name="filename"></param>
         public void UploadSong(string filename)
         { 
             if (filename == null) return;
             if (filename .Length == 0) return;
-
             BmpJamboree.Instance.SendPlaylist(filename);
         }
-
-        private async void ForcePlay_Click(object sender, RoutedEventArgs e)
-        {
-            //await BMPApi.Instance.GetPlaylist();
-            /*var openFileDialog = new OpenFileDialog
-            {
-                Filter = Globals.Globals.FileFilters,
-                Multiselect = true
-            };
-
-            if (openFileDialog.ShowDialog() != true)
-                return;
-
-            if (!openFileDialog.CheckFileExists)
-                return;
-
-            await BMPApi.Instance.SendPlaylist(openFileDialog.FileNames.ToList());*/
-        }
-
 
         #region Ui Stuff
         /// <summary>
@@ -177,10 +194,12 @@ namespace BardMusicPlayer.Ui.Controls
             if (Create_Join_Btn.Content.ToString() == "Leave")
             {
                 BmpJamboree.Instance.LeaveParty();
+                Members.Clear();
                 Create_Join_Btn.Content = "Create";
                 PartyToken_Text.Text = "";
                 return;
             }
+
             if (BmpJamboree.Instance.IsConnected())
                 return;
 
@@ -214,8 +233,11 @@ namespace BardMusicPlayer.Ui.Controls
         }
 
 
-        private void SongContainer_PreviewMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private async void SongContainer_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            dynamic item = SongContainer.SelectedItem;
+            string filename = item.Key;
+            await BmpJamboree.Instance.SetSong(filename);
         }
 
         private void OnListViewItemPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -229,86 +251,100 @@ namespace BardMusicPlayer.Ui.Controls
             
         }
 
-        #endregion
-
         #region MemberControl
 
-        private void TrackMinus_Click(object sender, RoutedEventArgs e)
+        #region TrackControl
+        /// <summary>
+        /// Track Minus button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void TrackMinus_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.DataContext is SessionMembers member)
+            if (sender is Button button && button.Parent is Grid grid)
             {
-                // Wert verringern, aber nicht unter 0 gehen (falls gewünscht)
-                if (member.trackNumber > 0)
+                var textBox = grid.Children.OfType<TextBox>().FirstOrDefault(x => x.Name == "TrackBox");
+                if (textBox != null && int.TryParse(textBox.Text, out int currentTrack))
                 {
-                    member.trackNumber--;
-
-                    // Dem DataGrid Bescheid stoßen, dass sich der Wert geändert hat
-                    // (Nötig, weil Record kein INotifyPropertyChanged hat)
-                    var cell = FindParent<DataGridCell>(button);
-                    if (cell != null) cell.BindingGroup?.CommitEdit();
+                    if (currentTrack > 1)
+                    {
+                        textBox.Text = (currentTrack - 1).ToString();
+                        if (button.DataContext is SessionMembers member)
+                            BmpJamboree.Instance.SetTrack(member.memberId, (int)member.trackNumber);
+                    }
                 }
             }
         }
 
+        /// <summary>
+        /// Track Plus Button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TrackPlus_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.DataContext is SessionMembers member)
+            if (sender is Button button && button.Parent is Grid grid)
             {
-                // Falls trackNumber null war, fangen wir bei 0 an, sonst einfach hochzählen
-                member.trackNumber = (member.trackNumber ?? 0) + 1;
-
-                // UI-Aktualisierung erzwingen
-                var cell = FindParent<DataGridCell>(button);
-                if (cell != null) cell.BindingGroup?.CommitEdit();
+                var textBox = grid.Children.OfType<TextBox>().FirstOrDefault(x => x.Name == "TrackBox");
+                if (textBox != null && int.TryParse(textBox.Text, out int currentTrack))
+                {
+                    textBox.Text = (currentTrack + 1).ToString();
+                    if (button.DataContext is SessionMembers member)
+                        BmpJamboree.Instance.SetTrack(member.memberId, (int)member.trackNumber);
+                }
             }
         }
 
-        // Kleiner WPF-Helper, um die Zelle im Visual Tree zu finden (für den UI-Refresh)
-        private T FindParent<T>(DependencyObject child) where T : DependencyObject
-        {
-            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
-            if (parentObject == null) return null;
-            if (parentObject is T parent) return parent;
-            return FindParent<T>(parentObject);
-        }
+        /// <summary>
+        /// Textbox to edit
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void NumericTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            // Erlaubt nur Ziffern
-            e.Handled = !int.TryParse(e.Text, out _);
-        }
-
-        // 3. Erlaubt Hoch-/Runter-Zählen mit dem Mausrad
-        private void NumericTextBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (sender is TextBox textBox)
+            if (sender is TextBox button && button.DataContext is SessionMembers member)
             {
-                int.TryParse(textBox.Text, out int value);
-
-                if (e.Delta > 0)
-                {
-                    textBox.Text = (value + 1).ToString();
-                }
-                else if (e.Delta < 0)
-                {
-                    if (value > 0)
-                        textBox.Text = (value - 1).ToString();
-                }
-                e.Handled = true;
+                int value = -1;
+                e.Handled = !int.TryParse(e.Text, out value);
+                member.trackNumber = value;
+                BmpJamboree.Instance.SetTrack(member.memberId, (int)member.trackNumber);
             }
         }
+        #endregion
 
-        // 4. Markiert den Text beim Reinklicken sofort (erleichtert das Tippen)
-        private void NumericTextBox_GotFocus(object sender, RoutedEventArgs e)
+        private void InstrumentComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is TextBox textBox)
+            if (sender is ComboBox comboBox && comboBox.DataContext is SessionMembers member)
             {
-                textBox.SelectAll();
+                if (!comboBox.IsMouseOver)
+                    return;
+                Instrument newInstrument;
+                if(Instrument.TryParse(comboBox.SelectedIndex+1, out newInstrument))
+                {
+                    member.instrument = newInstrument.Name;
+                    BmpJamboree.Instance.SetInstrument(member.memberId, newInstrument);
+                }
             }
         }
 
         #endregion
 
-
-
+        /// <summary>
+        /// Helper to find the stuff in members
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="parent"></param>
+        private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T result) return result;
+                var found = FindVisualChild<T>(child);
+                if (found != null) return found;
+            }
+            return null;
+        }
+        #endregion
     }
 }

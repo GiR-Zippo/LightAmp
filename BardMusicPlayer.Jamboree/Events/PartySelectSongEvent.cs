@@ -5,15 +5,15 @@
 
 namespace BardMusicPlayer.Jamboree.Events
 {
-    public sealed class SessionManifestEvent : JamboreeEvent
+    public sealed class PartySelectSongEvent : JamboreeEvent
     {
-        internal SessionManifestEvent(SessionManifest data) : base(0, false)
+        internal PartySelectSongEvent(string songid) : base(0, false)
         {
             EventType = GetType();
-            Data = data;
+            SongId = songid;
         }
 
-        public SessionManifest Data { get; }
+        public string SongId { get; }
 
         public override bool IsValid() => true;
     }

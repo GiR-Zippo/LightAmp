@@ -39,6 +39,11 @@ namespace BardMusicPlayer.Jamboree
         private MemberStateResponse _ClientData { get; set; } = null;
 
         /// <summary>
+        /// Get the current session code
+        /// </summary>
+        private string GetCode() { return _ClientData == null ? _HostData.code : _ClientData.code; }
+
+        /// <summary>
         /// The playlist we got
         /// </summary>
         private SessionManifest _SessionManifest { get; set; } = null;
@@ -51,7 +56,7 @@ namespace BardMusicPlayer.Jamboree
         /// <summary>
         /// The playlist
         /// </summary>
-        private PartySongs _Songs { get; set; } = null;
+        private PartySongs _Playlist { get; set; } = null;
 
         /// <summary>
         /// Starts the http client
@@ -93,12 +98,11 @@ namespace BardMusicPlayer.Jamboree
         /// </summary>
         public void StopService()
         {
+            if (IsConnected())
+                LeaveParty();
+
             _Heartbeat.Elapsed -= Timer_Elapsed;
             _Heartbeat.Dispose();
-
-            _heartbeatCts?.Cancel();
-            _heartbeatCts?.Dispose();
-            _heartbeatCts = null;
 
             _HttpClient.Dispose();
             _HttpClientHandler.Dispose();
@@ -120,6 +124,7 @@ namespace BardMusicPlayer.Jamboree
             _SessionManifest = null;
             _Party.Dispose();
             _Party = null;
+            _Playlist = null;
             BmpJamboree.Instance.PublishEvent(new PartyLogEvent("Party left..."));
         }
 
@@ -136,11 +141,39 @@ namespace BardMusicPlayer.Jamboree
         /// <returns></returns>
         public Party GetCurrentParty() {  return _Party; }
 
+        /// <summary>
+        /// Get the current playlist
+        /// </summary>
+        /// <returns></returns>
         public List<PlaylistItem> GetPlaylist() {return _SessionManifest.items; }
 
-        public void SetTrackNumber(string memberId, int track)
+        /// <summary>
+        /// Get the downloaded midi data
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <returns></returns>
+        public byte[] GetMidiData(string itemId) => _Playlist.GetMidiData(itemId);
+
+        /// <summary>
+        /// Set the track for member
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <param name="track"></param>
+        public async void SetTrackNumber(string memberId, int track)
         {
-            _Party.UpdateTrackForUser(memberId, track);
+            var data = _Party.UpdateTrackForUser(memberId, track);
+            await AssignMemberTo(memberId, data.trackNumber, data.instrument);
+        }
+
+        /// <summary>
+        /// Set the instrument for member
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <param name="track"></param>
+        public async void SetInstrument(string memberId, string instrument)
+        {
+            var data = _Party.UpdateInstrumentForUser(memberId, instrument);
+            await AssignMemberTo(memberId, data.trackNumber, data.instrument);
         }
 
         #endregion
@@ -181,8 +214,6 @@ namespace BardMusicPlayer.Jamboree
 
             return header;
         }
-        // /api/party/sessions/by-code/{code}/now-playing
-        // /api/party/sessions/by-code/{code}/members/{id}/assignment
 
         /// <summary>
         /// Get Status response if 200 return true else false
@@ -218,6 +249,9 @@ namespace BardMusicPlayer.Jamboree
             }
         }
 
+        /// <summary>
+        /// Dispose
+        /// </summary>
         public void Dispose()
         {
             _Heartbeat.Stop();

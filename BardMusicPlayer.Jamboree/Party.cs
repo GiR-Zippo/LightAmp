@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.Jamboree.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,8 +29,12 @@ namespace BardMusicPlayer.Jamboree
             if (manifest == null || manifest.members == null)
                 return;
 
-            var aktuelleIds = manifest.members.Select(m => m.memberId);
-            members.Where(m => !aktuelleIds.Contains(m.memberId)).ToList().ForEach(m => members.Remove(m));
+            // sichern ist sicher
+            if (members.SequenceEqual(manifest.members))
+                return;
+
+            var currentIds = manifest.members.Select(m => m.memberId);
+            members.Where(m => !currentIds.Contains(m.memberId)).ToList().ForEach(m => members.Remove(m));
 
             foreach (var serverMember in manifest.members)
             {
@@ -44,6 +49,7 @@ namespace BardMusicPlayer.Jamboree
                     existingMember.idle = serverMember.idle;
                 }
             }
+            BmpJamboree.Instance.PublishEvent(new PartyChangedEvent());
         }
 
         /// <summary>
@@ -51,12 +57,31 @@ namespace BardMusicPlayer.Jamboree
         /// </summary>
         /// <param name="id"></param>
         /// <param name="track"></param>
-        public void UpdateTrackForUser(string id, int track)
+        public TrackAssignment UpdateTrackForUser(string id, int track)
         {
             var member = members.FirstOrDefault(m => m.memberId == id);
             member.trackNumber = track;
+            return new TrackAssignment
+            {
+                trackNumber = track,
+                instrument = member.instrument
+            };
         }
 
-
+        /// <summary>
+        /// Update the Instrument the user assigned for
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="track"></param>
+        public TrackAssignment UpdateInstrumentForUser(string id, string instrument)
+        {
+            var member = members.FirstOrDefault(m => m.memberId == id);
+            member.instrument = instrument;
+            return new TrackAssignment
+            {
+                trackNumber = member.trackNumber,
+                instrument = instrument
+            };
+        }
     }
 }

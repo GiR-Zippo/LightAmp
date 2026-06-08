@@ -3,19 +3,19 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using System.Collections.Generic;
+
 namespace BardMusicPlayer.Jamboree.Events
 {
-    public sealed class PartyMidiEvent : JamboreeEvent
+    public sealed class PartyPlaylistChangeEvent : JamboreeEvent
     {
-        internal PartyMidiEvent(string id, byte[] data) : base(0, false)
+        internal PartyPlaylistChangeEvent(List<PlaylistItem> playlist) : base(0, false)
         {
             EventType = GetType();
-            fileId = id;
-            Data = data;
+            Playlist = playlist;
         }
 
-        public string fileId { get; }
-        public byte[] Data { get; }
+        public List<PlaylistItem> Playlist { get; }
 
         public override bool IsValid() => true;
     }

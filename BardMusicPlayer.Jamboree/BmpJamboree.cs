@@ -62,8 +62,6 @@ namespace BardMusicPlayer.Jamboree
         }
         #endregion
 
-        #region Accessors
-
         /// <summary>
         /// Create a party
         /// </summary>
@@ -99,11 +97,10 @@ namespace BardMusicPlayer.Jamboree
         public async void SendPlaylist(List<string> files) { await _Api.SendPlaylist(files); }
 
         /// <summary>
-        /// Download Midi
+        /// Sets the song to play
         /// </summary>
-        /// <param name="itemId"></param>
-        /// <returns></returns>
-        public async Task GetMidiFile(string itemId) => await _Api.GetMidiFile(itemId);
+        /// <param name="song"></param>
+        public async Task SetSong(string song) => await _Api.SelectSong(song);
 
         /// <summary>
         /// Are we connected?
@@ -117,15 +114,24 @@ namespace BardMusicPlayer.Jamboree
         /// <returns></returns>
         public List<SessionMembers> GetCurrentPartyMembers() => _Api.GetCurrentParty().GetMembers();
 
-        public List<PlaylistItem> GetPlaylist() => _Api.GetPlaylist();
-
-        #endregion
-
         /// <summary>
         /// Sets the Track for Member
         /// </summary>
         /// <param name="memberId"></param>
         /// <param name="trackNumber"></param>
         public void SetTrack(string memberId, int trackNumber) => _Api.SetTrackNumber(memberId, trackNumber);
+
+        /// <summary>
+        /// Sets the Instrument for Member
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <param name="trackNumber"></param>
+        public void SetInstrument(string memberId, string instrument) => _Api.SetInstrument(memberId, instrument);
+
+        /// <summary>
+        /// Get the MidiData bytes[]
+        /// </summary>
+        /// <param name="itemId"></param>
+        public byte[] GetMidiData(string itemId) => _Api.GetMidiData(itemId);
     }
 }

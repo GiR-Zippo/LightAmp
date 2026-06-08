@@ -4,7 +4,6 @@
  */
 
 using BardMusicPlayer.Jamboree.Events;
-using BardMusicPlayer.Quotidian;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,6 +17,19 @@ using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Jamboree
 {
+    /// <summary>
+    /// Implements:
+    /// <code>/api/party/sessions</code>
+    /// <code>/api/party/sessions/by-code/{code}/playlist</code>
+    /// <code>/api/party/sessions/by-code/{code}/manifest</code>
+    /// <code>/api/party/sessions/by-code/{code}/items/{itemId}/file</code>
+    /// <code>/api/party/sessions/by-code/{code}/members</code>
+    /// <code>/api/party/sessions/by-code/{code}/members/{id}/heartbeat</code>
+    /// <code>/api/party/sessions/by-code/{code}/members/{id}/assignment</code>
+    /// missing:
+    /// <code>/api/party/sessions/by-code/{code}/archive</code>
+    /// <code>/api/party/sessions/by-code/{code}/now-playing</code>
+    /// </summary>
     public partial class BMPApi : IDisposable
     {
         private CancellationTokenSource _heartbeatCts;
@@ -37,16 +49,20 @@ namespace BardMusicPlayer.Jamboree
                 if (!response.IsSuccessStatusCode)
                 {
                     StatusResponse((int)response.StatusCode);
+                    BmpJamboree.Instance.PublishEvent(new PartyCreatedEvent(false, response.Content.ToString()));
                     return;
                 }
 
                 var data = await response.Content.ReadAsStringAsync();
                 _HostData = JsonConvert.DeserializeObject<SessionCreated>(data);
-                BmpJamboree.Instance.PublishEvent(new PartyCreatedEvent(_HostData));
+                BmpJamboree.Instance.PublishEvent(new PartyCreatedEvent(true, _HostData.code));
                 BmpJamboree.Instance.PublishEvent(new PartyLogEvent("New Session created: " + _HostData.code));
 
                 // create party
                 _Party = new Party();
+
+                // create Playlist
+                _Playlist = new PartySongs(this);
 
                 // set the _Heartbeat
                 _Heartbeat.Interval = 10000;
@@ -66,8 +82,7 @@ namespace BardMusicPlayer.Jamboree
             if (files == null || files.Count == 0)
                 return;
 
-            string url = ApiUrl + "/by-code/" + _HostData.code + "/playlist";
-
+            string url = ApiUrl + "/by-code/" + GetCode() + "/playlist";
             using (var request = new HttpRequestMessage(HttpMethod.Post, url))
             {
                 request.Headers.Accept.ParseAdd("application/json");
@@ -157,8 +172,7 @@ namespace BardMusicPlayer.Jamboree
             if (!IsConnected())
                 return;
 
-            string code = _ClientData == null ? code = _HostData.code : code = _ClientData.code;
-            string url = ApiUrl + "/by-code/" + code + "/manifest";
+            string url = ApiUrl + "/by-code/" + GetCode() + "/manifest";
             using (var request = new HttpRequestMessage(HttpMethod.Get, url))
             {
                 request.Headers.Accept.ParseAdd("application/json");
@@ -169,10 +183,26 @@ namespace BardMusicPlayer.Jamboree
                     return;
                 }
                 var data = await response.Content.ReadAsStringAsync();
-                _SessionManifest = JsonConvert.DeserializeObject<SessionManifest>(data);
-                _Party.UpdateMembers(_SessionManifest);
+                var newManifest = JsonConvert.DeserializeObject<SessionManifest>(data);
 
-                BmpJamboree.Instance.PublishEvent(new SessionManifestEvent(_SessionManifest));
+                // New stateVersion: update the Party-Members
+                if (_SessionManifest == null || _SessionManifest.stateVersion != newManifest.stateVersion)
+                {
+                    _SessionManifest = newManifest;
+                    _Party.UpdateMembers(_SessionManifest);
+                }
+
+                // New playlistVersion: update the existing playlist
+                if (_Playlist.GetPlaylistVersion() != newManifest.playlistVersion)
+                {
+                    _SessionManifest = newManifest;
+                    _Playlist.UpdateSongs(newManifest);
+                }
+
+                // Current playing song changed? Set the new one
+                if (_SessionManifest.nowPlaying != null)
+                    BmpJamboree.Instance.PublishEvent(new PartySelectSongEvent(_SessionManifest.nowPlaying));
+
                 BmpJamboree.Instance.PublishEvent(new PartyLogEvent("New Manifest received..."));
             }
         }
@@ -182,11 +212,11 @@ namespace BardMusicPlayer.Jamboree
         /// <code>POST: /api/party/sessions/by-code/{code}/items/{itemId}/file </code>
         /// </summary>
         /// <returns></returns>
-        public async Task GetMidiFile(string itemId)
+        public async Task DownloadMidiFile(string itemId)
         {
             if (_ClientData == null)
                 return;
-            string url = ApiUrl + "/by-code/" + _ClientData.code + "/items/" + itemId + "/file";
+            string url = ApiUrl + "/by-code/" + GetCode() + "/items/" + itemId + "/file";
             using (var request = new HttpRequestMessage(HttpMethod.Get, url))
             {
                 request.Headers.Accept.ParseAdd("application/gzip");
@@ -201,7 +231,8 @@ namespace BardMusicPlayer.Jamboree
                 using (var resultStream = new MemoryStream())
                 {
                     await gzipStream.CopyToAsync(resultStream);
-                    BmpJamboree.Instance.PublishEvent(new PartyMidiEvent(itemId, resultStream.ToArray()));
+                    // add to _Playlist
+                    _Playlist.AddMidiFile(itemId, resultStream.ToArray());
                 }
             }
         }
@@ -226,16 +257,20 @@ namespace BardMusicPlayer.Jamboree
                 if (!response.IsSuccessStatusCode)
                 {
                     StatusResponse((int)response.StatusCode);
+                    BmpJamboree.Instance.PublishEvent(new PartyCreatedEvent(false, response.Content.ToString()));
                     return;
                 }
                 var data = await response.Content.ReadAsStringAsync();
                 _ClientData = JsonConvert.DeserializeObject<MemberStateResponse>(data);
                 _ClientData.code = code;
-                BmpJamboree.Instance.PublishEvent(new PartyJoinedEvent(_ClientData));
+                BmpJamboree.Instance.PublishEvent(new PartyJoinedEvent(true, _ClientData.code));
                 BmpJamboree.Instance.PublishEvent(new PartyLogEvent("Session joined"));
 
                 // create party
                 _Party = new Party();
+
+                // create playlist
+                _Playlist = new(this);
 
                 // set the _Heartbeat
                 _ = StartHeartBeatLoop();
@@ -257,8 +292,7 @@ namespace BardMusicPlayer.Jamboree
 
             while (!token.IsCancellationRequested && _ClientData != null)
             {
-                string url = ApiUrl + "/by-code/" + _ClientData.code + "/members/" + _ClientData.memberId + "/heartbeat";
-
+                string url = ApiUrl + "/by-code/" + GetCode() + "/members/" + _ClientData.memberId + "/heartbeat";
                 try
                 {
                     using (var request = new HttpRequestMessage(HttpMethod.Post, url))
@@ -302,6 +336,72 @@ namespace BardMusicPlayer.Jamboree
                     try { await Task.Delay(2000, token); }
                     catch (OperationCanceledException) { break; }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Set track and instrument
+        /// <code>PATCH: /api/party/sessions/by-code/{code}/now-playing</code>
+        /// </summary>
+        public async Task SelectSong(string track)
+        {
+            if (_HostData == null)
+                return;
+
+            string url = ApiUrl + "/by-code/" + GetCode() + "/now-playing";
+            using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), url))
+            {
+                request.Headers.Accept.ParseAdd("application/json");
+                request.Headers.TryAddWithoutValidation("X-Party-Host-Token", _HostData.hostToken);
+
+                NowPlayingRequest ta = new NowPlayingRequest
+                {
+                    itemId = track,
+                    playbackState = "stopped"
+                };
+                request.Content = new StringContent(JsonConvert.SerializeObject(ta), Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _HttpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    StatusResponse((int)response.StatusCode);
+                    return;
+                }
+                var data = await response.Content.ReadAsStringAsync();
+                var taResponse = JsonConvert.DeserializeObject<NowPlayingResponse>(data);
+            }
+        }
+
+        /// <summary>
+        /// Set track and instrument
+        /// <code>PATCH: /api/party/sessions/by-code/{code}/members/{id}/assignment</code>
+        /// </summary>
+        public async Task AssignMemberTo(string memberId, int? track, string instrument)
+        {
+            if (_HostData == null)
+                return;
+
+            string url = ApiUrl + "/by-code/" + GetCode() + "/members/"+ memberId+"/assignment";
+            using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), url))
+            {
+                request.Headers.Accept.ParseAdd("application/json");
+                request.Headers.TryAddWithoutValidation("X-Party-Host-Token", _HostData.hostToken);
+
+                TrackAssignment ta = new TrackAssignment
+                {
+                    trackNumber = track == -1 ? null : track,
+                    instrument = instrument == "" ? null : instrument
+                };
+                request.Content = new StringContent(JsonConvert.SerializeObject(ta), Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _HttpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    StatusResponse((int)response.StatusCode);
+                    return;
+                }
+                var data = await response.Content.ReadAsStringAsync();
+                var taResponse = JsonConvert.DeserializeObject<TrackAssignmentResponse>(data);
             }
         }
     }

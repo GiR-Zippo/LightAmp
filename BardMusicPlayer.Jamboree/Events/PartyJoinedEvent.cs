@@ -7,13 +7,15 @@ namespace BardMusicPlayer.Jamboree.Events
 {
     public sealed class PartyJoinedEvent : JamboreeEvent
     {
-        internal PartyJoinedEvent(MemberStateResponse data) : base(0, false)
+        internal PartyJoinedEvent(bool connected, string code) : base(0, false)
         {
             EventType = GetType();
-            Data = data;
+            Connected = connected;
+            Code = code;
         }
 
-        public MemberStateResponse Data { get; }
+        public bool Connected { get; }
+        public string Code { get; }
 
         public override bool IsValid() => true;
     }
