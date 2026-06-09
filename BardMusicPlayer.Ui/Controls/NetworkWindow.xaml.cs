@@ -26,7 +26,7 @@ namespace BardMusicPlayer.Ui.Controls
         public EventHandler<BmpSong> OnLoadSongFromNetwork;
 
         private object _Sender { get; set; } = null;
-        private ObservableCollection<SessionMembers> Members { get; set; } = new ObservableCollection<SessionMembers>();
+        private ObservableCollection<CharacterState> Members { get; set; } = new ObservableCollection<CharacterState>();
 
         public NetworkControl()
         {
@@ -208,7 +208,11 @@ namespace BardMusicPlayer.Ui.Controls
                 return;
             }
             else
-                BmpJamboree.Instance.JoinParty(token, "Insert Coin");
+            {
+                List<KeyValuePair<string, string>> names = new List<KeyValuePair<string, string>>();
+                names.Add(new KeyValuePair<string,string>("Insert Coin", "Not Here"));
+                BmpJamboree.Instance.JoinParty(token, names);
+            }
         }
 
         /// <summary>
@@ -236,6 +240,7 @@ namespace BardMusicPlayer.Ui.Controls
             dynamic item = SongContainer.SelectedItem;
             string filename = item.Key;
             await BmpJamboree.Instance.SetSong(filename);
+
         }
 
         private void OnListViewItemPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -267,8 +272,8 @@ namespace BardMusicPlayer.Ui.Controls
                     if (currentTrack > 1)
                     {
                         textBox.Text = (currentTrack - 1).ToString();
-                        if (button.DataContext is SessionMembers member)
-                            BmpJamboree.Instance.SetTrack(member.memberId, (int)member.trackNumber);
+                        if (button.DataContext is CharacterState member)
+                            BmpJamboree.Instance.SetTrack(member.charId, (int)member.trackNumber);
                     }
                 }
             }
@@ -287,8 +292,8 @@ namespace BardMusicPlayer.Ui.Controls
                 if (textBox != null && int.TryParse(textBox.Text, out int currentTrack))
                 {
                     textBox.Text = (currentTrack + 1).ToString();
-                    if (button.DataContext is SessionMembers member)
-                        BmpJamboree.Instance.SetTrack(member.memberId, (int)member.trackNumber);
+                    if (button.DataContext is CharacterState member)
+                        BmpJamboree.Instance.SetTrack(member.charId, (int)member.trackNumber);
                 }
             }
         }
@@ -300,19 +305,19 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void NumericTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            if (sender is TextBox button && button.DataContext is SessionMembers member)
+            if (sender is TextBox button && button.DataContext is CharacterState member)
             {
                 int value = -1;
                 e.Handled = !int.TryParse(e.Text, out value);
                 member.trackNumber = value;
-                BmpJamboree.Instance.SetTrack(member.memberId, (int)member.trackNumber);
+                BmpJamboree.Instance.SetTrack(member.charId, (int)member.trackNumber);
             }
         }
         #endregion
 
         private void InstrumentComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is ComboBox comboBox && comboBox.DataContext is SessionMembers member)
+            if (sender is ComboBox comboBox && comboBox.DataContext is CharacterState member)
             {
                 if (!comboBox.IsMouseOver)
                     return;
@@ -320,7 +325,7 @@ namespace BardMusicPlayer.Ui.Controls
                 if(Instrument.TryParse(comboBox.SelectedIndex+1, out newInstrument))
                 {
                     member.instrument = newInstrument.Name;
-                    BmpJamboree.Instance.SetInstrument(member.memberId, newInstrument);
+                    BmpJamboree.Instance.SetInstrument(member.charId, newInstrument);
                 }
             }
         }

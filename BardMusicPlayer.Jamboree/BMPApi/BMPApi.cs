@@ -157,23 +157,23 @@ namespace BardMusicPlayer.Jamboree
         /// <summary>
         /// Set the track for member
         /// </summary>
-        /// <param name="memberId"></param>
+        /// <param name="charId"></param>
         /// <param name="track"></param>
-        public async void SetTrackNumber(string memberId, int track)
+        public async void SetTrackNumber(string charId, int track)
         {
-            var data = _Party.UpdateTrackForUser(memberId, track);
-            await AssignMemberTo(memberId, data.trackNumber, data.instrument);
+            var data = _Party.UpdateTrackForUser(charId, track);
+            await AssignMemberTo(data.Key, data.Value);
         }
 
         /// <summary>
         /// Set the instrument for member
         /// </summary>
-        /// <param name="memberId"></param>
-        /// <param name="track"></param>
-        public async void SetInstrument(string memberId, string instrument)
+        /// <param name="charId"></param>
+        /// <param name="instrument"></param>
+        public async void SetInstrument(string charId, string instrument)
         {
-            var data = _Party.UpdateInstrumentForUser(memberId, instrument);
-            await AssignMemberTo(memberId, data.trackNumber, data.instrument);
+            var data = _Party.UpdateInstrumentForUser(charId, instrument);
+            await AssignMemberTo(data.Key, data.Value);
         }
 
         #endregion

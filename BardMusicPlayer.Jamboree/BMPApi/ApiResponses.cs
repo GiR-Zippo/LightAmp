@@ -46,10 +46,17 @@ namespace BardMusicPlayer.Jamboree
     public record SessionMembers
     {
         public string memberId { get; set; } = "";
+        public bool? idle { get; set; } = true;
+        public List<CharacterState> characters { get; set; } = new();
+    }
+
+    public record CharacterState
+    {
+        public string charId { get; set; } = "";
         public string displayName { get; set; } = "";
+        public string world { get; set; } = "";
         public int? trackNumber { get; set; } = 0;
         public string instrument { get; set; } = "";
-        public bool? idle { get; set; } = true;
     }
 
     #endregion
@@ -113,6 +120,7 @@ namespace BardMusicPlayer.Jamboree
     #region Shared
     public record TrackAssignment
     {
+        public string charId { get; set; } = "";
         public int? trackNumber { get; set; } = 0;
         public string instrument { get; set; } = "";
     }

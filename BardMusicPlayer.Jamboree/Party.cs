@@ -6,6 +6,7 @@
 using BardMusicPlayer.Jamboree.Events;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BardMusicPlayer.Jamboree
@@ -13,7 +14,8 @@ namespace BardMusicPlayer.Jamboree
     public class Party : IDisposable
     {
         private List<SessionMembers> members { get; set; } = new();
-        public List<SessionMembers> GetMembers() { return members; }
+        public List<SessionMembers> GetSessions() { return members; }
+        public List<CharacterState> GetMembers() { return members.SelectMany(m => m.characters).ToList(); }
 
         public void Dispose()
         {
@@ -39,49 +41,77 @@ namespace BardMusicPlayer.Jamboree
             foreach (var serverMember in manifest.members)
             {
                 var existingMember = members.FirstOrDefault(m => m.memberId == serverMember.memberId);
+
                 if (existingMember == null)
                     members.Add(serverMember);
                 else
                 {
-                    existingMember.displayName = serverMember.displayName;
-                    existingMember.trackNumber = serverMember.trackNumber;
-                    existingMember.instrument = serverMember.instrument;
                     existingMember.idle = serverMember.idle;
+                    var serverCharIds = serverMember.characters.Select(c => c.charId).ToList();
+                    existingMember.characters.RemoveAll(c => !serverCharIds.Contains(c.charId));
+
+                    foreach (var serverChar in serverMember.characters)
+                    {
+                        var existingChar = existingMember.characters.FirstOrDefault(c => c.charId == serverChar.charId);
+                        if (existingChar == null)
+                            existingMember.characters.Add(serverChar);
+                        else
+                        {
+                            existingChar.displayName = serverChar.displayName;
+                            existingChar.world = serverChar.world;
+                            existingChar.trackNumber = serverChar.trackNumber;
+                            existingChar.instrument = serverChar.instrument;
+                        }
+                    }
                 }
             }
             BmpJamboree.Instance.PublishEvent(new PartyChangedEvent());
         }
 
+
+        public (SessionMembers Session, CharacterState Character, string SessionId) FindByCharacterId(string charId)
+        {
+            foreach (var member in members)
+            {
+                var character = member.characters.FirstOrDefault(c => c.charId == charId);
+                if (character != null)
+                    return (member, character, member.memberId);
+            }
+            return (null, null, string.Empty);
+        }
+
         /// <summary>
         /// Update the Track the user assigned for
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="charId"></param>
         /// <param name="track"></param>
-        public TrackAssignment UpdateTrackForUser(string id, int track)
+        public KeyValuePair<string, TrackAssignment> UpdateTrackForUser(string charId, int track)
         {
-            var member = members.FirstOrDefault(m => m.memberId == id);
-            member.trackNumber = track;
-            return new TrackAssignment
+            var (session, character, sessionId) = FindByCharacterId(charId);
+            character.trackNumber = track;
+            return new KeyValuePair<string, TrackAssignment> (session.memberId, new TrackAssignment
             {
+                charId = charId,
                 trackNumber = track,
-                instrument = member.instrument
-            };
+                instrument = character.instrument
+            });
         }
 
         /// <summary>
         /// Update the Instrument the user assigned for
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="track"></param>
-        public TrackAssignment UpdateInstrumentForUser(string id, string instrument)
+        /// <param name="charId"></param>
+        /// <param name="instrument"></param>
+        public KeyValuePair<string, TrackAssignment> UpdateInstrumentForUser(string charId, string instrument)
         {
-            var member = members.FirstOrDefault(m => m.memberId == id);
-            member.instrument = instrument;
-            return new TrackAssignment
+            var (session, character, sessionId) = FindByCharacterId(charId);
+            character.instrument = instrument;
+            return new KeyValuePair<string, TrackAssignment>(session.memberId, new TrackAssignment
             {
-                trackNumber = member.trackNumber,
-                instrument = instrument
-            };
+                charId = charId,
+                trackNumber = character.trackNumber,
+                instrument =  instrument
+            });
         }
     }
 }

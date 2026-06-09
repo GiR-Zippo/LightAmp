@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -26,9 +27,9 @@ namespace BardMusicPlayer.Jamboree
     /// <code>/api/party/sessions/by-code/{code}/members</code>
     /// <code>/api/party/sessions/by-code/{code}/members/{id}/heartbeat</code>
     /// <code>/api/party/sessions/by-code/{code}/members/{id}/assignment</code>
+    /// <code>/api/party/sessions/by-code/{code}/now-playing</code>
     /// missing:
     /// <code>/api/party/sessions/by-code/{code}/archive</code>
-    /// <code>/api/party/sessions/by-code/{code}/now-playing</code>
     /// </summary>
     public partial class BMPApi : IDisposable
     {
@@ -199,8 +200,8 @@ namespace BardMusicPlayer.Jamboree
                     _Playlist.UpdateSongs(newManifest);
                 }
 
-                // Current playing song changed? Set the new one
-                if (_SessionManifest.nowPlaying != null)
+                // Current playing song changed? Set the new one to clients
+                if (_SessionManifest.nowPlaying != null && _HostData == null)
                     BmpJamboree.Instance.PublishEvent(new PartySelectSongEvent(_SessionManifest.nowPlaying));
 
                 BmpJamboree.Instance.PublishEvent(new PartyLogEvent("New Manifest received..."));
@@ -242,29 +243,51 @@ namespace BardMusicPlayer.Jamboree
         /// <code>POST: /api/party/sessions/by-code/{code}/members </code>
         /// </summary>
         /// <param name="code"></param>
-        public async Task JoinParty(string code, string name)
+        public async Task JoinParty(string code, List<KeyValuePair<string, string>> localCharacters)
         {
-            if (_ClientData != null)
+            if (_ClientData != null || localCharacters == null || localCharacters.Count == 0)
                 return;
+
             string url = ApiUrl + "/by-code/" + code + "/members";
+
             using (var request = new HttpRequestMessage(HttpMethod.Post, url))
             {
                 request.Headers.Accept.ParseAdd("application/json");
-                var jsonContent = new StringContent("{\r\n  \"displayName\": \"" + name + "\"\r\n}", Encoding.UTF8, "application/json");
-                request.Content = jsonContent;
+                var primaryChar = localCharacters.First();
+                var additionalChars = localCharacters.Skip(1).Select(c => new
+                {
+                    displayName = c.Key,
+                    world = c.Value
+                }).ToList();
+
+                var payload = new Dictionary<string, object>
+                {
+                    { "displayName", primaryChar.Key },
+                    { "world", primaryChar.Value }
+                };
+
+                if (additionalChars.Count > 0)
+                    payload.Add("characters", additionalChars);
+
+                string jsonString = JsonConvert.SerializeObject(payload);
+                request.Content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
                 HttpResponseMessage response = await _HttpClient.SendAsync(request);
+
                 if (!response.IsSuccessStatusCode)
                 {
                     StatusResponse((int)response.StatusCode);
-                    BmpJamboree.Instance.PublishEvent(new PartyCreatedEvent(false, response.Content.ToString()));
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    BmpJamboree.Instance.PublishEvent(new PartyCreatedEvent(false, errorContent));
                     return;
                 }
+
                 var data = await response.Content.ReadAsStringAsync();
                 _ClientData = JsonConvert.DeserializeObject<MemberStateResponse>(data);
                 _ClientData.code = code;
+
                 BmpJamboree.Instance.PublishEvent(new PartyJoinedEvent(true, _ClientData.code));
-                BmpJamboree.Instance.PublishEvent(new PartyLogEvent("Session joined"));
+                BmpJamboree.Instance.PublishEvent(new PartyLogEvent($"Session joined with {localCharacters.Count} characters."));
 
                 // create party
                 _Party = new Party();
@@ -376,24 +399,24 @@ namespace BardMusicPlayer.Jamboree
         /// Set track and instrument
         /// <code>PATCH: /api/party/sessions/by-code/{code}/members/{id}/assignment</code>
         /// </summary>
-        public async Task AssignMemberTo(string memberId, int? track, string instrument)
+        public async Task AssignMemberTo(string memberId, TrackAssignment ta)
         {
             if (_HostData == null)
                 return;
 
-            string url = ApiUrl + "/by-code/" + GetCode() + "/members/"+ memberId+"/assignment";
+            string url = ApiUrl + "/by-code/" + GetCode() + "/assignments";
             using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), url))
             {
                 request.Headers.Accept.ParseAdd("application/json");
                 request.Headers.TryAddWithoutValidation("X-Party-Host-Token", _HostData.hostToken);
-
-                TrackAssignment ta = new TrackAssignment
+                string d = JsonConvert.SerializeObject(new
                 {
-                    trackNumber = track == -1 ? null : track,
-                    instrument = instrument == "" ? null : instrument
-                };
-                request.Content = new StringContent(JsonConvert.SerializeObject(ta), Encoding.UTF8, "application/json");
-
+                    assignments = new[] { new {
+                            charId = ta.charId,
+                            trackNumber = ta.trackNumber,
+                            instrument = ta.instrument
+                        }}});
+                request.Content = new StringContent(d, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await _HttpClient.SendAsync(request);
                 if (!response.IsSuccessStatusCode)
                 {

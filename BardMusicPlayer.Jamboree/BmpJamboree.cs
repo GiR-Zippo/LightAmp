@@ -72,7 +72,7 @@ namespace BardMusicPlayer.Jamboree
         /// </summary>
         /// <param name="code">Shared token</param>
         /// <param name="name">Player name</param>
-        public async void JoinParty(string code, string name) { await _Api.JoinParty(code, name); }
+        public async void JoinParty(string code, List<KeyValuePair<string, string>> names) { await _Api.JoinParty(code, names); }
 
         /// <summary>
         /// Leave the party and clean up
@@ -112,21 +112,21 @@ namespace BardMusicPlayer.Jamboree
         /// Get the memberlist
         /// </summary>
         /// <returns></returns>
-        public List<SessionMembers> GetCurrentPartyMembers() => _Api.GetCurrentParty().GetMembers();
+        public List<CharacterState> GetCurrentPartyMembers() => _Api.GetCurrentParty().GetMembers();
 
         /// <summary>
         /// Sets the Track for Member
         /// </summary>
         /// <param name="memberId"></param>
         /// <param name="trackNumber"></param>
-        public void SetTrack(string memberId, int trackNumber) => _Api.SetTrackNumber(memberId, trackNumber);
+        public void SetTrack(string charId, int trackNumber) => _Api.SetTrackNumber(charId, trackNumber);
 
         /// <summary>
         /// Sets the Instrument for Member
         /// </summary>
         /// <param name="memberId"></param>
         /// <param name="trackNumber"></param>
-        public void SetInstrument(string memberId, string instrument) => _Api.SetInstrument(memberId, instrument);
+        public void SetInstrument(string charId, string instrument) => _Api.SetInstrument(charId, instrument);
 
         /// <summary>
         /// Get the MidiData bytes[]
