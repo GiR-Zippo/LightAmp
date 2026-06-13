@@ -6,7 +6,6 @@
 using BardMusicPlayer.Jamboree.Events;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace BardMusicPlayer.Jamboree
@@ -41,7 +40,6 @@ namespace BardMusicPlayer.Jamboree
             foreach (var serverMember in manifest.members)
             {
                 var existingMember = members.FirstOrDefault(m => m.memberId == serverMember.memberId);
-
                 if (existingMember == null)
                     members.Add(serverMember);
                 else
@@ -52,6 +50,7 @@ namespace BardMusicPlayer.Jamboree
 
                     foreach (var serverChar in serverMember.characters)
                     {
+                        //update default list
                         var existingChar = existingMember.characters.FirstOrDefault(c => c.charId == serverChar.charId);
                         if (existingChar == null)
                             existingMember.characters.Add(serverChar);
@@ -68,7 +67,11 @@ namespace BardMusicPlayer.Jamboree
             BmpJamboree.Instance.PublishEvent(new PartyChangedEvent());
         }
 
-
+        /// <summary>
+        /// Find a character by its Id
+        /// </summary>
+        /// <param name="charId"></param>
+        /// <returns></returns>
         public (SessionMembers Session, CharacterState Character, string SessionId) FindByCharacterId(string charId)
         {
             foreach (var member in members)
@@ -111,6 +114,21 @@ namespace BardMusicPlayer.Jamboree
                 charId = charId,
                 trackNumber = character.trackNumber,
                 instrument =  instrument
+            });
+        }
+
+        /// <summary>
+        /// Update the Track and Instrument the user assigned for
+        /// </summary>
+        public KeyValuePair<string, TrackAssignment> UpdateTrackAndInstrumentForUser(string charId, int track, string instrument)
+        {
+            var (session, character, sessionId) = FindByCharacterId(charId);
+            character.instrument = instrument;
+            return new KeyValuePair<string, TrackAssignment>(session.memberId, new TrackAssignment
+            {
+                charId = charId,
+                trackNumber = track,
+                instrument = instrument
             });
         }
     }

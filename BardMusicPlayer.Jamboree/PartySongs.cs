@@ -69,12 +69,12 @@ namespace BardMusicPlayer.Jamboree
         /// </summary>
         /// <param name="itemId">The unique ID of the song</param>
         /// <returns>The MIDI file bytes, or null if not found/loaded</returns>
-        public byte[] GetMidiData(string itemId)
+        public (string, byte[]) GetMidiData(string itemId)
         {
             var existingItem = _SongList.FirstOrDefault(m => m.Key.itemId == itemId);
             if (existingItem.Key == null)
-                return null;
-            return _SongList[existingItem.Key];
+                return ("", null);
+            return (existingItem.Key.filename, existingItem.Value);
         }
     }
 }

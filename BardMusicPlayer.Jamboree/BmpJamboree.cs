@@ -97,6 +97,12 @@ namespace BardMusicPlayer.Jamboree
         public async void SendPlaylist(List<string> files) { await _Api.SendPlaylist(files); }
 
         /// <summary>
+        /// Send a list of songs as a playlist
+        /// </summary>
+        /// <param name="files"></param>
+        public async void SendSong(string name, byte[] data) { await _Api.SendSong(name, data); }
+
+        /// <summary>
         /// Sets the song to play
         /// </summary>
         /// <param name="song"></param>
@@ -107,6 +113,18 @@ namespace BardMusicPlayer.Jamboree
         /// </summary>
         /// <returns></returns>
         public bool IsConnected() => _Api.IsConnected();
+
+        /// <summary>
+        /// Is this session a host or client
+        /// </summary>
+        /// <returns>true if host</returns>
+        public bool IsHost() { return _Api.IsHost(); }
+
+        /// <summary>
+        /// Get the connection code
+        /// </summary>
+        /// <returns></returns>
+        public string GetCode() => _Api.GetCode();
 
         /// <summary>
         /// Get the memberlist
@@ -132,6 +150,6 @@ namespace BardMusicPlayer.Jamboree
         /// Get the MidiData bytes[]
         /// </summary>
         /// <param name="itemId"></param>
-        public byte[] GetMidiData(string itemId) => _Api.GetMidiData(itemId);
+        public (string, byte[]) GetMidiData(string itemId) => _Api.GetMidiData(itemId);
     }
 }

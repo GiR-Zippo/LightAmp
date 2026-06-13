@@ -41,7 +41,7 @@ namespace BardMusicPlayer.Jamboree
         /// <summary>
         /// Get the current session code
         /// </summary>
-        private string GetCode() { return _ClientData == null ? _HostData.code : _ClientData.code; }
+        public string GetCode() { return _ClientData == null ? _HostData.code : _ClientData.code; }
 
         /// <summary>
         /// The playlist we got
@@ -136,23 +136,22 @@ namespace BardMusicPlayer.Jamboree
         public bool IsConnected() {  return _ClientData != null || _HostData != null;  }
 
         /// <summary>
+        /// True if we are the host
+        /// </summary>
+        public bool IsHost() { return _HostData != null; }
+
+        /// <summary>
         /// Gets the current party
         /// </summary>
         /// <returns></returns>
         public Party GetCurrentParty() {  return _Party; }
 
         /// <summary>
-        /// Get the current playlist
-        /// </summary>
-        /// <returns></returns>
-        public List<PlaylistItem> GetPlaylist() {return _SessionManifest.items; }
-
-        /// <summary>
         /// Get the downloaded midi data
         /// </summary>
         /// <param name="itemId"></param>
         /// <returns></returns>
-        public byte[] GetMidiData(string itemId) => _Playlist.GetMidiData(itemId);
+        public (string, byte[]) GetMidiData(string itemId) => _Playlist.GetMidiData(itemId);
 
         /// <summary>
         /// Set the track for member
@@ -175,7 +174,6 @@ namespace BardMusicPlayer.Jamboree
             var data = _Party.UpdateInstrumentForUser(charId, instrument);
             await AssignMemberTo(data.Key, data.Value);
         }
-
         #endregion
 
         // Build POSIX-Ustar-Header (512 Bytes)

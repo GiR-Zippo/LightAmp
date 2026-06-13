@@ -164,6 +164,51 @@ namespace BardMusicPlayer.Jamboree
         }
 
         /// <summary>
+        /// Sends a midi by raw bytes
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="data"></param>
+        public async Task SendSong(string name, byte[] data)
+        {
+            if (_HostData == null)
+                return;
+            if (data == null || data.Length == 0)
+                return;
+
+            string url = ApiUrl + "/by-code/" + GetCode() + "/playlist";
+            using (var request = new HttpRequestMessage(HttpMethod.Post, url))
+            {
+                request.Headers.Accept.ParseAdd("application/json");
+                request.Headers.TryAddWithoutValidation("X-Party-Host-Token", _HostData.hostToken);
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    using (var gzipStream = new GZipStream(memoryStream, CompressionMode.Compress))
+                        gzipStream.Write(data, 0, data.Length);
+
+                    var fileContent = new ByteArrayContent(memoryStream.ToArray());
+                    fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/gzip");
+                    request.Content = fileContent;
+                    request.Headers.TryAddWithoutValidation("X-Party-Filename", name);
+
+
+                    using (HttpResponseMessage response = await _HttpClient.SendAsync(request))
+                    {
+                        var responseData = await response.Content.ReadAsStringAsync();
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            StatusResponse((int)response.StatusCode);
+                            return;
+                        }
+                        PlaylistResponse resp = JsonConvert.DeserializeObject<PlaylistResponse>(responseData);
+                        BmpJamboree.Instance.PublishEvent(new PartyPlaylistSendEvent(resp));
+                        BmpJamboree.Instance.PublishEvent(new PartyLogEvent("Files uploaded..."));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// gets the playlist
         /// <code>POST: /api/party/sessions/by-code/{code}/manifest </code>
         /// </summary>
@@ -294,7 +339,7 @@ namespace BardMusicPlayer.Jamboree
 
                 // create playlist
                 _Playlist = new(this);
-
+        
                 // set the _Heartbeat
                 _ = StartHeartBeatLoop();
 
@@ -363,7 +408,7 @@ namespace BardMusicPlayer.Jamboree
         }
 
         /// <summary>
-        /// Set track and instrument
+        /// Set the song by downloadId
         /// <code>PATCH: /api/party/sessions/by-code/{code}/now-playing</code>
         /// </summary>
         public async Task SelectSong(string track)
