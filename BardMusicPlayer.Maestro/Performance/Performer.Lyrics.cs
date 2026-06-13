@@ -13,7 +13,7 @@ using System.Linq;
 
 namespace BardMusicPlayer.Maestro.Performance
 {
-    public partial class Performer
+    public partial class Performer : IPerformer
     {
         public void StartLyricsTimer()
         {

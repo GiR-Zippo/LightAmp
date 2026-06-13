@@ -9,7 +9,7 @@ using BardMusicPlayer.Quotidian.Structs;
 
 namespace BardMusicPlayer.Maestro.Performance
 {
-    public partial class Performer
+    public partial class Performer : IPerformer
     {
         /// <summary>
         /// The program changes, atm used for guitars

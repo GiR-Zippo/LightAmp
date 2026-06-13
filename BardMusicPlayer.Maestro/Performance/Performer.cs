@@ -16,7 +16,7 @@ using System.Collections.Generic;
 
 namespace BardMusicPlayer.Maestro.Performance
 {
-    public partial class Performer
+    public partial class Performer : IPerformer
     {
         private FFXIVHook _hook = new FFXIVHook();
         private Sequencer _sequencer { get; set; } = null;
@@ -66,7 +66,7 @@ namespace BardMusicPlayer.Maestro.Performance
 
         public bool HostProcess { get; set; } = false;
         public int PId { get; set; } = 0;
-        public Game game;
+        public Game game { get; set; }
         public string PlayerName { get { return game.PlayerName ?? "Unknown"; } }
         public string HomeWorld { get { return game.HomeWorld ?? "Unknown"; } }
         public string SongName 
@@ -159,7 +159,7 @@ namespace BardMusicPlayer.Maestro.Performance
             }
         }
 
-#region public
+        #region public
         public Performer(Game arg)
         {
             if (arg != null)

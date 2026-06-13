@@ -29,6 +29,7 @@ namespace BardMusicPlayer.Maestro.Events
                 return sum;
             }
         }
+
         public List<int> CurrentNoteCountForTracks
         {
             get

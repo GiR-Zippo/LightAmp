@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Maestro.Performance
 {
-    public partial class Performer
+    public partial class Performer : IPerformer
     {
         #region Instrument_Actions
         /// <summary>

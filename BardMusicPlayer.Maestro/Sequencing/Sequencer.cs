@@ -430,7 +430,6 @@ namespace BardMusicPlayer.Maestro.Sequencing
         {
             if (tracknumber >= preferredInstruments.Count)
                 return Instrument.None;
-
             return preferredInstruments.ElementAt(tracknumber).Value;
         }
 

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BardMusicPlayer.Maestro.Performance
 {
-    public partial class Performer
+    public partial class Performer : IPerformer
     {
         /// <summary>
         /// If the sequencer has a note to play, it will be processed here 
