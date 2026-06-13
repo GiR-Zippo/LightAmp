@@ -25,7 +25,6 @@ namespace BardMusicPlayer.Ui.Controls
         public EventHandler<string> OnLoadSongFromBrowser;
         public EventHandler<string> OnLoadSongFromBrowserToPreview;
         public EventHandler<string> OnAddSongFromBrowser;
-        public EventHandler<string> OnUploadToPartyFromSongBrowser;
 
         /// Temporary sender object
         private object _Sender { get; set; } = null;
@@ -174,19 +173,6 @@ namespace BardMusicPlayer.Ui.Controls
             if (filename == "")
                 return;
             OnLoadSongFromBrowserToPreview?.Invoke(this, filename);
-        }
-
-        /// <summary>
-        /// Upload a song to party
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SongToParty_Click(object sender, RoutedEventArgs e)
-        {
-            string filename = GetFilenameFromSender(_Sender);
-            if (filename == "")
-                return;
-            OnUploadToPartyFromSongBrowser?.Invoke(this, filename);
         }
 
         /// <summary>

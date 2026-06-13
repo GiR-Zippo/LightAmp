@@ -3,21 +3,21 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
-using BardMusicPlayer.Seer;
-using System;
-using System.Windows;
-using System.Windows.Controls;
-using BardMusicPlayer.Ui.Functions;
+using BardMusicPlayer.DalamudBridge;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian;
+using BardMusicPlayer.Quotidian.Structs;
+using BardMusicPlayer.Seer;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Ui.Controls;
+using BardMusicPlayer.Ui.Functions;
 using BardMusicPlayer.Ui.Windows;
-using System.Windows.Input;
-using BardMusicPlayer.Quotidian.Structs;
-using BardMusicPlayer.DalamudBridge;
+using System;
 using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Classic
 {
@@ -58,7 +58,6 @@ namespace BardMusicPlayer.Ui.Classic
             SongBrowser.OnLoadSongFromBrowser           += Instance_SongBrowserLoadedSong;
             SongBrowser.OnAddSongFromBrowser            += Instance_SongBrowserAddSongToPlaylist;
             SongBrowser.OnLoadSongFromBrowserToPreview  += Instance_SongBrowserLoadSongToPreview;
-            SongBrowser.OnUploadToPartyFromSongBrowser  += Instance_SongBrowserUploadToParty;
 
             XIVBrowser.OnLoadSongFromBrowser            += Instance_BMLBrowserLoadedSong;
             XIVBrowser.OnAddSongFromBrowser             += Instance_BMLBrowserAddSongToPlaylist;
@@ -220,14 +219,6 @@ namespace BardMusicPlayer.Ui.Classic
         private void Instance_SongBrowserLoadSongToPreview(object sender, string filename)
         {
             SirenPreview.SirenLoadSong(BmpSong.OpenFile(filename).Result);
-        }
-
-        /// <summary>
-        /// triggered by the songbrowser if a file should be uploaded to party
-        /// </summary>
-        private void Instance_SongBrowserUploadToParty(object sender, string filename)
-        {
-            NetworkCtl.UploadSong(filename);
         }
 
         /// <summary>

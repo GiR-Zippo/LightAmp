@@ -16,6 +16,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
+            <RowDefinition Height="4"/>
+            <RowDefinition Height="18"/>
+            <RowDefinition Height="4"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
@@ -57,7 +60,19 @@
                 </Button.ContextMenu>
             </Button>
         </Grid>
-        <ListView x:Name="BardsList" Grid.Row="1" SelectedItem="{Binding SelectedBard}" AllowDrop="True">
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="10"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="1" Content="Party Code" VerticalContentAlignment="Stretch" Margin="-5"/>
+            <TextBox Grid.Column="2" x:Name="PartyToken_Text" TextChanged="PartyToken_Text_TextChanged"/>
+            <Button Grid.Column="3" x:Name="Create_Join_Btn" VerticalContentAlignment="Center" Content="Create" Click="Create_Join_Click" />
+        </Grid>
+        <ListView x:Name="BardsList" Grid.Row="4" SelectedItem="{Binding SelectedBard}" AllowDrop="True">
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <EventSetter Event="PreviewMouseLeftButtonDown" Handler="BardsListItem_PreviewMouseLeftButtonDown"/>

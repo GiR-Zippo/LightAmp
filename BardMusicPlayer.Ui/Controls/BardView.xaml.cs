@@ -11,6 +11,7 @@ using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
 using BardMusicPlayer.Seer.Events;
 using BardMusicPlayer.Ui.Functions;
+using BardMusicPlayer.Ui.Functions.Network;
 using BardMusicPlayer.Ui.Windows;
 using BardMusicPlayer.Ui.Windows.QuickEdit;
 using Newtonsoft.Json;
@@ -39,6 +40,7 @@ namespace BardMusicPlayer.Ui.Controls
 
         bool IsFollowing { get; set; } = false;
 
+        NetworkFunctions _network { get; set; } = new();
         public BardView()
         {
             InitializeComponent();
@@ -57,6 +59,10 @@ namespace BardMusicPlayer.Ui.Controls
             BmpSeer.Instance.PartyLeaderChanged         += Instance_PartyLeaderChanged;
             Globals.Globals.OnConfigReload              += Globals_OnConfigReload;
             Globals_OnConfigReload(null, null);
+
+            // Network Stuff
+            _network.OnConnectionChanged                += Instance_NetworkConnectionChanged;
+            _network.OnUpdateMembers                    += Instance_NetworkMemberUpdate;
         }
 
         private void Instance_PartyLeaderChanged(PartyLeaderChanged seerEvent)
@@ -195,6 +201,7 @@ namespace BardMusicPlayer.Ui.Controls
                         if (BardsList.Items.OfType<Performer>().Count(x => (x.PId == result.First().PId) && !x.HostProcess) > 0)
                             BmpMaestro.Instance.SetHostBard(result.First().game);
                 }
+
                 this.BardsList.Items.Refresh();
             }));
         }
@@ -297,6 +304,7 @@ namespace BardMusicPlayer.Ui.Controls
         }
         #endregion
 
+        #region BardControl
         /* Track UP/Down */
         private void TrackNumericUpDown_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -306,9 +314,17 @@ namespace BardMusicPlayer.Ui.Controls
 
         private static void OnValueChanged(object sender, int s)
         {
-            Performer game = (sender as TrackNumericUpDown).DataContext as Performer;
-            BmpMaestro.Instance.SetTracknumber(game, s);
-
+            //NetworkPerformer
+            if ((sender as TrackNumericUpDown).DataContext is NetworkPerformer)
+            {
+                NetworkPerformer performer = (sender as TrackNumericUpDown).DataContext as NetworkPerformer;
+                NetworkFunctions.SetTrackNumber(performer, s);
+            }
+            else
+            {
+                Performer performer = (sender as TrackNumericUpDown).DataContext as Performer;
+                BmpMaestro.Instance.SetTracknumber(performer, s);
+            }
             TrackNumericUpDown ctl = sender as TrackNumericUpDown;
             ctl.OnValueChanged -= OnValueChanged;
         }
@@ -346,6 +362,9 @@ namespace BardMusicPlayer.Ui.Controls
             game.PerformerEnabled = ctl.IsChecked ?? false;
         }
 
+        #endregion
+
+        #region LocalOrchestra functions
         private void StartDelay_Checked(object sender, RoutedEventArgs e)
         {
             BmpPigeonhole.Instance.EnsemblePlayDelay = StartDelay_CheckBox.IsChecked ?? true;
@@ -634,6 +653,7 @@ namespace BardMusicPlayer.Ui.Controls
                 }
             }
         }
+        #endregion
 
         #region context menu
         /// <summary>
@@ -674,6 +694,7 @@ namespace BardMusicPlayer.Ui.Controls
         }
         #endregion
 
+        #region Dalamud Commands
         /// <summary>
         /// Promote the char to lead
         /// </summary>
@@ -783,6 +804,102 @@ namespace BardMusicPlayer.Ui.Controls
                 GameExtensions.SendGameShutdown(host.game);
             }
         }
+
+        #endregion
+
+        #region Networkstuff
+        /// <summary>
+        /// Triggered by OnUpdateMembers
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Instance_NetworkConnectionChanged(object sender, bool e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (e)
+                {
+                    PartyToken_Text.Text = _network.GetCode();
+                    Create_Join_Btn.Content = "Leave";
+                }
+            }));
+        }
+
+        /// <summary>
+        /// Triggered by OnUpdateMembers
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Instance_NetworkMemberUpdate(object sender, bool e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                UpdateNetworkPlayers();
+                this.BardsList.Items.Refresh();
+            }));
+        }
+
+        /// <summary>
+        /// Update the NetworkPerformer
+        /// </summary>
+        private void UpdateNetworkPlayers()
+        {
+            var uiPerformers = BardsList.Items.OfType<NetworkPerformer>().ToList();
+            var netPerformers = _network.GetPerformers();
+            foreach (var p in netPerformers.Except(uiPerformers))
+                BardsList.Items.Add(p);
+
+            foreach (var p in uiPerformers.Except(netPerformers))
+                BardsList.Items.Remove(p);
+        }
+
+        #region UiStuff
+        /// <summary>
+        /// The Create/Join/Leave Button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void Create_Join_Click(object sender, RoutedEventArgs e)
+        {
+            if (Create_Join_Btn.Content.ToString() == "Leave")
+            {
+                _network.LeaveParty();
+                Create_Join_Btn.Content = "Create";
+                PartyToken_Text.Text = "";
+                return;
+            }
+
+            if (_network.IsConnected())
+                return;
+
+            string token = PartyToken_Text.Text;
+            if (token == "")
+                _network.CreateParty();
+            else
+                _network.JoinParty(token);
+        }
+
+        /// <summary>
+        /// Textbox for party code
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PartyToken_Text_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!PartyToken_Text.IsFocused)
+                return;
+
+            if (_network.IsConnected())
+                return;
+
+            if (PartyToken_Text.Text == "")
+                Create_Join_Btn.Content = "Create";
+            else
+                Create_Join_Btn.Content = "Join";
+        }
+        #endregion
+
+        #endregion
     }
 
     /// <summary>

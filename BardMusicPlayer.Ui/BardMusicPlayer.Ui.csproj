@@ -277,6 +277,8 @@
     <Compile Include="Controls\XIVMidiBrowser.xaml.cs">
       <DependentUpon>XIVMidiBrowser.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Functions\Network\NetworkFunctions.cs" />
+    <Compile Include="Functions\Network\NetworkPerformer.cs" />
     <Compile Include="Resources\ProgressBar.xaml.cs">
       <DependentUpon>ProgressBar.xaml</DependentUpon>
     </Compile>
