@@ -4,6 +4,8 @@
  */
 
 using BardMusicPlayer.Transmogrify.Song;
+using BardMusicPlayer.XIVMIDI;
+using BardMusicPlayer.XIVMIDI.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,10 +21,16 @@ namespace BardMusicPlayer.Ui.Controls
     /// </summary>
     public sealed partial class XIVMidiBrowser : UserControl
     {
+        private enum DownloadOption
+        {
+            OnLoadSongFromBrowser = 0,
+            OnAddSongFromBrowser,
+            OnLoadSongFromBrowserToPreview
+        }
+
         public EventHandler<BmpSong> OnLoadSongFromBrowser;
         public EventHandler<BmpSong> OnLoadSongFromBrowserToPreview;
         public EventHandler<BmpSong> OnAddSongFromBrowser;
-        public string DownloadOption { get; set; } = "";
 
         /// Temporary sender object
         private object _Sender { get; set; } = null;
@@ -31,83 +39,85 @@ namespace BardMusicPlayer.Ui.Controls
         {
             InitializeComponent();
 
-            XIVMIDI.XIVMIDI.Instance.OnRequestFinished += Instance_RequestFinished;
+            XIVMidiApi.Instance.OnBMPSongList += Instance_OnBMPSongList;
+            XIVMidiApi.Instance.OnXIVSongList += Instance_OnXIVSongList;
+            XIVMidiApi.Instance.OnXIVMidiFile += Instance_OnMidiFile;
+            XIVMidiApi.Instance.OnXIVRequestError += Instance_OnRequestError;
 
-            Source_box.ItemsSource = XIVMIDI.IO.Misc.Sources.Values;
+            Source_box.ItemsSource = Misc.Sources.Values;
             Source_box.SelectedIndex = 0;
 
-            PerformerSize_box.ItemsSource = XIVMIDI.IO.Misc.PerformerSize.Values;
+            PerformerSize_box.ItemsSource = Misc.PerformerSize.Values;
             PerformerSize_box.SelectedIndex = 1;
         }
 
-        private void Instance_RequestFinished(object sender, object e)
+        #region callback handlers
+        private void Instance_OnBMPSongList(object sender, XIVMidiBMPSongsEvent e)
         {
-            if (e == null)
-                return;
-
-            if (e is XIVMIDI.IO.GetRequest)
+            Dictionary<string, string> list = new Dictionary<string, string>();
+            foreach (var file in e.Songs.docs)
             {
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                try
                 {
-                    SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", "Service not available" } };
-                }));
-            }
-
-            if (e is XIVMIDI.IO.XIVMIDIResponseContainer.ApiResponse)
-            {
-                var data = e as XIVMIDI.IO.XIVMIDIResponseContainer.ApiResponse;
-                Dictionary<string, string> list = new Dictionary<string, string>();
-                foreach (var file in data.data.files)
-                {
-                    try
-                    {
-                        if (file.websiteFilePath.Length <= 2)
-                            continue;
-                        list.Add(file.websiteFilePath, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.editor?? ""));
-                    }
-                    catch { }
+                    if (file.url.Length <= 2)
+                        continue;
+                    list.Add(file.url, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.arranger ?? ""));
                 }
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    SongbrowserContainer.ItemsSource = list;
-                    SongbrowserContainer.Items.Filter = RefreshContainer;
-                }));
+                catch { }
             }
-            else if (e is XIVMIDI.IO.BMPResponseContainer.Root)
+            this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                var data = e as XIVMIDI.IO.BMPResponseContainer.Root;
-                Dictionary<string, string> list = new Dictionary<string, string>();
-                foreach (var file in data.docs)
-                {
-                    try
-                    {
-                        if (file.url.Length <= 2)
-                            continue;
-                        list.Add(file.url, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.arranger ?? ""));
-                    }
-                    catch { }
-                }
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    SongbrowserContainer.ItemsSource = list;
-                    SongbrowserContainer.Items.Filter = RefreshContainer;
-                }));
-            }
-            else if (e is XIVMIDI.IO.XIVMIDIResponseContainer.MidiFile)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    var data = e as XIVMIDI.IO.XIVMIDIResponseContainer.MidiFile;
-                    if (this.DownloadOption.Equals("OnLoadSongFromBrowser"))
-                        OnLoadSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
-                    else if (this.DownloadOption.Equals("OnAddSongFromBrowser"))
-                        OnAddSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
-                    else if (this.DownloadOption.Equals("OnLoadSongFromBrowserToPreview"))
-                        OnLoadSongFromBrowserToPreview?.Invoke(this, BmpSong.ImportMidiFromByte(data.data, data.Filename).Result);
-                    DownloadOption = "";
-                }));
-            }
+                SongbrowserContainer.ItemsSource = list;
+                SongbrowserContainer.Items.Filter = RefreshContainer;
+            }));
         }
+
+        private void Instance_OnXIVSongList(object sender, XIVMidiXIVSongsEvent e)
+        {
+            Dictionary<string, string> list = new Dictionary<string, string>();
+            foreach (var file in e.Songs.data.files)
+            {
+                try
+                {
+                    if (file.websiteFilePath.Length <= 2)
+                        continue;
+                    list.Add(file.websiteFilePath, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.editor ?? ""));
+                }
+                catch { }
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                SongbrowserContainer.ItemsSource = list;
+                SongbrowserContainer.Items.Filter = RefreshContainer;
+            }));
+        }
+
+        private void Instance_OnMidiFile(object sender, XIVMidiFileEvent e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                DownloadOption option = (DownloadOption)e.Arguments;
+                if (option == DownloadOption.OnAddSongFromBrowser)
+                    OnAddSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(e.MidiData.data, e.MidiData.Filename).Result);
+                else if (option == DownloadOption.OnLoadSongFromBrowser)
+                    OnLoadSongFromBrowser?.Invoke(this, BmpSong.ImportMidiFromByte(e.MidiData.data, e.MidiData.Filename).Result);
+                else if (option == DownloadOption.OnLoadSongFromBrowserToPreview)
+                    OnLoadSongFromBrowserToPreview?.Invoke(this, BmpSong.ImportMidiFromByte(e.MidiData.data, e.MidiData.Filename).Result);
+            }));
+        }
+
+        private void Instance_OnRequestError(object sender, XIVMidiApiErrorEvent e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (e.ErrorCode == 503)
+                    SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", "Service not available" } };
+                else
+                    SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", e.Message } };
+            }));
+        }
+
+        #endregion
 
         private bool RefreshContainer(object item)
         {
@@ -127,9 +137,7 @@ namespace BardMusicPlayer.Ui.Controls
             string filename = GetFilenameFromSelection();
             if (filename == "")
                 return;
-
-            DownloadOption = "OnLoadSongFromBrowser";
-            DownloadSong(filename);
+            DownloadSong(filename, DownloadOption.OnLoadSongFromBrowser);
         }
 
         /// <summary>
@@ -173,9 +181,7 @@ namespace BardMusicPlayer.Ui.Controls
             string filename = GetFilenameFromSelection();
             if (filename == "")
                 return;
-
-            DownloadOption = "OnAddSongFromBrowser";
-            DownloadSong(filename);
+            DownloadSong(filename, DownloadOption.OnAddSongFromBrowser);
         }
 
         /// <summary>
@@ -188,9 +194,7 @@ namespace BardMusicPlayer.Ui.Controls
             string filename = GetFilenameFromSelection();
             if (filename == "")
                 return;
-
-            DownloadOption = "OnLoadSongFromBrowserToPreview";
-            DownloadSong(filename);
+            DownloadSong(filename, DownloadOption.OnLoadSongFromBrowserToPreview);
         }
 
         /// <summary>
@@ -227,44 +231,18 @@ namespace BardMusicPlayer.Ui.Controls
                 SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", "Loading..." } };
             }));
 
-            string url = "";
             if (Source_box.SelectedIndex == 0) //XIVMIDI
-                url = new XIVMIDI.IO.XIVMIDIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex }.BuildRequest();
+                XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.XIVMIDIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex });
             else //BMPAPI
-                url = new XIVMIDI.IO.BMPAPIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex }.BuildRequest();
-            XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
-            {
-                Url = url,
-                Host = new Uri(url).Host,
-                RequestSource = Source_box.SelectedIndex,
-                Requester = XIVMIDI.IO.Requester.JSON
-            });
+                XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.BMPAPIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex });
         }
 
-        private void DownloadSong(string filename)
+        private void DownloadSong(string filename, DownloadOption DownloadOption)
         {
             if (filename.Contains(" "))
                 filename = Uri.EscapeUriString(filename);
-            if (Source_box.SelectedIndex == 0)
-            {
-                XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
-                {
-                    Url = "https://xivmidi.com" + filename,
-                    Host = "xivmidi.com",
-                    Accept = "audio/midi",
-                    Requester = XIVMIDI.IO.Requester.DOWNLOAD
-                });
-            }
-            else
-            {
-                XIVMIDI.XIVMIDI.Instance.AddToQueue(new XIVMIDI.IO.GetRequest()
-                {
-                    Url = filename,
-                    Host = new Uri(filename).Host,
-                    Accept = "audio/midi",
-                    Requester = XIVMIDI.IO.Requester.DOWNLOAD
-                });
-            }
+
+            XIVMidiApi.Instance.GetMidiFile(filename, DownloadOption, Source_box.SelectedIndex == 1);
         }
     }
 }

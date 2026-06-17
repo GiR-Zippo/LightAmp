@@ -1,8 +1,14 @@
-﻿using System;
+﻿/*
+ * Copyright(c) 2026 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using System;
 using System.Collections.Generic;
 
 namespace BardMusicPlayer.XIVMIDI.IO
 {
+    #region BMPApi
     /// <summary>
     /// The BMP API responses
     /// </summary>
@@ -77,7 +83,9 @@ namespace BardMusicPlayer.XIVMIDI.IO
         }
 
     }
+    #endregion
 
+    #region XIVMidiApi
     /// <summary>
     /// The XIVMIDI API responses
     /// </summary>
@@ -165,4 +173,5 @@ namespace BardMusicPlayer.XIVMIDI.IO
             public int modifier { get; set; }
         }
     }
+    #endregion
 }

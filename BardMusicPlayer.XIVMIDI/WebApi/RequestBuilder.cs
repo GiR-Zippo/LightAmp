@@ -1,13 +1,18 @@
-﻿using Newtonsoft.Json;
+﻿/*
+ * Copyright(c) 2026 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
 
+using Newtonsoft.Json;
 namespace BardMusicPlayer.XIVMIDI.IO;
 
+#region BMPApi
 /// <summary>
 /// Build the BMP API request string
 /// </summary>
 public class BMPAPIRequestBuilder
 {
-    private readonly string ApiBaseUrl = "https://bardmusicplayer.com/api";
+    private readonly string ApiBaseUrl = "https://bardmusicplayer.com/api/midis";
 
     /// <summary>
     /// Set the performer size
@@ -16,7 +21,7 @@ public class BMPAPIRequestBuilder
 
     public string BuildRequest()
     {
-        var request = ApiBaseUrl + "/midis?where";
+        var request = ApiBaseUrl + "?where";
         request += bandSize <= 0 || bandSize > 8 ? "" : "[ensembleSize][equals]=" + (bandSize == 2 ? "duo" : Misc.PerformerSize[bandSize].ToLower());
         request += "&limit=0";
         return request;
@@ -32,12 +37,20 @@ public class BMPUploadBuilder
     public readonly string ApiBaseUrl = "https://bardmusicplayer.com/api/midis";
     [JsonIgnore]
     public string ApiKey { get; set; } = "";
+    [JsonIgnore]
+    public string FileName { get; set; } = "";
+    [JsonIgnore]
+    public byte[] MidiFile { get; set; } = new byte[0]; 
+
+    //alles hier geht ins json
     public string title { get; set; } = "";
     public string artist { get; set; } = "";
     public string source { get; set; } = "";
     public string originalSourceUrl { get; set; } = "";
 }
+#endregion
 
+#region XIVMidi
 /// <summary>
 /// Build the XIVMIDI API request string
 /// </summary>
@@ -90,4 +103,5 @@ public class XIVMIDIRequestBuilder
         request += Instrument == "" ? "" : "instrument=" + Instrument;
         return request;
     }
+#endregion
 }

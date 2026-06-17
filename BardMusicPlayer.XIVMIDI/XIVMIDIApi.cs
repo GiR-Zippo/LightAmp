@@ -1,245 +1,95 @@
-﻿using BardMusicPlayer.XIVMIDI.IO;
-using Newtonsoft.Json;
+﻿/*
+ * Copyright(c) 2026 GiR-Zippo, 2021 MoogleTroupe
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.XIVMIDI.IO;
+using BardMusicPlayer.XIVMIDI.WebApi;
 using System;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace BardMusicPlayer.XIVMIDI;
-
-/*
-The Api stuff to access the XIVMIDI
--- Init via XivMIDIApi.Initialize();
--- Stop via XivMIDIApi.Stop();
-
--- The callback event from this library
-XivMIDIApi.Instance.OnRequestFinished += Instance_RequestFinished;
-private void Instance_RequestFinished(object sender, object e){}
-
-object e can be:
-XivMIDIApi.Response.ApiResponse class - if there was an Api JSon request
-XivMIDIApi.Response.MidiFile class    - if there was a download request
-
--- Perform a JSon request to xivmidi
-XivMIDIApi.Instance.AddToQueue(new XivMIDIApi.GetRequest()
+namespace BardMusicPlayer.XIVMIDI
 {
-Url = new XivMIDIApi.RequestBuilder() { Performers = PerformerSize_box.SelectedIndex }.BuildRequest(),
-Host = "xivmidi.com",
-Requester = XivMIDIApi.Requester.JSON
-});
-
-This will do a request for 100 Octets
-
-
--- Perform a midi download
-XivMIDIApi.Instance.AddToQueue(new XivMIDIApi.GetRequest()
-{
-Url = DownloadUrl + Uri.EscapeUriString(filename),
-Host = "xivmidi.com",
-Accept = "audio/midi",
-Requester = XivMIDIApi.Requester.DOWNLOAD
-});
-
-This will requst a midi file (website_file_path is the filename) and returns a XivMIDIApi.Response.MidiFile with filename and byte[] containing the midi binary
-*/
-
-public sealed partial class XIVMIDI
-{
-    private HttpClient httpClient { get; set; } = null;
-    private HttpClientHandler httpClientHandler { get; set; } = null;
-
-    private ConcurrentQueue<object> downloadQueue = new ConcurrentQueue<object>();
-    private CancellationTokenSource cancelTokenSource;
-
-    /// <summary>
-    /// Start the Service
-    /// </summary>
-    private void StartService()
+    public partial class XIVMidiApi : IDisposable
     {
-        httpClientHandler = new HttpClientHandler
+        #region Instance Constructor/Destructor
+        private static readonly Lazy<XIVMidiApi> LazyInstance = new(() => new XIVMidiApi());
+
+        private HTTPWorker _HttpWorker { get; set; } = null;
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool Started { get; private set; }
+
+        private XIVMidiApi()
         {
-            UseCookies = true,
-            UseProxy = true,
-            MaxAutomaticRedirections = 2,
-            MaxConnectionsPerServer = 2
-        };
-
-        httpClient = new HttpClient(handler: httpClientHandler);
-        httpClient.Timeout = TimeSpan.FromMinutes(5);
-        StartWorkerThread();
-    }
-
-    /// <summary>
-    /// Start the Workers
-    /// </summary>
-    private void StartWorkerThread()
-    {
-        downloadQueue = new ConcurrentQueue<object>();
-        cancelTokenSource = new CancellationTokenSource();
-        Task.Factory.StartNew(() => RunEventsHandler(cancelTokenSource.Token), TaskCreationOptions.LongRunning);
-    }
-
-    /// <summary>
-    /// Stop the worker
-    /// </summary>
-    private void StopWorkerThread()
-    {
-        cancelTokenSource.Cancel();
-        while (downloadQueue.TryDequeue(out _)) { }
-    }
-
-    private void CancelDownloadQueue()
-    {
-        StopWorkerThread();
-        httpClient.CancelPendingRequests();
-        StartWorkerThread();
-        IsRequestRunning = false;
-    }
-
-    /// <summary>
-    /// Worker runnable task
-    /// </summary>
-    /// <param name="token"></param>
-    /// <returns></returns>
-    private async Task RunEventsHandler(CancellationToken cancelationToken)
-    {
-        while (!cancelationToken.IsCancellationRequested)
-        {
-            while (downloadQueue.TryDequeue(out var request))
-            {
-                if (cancelationToken.IsCancellationRequested)
-                    break;
-
-                if (request is GetRequest)
-                    _ = GetAsync(request as GetRequest, cancelationToken);
-            }
-
-            await Task.Delay(100, cancelationToken).ContinueWith(tsk => { });
-        }
-    }
-
-    /// <summary>
-    /// Internal get data from server task
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
-    private async Task GetAsync(GetRequest request, CancellationToken cancelationToken)
-    {
-        IsRequestRunning = true;
-        foreach (Cookie co in httpClientHandler.CookieContainer.GetCookies(new Uri(request.Url)))
-        {
-            co.Expires = DateTime.Now.Subtract(TimeSpan.FromDays(1));
+            _HttpWorker = new HTTPWorker();
         }
 
-        //reset them and refresh...
-        httpClient.DefaultRequestHeaders.Clear();
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(request.UserAgent);
-        if (request.Accept != "")
-            httpClient.DefaultRequestHeaders.Accept.ParseAdd(request.Accept);
+        public static XIVMidiApi Instance => LazyInstance.Value;
 
-        try
+        /// <summary>
+        /// Start the eventhandler
+        /// </summary>
+        /// <returns></returns>
+        public void Start()
         {
-            HttpResponseMessage response = await httpClient.GetAsync(request.Url, cancelationToken);
-            request.ResponseBody = response.Content;
-            request.Host = new Uri(request.Url).DnsSafeHost;
-            request.ResponseCode = response.StatusCode;
-            request.ResponseMsg = response.ReasonPhrase;
-        }
-        catch (HttpRequestException e)
-        {
-            IsRequestRunning = false;
-            request.ResponseCode = HttpStatusCode.ServiceUnavailable;
-            request.ResponseMsg = e.InnerException.Message;
+            if (Started) return;
+            StartEventsHandler();
+            Started = true;
         }
 
-        if (request.ResponseCode != HttpStatusCode.OK)
+        /// <summary>
+        /// Stop the eventhandler
+        /// </summary>
+        /// <returns></returns>
+        public void Stop()
         {
-            IsRequestRunning = false;
-            OnRequestFinished(this, request);
-            return;
+            if (!Started) return;
+            StopEventsHandler();
+            Started = false;
+            Dispose();
         }
 
-        if (request.Requester == Requester.JSON)
-            GetJSon(request);
-        else if (request.Requester == Requester.DOWNLOAD)
-            GetMidi(request);
+        public void Dispose()
+        {
+            _HttpWorker.Dispose();
+            GC.SuppressFinalize(this);
+        }
+        #endregion
 
-        IsRequestRunning = false;
+        #region Getters
+        /// <summary>
+        /// Get the songlist from BMPApi
+        /// </summary>
+        public void GetSonglist(BMPAPIRequestBuilder request)
+        {
+            _HttpWorker.RequestSongList(request).ConfigureAwait(true);
+        }
 
-        if (downloadQueue.IsEmpty)
-            IsRequestRunning = false;
+        /// <summary>
+        /// Get the song list from XIVMidi
+        /// </summary>
+        public void GetSonglist(XIVMIDIRequestBuilder request)
+        {
+            _HttpWorker.RequestSongList(request).ConfigureAwait(true);
+        }
+
+        /// <summary>
+        /// Download a midi file
+        /// </summary>
+        public void GetMidiFile(string url, object args, bool fromBMP)
+        {
+            _HttpWorker.DownloadSong(url, args, fromBMP).ConfigureAwait(true);
+        }
+
+        /// <summary>
+        /// Upload Midi
+        /// </summary>
+        /// <param name="upload"></param>
+        public void UploadMidi(BMPUploadBuilder upload)
+        {
+            _HttpWorker.UploadSong(upload).ConfigureAwait(true);
+        }
+        #endregion
     }
-
-    private void GetJSon(GetRequest request)
-    {
-        if (request.RequestSource == 0)
-        {
-            XIVMIDIResponseContainer.ApiResponse resp = JsonConvert.DeserializeObject<XIVMIDIResponseContainer.ApiResponse>(request.ResponseBody.ReadAsStringAsync().Result);
-            OnRequestFinished(this, resp);
-        }
-        else
-        {
-            var resp = JsonConvert.DeserializeObject<BMPResponseContainer.Root>(request.ResponseBody.ReadAsStringAsync().Result);
-            OnRequestFinished(this, resp);
-        }
-        return;
-    }
-
-    private void GetMidi(GetRequest request)
-    {
-        var f = WebUtility.UrlDecode(Uri.UnescapeDataString(request.Url));
-        f = f.Split('/').Last();
-        XIVMIDIResponseContainer.MidiFile midi = new()
-        {
-            Filename = f,
-            data = request.ResponseBody.ReadAsByteArrayAsync().Result
-        };
-        OnRequestFinished(this, midi);
-        return;
-    }
-
-
-
-    public async Task<HttpResponseMessage> UploadSongToBMP(string filename, BMPUploadBuilder upload)
-    {
-        string url = upload.ApiBaseUrl;
-
-        httpClient.DefaultRequestHeaders.Clear();
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(new GetRequest().UserAgent);
-
-        using (var multipartContent = new MultipartFormDataContent())
-        {
-            byte[] fileBytes = File.ReadAllBytes(filename);
-            var fileContent = new ByteArrayContent(fileBytes);
-
-            fileContent.Headers.ContentType = new MediaTypeHeaderValue("audio/mid");
-            multipartContent.Add(fileContent, "file", Path.GetFileName(filename));
-
-            string jsonString = JsonConvert.SerializeObject(upload);
-            var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
-            multipartContent.Add(jsonContent, "_payload");
-            using (var request = new HttpRequestMessage(HttpMethod.Post, url))
-            {
-                request.Content = multipartContent;
-                request.Headers.Authorization = new AuthenticationHeaderValue("users", "API-Key " + upload.ApiKey);
-                try
-                {
-                    HttpResponseMessage response = await httpClient.SendAsync(request);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    return null;
-                }
-            }
-        }
-    }
-
 }

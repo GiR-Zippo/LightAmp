@@ -57,14 +57,14 @@ namespace BardMusicPlayer.Ui
             BmpScript.Instance.Start();
 
             BmpSiren.Instance.Setup();
-            XIVMIDI.XIVMIDI.Instance.Start();
+            XIVMidiApi.Instance.Start();
             BmpJamboree.Instance.Start();
             ConfigureLanguage(System.Threading.Thread.CurrentThread.CurrentUICulture.ToString());
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            XIVMIDI.XIVMIDI.Instance.Stop();
+            XIVMidiApi.Instance.Stop();
             //LogManager.Shutdown();
             BmpJamboree.Instance.Stop();
             if (BmpSiren.Instance.IsReadyForPlayback)

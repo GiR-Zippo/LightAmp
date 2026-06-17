@@ -6,6 +6,7 @@
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Ui.Resources;
 using BardMusicPlayer.Ui.Windows;
+using BardMusicPlayer.XIVMIDI.Events;
 using BardMusicPlayer.XIVMIDI.IO;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,9 @@ namespace BardMusicPlayer.Ui.Controls
         public SongBrowser()
         {
             InitializeComponent();
+
+            XIVMIDI.XIVMidiApi.Instance.OnXIVUploadResponse += Instance_OnUploadResponse;
+
             SongPath.Text = BmpPigeonhole.Instance.SongDirectory;
             RefreshContainer();
         }
@@ -216,6 +220,16 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
+        private void Instance_OnUploadResponse(object sender, XIVMidiUploadResponseEvent e)
+        {
+            if (e.StatusCode == System.Net.HttpStatusCode.OK || e.StatusCode == System.Net.HttpStatusCode.Created)
+                MessageBox.Show("Uploaded", "Wohoo \\o/");
+            else if (e.StatusCode == System.Net.HttpStatusCode.Unauthorized || e.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                MessageBox.Show("Bad or missing Api Key", "Error");
+            else
+                MessageBox.Show("Something went wrong here...", "Error");
+        }
+
         private async void UploadToBMP_Click(object sender, RoutedEventArgs e)
         {
             string filename = GetFilenameFromSelection();
@@ -233,19 +247,9 @@ namespace BardMusicPlayer.Ui.Controls
             }
 
             bmpUpload.ApiKey = BmpPigeonhole.Instance.BMPApiKey;
-            var response = await XIVMIDI.XIVMIDI.Instance.UploadSongToBMP(filename, bmpUpload);
-            if (response == null)
-            {
-                MessageBox.Show("Something went wrong here...", "Error");
-                return;
-            }              
-
-            if (response.IsSuccessStatusCode)
-                MessageBox.Show("Uploaded", "Wohoo \\o/");
-            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized || response.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                MessageBox.Show("Bad or missing Api Key", "Error");
-            else
-                MessageBox.Show("Something went wrong here...", "Error");
+            bmpUpload.MidiFile = File.ReadAllBytes(filename);
+            bmpUpload.FileName = Path.GetFileName(filename);
+            XIVMIDI.XIVMidiApi.Instance.UploadMidi(bmpUpload);
         }
     }
 }
