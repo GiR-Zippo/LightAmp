@@ -6,6 +6,7 @@
              xmlns:Locale ="clr-namespace:BardMusicPlayer.Ui.Locales"
              mc:Ignorable="d" 
              Background="WhiteSmoke"
+             IsVisibleChanged="XIVBrowser_IsVisibleChanged"
              d:DesignHeight="450" d:DesignWidth="800">
 
     <Grid>

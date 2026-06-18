@@ -20,9 +20,7 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
 {
     public class HTTPWorker : IDisposable
     {
-        public string UserAgent { get; } = "XIVMIDI CLIENT V2 (LightAmp)";
-
-        private CancellationTokenSource cancelTokenSource;
+        private string UserAgent { get; } = "XIVMIDI CLIENT V2 (LightAmp)";
         private HttpClient _HttpClient { get; set; } = null;
         private HttpClientHandler _HttpClientHandler { get; set; } = null;
         public HTTPWorker()

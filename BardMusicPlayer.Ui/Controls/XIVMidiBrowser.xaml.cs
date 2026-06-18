@@ -226,10 +226,9 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void SendRequest()
         {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", "Loading..." } };
-            }));
+            SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", "Loading..." } };
+            if (!this.IsVisible)
+                return;
 
             if (Source_box.SelectedIndex == 0) //XIVMIDI
                 XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.XIVMIDIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex });
@@ -243,6 +242,12 @@ namespace BardMusicPlayer.Ui.Controls
                 filename = Uri.EscapeUriString(filename);
 
             XIVMidiApi.Instance.GetMidiFile(filename, DownloadOption, Source_box.SelectedIndex == 1);
+        }
+
+        private void XIVBrowser_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (this.IsVisible)
+                SendRequest();
         }
     }
 }
