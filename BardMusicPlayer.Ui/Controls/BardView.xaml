@@ -58,7 +58,7 @@
                 </Button.ContextMenu>
             </Button>
         </Grid>
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="2" Visibility="Hidden">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="10"/>
                 <ColumnDefinition Width="60"/>

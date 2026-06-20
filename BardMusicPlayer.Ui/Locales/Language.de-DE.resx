@@ -294,7 +294,7 @@ Wird erst beim laden eines neuen Lieds übernommen.</value>
     <value>Auswahl des Starttriggers [Metronome ist der Standard]</value>
   </data>
   <data name="Settings_Use_Skin" xml:space="preserve">
-    <value>Lässt dich eine andere Ui nutzen (wenn vorhanden)</value>
+    <value>Lässt dich ein Farbschema oder eine andere Ui nutzen (wenn vorhanden)</value>
   </data>
   <data name="Siren_Load" xml:space="preserve">
     <value>Läd ein Lied in den Preview</value>

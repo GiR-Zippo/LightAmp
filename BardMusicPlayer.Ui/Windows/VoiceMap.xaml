@@ -6,7 +6,16 @@
         xmlns:local="clr-namespace:BardMusicPlayer.Ui.Windows"
         mc:Ignorable="d"
         Closing="Window_Closing"
-        Title="OMNI Vision" Height="450" Width="800">
+        Title="OMNI Vision" Height="450" Width="800"
+        Background="{DynamicResource BackgroundBrush}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/LightAmp;component/Themes/DefaultTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -21,6 +30,6 @@
                 <Canvas x:Name="gCanvasPlot0"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Width="2000"  Height="400" />
             </Grid>
         </ScrollViewer>
-        <TextBox x:Name="gOver" Background="WhiteSmoke" VerticalScrollBarVisibility="Visible" Grid.ColumnSpan="2" Margin="0,334,0,0" Grid.RowSpan="2" />
+        <TextBox x:Name="gOver" VerticalScrollBarVisibility="Visible" Grid.ColumnSpan="2" Margin="0,334,0,0" Grid.RowSpan="2" />
     </Grid>
 </Window>

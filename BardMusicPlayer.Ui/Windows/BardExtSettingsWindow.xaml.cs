@@ -3,21 +3,22 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
-using BardMusicPlayer.DalamudBridge;
 using BardMusicPlayer.Dalamud.Events;
+using BardMusicPlayer.DalamudBridge;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Maestro.Performance;
+using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Ui.Controls;
+using CSCore.CoreAudioAPI;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using CSCore.CoreAudioAPI;
-using System.Threading.Tasks;
-using System.ComponentModel;
 
 
 namespace BardMusicPlayer.Ui.Windows
@@ -34,6 +35,10 @@ namespace BardMusicPlayer.Ui.Windows
         {
             _performer = performer;
             InitializeComponent();
+
+            if (BmpPigeonhole.Instance.LastSkin.EndsWith(".xaml"))
+                Globals.Globals.SetTheme(this, BmpPigeonhole.Instance.LastSkin);
+
             Title = "Settings for: " + _performer.PlayerName;
 
             Songtitle_Post_Type.SelectedIndex = 0;

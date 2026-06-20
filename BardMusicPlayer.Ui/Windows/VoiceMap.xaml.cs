@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Siren;
 using BardMusicPlayer.Transmogrify.Song;
@@ -35,6 +36,10 @@ namespace BardMusicPlayer.Ui.Windows
         public VoiceMap(MidiFile arg)
         {
             InitializeComponent();
+
+            if (BmpPigeonhole.Instance.LastSkin.EndsWith(".xaml"))
+                Globals.Globals.SetTheme(this, BmpPigeonhole.Instance.LastSkin);
+
             BmpSiren.Instance.SynthTimePositionChanged += Instance_SynthTimePositionChanged;
             BmpSiren.Instance.SongLoaded += Instance_SongLoaded;
             //AddPlot();

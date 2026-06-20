@@ -295,7 +295,7 @@ Changing this will settings only take effect when a new song was loded</value>
     <value>Select the autostart trigger [Metronome is preferred]</value>
   </data>
   <data name="Settings_Use_Skin" xml:space="preserve">
-    <value>Enables a Skinned Ui (needs a restart)</value>
+    <value>Enables a ColorTheme</value>
   </data>
   <data name="Siren_Load" xml:space="preserve">
     <value>Loads a song in the song preview</value>

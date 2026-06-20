@@ -4,6 +4,7 @@
  */
 
 using BardMusicPlayer.Coffer;
+using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Transmogrify.Song;
 using System.Windows;
 
@@ -23,6 +24,8 @@ namespace BardMusicPlayer.Ui.Windows
                 this.Close();
                 return;
             }
+            if (BmpPigeonhole.Instance.LastSkin.EndsWith(".xaml"))
+                Globals.Globals.SetTheme(this, BmpPigeonhole.Instance.LastSkin);
             this.Visibility = Visibility.Visible;
 
             _song = song;

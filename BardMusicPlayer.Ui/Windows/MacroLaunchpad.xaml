@@ -9,7 +9,15 @@
         Title="MacroLaunchpad" 
         Height="450" 
         Width="350"
-        MaxWidth="350">
+        MaxWidth="350"
+        Background="{DynamicResource BackgroundBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/LightAmp;component/Themes/DefaultTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

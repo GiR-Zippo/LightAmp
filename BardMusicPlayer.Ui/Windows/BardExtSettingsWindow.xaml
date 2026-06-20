@@ -6,7 +6,15 @@
         xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls"
         xmlns:Locale ="clr-namespace:BardMusicPlayer.Ui.Locales"
         mc:Ignorable="d"
-        Title="BardExtSettingsWindow" Height="400" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow">
+        Title="BardExtSettingsWindow" Height="400" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow"
+        Background="{DynamicResource BackgroundBrush}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/LightAmp;component/Themes/DefaultTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"/>

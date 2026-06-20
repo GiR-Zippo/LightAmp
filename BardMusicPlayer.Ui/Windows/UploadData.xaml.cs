@@ -19,6 +19,8 @@ namespace BardMusicPlayer.Ui.Windows
             filename = Path.GetFileNameWithoutExtension(filename);
             Console.WriteLine(filename);
             InitializeComponent();
+            if (BmpPigeonhole.Instance.LastSkin.EndsWith(".xaml"))
+                Globals.Globals.SetTheme(this, BmpPigeonhole.Instance.LastSkin);
 
             string pattern = @"^(?<interpret>.+?)\s*-\s*(?<titel>.+)$";
             regex_txt.Text = pattern;

@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using BardMusicPlayer.Pigeonhole;
 using Microsoft.Win32;
 using System;
 using System.Windows;
@@ -20,6 +21,10 @@ namespace BardMusicPlayer.Ui.Windows
         public MacroEditWindow(Macro macro)
         {
             InitializeComponent();
+
+            if (BmpPigeonhole.Instance.LastSkin.EndsWith(".xaml"))
+                Globals.Globals.SetTheme(this, BmpPigeonhole.Instance.LastSkin);
+
             _macro = macro;
             MacroName.Text = _macro.DisplayedText;
             MacroFileName.Content = _macro.File;

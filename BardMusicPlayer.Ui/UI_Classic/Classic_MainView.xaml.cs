@@ -73,29 +73,7 @@ namespace BardMusicPlayer.Ui.Classic
             Songbrowser_Source_box.SelectedIndex        = 0;
         }
 
-        public static void SetTheme(UserControl control, string theme)
-        {
-            if (!File.Exists(theme))
-                return;
 
-            var file = File.OpenText(theme);
-            if (!file.ReadLine().StartsWith("<ResourceDictionary xmlns="))
-            {
-                file.Close();
-                return;
-            }
-
-            var dictionaries = control.Resources.MergedDictionaries;
-            var existing = dictionaries.FirstOrDefault(d =>
-                d.Source != null && d.Source.ToString().Contains("Theme.xaml"));
-            if (existing != null)
-                dictionaries.Remove(existing);
-
-            dictionaries.Add(new ResourceDictionary
-            {
-                Source = new Uri(theme, UriKind.Absolute)
-            });
-        }
 
         private void Globals_OnConfigReload(object sender, EventArgs e)
         {
@@ -106,7 +84,7 @@ namespace BardMusicPlayer.Ui.Classic
             octave_cmdDown.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
 
             if (BmpPigeonhole.Instance.LastSkin.EndsWith(".xaml"))
-                SetTheme(this, BmpPigeonhole.Instance.LastSkin);
+                Globals.Globals.SetTheme(this, BmpPigeonhole.Instance.LastSkin);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
