@@ -8,12 +8,13 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              Width="Auto" Height="Auto" Loaded="Window_Loaded"
-             Background="WhiteSmoke">
+             Background="{DynamicResource BackgroundBrush}">
 
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/LightAmp;component/Resources/ImageButtonStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/LightAmp;component/Themes/DefaultTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -34,12 +35,12 @@
             </Grid.ColumnDefinitions>
 
             <!-- Playlist -->
-            <Grid x:Name="PlaylistGrid" Grid.Row="0" Grid.Column="0" Background="WhiteSmoke" Visibility="Visible">
-                <control:Playlist x:Name="PlaylistCtl" Background="WhiteSmoke"/>
+            <Grid x:Name="PlaylistGrid" Grid.Row="0" Grid.Column="0" Background="{DynamicResource PanelBackgroundBrush}" Visibility="Visible">
+                <control:Playlist x:Name="PlaylistCtl" Background="{DynamicResource PanelBackgroundBrush}"/>
             </Grid>
 
             <!-- History -->
-            <Grid x:Name="HistoryGrid" Grid.Row="0" Grid.Column="0" Background="WhiteSmoke" Visibility="Hidden">
+            <Grid x:Name="HistoryGrid" Grid.Row="0" Grid.Column="0" Background="{DynamicResource PanelBackgroundBrush}" Visibility="Hidden">
                 <control:PlayedHistory x:Name="PlayedHistoryCtl"/>
             </Grid>
 
@@ -56,7 +57,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="18"/>
                             </Grid.RowDefinitions>
-                            <RichTextBox x:Name="ChatBox" Grid.Row="0" IsReadOnly="False" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.IsDeferredScrollingEnabled="True" Background="Gray">
+                            <RichTextBox x:Name="ChatBox" Grid.Row="0" IsReadOnly="False" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.IsDeferredScrollingEnabled="True" Background="{DynamicResource ChatBoxBackground}">
                                 <RichTextBox.Style>
                                     <Style TargetType="RichTextBox">
                                         <Style.Triggers>
@@ -74,17 +75,17 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="Performers">
-                        <Grid Background="WhiteSmoke">
+                        <Grid Background="{DynamicResource PanelBackgroundBrush}" >
                             <control:BardView x:Name="BardsList"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="Settings">
-                        <Grid Background="WhiteSmoke">
+                        <Grid Background="{DynamicResource PanelBackgroundBrush}">
                             <control:Settings x:Name="SettingsControl"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="Statistics" >
-                        <Grid Background="WhiteSmoke">
+                        <Grid Background="{DynamicResource PanelBackgroundBrush}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="10"/>
                                 <RowDefinition Height="25"/>
@@ -127,12 +128,12 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="Song Preview">
-                        <Grid Background="WhiteSmoke">
+                        <Grid Background="{DynamicResource PanelBackgroundBrush}">
                             <control:SirenPreview x:Name="SirenPreview"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="SongBrowser" x:Name="SongBrowserGrid">
-                        <Grid Background="WhiteSmoke" KeyDown="SongBrowser_KeyDown">
+                        <Grid Background="{DynamicResource PanelBackgroundBrush}" KeyDown="SongBrowser_KeyDown">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="23" />
                                 <RowDefinition Height="*" />

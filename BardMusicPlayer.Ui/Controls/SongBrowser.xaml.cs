@@ -34,6 +34,9 @@ namespace BardMusicPlayer.Ui.Controls
         {
             InitializeComponent();
 
+            SongbrowserContainer.AddHandler(ListViewItem.PreviewMouseDoubleClickEvent,new MouseButtonEventHandler(SongbrowserContainer_PreviewMouseDoubleClick));
+            SongbrowserContainer.AddHandler(ListViewItem.PreviewMouseRightButtonDownEvent,new MouseButtonEventHandler(OnListViewItemPreviewMouseRightButtonDown));
+
             XIVMIDI.XIVMidiApi.Instance.OnXIVUploadResponse += Instance_OnUploadResponse;
 
             SongPath.Text = BmpPigeonhole.Instance.SongDirectory;

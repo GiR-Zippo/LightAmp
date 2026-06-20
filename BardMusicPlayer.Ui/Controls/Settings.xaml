@@ -6,8 +6,7 @@
              xmlns:local="clr-namespace:BardMusicPlayer.Ui.Controls"
              xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls"
              xmlns:Locale ="clr-namespace:BardMusicPlayer.Ui.Locales"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             mc:Ignorable="d">
     <Grid>
         <GroupBox>
             <TabControl TabStripPlacement="Left" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -31,7 +30,7 @@
                         <CheckBox Margin="10,0,0,0"  Grid.Row="1" x:Name="LocalOrchestraBox"       Content="Local Orchestra enabled"          Unchecked="LocalOrchestraBox_Checked"     Checked="LocalOrchestraBox_Checked"     ToolTip="{x:Static Locale:Language.Settings_Local_Orchestra}"/>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="2" x:Name="KeepTrackSettingsBox"    Content="Thymms I know what I'm doing box" Unchecked="KeepTrackSettingsBox_Checked"  Checked="KeepTrackSettingsBox_Checked"  ToolTip="{x:Static Locale:Language.Settings_Keep_Tracks}"/>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="3" x:Name="IgnoreProgchangeBox"     Content="City-Wok mode"                    Unchecked="IgnoreProgchangeBox_Checked"   Checked="IgnoreProgchangeBox_Checked"   ToolTip="{x:Static Locale:Language.Settings_Ignore_GuitarSwitching}"/>
-                        <Label Margin="10,0,0,0"     Grid.Row="4" HorizontalAlignment="Left"       Content="Autostart"                                                                                                          ToolTip="{x:Static Locale:Language.Settings_TriggerSource}"/>
+                        <Label    Margin="10,0,0,0"  Grid.Row="4" HorizontalAlignment="Left"       Content="Autostart"                                                                                                          ToolTip="{x:Static Locale:Language.Settings_TriggerSource}"/>
                         <ComboBox Margin="90,0,0,0"  Grid.Row="4" x:Name="Autostart_source" SelectionChanged="Autostart_source_SelectionChanged" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120"              ToolTip="{x:Static Locale:Language.Settings_TriggerSource}">
                             <ComboBoxItem>Disabled</ComboBoxItem>
                             <ComboBoxItem>Chat</ComboBoxItem>
@@ -114,6 +113,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="1" Content="Bring LA to front" x:Name="AMPInFrontBox" Checked="AMPInFrontBox_Checked" Unchecked="AMPInFrontBox_Checked"                              ToolTip="{x:Static Locale:Language.Settings_AmpFront}"/>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="2" Content="Enable Multibox" x:Name="MultiBox_Box" Checked="MultiBox_Checked" Unchecked="MultiBox_Checked"                                           ToolTip="{x:Static Locale:Language.Settings_Multibox}"/>
@@ -126,7 +126,7 @@
                         <Label Margin="0,0,0,0"      Grid.Row="9" Content="Advanced:"/>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="10" x:Name="MidiBardComp"      Content="Enable MidiBard Compat."         Unchecked="MidiBard_Checked"          Checked="MidiBard_Checked"           ToolTip="{x:Static Locale:Language.Settings_MidiBard}"/>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="11" x:Name="SongHistoryBox"    Content="Enable Song History"             Unchecked="SongHistoryBox_Checked"    Checked="SongHistoryBox_Checked"  />
-                        <CheckBox Margin="10,0,0,0"  Grid.Row="12" x:Name="SkinUiBox"         Content="Use skinned Ui"                  Click="SkinUiBox_Checked"                                                  ToolTip="{x:Static Locale:Language.Settings_Use_Skin}"          Visibility="Hidden"/>
+                        <CheckBox Margin="10,0,0,0"  Grid.Row="12" x:Name="SkinUiBox"         Content="Use skinned Ui"                  Click="SkinUiBox_Checked"                                                  ToolTip="{x:Static Locale:Language.Settings_Use_Skin}"/>
                         <CheckBox Margin="10,0,0,0"  Grid.Row="13" x:Name="Sp_DalamudKeyOut"  Content="Use Dalamud Key out"             Unchecked="Sp_DalamudKeyOut_Checked"  Checked="Sp_DalamudKeyOut_Checked"   ToolTip="{x:Static Locale:Language.Settings_Dalamud_KeyOut}"    Visibility="Hidden"/>
                     </Grid>
                 </TabItem>

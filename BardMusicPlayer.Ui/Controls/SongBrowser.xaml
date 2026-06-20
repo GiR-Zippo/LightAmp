@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
             xmlns:Locale ="clr-namespace:BardMusicPlayer.Ui.Locales"
              mc:Ignorable="d" 
-             Background="WhiteSmoke"
+             Background="{DynamicResource BackgroundBrush}"
              d:DesignHeight="450" d:DesignWidth="800">
 
     <Grid>
@@ -39,12 +39,6 @@
                     ScrollViewer.HorizontalScrollBarVisibility="Visible"
                          ScrollViewer.VerticalScrollBarVisibility="Visible"
                          ScrollViewer.CanContentScroll="True">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="{x:Type ListViewItem}">
-                    <EventSetter Event="PreviewMouseDoubleClick"     Handler="SongbrowserContainer_PreviewMouseDoubleClick"/>
-                    <EventSetter Event="PreviewMouseRightButtonDown" Handler="OnListViewItemPreviewMouseRightButtonDown"/>
-                </Style>
-            </ListView.ItemContainerStyle>
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Add To Playlist" Click="AddToPlaylist_Click" ToolTip="{x:Static Locale:Language.Global_Load_Song_To_Playlist}"/>

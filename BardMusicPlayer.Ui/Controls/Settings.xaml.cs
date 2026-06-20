@@ -6,7 +6,7 @@
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Seer;
-using BardMusicPlayer.Ui.Resources;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,15 +75,10 @@ namespace BardMusicPlayer.Ui.Controls
             MidiBardComp.IsChecked = BmpPigeonhole.Instance.MidiBardCompatMode;
             SongHistoryBox.IsChecked = BmpPigeonhole.Instance.EnableSongHistory;
 
-            if (!BmpPigeonhole.Instance.ClassicUi)
-            {
-                SkinUiBox.Visibility = Visibility.Visible;
-                SkinUiBox.IsChecked = !BmpPigeonhole.Instance.ClassicUi;
-            }
+            SkinUiBox.IsChecked = BmpPigeonhole.Instance.LastSkin.Length > 1;
 
             if (BmpPigeonhole.Instance.UsePluginForKeyOutput)
             {
-                SkinUiBox.Visibility = Visibility.Visible;
                 Sp_DalamudKeyOut.Visibility = Visibility.Visible;
                 Sp_DalamudKeyOut.IsChecked = BmpPigeonhole.Instance.UsePluginForKeyOutput;
             }
@@ -225,16 +220,32 @@ namespace BardMusicPlayer.Ui.Controls
         {
             if ((bool)SkinUiBox.IsChecked)
             {
-                var openFileDialog = new FolderPicker();
+                var openFileDialog = new OpenFileDialog();
+                openFileDialog.Filter = "Theme file | *.xaml; *.dll";
                 if (openFileDialog.ShowDialog() != true)
                     return;
 
-                if (openFileDialog.ResultPath == "")
+                if (openFileDialog.FileName == "")
                     return;
 
-                BmpPigeonhole.Instance.LastSkin = openFileDialog.ResultPath + "\\Skin.dll";
+                if (openFileDialog.FileName.EndsWith(".xaml"))
+                {
+                    BmpPigeonhole.Instance.LastSkin = openFileDialog.FileName;
+                    Globals.Globals.ReloadConfig();
+                    return;
+                }
+                else
+                    BmpPigeonhole.Instance.LastSkin = openFileDialog.FileName;
             }
-            BmpPigeonhole.Instance.ClassicUi = !(SkinUiBox.IsChecked ?? true);
+            else
+            {
+                if (BmpPigeonhole.Instance.LastSkin.EndsWith(".xaml"))
+                {
+                    BmpPigeonhole.Instance.LastSkin = "";
+                    Globals.Globals.ReloadConfig();
+                }
+                BmpPigeonhole.Instance.LastSkin = "";
+            }
         }
         #endregion
 
@@ -255,7 +266,6 @@ namespace BardMusicPlayer.Ui.Controls
             if (IsCompletedBy(e.Key))
             {
                 Sp_DalamudKeyOut.Visibility = Visibility.Visible;
-                SkinUiBox.Visibility = Visibility.Visible;
                 this.KeyDown -= Classic_MainView_KeyDown;
             }
         }

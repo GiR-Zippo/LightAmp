@@ -14,6 +14,7 @@ using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using UI.Resources;
 
@@ -38,6 +39,7 @@ namespace BardMusicPlayer.Ui.Controls
         public Playlist()
         {
             InitializeComponent();
+            PlaylistContainer.AddHandler(DataGridColumnHeader.ClickEvent,new RoutedEventHandler(PlaylistContainer_HeaderClick));
 
             //Always start with the playlists
             showingPlaylists = true;
@@ -255,14 +257,10 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void PlaylistContainer_HeaderClick(object sender, RoutedEventArgs e)
         {
-            var columnHeader = sender as System.Windows.Controls.Primitives.DataGridColumnHeader;
-            if (columnHeader != null)
-            {
-                showingPlaylists = true;
-                PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
-                Playlist_Header.Header = "Playlists";
-                currentPlaylist = null;
-            }
+            showingPlaylists = true;
+            PlaylistContainer.ItemsSource = BmpCoffer.Instance.GetPlaylistNames();
+            Playlist_Header.Header = "Playlists";
+            currentPlaylist = null;
         }
 
         /// <summary>

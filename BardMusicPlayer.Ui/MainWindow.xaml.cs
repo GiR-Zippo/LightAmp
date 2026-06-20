@@ -22,7 +22,7 @@ namespace BardMusicPlayer.Ui
         {
             InitializeComponent();
             this.Title = "LightAmp Ver:" + Assembly.GetExecutingAssembly().GetName().Version + " - S'yne";
-            if (BmpPigeonhole.Instance.ClassicUi)
+            if (!BmpPigeonhole.Instance.LastSkin.EndsWith(".dll"))
                 SwitchClassicStyle();
             else
                 SwitchSkinnedStyle();
@@ -40,12 +40,6 @@ namespace BardMusicPlayer.Ui
 
         public void SwitchSkinnedStyle()
         {
-            if (BmpPigeonhole.Instance.LastSkin == "")
-            {
-                SwitchClassicStyle();
-                return;
-            }
-
             try
             {
                 this.AllowsTransparency = true;

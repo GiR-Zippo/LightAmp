@@ -54,11 +54,7 @@
                     <MenuItem Header="Edit Metadata" Click="PlaylistMetaEdit_Click"     ToolTip="{x:Static Locale:Language.Playlist_Open_Metadata}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
-            <DataGrid.ColumnHeaderStyle>
-                <Style TargetType="DataGridColumnHeader">
-                    <EventSetter Event="Click" Handler="PlaylistContainer_HeaderClick" />
-                </Style>
-            </DataGrid.ColumnHeaderStyle>
+
             <DataGrid.Columns>
                 <DataGridTextColumn x:Name="Playlist_Header" Header="Name" IsReadOnly="true" Width="*" Binding="{Binding}">
                     <DataGridTextColumn.ElementStyle>

@@ -150,7 +150,7 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
                         HttpResponseMessage response = await _HttpClient.SendAsync(request);
                         XIVMidiApi.Instance.PublishEvent(new XIVMidiUploadResponseEvent(response.StatusCode));
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         XIVMidiApi.Instance.PublishEvent(new XIVMidiUploadResponseEvent(HttpStatusCode.ServiceUnavailable));
                     }

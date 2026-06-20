@@ -7,7 +7,8 @@
              xmlns:control = "clr-namespace:BardMusicPlayer.Ui.Controls" 
              xmlns:maestro = "clr-namespace:BardMusicPlayer.Maestro;assembly=BardMusicPlayer.Maestro" 
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             Background="{DynamicResource BackgroundBrush}">
 
     <UserControl.Resources>
         <local:BooleanToVisibilityConverter x:Key="b2vconv"/>
@@ -33,10 +34,7 @@
                 <ColumnDefinition Width="25"/>
                 <ColumnDefinition Width="10"/>
             </Grid.ColumnDefinitions>
-            <Grid.Background>
-                <SolidColorBrush Color="White"/>
-            </Grid.Background>
-            
+           
             <Button Grid.Column="1" x:Name="OpenInstrument_Button"  Content="Open" ToolTip="Open Instruments" Click="OpenInstrumentButton_Click"/>
             <Button Grid.Column="1" x:Name="CloseInstrument_Button" Content="Close" ToolTip="Close Instruments" Click="CloseInstrumentButton_Click" Visibility="Hidden"/>
             <Button Grid.Column="2" Content="ReadyCheck" ToolTip="Do the ready check" Click="RdyCheck_Click"/>

@@ -119,11 +119,6 @@ namespace BardMusicPlayer.Pigeonhole
         public virtual global::System.Drawing.Size BmpSize { get; set; } = System.Drawing.Size.Empty;
 
         /// <summary>
-        /// The Ui version which should be used
-        /// </summary>
-        public virtual bool ClassicUi { get; set; } = true;
-
-        /// <summary>
         /// Sets/Gets last used skin
         /// </summary>
         public virtual string LastSkin { get; set; } = "";

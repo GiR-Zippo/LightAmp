@@ -14,6 +14,7 @@ using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
 using BardMusicPlayer.Ui.Windows;
 using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,7 +31,6 @@ namespace BardMusicPlayer.Ui.Classic
         private bool _directLoaded { get; set; } = false; //indicates if a song was loaded directly or from playlist
         private bool _showPlaylistGrid { get; set; } = true; //indicates if we showing the playlists or history
 
-        //private NetworkPlayWindow _networkWindow = null;
         public Classic_MainView()
         {
             InitializeComponent();
@@ -73,6 +73,30 @@ namespace BardMusicPlayer.Ui.Classic
             Songbrowser_Source_box.SelectedIndex        = 0;
         }
 
+        public static void SetTheme(UserControl control, string theme)
+        {
+            if (!File.Exists(theme))
+                return;
+
+            var file = File.OpenText(theme);
+            if (!file.ReadLine().StartsWith("<ResourceDictionary xmlns="))
+            {
+                file.Close();
+                return;
+            }
+
+            var dictionaries = control.Resources.MergedDictionaries;
+            var existing = dictionaries.FirstOrDefault(d =>
+                d.Source != null && d.Source.ToString().Contains("Theme.xaml"));
+            if (existing != null)
+                dictionaries.Remove(existing);
+
+            dictionaries.Add(new ResourceDictionary
+            {
+                Source = new Uri(theme, UriKind.Absolute)
+            });
+        }
+
         private void Globals_OnConfigReload(object sender, EventArgs e)
         {
             SettingsControl.LoadConfig(true);
@@ -80,6 +104,9 @@ namespace BardMusicPlayer.Ui.Classic
             octave_txtNum.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
             octave_cmdUp.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
             octave_cmdDown.IsEnabled = !BmpPigeonhole.Instance.UseNoteOffset;
+
+            if (BmpPigeonhole.Instance.LastSkin.EndsWith(".xaml"))
+                SetTheme(this, BmpPigeonhole.Instance.LastSkin);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

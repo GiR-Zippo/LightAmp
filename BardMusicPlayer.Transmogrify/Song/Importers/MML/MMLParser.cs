@@ -189,7 +189,8 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.MML
             if (Peek().Type == TokenType.ChordEnd) Advance();
 
             // optional length after ]
-            int chordLen = 0; bool chordDot = false;
+            int chordLen = 0;
+            bool chordDot = false;
             if (Peek().Type == TokenType.Note && chordNotes.Count > 0)
             {
                 // The duration is indicated directly next to the closing bracket
