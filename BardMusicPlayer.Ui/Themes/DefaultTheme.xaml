@@ -13,5 +13,12 @@
         <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
     </Style>
 
+    <Style x:Key="SongNameStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="Margin" Value="3,0,5,0"/>
+    </Style>
 
 </ResourceDictionary>
