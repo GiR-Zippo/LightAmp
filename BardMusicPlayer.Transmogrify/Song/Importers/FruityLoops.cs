@@ -1,6 +1,5 @@
 ﻿/*
  * FLP -> MidiFile Converter
- * Ziel: Melanchall.DryWetMidi.MidiFile
  *
  * Reverse-engineered aus FL Studio 20/21 FLP-Format:
  *
@@ -32,20 +31,17 @@
  *                    [22] u8  0x80
  *                    [23] u8  0x80
  *
- * Hinweis: Program-Change-Daten sind im FLP nicht gespeichert (delegiert an
- * externes MIDI-Gerät/VST). Der Converter nutzt Name-basiertes Heuristic-Mapping
- * mit optionalem Override via channelProgramMap.
+ * Hinweis: Program-Change-Daten sind im FLP gespeichert, wo auch denn sonst.
+ * Die sind wie Noten ein eigenständiger Block mit absolute Tick
  */
 
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
-using Melanchall.DryWetMidi.Interaction;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 using System.Text;
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers
@@ -59,10 +55,6 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
         private const byte EV_PROGRAM = 0xDF;
 
         private const int NOTE_STRUCT_SIZE = 24;
-
-        // -------------------------------------------------------------------------
-        // Öffentliche API
-        // -------------------------------------------------------------------------
 
         /// <summary>
         /// Konvertiert eine FLP-Datei in eine MidiFile.
