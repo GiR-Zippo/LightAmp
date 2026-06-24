@@ -90,6 +90,8 @@ namespace BardMusicPlayer.Transmogrify.Song
                 song = CovertMidiToSong(Importers.MML.MMLConverter.OpenMMLSongFile(path), path);
             else if (Path.GetExtension(path).Contains(".gp"))
                 song = CovertMidiToSong(Importers.GuitarPro.ImportGuitarPro.OpenGTPSongFile(path), path);
+            else if (Path.GetExtension(path).Contains(".flp"))
+                song = CovertMidiToSong(FlpToMidi.Convert(path), path);
             else
             {
                 if (File.Exists(Path.ChangeExtension(path, "json")))
