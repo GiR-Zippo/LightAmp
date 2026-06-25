@@ -31,13 +31,25 @@
  *                    [22] u8  0x80
  *                    [23] u8  0x80
  *
+ *  0xDF (STRUCT) -> Controller data
+ *                    [0]  u16 ???
+ *                    [2]  u16 position tick
+ *                    [4]  u16 ???
+ *                    [5]  u8  ???
+ *                    [6]  u8  command
+ *                    [8]  u8  channel
+ *                    [9]  u8  ???
+ *                    [10] u8  instrument 
+ *
  * Hinweis: Program-Change-Daten sind im FLP gespeichert, wo auch denn sonst.
  * Die sind wie Noten ein eigenständiger Block mit absolute Tick
  */
 
+using BardMusicPlayer.Quotidian.Structs;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -191,28 +203,22 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
             using (MemoryStream ms = new MemoryStream(block))
             using (BinaryReader reader = new BinaryReader(ms))
             {
-                // 1. Die ersten 10 Byte Header überspringen
+                // Die ersten 10 Byte Header überspringen
                 if (ms.Length > 10)
                     ms.Seek(10, SeekOrigin.Begin);
 
                 while (ms.Position + 12 <= ms.Length)
                 {
                     FlpProgram ev = new FlpProgram();
-                    // Byte 0-3: Zeitstempel (4 Byte)
                     var unk = reader.ReadUInt16();
-                    var lengthTicks = reader.ReadUInt16();
-                    ev.Timestamp = lengthTicks == 0 ? (byte)48 : lengthTicks;
-                    // Byte 4-6: Die 3 Bytes VOR dem Command überspringen (z.B. 00 00 00)
+                    var tick = reader.ReadUInt16();
+                    ev.Timestamp = tick;
                     reader.BaseStream.Seek(3, SeekOrigin.Current);
-                    // Byte 7: Command (1 Byte -> 0x80)
                     ev.Command = reader.ReadByte();
-                    // Byte 8: Channel (1 Byte -> 0x00, 0x01...)
                     ev.Channel = reader.ReadByte();
-                    // Byte 9: Das Byte zwischen Channel und Instrument überspringen (0x00)
                     reader.BaseStream.Seek(1, SeekOrigin.Current);
-                    // Byte 10: Instrumenten-Nummer (1 Byte -> 0x42, 0x2C...)
                     ev.InstrumentNumber = reader.ReadByte();
-                    // Byte 11: Das allerletzte Byte des Blocks überspringen
+                    // Das allerletzte Byte des Blocks überspringen
                     reader.BaseStream.Seek(1, SeekOrigin.Current);
                     program.Add(ev);
                 }
@@ -248,8 +254,12 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                 int rackCh = group.Key;
                 byte midiChan = (byte)(rackCh % 16);
                 string trackName = chanNames.TryGetValue(rackCh, out var n) ? n : $"Channel {rackCh + 1}";
-                byte program = ResolveProgram(trackName, programOverrides);
-
+                byte program = 0;
+                Instrument instr = Instrument.Parse(trackName);
+                if (instr.Equals(Instrument.None))
+                    program = ResolveProgram(trackName, programOverrides);
+                else
+                    program = (byte)instr.MidiProgramChangeCode;
                 var evList = new List<(long tick, MidiEvent ev)>();
 
                 // Program Change am Anfang
@@ -271,7 +281,12 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
                 {
                     if (prog.Channel != group.Key)
                         continue;
-
+                    if (prog.Command != 0x80)
+                        continue;
+                    if (evList.Any(n => n.tick == prog.Timestamp &&
+                                        n.ev is ProgramChangeEvent pce &&
+                                        pce.Channel == prog.Channel))
+                        continue;
                     long startTick = prog.Timestamp;
                     evList.Add((startTick, new ProgramChangeEvent((SevenBitNumber)(prog.InstrumentNumber-1))
                     { Channel = (FourBitNumber)midiChan }));
@@ -395,27 +410,10 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers
         }
         private struct FlpProgram
         {
-            // 4 Byte: Zeitstempel (Little-Endian uint, z.B. 6072 Ticks)
             public uint Timestamp;
-
-            // 1 Byte: Padding / Status vor dem Command
-            public byte UnknownPadding1;
-
-            // 1 Byte: Der Command (Sollte immer 0x80 sein)
             public byte Command;
-
-            // 1 Byte: Der MIDI-Kanal (0-15)
             public byte Channel;
-
-            // 1 Byte: Padding zwischen Kanal und Instrument
-            public byte UnknownPadding2;
-
-            // 1 Byte: Die MIDI-Instrumenten-Nummer (0-127 / 128)
             public byte InstrumentNumber;
-
-            // 3 Byte: Padding am Ende, um das 12-Byte-Alignment vollzumachen
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
-            public byte[] EndPadding;
         }
     }
 }
