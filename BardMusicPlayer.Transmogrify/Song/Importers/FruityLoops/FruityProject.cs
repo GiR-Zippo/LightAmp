@@ -1,4 +1,9 @@
-﻿using BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs;
+﻿/*
+ * Copyright(c) 2026 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs;
 using System.Collections.Generic;
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops
@@ -19,24 +24,36 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops
         public string VersionString { get; set; } = string.Empty;
         public int Version { get; set; } = 0x100;
         public List<Channel> Channels { get; set; } = new List<Channel>();
-        public Track[] Tracks { get; set; } = new Track[MaxTrackCount];
-        public List<Pattern> Patterns { get; set; } = new List<Pattern>();
-        public Insert[] Inserts { get; set; } = new Insert[MaxInsertCount];
         public bool PlayTruncatedNotes { get; set; } = false;
 
-        public FruityProject()
+        private Track[] _tracks;
+        public Track[] Tracks => _tracks ??= new Track[MaxTrackCount];
+
+        private Insert[] _inserts;
+        public Insert[] Inserts => _inserts ??= BuildInserts();
+
+        public List<Pattern> Patterns { get; set; } = new List<Pattern>();
+
+        private static Insert[] BuildInserts()
         {
-            for (var i = 0; i < MaxTrackCount; i++)
-            {
-                Tracks[i] = new Track();
-            }
+            var arr = new Insert[MaxInsertCount];
+            return arr;
+        }
 
-            for (var i = 0; i < MaxInsertCount; i++)
-            {
-                Inserts[i] = new Insert { Id = i, Name = $"Insert {i}" };
-            }
+        public Insert GetInsert(int i)
+        {
+            if (_inserts == null) _inserts = new Insert[MaxInsertCount];
+            if (_inserts[i] == null)
+                _inserts[i] = new Insert { Id = i, Name = i == 0 ? "Master" : $"Insert {i}" };
+            return _inserts[i];
+        }
 
-            Inserts[0].Name = "Master";
+        public Track GetTrack(int i)
+        {
+            if (_tracks == null) _tracks = new Track[MaxTrackCount];
+            if (_tracks[i] == null)
+                _tracks[i] = new Track();
+            return _tracks[i];
         }
     }
 }

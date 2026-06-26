@@ -352,15 +352,15 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops
                         var insertId = (channelData >> 6) & 0x7F;
                         var insertType = channelData >> 13;
 
-                        var insert = project.Inserts[insertId];
+                        var insert = project.GetInsert(insertId);
 
                         switch (messageId)
                         {
                             case FruityEnums.InsertParam.SlotState:
-                                insert.Slots[slotId].State = messageData;
+                                insert.GetSlot(slotId).State = messageData;
                                 break;
                             case FruityEnums.InsertParam.SlotVolume:
-                                insert.Slots[slotId].Volume = messageData;
+                                insert.GetSlot(slotId).Volume = messageData;
                                 break;
                             case FruityEnums.InsertParam.Volume:
                                 insert.Volume = messageData;
@@ -469,7 +469,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops
                             var startOffset = (int)(reader.ReadSingle() * (float)project.Ppq);
                             var endOffset = (int)(reader.ReadSingle() * (float)project.Ppq);
 
-                            project.Tracks[track].Items.Add(new ChannelPlaylistItem
+                            project.GetTrack(track).Items.Add(new ChannelPlaylistItem
                             {
                                 Position = startTime,
                                 Length = length,
@@ -484,7 +484,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops
                             var startOffset = reader.ReadInt32();
                             var endOffset = reader.ReadInt32();
 
-                            project.Tracks[track].Items.Add(new PatternPlaylistItem
+                            project.GetTrack(track).Items.Add(new PatternPlaylistItem
                             {
                                 Position = startTime,
                                 Length = length,

@@ -3,6 +3,7 @@
  * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
  */
 
+using System;
 using System.Collections.Generic;
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs
@@ -14,7 +15,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs
         public int InsertId { get; set; } = -1;
         public int SlotId { get; set; } = -1;
         public bool VstParameter { get; set; } = true;
-        public AutomationKeyframe[] Keyframes { get; set; } = new AutomationKeyframe[0];
+        public AutomationKeyframe[] Keyframes { get; set; } = Array.Empty<AutomationKeyframe>();
     }
 
     public record AutomationKeyframe
@@ -45,7 +46,15 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs
     public record GeneratorData : IChannelData
     {
         public byte[] PluginSettings { get; set; } = null;
-        public Plugin Plugin { get; set; } = new Plugin();
+
+        // Lazy: Plugin-Objekt nur wenn wirklich gebraucht
+        private Plugin _plugin;
+        public Plugin Plugin
+        {
+            get => _plugin ??= new Plugin();
+            set => _plugin = value;
+        }
+
         public string GeneratorName { get; set; } = "";
         public double Volume { get; set; } = 100;
         public double Panning { get; set; } = 0;
@@ -81,9 +90,7 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs
         public byte InstrumentNumber;
     }
 
-    public interface IChannelData
-    {
-    }
+    public interface IChannelData { }
 
     public interface IPlaylistItem
     {
@@ -114,17 +121,42 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs
         public int LowWidth { get; set; } = 0;
         public int BandWidth { get; set; } = 0;
         public int HighWidth { get; set; } = 0;
-        public bool[] Routes { get; set; } = new bool[FruityProject.MaxInsertCount];
-        public int[] RouteVolumes { get; set; } = new int[FruityProject.MaxInsertCount];
-        public InsertSlot[] Slots { get; set; } = new InsertSlot[MaxSlotCount];
 
-        public Insert()
+        // Lazy: Routes/RouteVolumes nur allozieren wenn DataInsertRoutes/DataInsertParams kommt
+        private bool[] _routes;
+        public bool[] Routes
         {
-            for (var i = 0; i < MaxSlotCount; i++)
-                Slots[i] = new InsertSlot();
+            get => _routes ??= new bool[FruityProject.MaxInsertCount];
+            set => _routes = value;
+        }
 
-            for (var i = 0; i < FruityProject.MaxInsertCount; i++)
-                RouteVolumes[i] = 12800;
+        private int[] _routeVolumes;
+        public int[] RouteVolumes
+        {
+            get
+            {
+                if (_routeVolumes == null)
+                {
+                    _routeVolumes = new int[FruityProject.MaxInsertCount];
+                    for (int i = 0; i < _routeVolumes.Length; i++) _routeVolumes[i] = 12800;
+                }
+                return _routeVolumes;
+            }
+            set => _routeVolumes = value;
+        }
+
+        // Lazy: Slots nur bei Bedarf erstellen
+        private InsertSlot[] _slots;
+        public InsertSlot[] Slots
+        {
+            get => _slots ??= new InsertSlot[MaxSlotCount];
+            set => _slots = value;
+        }
+
+        public InsertSlot GetSlot(int i)
+        {
+            if (_slots == null) _slots = new InsertSlot[MaxSlotCount];
+            return _slots[i] ??= new InsertSlot();
         }
     }
 
@@ -134,7 +166,14 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs
         public int State { get; set; } = 0;
         public int DryWet { get; set; } = -1;
         public byte[] PluginSettings { get; set; } = null;
-        public Plugin Plugin { get; set; } = new Plugin();
+
+        // Lazy: Plugin nur wenn wirklich gebraucht
+        private Plugin _plugin;
+        public Plugin Plugin
+        {
+            get => _plugin ??= new Plugin();
+            set => _plugin = value;
+        }
     }
 
     public record Note
@@ -170,28 +209,18 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs
         public int MidiInPort { get; set; }
         public int MidiOutPort { get; set; }
         public byte PitchBendRange { get; set; }
-
         public uint Flags { get; set; }
-
         public int NumInputs { get; set; }
         public int NumOutputs { get; set; }
-
         public PluginIoInfo[] InputInfo { get; set; }
         public PluginIoInfo[] OutputInfo { get; set; }
-
         public int InfoKind { get; set; }
-
         public uint VstNumber { get; set; }
         public string VstId { get; set; }
-
         public byte[] Guid { get; set; }
-
         public byte[] State { get; set; }
-
         public string Name { get; set; }
-
         public string FileName { get; set; }
-
         public string VendorName { get; set; }
     }
 
