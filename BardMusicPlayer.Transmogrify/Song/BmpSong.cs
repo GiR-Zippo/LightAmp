@@ -16,6 +16,7 @@ using BardMusicPlayer.Quotidian.Structs;
 using BardMusicPlayer.Transmogrify.Processor.Utilities;
 using BardMusicPlayer.Transmogrify.Song.Config;
 using BardMusicPlayer.Transmogrify.Song.Importers;
+using BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops;
 using BardMusicPlayer.Transmogrify.Song.Importers.LrcParser;
 using BardMusicPlayer.Transmogrify.Song.Manipulation;
 using BardMusicPlayer.Transmogrify.Song.Utilities;
