@@ -4,6 +4,7 @@
  */
 
 using BardMusicPlayer.Quotidian.Structs;
+using BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using System;
@@ -11,7 +12,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops.FruityStrucs;
 
 namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops
 {
@@ -158,11 +158,23 @@ namespace BardMusicPlayer.Transmogrify.Song.Importers.FruityLoops
                 // ProgramChange-Events für diesen Channel
                 if (ch.Data is OldAutomationData oad)
                 {
-                    foreach (var pc in oad.Programchanges)
+                    if (oad.Command == 0x80) //ProgChange
                     {
-                        if (pc.InstrumentNumber == 0) continue;
-                        evList.Add(((long)pc.Timestamp, new ProgramChangeEvent((SevenBitNumber)(pc.InstrumentNumber - 1))
-                        { Channel = (FourBitNumber)midiChan }));
+                        foreach (var pc in oad.Programchanges)
+                        {
+                            if (pc.InstrumentNumber == 0) continue;
+                            evList.Add(((long)pc.Timestamp, new ProgramChangeEvent((SevenBitNumber)(pc.InstrumentNumber - 1))
+                            { Channel = (FourBitNumber)midiChan }));
+                        }
+                    }
+                }
+
+                if (ch.Data is GeneratorData gdat)
+                {
+                    var dat = gdat;
+                    if (dat.GeneratorName.StartsWith("FLEX"))
+                    {
+                        var na = Encoding.ASCII.GetString(dat.PluginSettings, 0x411, 256).TrimEnd('\0');
                     }
                 }
 

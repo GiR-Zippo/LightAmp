@@ -442,7 +442,10 @@ namespace BardMusicPlayer.Ui.Classic
             if (int.TryParse(octave_txtNum.Text.Replace(@"ø", ""), out _octavenumValue))
             {
                 octave_txtNum.Text = @"ø" + _octavenumValue.ToString();
-                BmpMaestro.Instance.SetOctaveshiftOnHost(_octavenumValue);
+                //only send if the value wa entered here
+                if (sender is TextBox && octave_cmdDown != null && octave_cmdUp != null)
+                    if ((sender as TextBox).IsFocused || octave_cmdUp.IsFocused || octave_cmdDown.IsFocused)
+                        BmpMaestro.Instance.SetOctaveshiftOnHost(_octavenumValue);
             }
         }
         #endregion
