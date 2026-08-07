@@ -95,9 +95,6 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
             if (url.Length < 1)
                 return;
 
-            if (!fromBMP)
-                url = "https://xivmidi.com" + url;
-
             foreach (Cookie co in _HttpClientHandler.CookieContainer.GetCookies(new Uri(url)))
                 co.Expires = DateTime.Now.Subtract(TimeSpan.FromDays(1));
 

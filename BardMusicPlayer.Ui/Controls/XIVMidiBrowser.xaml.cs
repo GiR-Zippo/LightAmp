@@ -75,13 +75,13 @@ namespace BardMusicPlayer.Ui.Controls
         private void Instance_OnXIVSongList(object sender, XIVMidiXIVSongsEvent e)
         {
             Dictionary<string, string> list = new Dictionary<string, string>();
-            foreach (var file in e.Songs.data.files)
+            foreach (var file in e.Songs.data)
             {
                 try
                 {
-                    if (file.websiteFilePath.Length <= 2)
+                    if (file.download_url.Length <= 2)
                         continue;
-                    list.Add(file.websiteFilePath, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.editor ?? ""));
+                    list.Add(file.download_url, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.credit ?? ""));
                 }
                 catch { }
             }
