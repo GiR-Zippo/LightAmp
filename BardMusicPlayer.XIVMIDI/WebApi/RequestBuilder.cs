@@ -87,11 +87,13 @@ public class XIVMIDIRequestBuilder
     /// Set the instruments "Piano;Harp"
     /// </summary>
     public string Instrument { get; set; } = "";
-    public int limit { get; set; } = -1;
 
     public string BuildRequest()
     {
-        var request = ApiBaseUrl + "?limit=" + limit;
+        // limit=-1 is forced: it's the only value that returns the lite
+        // shape this client's File model (id, artist, title, credit,
+        // download_url) is built for.
+        var request = ApiBaseUrl + "?limit=-1";
         request += Credit == "" ? "" : "&credit=" + Credit;
         request += Artist == "" ? "" : "&artist=" + Artist;
         request += Title == "" ? "" : "&title=" + Title;
