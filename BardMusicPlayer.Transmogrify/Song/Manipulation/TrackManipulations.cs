@@ -8,6 +8,7 @@ using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -372,6 +373,10 @@ namespace BardMusicPlayer.Transmogrify.Song.Manipulation
                                 tEvent.Time = TimeConverter.ConvertFrom(new MetricTimeSpan((long)ti * 1000), midiFile.GetTempoMap());
                             else
                                 tEvent.Time = 0;
+
+                            if (tEvent.Time >= noteOnEvent.Time)
+                                tEvent.Time = Math.Max(0, noteOnEvent.Time - 1);
+
                             newProgEvents.Add(tEvent);
                             currProg = programs[noteOn.Channel];
                         }

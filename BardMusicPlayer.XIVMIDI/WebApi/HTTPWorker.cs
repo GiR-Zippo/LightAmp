@@ -13,7 +13,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace BardMusicPlayer.XIVMIDI.WebApi
@@ -94,9 +93,6 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
         {
             if (url.Length < 1)
                 return;
-
-            if (!fromBMP)
-                url = "https://xivmidi.com" + url;
 
             foreach (Cookie co in _HttpClientHandler.CookieContainer.GetCookies(new Uri(url)))
                 co.Expires = DateTime.Now.Subtract(TimeSpan.FromDays(1));

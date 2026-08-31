@@ -56,14 +56,12 @@ public class BMPUploadBuilder
 /// </summary>
 public class XIVMIDIRequestBuilder
 {
-    private readonly string ApiBaseUrl = "https://api.xivmidi.com";
-
-    public string md5 { get; set; } = "";
+    private readonly string ApiBaseUrl = "https://api.xivmidi.com/v2/files";
 
     /// <summary>
     /// Set the editor
     /// </summary>
-    public string Editor { get; set; } = "";
+    public string Credit { get; set; } = "";
 
     /// <summary>
     /// Set the artist
@@ -93,14 +91,13 @@ public class XIVMIDIRequestBuilder
 
     public string BuildRequest()
     {
-        var request = ApiBaseUrl + "/public/files?";
-        request += md5 == "" ? "" : "md5=" + md5 + "&";
-        request += Editor == "" ? "" : "editor=" + Editor + "&";
-        request += Artist == "" ? "" : "artist=" + Artist + "&";
-        request += Title == "" ? "" : "title=" + Title + "&";
-        request += bandSize <= 0 || bandSize > 8 ? "" : "bandSize=" + Misc.PerformerSize[bandSize] + "&";
-        request += Tags == "" ? "" : "tags=" + Tags + "&";
-        request += Instrument == "" ? "" : "instrument=" + Instrument;
+        var request = ApiBaseUrl + "?limit=-1";
+        request += Credit == "" ? "" : "&credit=" + Credit;
+        request += Artist == "" ? "" : "&artist=" + Artist;
+        request += Title == "" ? "" : "&title=" + Title;
+        request += bandSize <= 0 || bandSize > 8 ? "" : "&bandsize=" + bandSize.ToString();
+        request += Tags == "" ? "" : "&tags=" + Tags;
+        request += Instrument == "" ? "" : "&instruments=" + Instrument;
         return request;
     }
 #endregion
