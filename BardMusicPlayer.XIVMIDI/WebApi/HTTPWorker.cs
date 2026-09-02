@@ -22,6 +22,10 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
         private string UserAgent { get; } = "XIVMIDI CLIENT V2 (LightAmp)";
         private HttpClient _HttpClient { get; set; } = null;
         private HttpClientHandler _HttpClientHandler { get; set; } = null;
+
+        /// <summary>
+        /// Setup the HTTPWorker
+        /// </summary>
         public HTTPWorker()
         {
             _HttpClientHandler = new HttpClientHandler
@@ -37,6 +41,9 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
             _HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
         }
 
+        /// <summary>
+        /// Dispose everything
+        /// </summary>
         public void Dispose()
         {
             _HttpClient.Dispose();
@@ -47,7 +54,7 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
         /// Get the song list
         /// </summary>
         /// <param name="request"></param>
-        public async Task RequestSongList(object request)
+        public async Task RequestSongList(object request, bool dynamic)
         {
             string url = "";
             if (request is BMPAPIRequestBuilder)
@@ -71,7 +78,7 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
                     if (request is BMPAPIRequestBuilder)
                         XIVMidiApi.Instance.PublishEvent(new XIVMidiBMPSongsEvent(JsonConvert.DeserializeObject<BMPResponseContainer.Root>(ResponseBody.ReadAsStringAsync().Result)));
                     else if (request is XIVMIDIRequestBuilder)
-                        XIVMidiApi.Instance.PublishEvent(new XIVMidiXIVSongsEvent(JsonConvert.DeserializeObject<XIVMIDIResponseContainer.ApiResponse>(ResponseBody.ReadAsStringAsync().Result)));
+                        XIVMidiApi.Instance.PublishEvent(new XIVMidiXIVSongsEvent(JsonConvert.DeserializeObject<XIVMIDIResponseContainer.ApiResponse>(ResponseBody.ReadAsStringAsync().Result), dynamic));
                     return;
                 }
                 else

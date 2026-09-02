@@ -47,7 +47,8 @@
         <ListView Grid.Row="3" x:Name="SongbrowserContainer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" 
                     ScrollViewer.HorizontalScrollBarVisibility="Visible"
                          ScrollViewer.VerticalScrollBarVisibility="Visible"
-                         ScrollViewer.CanContentScroll="True">
+                         ScrollViewer.CanContentScroll="True"
+                         ScrollViewer.ScrollChanged="SongbrowserContainer_ScrollChanged">
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <EventSetter Event="PreviewMouseDoubleClick"     Handler="SongbrowserContainer_PreviewMouseDoubleClick"/>

@@ -8,6 +8,7 @@ using BardMusicPlayer.XIVMIDI;
 using BardMusicPlayer.XIVMIDI.Events;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,6 +22,24 @@ namespace BardMusicPlayer.Ui.Controls
     /// </summary>
     public sealed partial class XIVMidiBrowser : UserControl
     {
+        /// <summary>
+        /// The songlist
+        /// </summary>
+        private ObservableCollection<KeyValuePair<string, string>> _songs = new();
+
+        /// <summary>
+        /// More to load
+        /// </summary>
+        private bool _isLoadingMore = false;
+
+        /// <summary>
+        /// Max song we can get from Api
+        /// </summary>
+        private int _maxSongs = 0;
+
+        /// <summary>
+        /// Download option
+        /// </summary>
         private enum DownloadOption
         {
             OnLoadSongFromBrowser = 0,
@@ -49,49 +68,68 @@ namespace BardMusicPlayer.Ui.Controls
 
             PerformerSize_box.ItemsSource = Misc.PerformerSize.Values;
             PerformerSize_box.SelectedIndex = 1;
+
+            SongbrowserContainer.ItemsSource = _songs;
         }
 
         #region callback handlers
+        /// <summary>
+        /// A songlist from BMP arrives
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Instance_OnBMPSongList(object sender, XIVMidiBMPSongsEvent e)
         {
-            Dictionary<string, string> list = new Dictionary<string, string>();
-            foreach (var file in e.Songs.docs)
-            {
-                try
-                {
-                    if (file.url.Length <= 2)
-                        continue;
-                    list.Add(file.url, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.arranger ?? ""));
-                }
-                catch { }
-            }
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                SongbrowserContainer.ItemsSource = list;
+                _songs.Clear();
+                foreach (var file in e.Songs.docs)
+                {
+                    try
+                    {
+                        if (file.url.Length <= 2)
+                            continue;
+                        _songs.Add(new KeyValuePair<string, string>(file.url, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.arranger ?? "")));
+                    }
+                    catch { }
+                }
                 SongbrowserContainer.Items.Filter = RefreshContainer;
             }));
         }
 
+        /// <summary>
+        /// A songlist from XIVMidi arrives
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Instance_OnXIVSongList(object sender, XIVMidiXIVSongsEvent e)
         {
-            Dictionary<string, string> list = new Dictionary<string, string>();
-            foreach (var file in e.Songs.data)
-            {
-                try
-                {
-                    if (file.download_url.Length <= 2)
-                        continue;
-                    list.Add(file.download_url, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.credit ?? ""));
-                }
-                catch { }
-            }
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                SongbrowserContainer.ItemsSource = list;
+                if (!e.DynamicLoad)
+                {
+                    _songs.Clear();
+                    _maxSongs = e.Songs.meta.total;
+                }
+                foreach (var file in e.Songs.data)
+                {
+                    try
+                    {
+                        if (file.download_url.Length <= 2)
+                            continue;
+                        _songs.Add(new KeyValuePair<string, string>(file.download_url, (file.artist ?? "") + " - " + (file.title ?? "") + " - " + (file.credit ?? "")));
+                    }
+                    catch { }
+                }
                 SongbrowserContainer.Items.Filter = RefreshContainer;
             }));
         }
 
+        /// <summary>
+        /// A midi file appeared
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Instance_OnMidiFile(object sender, XIVMidiFileEvent e)
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -106,19 +144,30 @@ namespace BardMusicPlayer.Ui.Controls
             }));
         }
 
+        /// <summary>
+        /// Sum Ting Wong
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Instance_OnRequestError(object sender, XIVMidiApiErrorEvent e)
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
+                _songs.Clear();
                 if (e.ErrorCode == 503)
-                    SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", "Service not available" } };
+                    _songs.Add(new KeyValuePair<string, string>("none", "Service not available"));
                 else
-                    SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", e.Message } };
+                    _songs.Add(new KeyValuePair<string, string>("none", e.Message));
             }));
         }
 
         #endregion
 
+        /// <summary>
+        /// Refresh the content of SongContainer
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         private bool RefreshContainer(object item)
         {
             if (String.IsNullOrEmpty(SongSearch.Text))
@@ -214,6 +263,38 @@ namespace BardMusicPlayer.Ui.Controls
             }
         }
 
+        /// <summary>
+        /// For dynamic loading
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void SongbrowserContainer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (_songs.Count >= _maxSongs)
+                return;
+
+            if (e.VerticalChange <= 0)
+                return;
+
+            double distanceToEnd = e.ExtentHeight - (e.VerticalOffset + e.ViewportHeight);
+            if (distanceToEnd < 50 && !_isLoadingMore)
+            {
+                _isLoadingMore = true;
+                try
+                {
+                    if (!this.IsVisible)
+                        return;
+
+                    if (Source_box.SelectedIndex == 0) //XIVMIDI
+                        XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.XIVMIDIRequestBuilder() {skip= _songs.Count, bandSize = PerformerSize_box.SelectedIndex }, true);
+                }
+                finally
+                {
+                    _isLoadingMore = false;
+                }
+            }
+        }
+
         private void Source_box_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SendRequest();
@@ -224,9 +305,11 @@ namespace BardMusicPlayer.Ui.Controls
             SendRequest();
         }
 
+        #region XIVAPI Access
         private void SendRequest()
         {
-            SongbrowserContainer.ItemsSource = new Dictionary<string, string> { { "none", "Loading..." } };
+            _songs.Clear();
+            _songs.Add(new KeyValuePair<string, string>("none", "Loading..."));
             if (!this.IsVisible)
                 return;
 
@@ -249,5 +332,6 @@ namespace BardMusicPlayer.Ui.Controls
             if (this.IsVisible)
                 SendRequest();
         }
+        #endregion
     }
 }

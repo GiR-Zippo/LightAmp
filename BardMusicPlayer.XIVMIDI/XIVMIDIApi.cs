@@ -61,17 +61,17 @@ namespace BardMusicPlayer.XIVMIDI
         /// <summary>
         /// Get the songlist from BMPApi
         /// </summary>
-        public void GetSonglist(BMPAPIRequestBuilder request)
+        public void GetSonglist(BMPAPIRequestBuilder request, bool dynamic = false)
         {
-            _HttpWorker.RequestSongList(request).ConfigureAwait(true);
+            _HttpWorker.RequestSongList(request, dynamic).ConfigureAwait(true);
         }
 
         /// <summary>
-        /// Get the song list from XIVMidi
+        /// Get the song list from XIVMidi via <see cref="XIVMIDIRequestBuilder"/>. dynamic indicates if it's a append request
         /// </summary>
-        public void GetSonglist(XIVMIDIRequestBuilder request)
+        public void GetSonglist(XIVMIDIRequestBuilder request, bool dynamic = false)
         {
-            _HttpWorker.RequestSongList(request).ConfigureAwait(true);
+            _HttpWorker.RequestSongList(request, dynamic).ConfigureAwait(true);
         }
 
         /// <summary>

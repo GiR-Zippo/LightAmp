@@ -84,6 +84,12 @@ public class XIVMIDIRequestBuilder
     public string Tags { get; set; } = "";
 
     /// <summary>
+    /// Pages are limited to 100 entries
+    /// define the skip to get the next page
+    /// </summary>
+    public int skip { get; set; } = 0;
+
+    /// <summary>
     /// Set the instruments "Piano;Harp"
     /// </summary>
     public string Instrument { get; set; } = "";
@@ -91,7 +97,7 @@ public class XIVMIDIRequestBuilder
 
     public string BuildRequest()
     {
-        var request = ApiBaseUrl + "?limit=-1";
+        var request = ApiBaseUrl + "?limit=100";
         request += Credit == "" ? "" : "&credit=" + Credit;
         request += Artist == "" ? "" : "&artist=" + Artist;
         request += Title == "" ? "" : "&title=" + Title;
