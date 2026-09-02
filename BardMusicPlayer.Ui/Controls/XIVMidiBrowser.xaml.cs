@@ -82,7 +82,11 @@ namespace BardMusicPlayer.Ui.Controls
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                _songs.Clear();
+                if (!e.DynamicLoad)
+                {
+                    _songs.Clear();
+                    _maxSongs = e.Songs.totalPages;
+                }
                 foreach (var file in e.Songs.docs)
                 {
                     try
@@ -270,8 +274,11 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private async void SongbrowserContainer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (_songs.Count >= _maxSongs)
+            if ((Source_box.SelectedIndex == 0) && (_songs.Count >= _maxSongs))
                 return;
+            if ((Source_box.SelectedIndex == 1) && (_songs.Count/100 >= _maxSongs))
+                return;
+
 
             if (e.VerticalChange <= 0)
                 return;
@@ -287,6 +294,8 @@ namespace BardMusicPlayer.Ui.Controls
 
                     if (Source_box.SelectedIndex == 0) //XIVMIDI
                         XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.XIVMIDIRequestBuilder() {skip= _songs.Count, bandSize = PerformerSize_box.SelectedIndex }, true);
+                    else if (Source_box.SelectedIndex == 1)
+                        XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.BMPAPIRequestBuilder() { page = _songs.Count/100, bandSize = PerformerSize_box.SelectedIndex }, true);
                 }
                 finally
                 {

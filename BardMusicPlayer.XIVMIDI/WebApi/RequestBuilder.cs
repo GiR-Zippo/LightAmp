@@ -12,18 +12,24 @@ namespace BardMusicPlayer.XIVMIDI.IO;
 /// </summary>
 public class BMPAPIRequestBuilder
 {
-    private readonly string ApiBaseUrl = "https://bardmusicplayer.com/api/midis";
+    private readonly string ApiBaseUrl = "https://bardmusicplayer.com/api/midi-search";
 
     /// <summary>
     /// Set the performer size
     /// </summary>
     public int bandSize { get; set; } = 0;
 
+    /// <summary>
+    /// The page we request
+    /// </summary>
+    public int page = 1;
+
     public string BuildRequest()
     {
-        var request = ApiBaseUrl + "?where";
-        request += bandSize <= 0 || bandSize > 8 ? "" : "[ensembleSize][equals]=" + (bandSize == 2 ? "duo" : Misc.PerformerSize[bandSize].ToLower());
-        request += "&limit=0";
+        var request = ApiBaseUrl + "?";
+        request += bandSize <= 0 || bandSize > 8 ? "" : "ensemble=" + (bandSize == 2 ? "duo" : Misc.PerformerSize[bandSize].ToLower());
+        request += "&page=" + page.ToString();
+        request += "&limit=100";
         return request;
     }
 }

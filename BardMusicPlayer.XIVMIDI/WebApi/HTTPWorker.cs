@@ -76,7 +76,7 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
                 if (response.IsSuccessStatusCode)
                 {
                     if (request is BMPAPIRequestBuilder)
-                        XIVMidiApi.Instance.PublishEvent(new XIVMidiBMPSongsEvent(JsonConvert.DeserializeObject<BMPResponseContainer.Root>(ResponseBody.ReadAsStringAsync().Result)));
+                        XIVMidiApi.Instance.PublishEvent(new XIVMidiBMPSongsEvent(JsonConvert.DeserializeObject<BMPResponseContainer.Root>(ResponseBody.ReadAsStringAsync().Result), dynamic));
                     else if (request is XIVMIDIRequestBuilder)
                         XIVMidiApi.Instance.PublishEvent(new XIVMidiXIVSongsEvent(JsonConvert.DeserializeObject<XIVMIDIResponseContainer.ApiResponse>(ResponseBody.ReadAsStringAsync().Result), dynamic));
                     return;
