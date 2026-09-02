@@ -14,7 +14,6 @@ using BardMusicPlayer.Ui.Controls;
 using BardMusicPlayer.Ui.Functions;
 using BardMusicPlayer.Ui.Windows;
 using System;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
