@@ -59,7 +59,7 @@ namespace BardMusicPlayer.XIVMIDI
 
         #region Getters
         /// <summary>
-        /// Get the songlist from BMPApi
+        /// Get the songlist from BMPApi via <see cref="BMPAPIRequestBuilder"/>. dynamic indicates if it's a append request
         /// </summary>
         public void GetSonglist(BMPAPIRequestBuilder request, bool dynamic = false)
         {

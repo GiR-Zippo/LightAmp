@@ -43,6 +43,39 @@
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Content="Search here ->" HorizontalAlignment="Left"/>
             <TextBox Grid.Column="1" Text="" x:Name="SongSearch" VerticalAlignment="Center" PreviewTextInput="SongSearch_PreviewTextInput"></TextBox>
+            <Button x:Name="Filter" Grid.Column="2" Content="..." Height="18" Click="Filter_Click"/>
+            <Popup x:Name="FilterPopup" 
+               PlacementTarget="{Binding ElementName=Filter}"
+               Placement="Bottom"
+               StaysOpen="False"
+               AllowsTransparency="True">
+                <Border Background="White" BorderBrush="Gray" BorderThickness="1" Padding="8">
+                    <StackPanel MinWidth="180">
+                        <Label Content="Advanced Filter" FontSize="18" Margin="0,0,0,4"/>
+                        <Separator Margin="0,4"/>
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Artist" Grid.Column="0"/>
+                            <TextBox x:Name="FilterArtist" Grid.Column="1" Height="16"/>
+                        </Grid>
+                        <Separator Margin="0,4"/>
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Editor" Grid.Column="0"/>
+                            <TextBox x:Name="FilterEditor" Grid.Column="1" Height="16"/>
+                        </Grid>
+                        <Separator Margin="0,4"/>
+                        <Button Content="Apply" Click="ApplyFilter_Click" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Popup>
+
         </Grid>
         <ListView Grid.Row="3" x:Name="SongbrowserContainer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" 
                     ScrollViewer.HorizontalScrollBarVisibility="Visible"

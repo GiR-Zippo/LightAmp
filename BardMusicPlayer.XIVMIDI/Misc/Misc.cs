@@ -34,5 +34,27 @@ namespace BardMusicPlayer.XIVMIDI
             [7] = "Septet",
             [8] = "Octet"
         };
+
+        /// <summary>
+        /// Decode the searchstring: returns "artist" "editor" "search"
+        /// </summary>
+        public static Dictionary<string, string> DecodeSearch(string searchString)
+        {
+            Dictionary<string, string> data = new();
+            data["artist"] = "";
+            data["editor"] = "";
+            data["search"] = "";
+            var search = searchString.Split(';');
+            foreach (var item in search)
+            {
+                if (item.StartsWith("a:"))
+                    data["artist"] = item.Replace("a:", "");
+                else if (item.StartsWith("e:"))
+                    data["editor"] = item.Replace("e:", "");
+                else
+                    data["search"] = item;
+            }
+            return data;
+        }
     }
 }

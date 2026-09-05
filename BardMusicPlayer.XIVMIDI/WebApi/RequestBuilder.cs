@@ -4,6 +4,7 @@
  */
 
 using Newtonsoft.Json;
+using System;
 namespace BardMusicPlayer.XIVMIDI.IO;
 
 #region BMPApi
@@ -13,6 +14,16 @@ namespace BardMusicPlayer.XIVMIDI.IO;
 public class BMPAPIRequestBuilder
 {
     private readonly string ApiBaseUrl = "https://bardmusicplayer.com/api/midi-search";
+
+    /// <summary>
+    /// Free-text search across title / artist / source / arranger.
+    /// </summary>
+    public string Search { get; set; } = "";
+
+    /// <summary>
+    /// Search by editor
+    /// </summary>
+    private string Editor { get; set; } = "";
 
     /// <summary>
     /// Set the performer size
@@ -26,10 +37,19 @@ public class BMPAPIRequestBuilder
 
     public string BuildRequest()
     {
-        var request = ApiBaseUrl + "?";
-        request += bandSize <= 0 || bandSize > 8 ? "" : "ensemble=" + (bandSize == 2 ? "duo" : Misc.PerformerSize[bandSize].ToLower());
+        if (Search != "")
+        {
+            var s = Misc.DecodeSearch(Search);
+            Editor = Uri.EscapeDataString(s["editor"]);
+            Search = Uri.EscapeDataString(s["search"] +" " + s["artist"]);
+        }
+
+        var request = "?limit=100";
+        request += Search.Length > 1 ? "&search=" + Search : "";
+        request += Editor.Length > 1 ? "&editor=" + Editor : "";
+        request += bandSize <= 0 || bandSize > 8 ? "" : "&ensemble=" + (bandSize == 2 ? "duo" : Misc.PerformerSize[bandSize].ToLower());
         request += "&page=" + page.ToString();
-        request += "&limit=100";
+        request = ApiBaseUrl + request.Replace(" ", "%20");
         return request;
     }
 }
@@ -65,19 +85,24 @@ public class XIVMIDIRequestBuilder
     private readonly string ApiBaseUrl = "https://api.xivmidi.com/v2/files";
 
     /// <summary>
+    /// Internal searchstring
+    /// </summary>
+    public string Search { get; set; } = "";
+
+    /// <summary>
     /// Set the editor
     /// </summary>
-    public string Credit { get; set; } = "";
+    private string Credit { get; set; } = "";
 
     /// <summary>
     /// Set the artist
     /// </summary>
-    public string Artist { get; set; } = "";
+    private string Artist { get; set; } = "";
 
     /// <summary>
     /// Set the title
     /// </summary>
-    public string Title { get; set; } = "";
+    private string Title { get; set; } = "";
 
     /// <summary>
     /// Set the performer size
@@ -103,6 +128,14 @@ public class XIVMIDIRequestBuilder
 
     public string BuildRequest()
     {
+        if (Search != "")
+        {
+            var s = Misc.DecodeSearch(Search);
+            Credit = Uri.EscapeDataString(s["editor"]);
+            Artist = Uri.EscapeDataString(s["artist"]);
+            Title = Uri.EscapeDataString(s["search"]);
+        }
+
         var request = ApiBaseUrl + "?limit=100";
         request += Credit == "" ? "" : "&credit=" + Credit;
         request += Artist == "" ? "" : "&artist=" + Artist;

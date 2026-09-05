@@ -12,7 +12,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 
 namespace BardMusicPlayer.Ui.Controls
@@ -65,7 +64,7 @@ namespace BardMusicPlayer.Ui.Controls
 
             Source_box.ItemsSource = Misc.Sources.Values;
             Source_box.SelectedIndex = 0;
-
+            SongSearch.Text = string.Empty;
             PerformerSize_box.ItemsSource = Misc.PerformerSize.Values;
             PerformerSize_box.SelectedIndex = 1;
 
@@ -82,11 +81,12 @@ namespace BardMusicPlayer.Ui.Controls
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
+                //clear list
                 if (!e.DynamicLoad)
-                {
                     _songs.Clear();
-                    _maxSongs = e.Songs.totalPages;
-                }
+
+                //update maxSongs / pages
+                _maxSongs = e.Songs.totalPages;
                 foreach (var file in e.Songs.docs)
                 {
                     try
@@ -97,7 +97,6 @@ namespace BardMusicPlayer.Ui.Controls
                     }
                     catch { }
                 }
-                SongbrowserContainer.Items.Filter = RefreshContainer;
             }));
         }
 
@@ -110,11 +109,12 @@ namespace BardMusicPlayer.Ui.Controls
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
+                //clear list
                 if (!e.DynamicLoad)
-                {
                     _songs.Clear();
-                    _maxSongs = e.Songs.meta.total;
-                }
+                
+                //update maxSongs
+                _maxSongs = e.Songs.meta.total;
                 foreach (var file in e.Songs.data)
                 {
                     try
@@ -125,7 +125,6 @@ namespace BardMusicPlayer.Ui.Controls
                     }
                     catch { }
                 }
-                SongbrowserContainer.Items.Filter = RefreshContainer;
             }));
         }
 
@@ -168,19 +167,6 @@ namespace BardMusicPlayer.Ui.Controls
         #endregion
 
         /// <summary>
-        /// Refresh the content of SongContainer
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        private bool RefreshContainer(object item)
-        {
-            if (String.IsNullOrEmpty(SongSearch.Text))
-                return true;
-            else
-                return ((KeyValuePair<string, string>) item).Value.IndexOf(SongSearch.Text, StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        /// <summary>
         /// Load the doubleclicked song into the sequencer
         /// </summary>
         /// <param name="sender"></param>
@@ -200,7 +186,26 @@ namespace BardMusicPlayer.Ui.Controls
         /// <param name="e"></param>
         private void SongSearch_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            CollectionViewSource.GetDefaultView(SongbrowserContainer.ItemsSource).Refresh();
+            var t = e;
+            if ((t.Text == "\r") || (t.Text == "\n"))
+            {
+                if (Source_box.SelectedIndex == 0) //XIVMIDI
+                {
+                    XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.XIVMIDIRequestBuilder()
+                    {
+                        Search = SongSearch.Text,
+                        bandSize = PerformerSize_box.SelectedIndex
+                    }, false);
+                }
+                else if (Source_box.SelectedIndex == 1)
+                {
+                    XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.BMPAPIRequestBuilder()
+                    {
+                        Search = SongSearch.Text,
+                        bandSize = PerformerSize_box.SelectedIndex
+                    }, false);
+                }
+            }
         }
 
         /// <summary>
@@ -293,9 +298,19 @@ namespace BardMusicPlayer.Ui.Controls
                         return;
 
                     if (Source_box.SelectedIndex == 0) //XIVMIDI
-                        XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.XIVMIDIRequestBuilder() {skip= _songs.Count, bandSize = PerformerSize_box.SelectedIndex }, true);
+                        XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.XIVMIDIRequestBuilder() 
+                        {
+                            Search = SongSearch.Text,
+                            skip = _songs.Count,
+                            bandSize = PerformerSize_box.SelectedIndex
+                        }, true);
                     else if (Source_box.SelectedIndex == 1)
-                        XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.BMPAPIRequestBuilder() { page = _songs.Count/100, bandSize = PerformerSize_box.SelectedIndex }, true);
+                        XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.BMPAPIRequestBuilder() 
+                        {
+                            Search = SongSearch.Text,
+                            page = _songs.Count/100, 
+                            bandSize = PerformerSize_box.SelectedIndex
+                        }, true);
                 }
                 finally
                 {
@@ -306,12 +321,36 @@ namespace BardMusicPlayer.Ui.Controls
 
         private void Source_box_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            SongSearch.Text = string.Empty;
             SendRequest();
         }
 
         private void PerformerSize_box_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            SongSearch.Text = string.Empty;
             SendRequest();
+        }
+
+        private void Filter_Click(object sender, RoutedEventArgs e)
+        {
+            FilterPopup.IsOpen = !FilterPopup.IsOpen;
+            var sData = XIVMIDI.Misc.DecodeSearch(SongSearch.Text);
+            FilterEditor.Text = sData["editor"];
+            FilterArtist.Text = sData["artist"];
+            SongSearch.Text = sData["search"];
+        }
+
+        private void ApplyFilter_Click(object sender, RoutedEventArgs e)
+        {
+            //Copy to searchstring
+            SongSearch.Text = SongSearch.Text + ";" + "a:" + FilterArtist.Text;
+            SongSearch.Text = SongSearch.Text + ";" + "e:" + FilterEditor.Text;
+            //Clear it
+            FilterArtist.Text = "";
+            FilterEditor.Text = "";
+            //bitte nicht nachmachen, triggert die suche und spart ne zweite sub
+            SongSearch_PreviewTextInput(null, new TextCompositionEventArgs(null, new TextComposition(null, null, "\n")));
+            FilterPopup.IsOpen = false;
         }
 
         #region XIVAPI Access
@@ -323,9 +362,15 @@ namespace BardMusicPlayer.Ui.Controls
                 return;
 
             if (Source_box.SelectedIndex == 0) //XIVMIDI
-                XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.XIVMIDIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex });
+                XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.XIVMIDIRequestBuilder() 
+                {
+                    bandSize = PerformerSize_box.SelectedIndex 
+                });
             else //BMPAPI
-                XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.BMPAPIRequestBuilder() { bandSize = PerformerSize_box.SelectedIndex });
+                XIVMidiApi.Instance.GetSonglist(new XIVMIDI.IO.BMPAPIRequestBuilder() 
+                {
+                    bandSize = PerformerSize_box.SelectedIndex 
+                });
         }
 
         private void DownloadSong(string filename, DownloadOption DownloadOption)
