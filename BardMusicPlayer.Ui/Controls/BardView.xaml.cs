@@ -4,6 +4,7 @@
  */
 
 using BardMusicPlayer.DalamudBridge;
+using BardMusicPlayer.Jamboree;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Maestro.Events;
 using BardMusicPlayer.Maestro.Performance;
@@ -844,6 +845,7 @@ namespace BardMusicPlayer.Ui.Controls
         /// </summary>
         private void UpdateNetworkPlayers()
         {
+            var uiLocalPerformers = BardsList.Items.OfType<Performer>().ToList();
             var uiPerformers = BardsList.Items.OfType<NetworkPerformer>().ToList();
             var netPerformers = _network.GetPerformers();
             foreach (var p in netPerformers.Except(uiPerformers))

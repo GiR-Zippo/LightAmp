@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace BardMusicPlayer.Jamboree
@@ -22,12 +23,8 @@ namespace BardMusicPlayer.Jamboree
         private HttpClient _HttpClient { get; set; } = null;
         private HttpClientHandler _HttpClientHandler { get; set; } = null;
 
-        /// <summary>
-        /// The timer for the heartbeat, only when we are client
-        /// </summary>
-        private Timer _Heartbeat { get; set; } = new Timer();
-
-        private HeartbeatResponse _HeartbeatResponse { get; set; } = null;
+        private HostHeartbeatResponse _HostHeartbeatResponse { get; set; } = null;
+        private ClientHeartbeatResponse _ClientHeartbeatResponse { get; set; } = null;
         /// <summary>
         /// The hostData, if we are the host
         /// </summary>
@@ -42,6 +39,11 @@ namespace BardMusicPlayer.Jamboree
         /// Get the current session code
         /// </summary>
         public string GetCode() { return _ClientData == null ? _HostData.code : _ClientData.code; }
+
+        /// <summary>
+        /// Get the local memberId
+        /// </summary>
+        public string GetMemberId() { return _ClientData == null ? _HostData.memberId : _ClientData.memberId; }
 
         /// <summary>
         /// The playlist we got
@@ -75,9 +77,6 @@ namespace BardMusicPlayer.Jamboree
             _HttpClient.Timeout = TimeSpan.FromMinutes(5);
             _HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", UserAgent);
 
-            _Heartbeat.Stop();
-            _Heartbeat.Elapsed += Timer_Elapsed;
-
             _heartbeatCts?.Cancel();
             _heartbeatCts?.Dispose();
             _heartbeatCts = null;
@@ -101,9 +100,6 @@ namespace BardMusicPlayer.Jamboree
             if (IsConnected())
                 LeaveParty();
 
-            _Heartbeat.Elapsed -= Timer_Elapsed;
-            _Heartbeat.Dispose();
-
             _HttpClient.Dispose();
             _HttpClientHandler.Dispose();
         }
@@ -111,9 +107,12 @@ namespace BardMusicPlayer.Jamboree
         /// <summary>
         /// Leave the party and clean up
         /// </summary>
-        public void LeaveParty()
+        public async Task LeaveParty()
         {
-            _Heartbeat.Stop();
+            if (_HostData != null)
+                await DeleteSession();
+            if (_ClientData != null)
+                await LeaveSession();
 
             _heartbeatCts?.Cancel();
             _heartbeatCts?.Dispose();
@@ -252,7 +251,6 @@ namespace BardMusicPlayer.Jamboree
         /// </summary>
         public void Dispose()
         {
-            _Heartbeat.Stop();
             _ClientData = null;
             _HostData = null;
             _SessionManifest = null;

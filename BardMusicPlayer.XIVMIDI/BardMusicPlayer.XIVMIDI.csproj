@@ -6,9 +6,9 @@
     <AssemblyOriginatorKeyFile>signature.snk</AssemblyOriginatorKeyFile>
     <LangVersion>latest</LangVersion>
     <PackageProjectUrl>https://bardmusicplayer.com</PackageProjectUrl>
-    <Version>2.0.0.0</Version>
+    <Version>2.1.0.0</Version>
     <Authors>GiR-Zippo</Authors>
-    <Copyright>Copyright © GiR-Zippo 2025</Copyright>
+    <Copyright>Copyright © GiR-Zippo 2026</Copyright>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/GiR-Zippo/LightAmp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

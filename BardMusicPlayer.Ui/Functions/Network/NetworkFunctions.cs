@@ -2,6 +2,8 @@
 using BardMusicPlayer.Jamboree.Events;
 using BardMusicPlayer.Maestro;
 using BardMusicPlayer.Maestro.Events;
+using BardMusicPlayer.Seer;
+using BardMusicPlayer.Seer.Events;
 using BardMusicPlayer.Transmogrify.Song;
 using BardMusicPlayer.Transmogrify.Song.Config;
 using System;
@@ -43,18 +45,36 @@ namespace BardMusicPlayer.Ui.Functions.Network
             BmpJamboree.Instance.OnPartySelectSong += Instance_PartySelectSong;
 
             BmpMaestro.Instance.OnSongLoaded += Instance_SongLoaded;
+            BmpSeer.Instance.PlayerNameChanged += OnPlayerNameChanged;
         }
 
         public void Dispose()
         {
             _networkPerformers.Clear();
+
+            BmpJamboree.Instance.OnPartyCreated -= Instance_PartyCreated;
+            BmpJamboree.Instance.OnPartyJoined -= Instance_PartyJoined;
+            BmpJamboree.Instance.OnPartyChanged -= Instance_PartyChanged;
+
+            BmpJamboree.Instance.OnPlaylistChangedEvent -= Instance_PlaylistChanged;
+            BmpJamboree.Instance.OnPartySelectSong -= Instance_PartySelectSong;
+
+            BmpMaestro.Instance.OnSongLoaded += Instance_SongLoaded;
+            BmpSeer.Instance.PlayerNameChanged -= OnPlayerNameChanged;
         }
 
         #region Jamboree
         /// <summary>
         /// Create the party
         /// </summary>
-        public void CreateParty() => BmpJamboree.Instance.CreateParty();
+        public void CreateParty()
+        {
+            List<KeyValuePair<string, string>> names = new List<KeyValuePair<string, string>>();
+            var performers = BmpMaestro.Instance.GetAllPerformers();
+            foreach (var performer in performers)
+                names.Add(new KeyValuePair<string, string>(performer.PlayerName, performer.HomeWorld));
+            BmpJamboree.Instance.CreateParty(names);
+        }
 
         /// <summary>
         /// Join the party
@@ -206,6 +226,23 @@ namespace BardMusicPlayer.Ui.Functions.Network
                 ClassicProcessorConfig classicConfig = (ClassicProcessorConfig)PlaybackFunctions.CurrentSong.TrackContainers[netPerformer.TrackNumber - 1].ConfigContainers[0].ProcessorConfig;
                 BmpJamboree.Instance.SetInstrument(netPerformer.CharId(), classicConfig.Instrument.Name);
             }
+        }
+
+        /// <summary>
+        /// Update the serverlist
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void OnPlayerNameChanged(PlayerNameChanged seerEvent)
+        {
+            if (!BmpJamboree.Instance.IsConnected())
+                return;
+
+            List<KeyValuePair<string, string>> names = new List<KeyValuePair<string, string>>();
+            var performers = BmpMaestro.Instance.GetAllPerformers();
+            foreach (var performer in performers)
+                names.Add(new KeyValuePair<string, string>(performer.PlayerName, performer.HomeWorld));
+            BmpJamboree.Instance.UpdateSessionMembers(names);
         }
         #endregion
     }

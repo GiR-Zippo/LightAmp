@@ -14,6 +14,7 @@ namespace BardMusicPlayer.Jamboree
         public string hostToken { get; set; } = "";
         public string sessionId { get; set; } = "";
         public string expiresAt { get; set; } = "";
+        public string memberId { get; set; } = "";
     }
     #endregion
 
@@ -34,7 +35,7 @@ namespace BardMusicPlayer.Jamboree
     #region SessionManifest
     public record SessionManifest
     {
-        public string status { get; set; } = string.Empty;
+        public string sessionStatus { get; set; } = string.Empty;
         public int stateVersion { get; set; } = 0;
         public int playlistVersion { get; set; } = 0;
         public string nowPlaying { get; set; } = string.Empty;
@@ -48,6 +49,13 @@ namespace BardMusicPlayer.Jamboree
         public string memberId { get; set; } = "";
         public bool? idle { get; set; } = true;
         public List<CharacterState> characters { get; set; } = new();
+    }
+
+    public record UpdateSessionMembers
+    {
+        public string memberId { get; set; } = "";
+        public List<CharacterState> characters { get; set; } = new();
+        public int stateVersion { get; set; } = 0;
     }
 
     public record CharacterState
@@ -98,6 +106,7 @@ namespace BardMusicPlayer.Jamboree
     #endregion
 
     #region Heartbeat
+
     public record Heartbeat
     {
         public bool wait { get; set; } = false;
@@ -105,7 +114,18 @@ namespace BardMusicPlayer.Jamboree
         public int knownPlaylistVersion { get; set; } = 0;
     }
 
-    public record HeartbeatResponse
+    public record HostHeartbeatResponse
+    {
+        public string sessionStatus { get; set; } = "";
+        public int stateVersion { get; set; } = 0;
+        public int playlistVersion { get; set; } = 0;
+        public bool playlistStale { get; set; } = false;
+        public string nowPlaying { get; set; } = "";
+        public string playbackState { get; set; } = "";
+        public List<CharacterState> members { get; set; } = new();
+    }
+
+    public record ClientHeartbeatResponse
     {
         public string sessionStatus { get; set; } = "";
         public int stateVersion { get; set; } = 0;

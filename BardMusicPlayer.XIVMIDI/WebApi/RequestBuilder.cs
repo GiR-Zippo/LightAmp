@@ -137,6 +137,7 @@ public class XIVMIDIRequestBuilder
         }
 
         var request = ApiBaseUrl + "?limit=100";
+        request += skip == 0 ? "" : "&skip="+skip;
         request += Credit == "" ? "" : "&credit=" + Credit;
         request += Artist == "" ? "" : "&artist=" + Artist;
         request += Title == "" ? "" : "&title=" + Title;

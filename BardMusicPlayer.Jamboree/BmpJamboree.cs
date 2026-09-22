@@ -65,7 +65,7 @@ namespace BardMusicPlayer.Jamboree
         /// <summary>
         /// Create a party
         /// </summary>
-        public async void CreateParty() { await _Api.CreateSession(); }
+        public async void CreateParty(List<KeyValuePair<string, string>> localCharacters) { await _Api.CreateSession(localCharacters); }
 
         /// <summary>
         /// Join a party by code and playername
@@ -73,6 +73,12 @@ namespace BardMusicPlayer.Jamboree
         /// <param name="code">Shared token</param>
         /// <param name="name">Player name</param>
         public async void JoinParty(string code, List<KeyValuePair<string, string>> names) { await _Api.JoinParty(code, names); }
+
+        /// <summary>
+        /// Updates the local character-list
+        /// </summary>
+        /// <param name="localCharacters"></param>
+        public async void UpdateSessionMembers(List<KeyValuePair<string, string>> localCharacters) { await _Api.UpdateSessionMembers(localCharacters); }
 
         /// <summary>
         /// Leave the party and clean up
@@ -125,6 +131,11 @@ namespace BardMusicPlayer.Jamboree
         /// </summary>
         /// <returns></returns>
         public string GetCode() => _Api.GetCode();
+
+        /// <summary>
+        /// Get the local memberId
+        /// </summary>
+        public string GetMemberId() => _Api.GetMemberId();
 
         /// <summary>
         /// Get the memberlist

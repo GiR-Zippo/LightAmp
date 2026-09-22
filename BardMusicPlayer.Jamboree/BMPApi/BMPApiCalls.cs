@@ -20,14 +20,17 @@ namespace BardMusicPlayer.Jamboree
 {
     /// <summary>
     /// Implements:
-    /// <code>/api/party/sessions</code>
-    /// <code>/api/party/sessions/by-code/{code}/playlist</code>
-    /// <code>/api/party/sessions/by-code/{code}/manifest</code>
-    /// <code>/api/party/sessions/by-code/{code}/items/{itemId}/file</code>
-    /// <code>/api/party/sessions/by-code/{code}/members</code>
-    /// <code>/api/party/sessions/by-code/{code}/members/{id}/heartbeat</code>
-    /// <code>/api/party/sessions/by-code/{code}/members/{id}/assignment</code>
-    /// <code>/api/party/sessions/by-code/{code}/now-playing</code>
+    /// <code>POST   /api/party/sessions</code>
+    /// <code>DELETE /api/party/sessions/by-code/{code}</code>
+    /// <code>POST   /api/party/sessions/by-code/{code}/playlist</code>
+    /// <code>GET    /api/party/sessions/by-code/{code}/manifest</code>
+    /// <code>GET    /api/party/sessions/by-code/{code}/items/{itemId}/file</code>
+    /// <code>POST   /api/party/sessions/by-code/{code}/members</code>
+    /// <code>DELETE /api/party/sessions/by-code/{code}/members/{id}</code>
+    /// <code>POST   /api/party/sessions/by-code/{code}/members/{id}/heartbeat</code>
+    /// <code>POST   /api/party/sessions/by-code/{code}/host-heartbeat</code>
+    /// <code>PATCH  /api/party/sessions/by-code/{code}/members/{id}/assignment</code>
+    /// <code>PATCH  /api/party/sessions/by-code/{code}/now-playing</code>
     /// missing:
     /// <code>/api/party/sessions/by-code/{code}/archive</code>
     /// </summary>
@@ -39,13 +42,27 @@ namespace BardMusicPlayer.Jamboree
         /// Create a session
         /// <code>POST: /api/party/sessions </code>
         /// </summary>
-        public async Task CreateSession()
+        public async Task CreateSession(List<KeyValuePair<string, string>> localCharacters)
         {
             if (_HostData != null || _ClientData != null)
                 return;
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, ApiUrl))
             {
+                request.Headers.Accept.ParseAdd("application/json");
+                var additionalChars = localCharacters.Select(c => new
+                {
+                    displayName = c.Key,
+                    world = c.Value
+                }).ToList();
+
+                var payload = new Dictionary<string, object>();
+                if (additionalChars.Count > 0)
+                    payload.Add("characters", additionalChars);
+
+                string jsonString = JsonConvert.SerializeObject(payload);
+                request.Content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
                 HttpResponseMessage response = await _HttpClient.SendAsync(request);
                 if (!response.IsSuccessStatusCode)
                 {
@@ -66,8 +83,36 @@ namespace BardMusicPlayer.Jamboree
                 _Playlist = new PartySongs(this);
 
                 // set the _Heartbeat
-                _Heartbeat.Interval = 10000;
-                _Heartbeat.Start();
+                _ = StartHostHeartBeatLoop();
+
+                // get the SessionManifest
+                await GetSessionManifest();
+            }
+        }
+
+        /// <summary>
+        /// Deletes the session
+        /// <code>DELETE: /api/party/sessions/by-code/{code} </code>
+        /// </summary>
+        /// <returns></returns>
+        public async Task DeleteSession()
+        {
+            if (_HostData == null)
+                return;
+
+            string url = ApiUrl + "/by-code/" + GetCode();
+            using (var request = new HttpRequestMessage(new HttpMethod("DELETE"), url))
+            {
+                request.Headers.Accept.ParseAdd("application/json");
+                request.Headers.TryAddWithoutValidation("X-Party-Host-Token", _HostData.hostToken);
+
+                HttpResponseMessage response = await _HttpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    StatusResponse((int)response.StatusCode);
+                    return;
+                }
+                BmpJamboree.Instance.PublishEvent(new PartyLeftEvent(true));
             }
         }
 
@@ -298,19 +343,13 @@ namespace BardMusicPlayer.Jamboree
             using (var request = new HttpRequestMessage(HttpMethod.Post, url))
             {
                 request.Headers.Accept.ParseAdd("application/json");
-                var primaryChar = localCharacters.First();
-                var additionalChars = localCharacters.Skip(1).Select(c => new
+                var additionalChars = localCharacters.Select(c => new
                 {
                     displayName = c.Key,
                     world = c.Value
                 }).ToList();
 
-                var payload = new Dictionary<string, object>
-                {
-                    { "displayName", primaryChar.Key },
-                    { "world", primaryChar.Value }
-                };
-
+                var payload = new Dictionary<string, object>();
                 if (additionalChars.Count > 0)
                     payload.Add("characters", additionalChars);
 
@@ -349,7 +388,87 @@ namespace BardMusicPlayer.Jamboree
         }
 
         /// <summary>
-        /// Send the heartbeat in a loop
+        /// /api/party/sessions/by-code/{code}/members/{id}
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="localCharacters"></param>
+        /// <returns></returns>
+        public async Task UpdateSessionMembers(List<KeyValuePair<string, string>> localCharacters)
+        {
+            if (localCharacters == null || localCharacters.Count == 0)
+                return;
+
+            string url = ApiUrl + "/by-code/" + GetCode() + "/members/" + GetMemberId();
+            using (var request = new HttpRequestMessage(HttpMethod.Put, url))
+            {
+                request.Headers.Accept.ParseAdd("application/json");
+
+                var existingChars = _Party.FindByCharacterByMemberId(GetMemberId()).Select(c => new
+                {
+                    charId = (string)c.charId,
+                    displayName = c.displayName,
+                    world = c.world
+                }).ToList();
+
+                var additionalChars = localCharacters
+                    .Where(lc => !existingChars.Any(ec => ec.displayName == lc.Key && ec.world == lc.Value))
+                    .Select(lc => new
+                    {
+                        charId = (string)null,
+                        displayName = lc.Key,
+                        world = lc.Value
+                    }).ToList();
+                var allCharacters = existingChars.Concat(additionalChars).ToList();
+                var payload = new Dictionary<string, object>();
+                if (allCharacters.Count > 0)
+                    payload.Add("characters", allCharacters);
+                else
+                    return;
+
+                string jsonString = JsonConvert.SerializeObject(payload);
+                request.Content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _HttpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    StatusResponse((int)response.StatusCode);
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    BmpJamboree.Instance.PublishEvent(new PartyCreatedEvent(false, errorContent));
+                    return;
+                }
+
+                var f = JsonConvert.DeserializeObject<UpdateSessionMembers>(await response.Content.ReadAsStringAsync());
+                Console.WriteLine("");
+            }
+
+        }
+
+        /// <summary>
+        /// Leaves the session
+        /// <code>DELETE: /api/party/sessions/by-code/{code} </code>
+        /// </summary>
+        /// <returns></returns>
+        public async Task LeaveSession()
+        {
+            if (_ClientData != null)
+                return;
+
+            string url = ApiUrl + "/by-code/" + GetCode() + "/members/" + _ClientData.memberId;
+            using (var request = new HttpRequestMessage(new HttpMethod("DELETE"), url))
+            {
+                request.Headers.Accept.ParseAdd("application/json");
+                HttpResponseMessage response = await _HttpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    StatusResponse((int)response.StatusCode);
+                    return;
+                }
+                BmpJamboree.Instance.PublishEvent(new PartyLeftEvent(false));
+            }
+        }
+
+        /// <summary>
+        /// Send the client heartbeat in a loop
         /// <code>POST: /api/party/sessions/by-code/{code}/members/{id}/heartbeat </code>
         /// </summary>
         private async Task StartHeartBeatLoop()
@@ -358,19 +477,32 @@ namespace BardMusicPlayer.Jamboree
             _heartbeatCts = new CancellationTokenSource();
             var token = _heartbeatCts.Token;
 
-            while (!token.IsCancellationRequested && _ClientData != null)
+            string memberId = "";
+            string memberToken = "";
+            if (_ClientData != null)
             {
-                string url = ApiUrl + "/by-code/" + GetCode() + "/members/" + _ClientData.memberId + "/heartbeat";
+                memberId = _ClientData.memberId;
+                memberToken = _ClientData.memberToken;
+            }
+            else
+            {
+                memberId = _HostData.sessionId;
+                memberToken = _HostData.hostToken;
+            }
+
+            while (!token.IsCancellationRequested && (memberId != "" || memberToken!=""))
+            {
+                string url = ApiUrl + "/by-code/" + GetCode() + "/members/" + memberId + "/heartbeat";
                 try
                 {
                     using (var request = new HttpRequestMessage(HttpMethod.Post, url))
                     {
-                        request.Headers.TryAddWithoutValidation("X-Party-Member-Token", _ClientData.memberToken);
+                        request.Headers.TryAddWithoutValidation("X-Party-Member-Token", memberToken);
 
                         Heartbeat hb = new Heartbeat
                         {
                             knownPlaylistVersion = _SessionManifest   == null ? 0 : _SessionManifest.playlistVersion,
-                            since                = _HeartbeatResponse == null ? 0 : _HeartbeatResponse.stateVersion,
+                            since                = _ClientHeartbeatResponse == null ? 0 : _ClientHeartbeatResponse.stateVersion,
                             wait                 = true // Long Polling
                         };
 
@@ -381,16 +513,84 @@ namespace BardMusicPlayer.Jamboree
                             break;
 
                         var data = await response.Content.ReadAsStringAsync();
-                        _HeartbeatResponse = JsonConvert.DeserializeObject<HeartbeatResponse>(data);
+                        _ClientHeartbeatResponse = JsonConvert.DeserializeObject<ClientHeartbeatResponse>(data);
                         if (_SessionManifest == null)
                             continue;
 
-                        if ((_SessionManifest.playlistVersion != _HeartbeatResponse.playlistVersion) ||
-                            (_SessionManifest.stateVersion != _HeartbeatResponse.stateVersion))
+                        if ((_SessionManifest.playlistVersion != _ClientHeartbeatResponse.playlistVersion) ||
+                            (_SessionManifest.stateVersion != _ClientHeartbeatResponse.stateVersion))
                         {
-                            BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[Heartbeat] Playlistversion: " + _HeartbeatResponse.playlistVersion + "\r\n"));
+                            BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[Heartbeat] Playlistversion: " + _ClientHeartbeatResponse.playlistVersion + "\r\n"));
                             await GetSessionManifest();
                         }
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[Heartbeat] Disconnected.\r\n"));
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[Heartbeat] Error: " + ex.Message + "\r\n"));
+                    try { await Task.Delay(2000, token); }
+                    catch (OperationCanceledException) { break; }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Send the host heartbeat in a loop
+        /// <code>POST: /api/party/sessions/by-code/{code}/host-heartbeat </code>
+        /// </summary>
+        private async Task StartHostHeartBeatLoop()
+        {
+            _heartbeatCts?.Cancel();
+            _heartbeatCts = new CancellationTokenSource();
+            var token = _heartbeatCts.Token;
+
+            string memberId = "";
+            string memberToken = "";
+            if (_HostData != null)
+            {
+                memberId = _HostData.sessionId;
+                memberToken = _HostData.hostToken;
+            }
+
+            while (!token.IsCancellationRequested && (memberId != "" || memberToken != ""))
+            {
+                string url = ApiUrl + "/by-code/" + GetCode() + "/host-heartbeat";
+                try
+                {
+                    using (var request = new HttpRequestMessage(HttpMethod.Post, url))
+                    {
+                        request.Headers.TryAddWithoutValidation("X-Party-Host-Token", _HostData.hostToken);
+
+                        Heartbeat hb = new Heartbeat
+                        {
+                            knownPlaylistVersion = _SessionManifest == null ? 0 : _SessionManifest.playlistVersion,
+                            since = _HostHeartbeatResponse == null ? 0 : _HostHeartbeatResponse.stateVersion,
+                            wait = true // Long Polling
+                        };
+
+                        request.Content = new StringContent(JsonConvert.SerializeObject(hb), Encoding.UTF8, "application/json");
+
+                        HttpResponseMessage response = await _HttpClient.SendAsync(request, token);
+                        if (!StatusResponse((int)response.StatusCode))
+                            break;
+
+                        var data = await response.Content.ReadAsStringAsync();
+                        _HostHeartbeatResponse = JsonConvert.DeserializeObject<HostHeartbeatResponse>(data);
+                        if (_SessionManifest == null)
+                            continue;
+
+                        if ((_SessionManifest.playlistVersion != _HostHeartbeatResponse.playlistVersion) ||
+                            (_SessionManifest.stateVersion != _HostHeartbeatResponse.stateVersion))
+                        {
+                            BmpJamboree.Instance.PublishEvent(new PartyDebugLogEvent("[Heartbeat] Playlistversion: " + _HostHeartbeatResponse.playlistVersion + "\r\n"));
+                            await GetSessionManifest();
+                        }
+
                     }
                 }
                 catch (OperationCanceledException)

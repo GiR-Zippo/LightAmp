@@ -39,6 +39,8 @@ namespace BardMusicPlayer.Jamboree
 
             foreach (var serverMember in manifest.members)
             {
+                if (BmpJamboree.Instance.GetMemberId().Equals(serverMember.memberId))
+                    continue;
                 var existingMember = members.FirstOrDefault(m => m.memberId == serverMember.memberId);
                 if (existingMember == null)
                     members.Add(serverMember);
@@ -82,6 +84,13 @@ namespace BardMusicPlayer.Jamboree
             }
             return (null, null, string.Empty);
         }
+
+        /// <summary>
+        /// Find all chars by memberId
+        /// </summary>
+        /// <param name="charId"></param>
+        /// <returns></returns>
+        public List<CharacterState> FindByCharacterByMemberId(string memberId) => members.Where(n => n.memberId == memberId).SelectMany(c=>c.characters).ToList();
 
         /// <summary>
         /// Update the Track the user assigned for

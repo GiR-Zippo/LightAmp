@@ -123,6 +123,7 @@ namespace BardMusicPlayer.XIVMIDI.IO
             public string title { get; set; }
             public string credit { get; set; }
             public string download_url { get; set; }
+            public int bandsize { get; set; }
         }
     }
     #endregion

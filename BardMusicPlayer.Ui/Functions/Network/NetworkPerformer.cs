@@ -21,6 +21,7 @@ public class NetworkPerformer : IPerformer
     public string CharId() { return _characterState.charId; }
     public string PlayerName { get {  return _characterState.displayName; } }
     public string HomeWorld { get {  return _characterState.world; } }
+    public string MemberId { get; set; } = "";
     public int TrackNumber 
     { 
         get { return _characterState.trackNumber ?? 1; } 
