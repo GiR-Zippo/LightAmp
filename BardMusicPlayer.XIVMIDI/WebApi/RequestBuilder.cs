@@ -143,6 +143,8 @@ public class XIVMIDIRequestBuilder
         request += bandSize <= 0 || bandSize > 8 ? "" : "&bandsize=" + bandSize.ToString();
         request += Tags == "" ? "" : "&tags=" + Tags;
         request += Instrument == "" ? "" : "&instruments=" + Instrument;
+        request += skip <= 0 ? "" : "&skip=" + skip.ToString();
+
         return request;
     }
 #endregion
