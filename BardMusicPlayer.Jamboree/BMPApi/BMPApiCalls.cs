@@ -398,33 +398,45 @@ namespace BardMusicPlayer.Jamboree
             if (localCharacters == null || localCharacters.Count == 0)
                 return;
 
+            string memberId = "";
+            string memberToken = "";
+            if (_ClientData != null)
+            {
+                memberId = _ClientData.memberId;
+                memberToken = _ClientData.memberToken;
+            }
+            else
+            {
+                memberId = _HostData.sessionId;
+                memberToken = _HostData.hostToken;
+            }
+
             string url = ApiUrl + "/by-code/" + GetCode() + "/members/" + GetMemberId();
             using (var request = new HttpRequestMessage(HttpMethod.Put, url))
             {
+                request.Headers.TryAddWithoutValidation("X-Party-Member-Token", memberToken);
                 request.Headers.Accept.ParseAdd("application/json");
 
-                var existingChars = _Party.FindByCharacterByMemberId(GetMemberId()).Select(c => new
+                var existingChars = _Party.FindByCharacterByMemberId(GetMemberId()).Select(c => new Dictionary<string, object>
                 {
-                    charId = (string)c.charId,
-                    displayName = c.displayName,
-                    world = c.world
+                    ["charId"] = (string)c.charId,
+                    ["displayName"] = c.displayName,
+                    ["world"] = c.world
                 }).ToList();
 
                 var additionalChars = localCharacters
-                    .Where(lc => !existingChars.Any(ec => ec.displayName == lc.Key && ec.world == lc.Value))
-                    .Select(lc => new
+                    .Where(lc => !existingChars.Any(ec => (string)ec["displayName"] == lc.Key && (string)ec["world"] == lc.Value))
+                    .Select(lc => new Dictionary<string, object>
                     {
-                        charId = (string)null,
-                        displayName = lc.Key,
-                        world = lc.Value
+                        ["displayName"] = lc.Key,
+                        ["world"] = lc.Value
                     }).ToList();
-                var allCharacters = existingChars.Concat(additionalChars).ToList();
-                var payload = new Dictionary<string, object>();
-                if (allCharacters.Count > 0)
-                    payload.Add("characters", allCharacters);
-                else
-                    return;
 
+                var combinedChars = existingChars.Concat(additionalChars).ToList();
+                var payload = new Dictionary<string, object>
+                {
+                    ["characters"] = combinedChars
+                };
                 string jsonString = JsonConvert.SerializeObject(payload);
                 request.Content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
@@ -436,9 +448,8 @@ namespace BardMusicPlayer.Jamboree
                     BmpJamboree.Instance.PublishEvent(new PartyCreatedEvent(false, errorContent));
                     return;
                 }
-
-                var f = JsonConvert.DeserializeObject<UpdateSessionMembers>(await response.Content.ReadAsStringAsync());
-                Console.WriteLine("");
+                // ignore payload we'll get the partylist via heartbeat
+                //var f = JsonConvert.DeserializeObject<UpdateSessionMembers>(await response.Content.ReadAsStringAsync());
             }
 
         }

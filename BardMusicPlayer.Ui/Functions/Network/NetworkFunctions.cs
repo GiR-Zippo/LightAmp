@@ -46,6 +46,7 @@ namespace BardMusicPlayer.Ui.Functions.Network
 
             BmpMaestro.Instance.OnSongLoaded += Instance_SongLoaded;
             BmpSeer.Instance.PlayerNameChanged += OnPlayerNameChanged;
+            BmpSeer.Instance.GameStopped += Instance_GameStopped;
         }
 
         public void Dispose()
@@ -59,8 +60,9 @@ namespace BardMusicPlayer.Ui.Functions.Network
             BmpJamboree.Instance.OnPlaylistChangedEvent -= Instance_PlaylistChanged;
             BmpJamboree.Instance.OnPartySelectSong -= Instance_PartySelectSong;
 
-            BmpMaestro.Instance.OnSongLoaded += Instance_SongLoaded;
+            BmpMaestro.Instance.OnSongLoaded -= Instance_SongLoaded;
             BmpSeer.Instance.PlayerNameChanged -= OnPlayerNameChanged;
+            BmpSeer.Instance.GameStopped -= Instance_GameStopped;
         }
 
         #region Jamboree
@@ -244,6 +246,12 @@ namespace BardMusicPlayer.Ui.Functions.Network
                 names.Add(new KeyValuePair<string, string>(performer.PlayerName, performer.HomeWorld));
             BmpJamboree.Instance.UpdateSessionMembers(names);
         }
+
+        private void Instance_GameStopped(GameStopped seerEvent)
+        {
+            OnPlayerNameChanged(null);
+        }
+
         #endregion
     }
 }
