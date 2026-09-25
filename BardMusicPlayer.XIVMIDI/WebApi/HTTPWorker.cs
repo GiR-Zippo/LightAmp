@@ -133,31 +133,38 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
         /// <param name="upload"></param>
         public async Task UploadSong(BMPUploadBuilder upload)
         {
-            string url = upload.ApiBaseUrl;
-            using (var multipartContent = new MultipartFormDataContent())
+            string boundary = "----" + Guid.NewGuid().ToString("N");
+            string payload = JsonConvert.SerializeObject(upload);
+
+            byte[] Part(string headers, byte[] body) =>
+                Encoding.ASCII.GetBytes($"--{boundary}\r\n{headers}\r\n\r\n")
+                    .Concat(body).Concat(Encoding.ASCII.GetBytes("\r\n")).ToArray();
+
+            var body = Part(
+                    $"Content-Disposition: form-data; name=\"file\"; filename=\"{Path.GetFileName(upload.FileName)}\"\r\nContent-Type: audio/mid",
+                    upload.MidiFile)
+                .Concat(Part("Content-Disposition: form-data; name=\"_payload\"", Encoding.UTF8.GetBytes(payload)))
+                .Concat(Encoding.ASCII.GetBytes($"--{boundary}--\r\n"))
+                .ToArray();
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, upload.ApiBaseUrl);
+            request.Content = new ByteArrayContent(body);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data")
             {
-                var fileContent = new ByteArrayContent(upload.MidiFile);
-                fileContent.Headers.ContentType = new MediaTypeHeaderValue("audio/mid");
-                multipartContent.Add(fileContent, "file", Path.GetFileName(upload.FileName));
+                Parameters = { new NameValueHeaderValue("boundary", boundary) }
+            };
+            request.Headers.Authorization = new AuthenticationHeaderValue("users", "API-Key " + upload.ApiKey);
 
-                string jsonString = JsonConvert.SerializeObject(upload);
-                var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
-                multipartContent.Add(jsonContent, "_payload");
-                using (var request = new HttpRequestMessage(HttpMethod.Post, url))
-                {
-                    request.Content = multipartContent;
-                    request.Headers.Authorization = new AuthenticationHeaderValue("users", "API-Key " + upload.ApiKey);
-                    try
-                    {
-                        HttpResponseMessage response = await _HttpClient.SendAsync(request);
-                        XIVMidiApi.Instance.PublishEvent(new XIVMidiUploadResponseEvent(response.StatusCode));
-                    }
-                    catch (Exception)
-                    {
-                        XIVMidiApi.Instance.PublishEvent(new XIVMidiUploadResponseEvent(HttpStatusCode.ServiceUnavailable));
-                    }
-                }
+            try
+            {
+                var response = await _HttpClient.SendAsync(request);
+                //var responseBody = await response.Content.ReadAsStringAsync();
+                //Console.WriteLine($"Status: {response.StatusCode} | Body: {responseBody}");
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiUploadResponseEvent(response.StatusCode));
+            }
+            catch (Exception)
+            {
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiUploadResponseEvent(HttpStatusCode.ServiceUnavailable));
             }
         }
     }

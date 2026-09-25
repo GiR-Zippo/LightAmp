@@ -1,4 +1,9 @@
-﻿using BardMusicPlayer.Jamboree;
+﻿/*
+ * Copyright(c) 2026 GiR-Zippo
+ * Licensed under the GPL v3 license. See https://github.com/GiR-Zippo/LightAmp/blob/main/LICENSE for full license information.
+ */
+
+using BardMusicPlayer.Jamboree;
 using BardMusicPlayer.Maestro.Performance;
 using BardMusicPlayer.Maestro.Sequencing;
 using BardMusicPlayer.Quotidian.Structs;

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-            xmlns:Locale ="clr-namespace:BardMusicPlayer.Ui.Locales"
+             xmlns:Locale ="clr-namespace:BardMusicPlayer.Ui.Locales"
              mc:Ignorable="d" 
              Background="{DynamicResource BackgroundBrush}"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -54,5 +54,55 @@
 
             </ListView.ItemTemplate>
         </ListView>
+
+        <Popup x:Name="UploadPopup" 
+       IsOpen="False" 
+       Placement="Center" 
+       StaysOpen="True" 
+       AllowsTransparency="True">
+
+            <!-- Der sichtbare Kasten mit deinem Design -->
+            <Border Background="{DynamicResource BackgroundBrush}" 
+            BorderBrush="#444" 
+            BorderThickness="1" 
+            CornerRadius="6" 
+            Padding="15" 
+            Width="380">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="15"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label   Grid.Row="0" Grid.Column="1" Content="RegEx" Visibility="Hidden"/>
+                    <TextBox Grid.Row="0" Grid.Column="2" x:Name="Upload_regex_txt" Visibility="Hidden" VerticalContentAlignment="Center"/>
+
+                    <Label   Grid.Row="1" Grid.Column="1" Content="Artist"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" x:Name="Upload_artist_txt" VerticalContentAlignment="Center"/>
+
+                    <Label   Grid.Row="2" Grid.Column="1" Content="Title"/>
+                    <TextBox Grid.Row="2" Grid.Column="2" x:Name="Upload_title_txt" VerticalContentAlignment="Center"/>
+
+                    <Label   Grid.Row="3" Grid.Column="1" Content="Source"/>
+                    <TextBox Grid.Row="3" Grid.Column="2" x:Name="Upload_source_txt" VerticalContentAlignment="Center"/>
+
+                    <Label   Grid.Row="4" Grid.Column="1" Content="Source Url"/>
+                    <TextBox Grid.Row="4" Grid.Column="2" x:Name="Upload_source_url_txt" VerticalContentAlignment="Center"/>
+
+                    <Button Grid.Row="6" Grid.Column="1" Content="Okay" Click="Upload_Okay_Click" Height="25"/>
+                    <Button Grid.Row="6" Grid.Column="2" Width="90" HorizontalAlignment="Right" Content="Cancel" Click="Upload_Cancel_Click" Height="25"/>
+                </Grid>
+            </Border>
+        </Popup>
     </Grid>
 </UserControl>

@@ -72,7 +72,7 @@ public class BMPUploadBuilder
     public string title { get; set; } = "";
     public string artist { get; set; } = "";
     public string source { get; set; } = "";
-    public string originalSourceUrl { get; set; } = "";
+    //public string originalSourceUrl { get; set; } = "";
 }
 #endregion
 

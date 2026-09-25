@@ -5,13 +5,13 @@
 
 using BardMusicPlayer.Pigeonhole;
 using BardMusicPlayer.Ui.Resources;
-using BardMusicPlayer.Ui.Windows;
 using BardMusicPlayer.XIVMIDI.Events;
 using BardMusicPlayer.XIVMIDI.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -235,7 +235,19 @@ namespace BardMusicPlayer.Ui.Controls
 
         private async void UploadToBMP_Click(object sender, RoutedEventArgs e)
         {
-            string filename = GetFilenameFromSelection();
+            string filename = Path.GetFileNameWithoutExtension(GetFilenameFromSelection());
+            string pattern = @"^(?<interpret>.+?)\s*-\s*(?<titel>.+)$";
+            Upload_regex_txt.Text = pattern;
+
+            Match match = Regex.Match(filename, pattern);
+            if (match.Success)
+            {
+                Upload_artist_txt.Text = match.Groups["interpret"].Value.Trim();
+                Upload_title_txt.Text = match.Groups["titel"].Value.Trim();
+                Upload_source_txt.Text = "Midi Archive";
+            }
+            UploadPopup.IsOpen = true;
+            /*string filename = GetFilenameFromSelection();
             if (filename == "")
                 return;
 
@@ -252,7 +264,39 @@ namespace BardMusicPlayer.Ui.Controls
             bmpUpload.ApiKey = BmpPigeonhole.Instance.BMPApiKey;
             bmpUpload.MidiFile = File.ReadAllBytes(filename);
             bmpUpload.FileName = Path.GetFileName(filename);
+            XIVMIDI.XIVMidiApi.Instance.UploadMidi(bmpUpload);*/
+        }
+
+        private void Upload_Okay_Click(object sender, RoutedEventArgs e)
+        {
+            if (BmpPigeonhole.Instance.BMPApiKey == "")
+            {
+                MessageBox.Show("Missing Api key!", "Error");
+                UploadPopup.IsOpen = false;
+                return;
+            }
+            if (Upload_title_txt.Text == "" || Upload_artist_txt.Text == "" || Upload_source_txt.Text == "")
+            {
+                MessageBox.Show("Missing Title or Artist or Source!", "Error");
+                return;
+            }
+            BMPUploadBuilder bmpUpload = new BMPUploadBuilder();
+            bmpUpload.ApiKey = BmpPigeonhole.Instance.BMPApiKey;
+            var t = GetFilenameFromSelection();
+            bmpUpload.title = Upload_title_txt.Text;
+            bmpUpload.artist = Upload_artist_txt.Text;
+            bmpUpload.source = Upload_source_txt.Text;
+            //bmpUpload.originalSourceUrl = Upload_source_url_txt.Text;
+            bmpUpload.MidiFile = File.ReadAllBytes(GetFilenameFromSelection());
+            bmpUpload.FileName = GetFilenameFromSelection();
             XIVMIDI.XIVMidiApi.Instance.UploadMidi(bmpUpload);
+
+            UploadPopup.IsOpen = false;
+        }
+
+        private void Upload_Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            UploadPopup.IsOpen = false;
         }
     }
 }
