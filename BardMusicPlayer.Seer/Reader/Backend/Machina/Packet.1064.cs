@@ -22,8 +22,8 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
         {
             try
             {
-                //if (otherActorId != myActorId)
-                //    return;
+                if (otherActorId != myActorId)
+                    return;
 
                 var streamData = new List<PerformerStream>();
 
