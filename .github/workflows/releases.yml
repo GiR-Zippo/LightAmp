@@ -1,0 +1,137 @@
+name: Release LightAmp (x64)
+
+on:
+  push:
+    tags:
+      - '*'   # Only build on tag pushes
+
+jobs:
+  stable:
+    name: Stable release (x64)
+    if: ${{ !startsWith(github.ref_name, 'Beta') && !startsWith(github.ref_name, 'beta') }}
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore
+        run: nuget restore LightAmp.sln
+
+      - name: Build Release|x64
+        run: >
+          msbuild LightAmp.sln /m /t:Rebuild
+          /p:Configuration=Release
+          /p:Platform=x64
+          /p:PlatformTarget=x64
+          /p:PreferredToolArchitecture=x64
+
+      - name: Verify output + set OUTDIR
+        shell: pwsh
+        run: |
+          $out = Join-Path $PWD 'BardMusicPlayer.Ui\bin\x64\Release'
+          if (!(Test-Path $out)) { throw "Expected output not found: $out" }
+          "OUTDIR=$out" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Zip (LightAmp{VERSION}.zip)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $zip = "LightAmp${{ github.ref_name }}.zip"
+          Compress-Archive -Path "$env:OUTDIR\*" -DestinationPath "dist/$zip"
+
+      - name: Create GitHub Release (stable)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: LightAmp ${{ github.ref_name }}
+          files: dist/LightAmp${{ github.ref_name }}.zip
+          prerelease: false
+          make_latest: true
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  beta:
+    name: Beta prerelease (x64)
+    if: ${{ startsWith(github.ref_name, 'Beta') || startsWith(github.ref_name, 'beta') }}
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore
+        run: nuget restore LightAmp.sln
+
+      - name: Build Release|x64
+        run: >
+          msbuild LightAmp.sln /m /t:Rebuild
+          /p:Configuration=Release
+          /p:Platform=x64
+          /p:PlatformTarget=x64
+          /p:PreferredToolArchitecture=x64
+
+      - name: Verify output + set OUTDIR
+        shell: pwsh
+        run: |
+          $out = Join-Path $PWD 'BardMusicPlayer.Ui\bin\x64\Release'
+          if (!(Test-Path $out)) { throw "Expected output not found: $out" }
+          "OUTDIR=$out" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Detect nextSemVer (optional)
+        id: detect
+        shell: pwsh
+        run: |
+          $next = $null
+          $m = Get-ChildItem -Recurse -Filter *.csproj |
+            Select-String -Pattern '<Version>([^<]+)</Version>|<AssemblyVersion>([^<]+)</AssemblyVersion>' -AllMatches |
+            ForEach-Object { $_.Matches } |
+            ForEach-Object {
+              if ($_.Groups[1].Value) { $_.Groups[1].Value }
+              elseif ($_.Groups[2].Value) { $_.Groups[2].Value }
+            } | Select-Object -First 1
+          if (-not $m) {
+            $m = Get-ChildItem -Recurse -Filter AssemblyInfo.cs |
+                 Select-String -Pattern 'AssemblyVersion\("([^"]+)"\)' |
+                 Select-Object -First 1
+            if ($m) { $m = $m.Matches[0].Groups[1].Value }
+          }
+          if ($m) { "NEXT_SEMVER=$m" | Out-File -FilePath $env:GITHUB_ENV -Append }
+
+      - name: Zip beta assets
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $beta = "${{ github.ref_name }}"
+          $zip1 = "LightAmp-$beta.zip"
+          Compress-Archive -Path "$env:OUTDIR\*" -DestinationPath "dist/$zip1"
+          if ($env:NEXT_SEMVER) {
+            $zip2 = "LightAmp$($env:NEXT_SEMVER)-$beta.zip"
+            Copy-Item "dist/$zip1" "dist/$zip2"
+          }
+
+      - name: Create GitHub Release (beta, prerelease)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Beta ${{ github.ref_name }}
+          files: |
+            dist/LightAmp-${{ github.ref_name }}.zip
+            dist/LightAmp${{ env.NEXT_SEMVER }}-${{ github.ref_name }}.zip
+          fail_on_unmatched_files: false
+          prerelease: true
+          make_latest: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
