@@ -31,7 +31,7 @@ namespace BardMusicPlayer.Seer.Reader.Backend.Machina
                     BitConverter.ToUInt32(message, 44) != 0)
                     return;
 
-                _machinaReader.Game.PublishEvent(new EnsembleStopped(EventSource.Machina));
+               _machinaReader.Game.PublishEvent(new EnsembleStopped(EventSource.Machina));
             }
             catch (Exception ex)
             {
