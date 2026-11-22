@@ -14,6 +14,25 @@ namespace BardMusicPlayer.XIVMIDI
         DOWNLOAD = 2
     }
 
+    // Order matches the sort combo in the UI: keep both aligned.
+    public enum SortOrder
+    {
+        Newest,
+        Oldest,
+        TitleAsc,
+        TitleDesc,
+        MostDownloaded
+    }
+
+    // Kind of request that produced an error event. Unknown is the default for requests of an unexpected type.
+    public enum RequestKind
+    {
+        Unknown,
+        SongListXivmidi,
+        SongListBmp,
+        MidiDownload
+    }
+
     public static class Misc
     {
         public static readonly Dictionary<int, string> Sources = new Dictionary<int, string>

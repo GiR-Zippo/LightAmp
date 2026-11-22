@@ -13,6 +13,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BardMusicPlayer.XIVMIDI.WebApi
@@ -22,6 +23,10 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
         private string UserAgent { get; } = "XIVMIDI CLIENT V2 (LightAmp)";
         private HttpClient _HttpClient { get; set; } = null;
         private HttpClientHandler _HttpClientHandler { get; set; } = null;
+        private int _inFlight;
+
+        /// <summary>True while at least one HTTP request is in flight.</summary>
+        public bool IsRequestRunning => Volatile.Read(ref _inFlight) > 0;
 
         /// <summary>
         /// Setup the HTTPWorker
@@ -51,79 +56,153 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
         }
 
         /// <summary>
+        /// Cancel pending requests from HTTP Client
+        /// </summary>
+        public void CancelPendingRequests()
+        {
+            _HttpClient.CancelPendingRequests();
+        }
+
+        /// <remarks>
+        /// Every call ends with exactly one event: a result or an XIVMidiApiErrorEvent.
+        /// The only exception is a request cancelled through CancelPendingRequests, which publishes nothing.
+        /// </remarks>
+        /// <summary>
         /// Get the song list
         /// </summary>
-        /// <param name="request"></param>
-        public async Task RequestSongList(object request, bool dynamic)
+        /// <param name="request">A BMPAPIRequestBuilder or an XIVMIDIRequestBuilder.</param>
+        /// <param name="dynamic">Passed through to the result event.</param>
+        /// <param name="args">Caller data passed through to the result or error event, to match the response to its request.</param>
+        public async Task RequestSongList(object request, bool dynamic, object args = null)
         {
             string url = "";
+            RequestKind requestKind = RequestKind.Unknown;
+
             if (request is BMPAPIRequestBuilder)
+            {
                 url = ((BMPAPIRequestBuilder)request).BuildRequest();
+                requestKind = RequestKind.SongListBmp;
+            }
             else if (request is XIVMIDIRequestBuilder)
+            {
                 url = ((XIVMIDIRequestBuilder)request).BuildRequest();
+                requestKind = RequestKind.SongListXivmidi;
+            }
 
-            if (url.Length < 1)
+            if (string.IsNullOrEmpty(url))
+            {
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent(400, "Empty URL", args, requestKind));
                 return;
+            }
 
-            foreach (Cookie co in _HttpClientHandler.CookieContainer.GetCookies(new Uri(url)))
-                co.Expires = DateTime.Now.Subtract(TimeSpan.FromDays(1));
-
-            _HttpClient.DefaultRequestHeaders.Accept.ParseAdd("application/json;q=0.8");
+            Interlocked.Increment(ref _inFlight);
             try
             {
-                HttpResponseMessage response = await _HttpClient.GetAsync(url);
+                foreach (Cookie co in _HttpClientHandler.CookieContainer.GetCookies(new Uri(url)))
+                    co.Expires = DateTime.Now.Subtract(TimeSpan.FromDays(1));
+
+                using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                httpRequest.Headers.Accept.ParseAdd("application/json;q=0.8");
+
+                HttpResponseMessage response = await _HttpClient.SendAsync(httpRequest);
                 HttpContent ResponseBody = response.Content;
                 if (response.IsSuccessStatusCode)
                 {
-                    if (request is BMPAPIRequestBuilder)
-                        XIVMidiApi.Instance.PublishEvent(new XIVMidiBMPSongsEvent(JsonConvert.DeserializeObject<BMPResponseContainer.Root>(ResponseBody.ReadAsStringAsync().Result), dynamic));
-                    else if (request is XIVMIDIRequestBuilder)
-                        XIVMidiApi.Instance.PublishEvent(new XIVMidiXIVSongsEvent(JsonConvert.DeserializeObject<XIVMIDIResponseContainer.ApiResponse>(ResponseBody.ReadAsStringAsync().Result), dynamic));
+                    if (requestKind is RequestKind.SongListBmp)
+                        XIVMidiApi.Instance.PublishEvent(new XIVMidiBMPSongsEvent(JsonConvert.DeserializeObject<BMPResponseContainer.Root>(await ResponseBody.ReadAsStringAsync()), dynamic, args));
+                    else if (requestKind is RequestKind.SongListXivmidi)
+                        XIVMidiApi.Instance.PublishEvent(new XIVMidiXIVSongsEvent(JsonConvert.DeserializeObject<XIVMIDIResponseContainer.ApiResponse>(await ResponseBody.ReadAsStringAsync()), dynamic, args));
                     return;
                 }
                 else
-                    XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent((int)response.StatusCode, response.StatusCode.ToString()));
+                    XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent((int)response.StatusCode, response.StatusCode.ToString(), args, requestKind));
             }
             catch (HttpRequestException e)
             {
-                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent((int)HttpStatusCode.ServiceUnavailable, e.InnerException.Message));
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent((int)HttpStatusCode.ServiceUnavailable, e.InnerException?.Message ?? e.Message, args, requestKind));
+            }
+            catch (TaskCanceledException e) when (e.InnerException is TimeoutException)
+            {
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent(408, "Request timed out", args, requestKind));
+            }
+            catch(TaskCanceledException)
+            {
+                // no-op for XIVMidiApi.CancelDownloads
+            }
+            catch (JsonException)
+            {
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent(502, "Invalid response", args, requestKind));
+            }
+            catch (Exception e)
+            {
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent(500, e.Message, args, requestKind));
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _inFlight);
             }
         }
 
+        /// <remarks>
+        /// Every call ends with exactly one event: a result or an XIVMidiApiErrorEvent.
+        /// The only exception is a request cancelled through CancelPendingRequests, which publishes nothing.
+        /// </remarks>
         /// <summary>
         /// Download a song
         /// </summary>
-        /// <param name="url"></param>
-        /// <param name="args"></param>
-        /// <param name="fromBMP"></param>
+        /// <param name="url">The MIDI file URL.</param>
+        /// <param name="args">Caller data passed through to the result or error event.</param>
+        /// <param name="fromBMP">Whether the download originated from BMP.</param>
         public async Task DownloadSong(string url, object args, bool fromBMP)
         {
-            if (url.Length < 1)
+            if (string.IsNullOrEmpty(url))
+            {
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent(400, "Empty URL" , args, RequestKind.MidiDownload));
                 return;
+            }
 
-            foreach (Cookie co in _HttpClientHandler.CookieContainer.GetCookies(new Uri(url)))
-                co.Expires = DateTime.Now.Subtract(TimeSpan.FromDays(1));
-
-            _HttpClient.DefaultRequestHeaders.Accept.ParseAdd("audio/mid");
+            Interlocked.Increment(ref _inFlight);
             try
             {
-                HttpResponseMessage response = await _HttpClient.GetAsync(url);
+                foreach (Cookie co in _HttpClientHandler.CookieContainer.GetCookies(new Uri(url)))
+                    co.Expires = DateTime.Now.Subtract(TimeSpan.FromDays(1));
+
+                using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                httpRequest.Headers.Accept.ParseAdd("audio/mid");
+
+                HttpResponseMessage response = await _HttpClient.SendAsync(httpRequest);
                 HttpContent ResponseBody = response.Content;
                 if (response.IsSuccessStatusCode)
                 {
                     XIVMIDIResponseContainer.MidiFile midi = new()
                     {
-                        Filename = WebUtility.UrlDecode(Uri.UnescapeDataString(url)).Split('/').Last(),
-                        data = ResponseBody.ReadAsByteArrayAsync().Result
+                        Filename = ResolveFileName(response, url),
+                        data = await ResponseBody.ReadAsByteArrayAsync()
                     };
                     XIVMidiApi.Instance.PublishEvent(new XIVMidiFileEvent(midi, args));
                 }
                 else
-                    XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent((int)response.StatusCode, response.StatusCode.ToString()));
+                    XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent((int)response.StatusCode, response.StatusCode.ToString(), args, RequestKind.MidiDownload));
             }
             catch (HttpRequestException e)
             {
-                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent((int)HttpStatusCode.ServiceUnavailable, e.InnerException.Message));
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent((int)HttpStatusCode.ServiceUnavailable, e.InnerException?.Message ?? e.Message, args, RequestKind.MidiDownload));
+            }
+            catch (TaskCanceledException e) when (e.InnerException is TimeoutException)
+            {
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent(408, "Request timed out", args, RequestKind.MidiDownload));
+            }
+            catch(TaskCanceledException)
+            {
+                // no-op for XIVMidiApi.CancelDownloads
+            }
+            catch (Exception e)
+            {
+                XIVMidiApi.Instance.PublishEvent(new XIVMidiApiErrorEvent(500, e.Message, args, RequestKind.MidiDownload));
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _inFlight);
             }
         }
 
@@ -166,6 +245,49 @@ namespace BardMusicPlayer.XIVMIDI.WebApi
             {
                 XIVMidiApi.Instance.PublishEvent(new XIVMidiUploadResponseEvent(HttpStatusCode.ServiceUnavailable));
             }
+        }
+
+        /// <summary>
+        /// Picks the download file name from Content-Disposition, falling back to the last URL segment.
+        /// </summary>
+        private static string ResolveFileName(HttpResponseMessage response, string url)
+        {
+            var cd = response.Content.Headers.ContentDisposition;
+            if (!string.IsNullOrEmpty(cd?.FileNameStar))
+            {
+                return SanitizeFileName(cd.FileNameStar);
+            }
+            if (!string.IsNullOrEmpty(cd?.FileName))
+            {
+                return SanitizeFileName(cd.FileName.Trim('"'));
+            }
+            return SanitizeFileName(Uri.UnescapeDataString(new Uri(url).Segments.Last()));
+        }
+
+        /// <summary>
+        /// Makes a server-provided name safe to write to disk: strips any directory part, replaces invalid
+        /// characters and guarantees a .mid or .midi extension.
+        /// </summary>
+        private static string SanitizeFileName(string name)
+        {
+            var str = Path.GetFileName(name);
+
+            foreach (char invalidChar in Path.GetInvalidFileNameChars())
+            {
+                str = str.Replace(invalidChar, '_');
+            }
+
+            if (string.IsNullOrEmpty(str.Trim('.', ' ')))
+            {
+                str = "song.mid";
+            }
+
+            if (!(string.Equals(Path.GetExtension(str), ".mid", StringComparison.OrdinalIgnoreCase) || string.Equals(Path.GetExtension(str), ".midi", StringComparison.OrdinalIgnoreCase)))
+            {
+                str += ".mid";
+            }
+
+            return str;
         }
     }
 }
