@@ -62,7 +62,7 @@ namespace BardMusicPlayer.XIVMIDI.IO
         }
 
         public record Instrument
-        { 
+        {
             public int id { get; set; }
             public string name { get; set; }
         }
@@ -124,6 +124,11 @@ namespace BardMusicPlayer.XIVMIDI.IO
             public string credit { get; set; }
             public string download_url { get; set; }
             public int bandsize { get; set; }
+            public int duration { get; set; }
+            public string[] instruments { get; set; }
+            public DateTime? published_at { get; set; }
+            public int download_count { get; set; }
+            public int like_count { get; set; }
         }
     }
     #endregion
